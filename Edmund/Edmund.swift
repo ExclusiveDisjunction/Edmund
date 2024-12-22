@@ -12,10 +12,7 @@ import SwiftData
 struct ui_demoApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            SubTender.self,
-            Tender.self,
-            Category.self,
-            Ledger.self
+            LedgerEntry.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
