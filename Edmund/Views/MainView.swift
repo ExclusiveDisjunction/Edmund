@@ -17,24 +17,12 @@ struct MainView: View {
                 NavigationLink {
                     AccountsTable()
                 } label: {
-                    Text("Accounts")
-                }
-                
-                NavigationLink {
-                    BalanceSheet()
-                } label: {
-                    Text("Balance Sheet")
-                }
-                
-                NavigationLink{
-                    Spacer()
-                } label: {
                     Text("Ledger")
                 }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
-            Text("Select an tab")
+            Text("Welcome!")
         }
     }
 }
