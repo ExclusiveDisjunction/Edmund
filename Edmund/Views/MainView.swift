@@ -19,6 +19,13 @@ struct MainView: View {
                 } label: {
                     Text("Ledger")
                 }
+                NavigationLink {
+                    VStack {
+                        TransactionBase()
+                    }
+                } label: {
+                    Text("Transactions")
+                }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
