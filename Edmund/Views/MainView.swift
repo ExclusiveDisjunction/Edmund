@@ -21,7 +21,7 @@ struct MainView: View {
                 }
                 NavigationLink {
                     VStack {
-                        TransactionBase()
+                        ManualTransactions()
                     }
                 } label: {
                     Text("Transactions")
