@@ -35,14 +35,30 @@ class ManualTransactionsViewModel : ObservableObject, TransViewBase {
     }
     @discardableResult
     func validate() -> Bool {
-        do {
-            try create_transactions();
+        let empty_acc: Bool = account.isEmpty;
+        var empty_lines: [Int] = [];
+        
+        for (i, row) in adding.enumerated() {
+            if row.memo.isEmpty || row.category.isEmpty || row.category.isEmpty || row.sub_category.isEmpty || row.tender.isEmpty || row.sub_tender.isEmpty {
+                    empty_lines.append(i+1);
+            }
+        }
+        
+        if empty_acc && !empty_lines.isEmpty {
+            err_msg = "Account is empty and the following lines are empty: " + empty_lines.map(String.init).joined(separator: ", ");
+            return false;
+        }
+        else if !empty_acc && !empty_lines.isEmpty {
+            err_msg = "The following lines are empty: " + empty_lines.map(String.init).joined(separator: ", ");
+            return false;
+        }
+        else if empty_acc && empty_lines.isEmpty {
+            err_msg = "Account is empty";
+            return false;
+        }
+        else {
             err_msg = nil;
-            return true
-            
-        } catch let e{
-            err_msg = e.localizedDescription;
-            return false
+            return true;
         }
     }
     func clear() {

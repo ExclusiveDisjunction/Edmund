@@ -16,18 +16,36 @@ class GeneralIncomeViewModel : ObservableObject, TransViewBase {
     var id: UUID = UUID()
     
     func compile_deltas() -> Dictionary<String, Decimal> {
-        return Dictionary<String, Decimal>();
+        if !validate() {
+            return [:];
+        }
+        
+        return [tender + "." + sub_tender : amount];
     }
     func create_transactions() throws(TransactionError) -> [LedgerEntry] {
-        return [];
+        guard !merchant.isEmpty else { throw TransactionError(kind: .empty_argument, on: "merchant") }
+        guard !tender.isEmpty else { throw TransactionError(kind: .empty_argument, on: "account")}
+        guard !sub_tender.isEmpty else { throw TransactionError(kind: .empty_argument, on: "sub account")}
+        
+        switch kind {
+        case .gift: return [ LedgerEntry(id: UUID(), memo: "Gift from " + merchant, credit: amount, debit: 0, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Gift", tender: tender, sub_tender: sub_tender) ]
+        case .interest: return [ LedgerEntry(id: UUID(), memo: "Interest", credit: amount, debit: 0, date: Date.now, added_on: Date.now, location: merchant, category: "Account Control", sub_category: "Interest", tender: tender, sub_tender: sub_tender) ]
+        }
     }
     func validate() -> Bool {
-        do {
-            let _ = try create_transactions();
-            return true
-        } catch let e {
-            err_msg = e.localizedDescription;
+        var emptys: [String] = [];
+        
+        if merchant.isEmpty { emptys.append("merchant") }
+        if tender.isEmpty { emptys.append("account") }
+        if sub_tender.isEmpty { emptys.append("sub account") }
+        
+        if !emptys.isEmpty {
+            err_msg = "The following fields are empty: " + emptys.joined(separator: ", ")
             return false;
+        }
+        else {
+            err_msg = nil;
+            return true;
         }
     }
     func clear() {

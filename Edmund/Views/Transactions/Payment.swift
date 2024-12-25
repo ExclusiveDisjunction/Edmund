@@ -22,11 +22,23 @@ class PaymentViewModel : TransViewBase, ObservableObject {
         return [];
     }
     func validate() -> Bool {
-        do {
-            let _ = try create_transactions();
-            return true
-        } catch let e {
-            err_msg = e.localizedDescription;
+        var emptys: [String] = [];
+        
+        if account_name.isEmpty {
+            emptys.append("account")
+        }
+        if sub_account_name.isEmpty && payment_type == .refund {
+            emptys.append("sub account")
+        }
+        if reason.isEmpty {
+            emptys.append("reason")
+        }
+        
+        if emptys.isEmpty {
+            err_msg = nil;
+            return true;
+        } else {
+            err_msg = "The following fields are empty: " + emptys.joined(separator: ", ");
             return false;
         }
     }
