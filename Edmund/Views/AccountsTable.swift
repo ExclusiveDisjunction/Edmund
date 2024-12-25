@@ -25,13 +25,9 @@ struct AccountsTable: View {
             }.width(100)
             TableColumn("Location", value: \.location)
             TableColumn("Category", value: \.category)
-            TableColumn("Sub Category") { item in
-                Text(item.sub_category ?? "")
-            }
+            TableColumn("Sub Category", value: \.sub_category)
             TableColumn("Tender", value: \.tender)
-            TableColumn("Sub Tender") { item in
-                Text(item.sub_tender ?? "")
-            }
+            TableColumn("Sub Tender", value: \.sub_tender) 
         }
     }
 }
