@@ -16,7 +16,27 @@ enum PaymentType {
 
 class PaymentViewModel : TransViewBase, ObservableObject {
     func compile_deltas() -> Dictionary<String, Decimal> {
-        return Dictionary<String, Decimal>();
+        if !validate() { return [:]; }
+        
+        let sub_tender: String;
+        let amount: Decimal;
+        
+        switch payment_type {
+        case .bill:
+            sub_tender = sub_account_name;
+            amount = -self.amount;
+        case .loan:
+            sub_tender = "Loan";
+            amount = -self.amount;
+        case .repayment:
+            sub_tender = "Loan";
+            amount = self.amount;
+        case .refund:
+            sub_tender = "Refund";
+            amount = self.amount;
+        }
+        
+        return [self.account_name + "." + sub_tender : amount];
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil }
