@@ -15,7 +15,7 @@ enum TransactionEnum : Identifiable {
     case generalIncome(sub: GeneralIncomeViewModel)
     case payment(sub: PaymentViewModel)
     case audit(sub: AuditViewModel)
-    case payday
+    case payday(sub: PaydayViewModel)
     case creditCardTrans
     case transfer
     
@@ -25,20 +25,20 @@ enum TransactionEnum : Identifiable {
         case .generalIncome(let sub): return sub.compile_deltas()
         case .payment(let sub): return sub.compile_deltas()
         case .audit(let sub): return sub.compile_deltas()
-        case .payday: break
+        case .payday(let sub): return sub.compile_deltas()
         case .creditCardTrans: break
         case .transfer: break
         }
         
         return Dictionary<String, Decimal>();
     }
-    func create_transactions() throws(TransactionError) -> [LedgerEntry] {
+    func create_transactions() -> [LedgerEntry]? {
         switch self {
-        case .manual(let sub): return try sub.create_transactions()
-        case .generalIncome(let sub): return try sub.create_transactions()
-        case .payment(let sub): return try sub.create_transactions()
-        case .audit(let sub): return try sub.create_transactions()
-        case .payday: break
+        case .manual(let sub): return sub.create_transactions()
+        case .generalIncome(let sub): return sub.create_transactions()
+        case .payment(let sub): return sub.create_transactions()
+        case .audit(let sub): return sub.create_transactions()
+        case .payday(let sub): return sub.create_transactions()
         case .creditCardTrans: break
         case .transfer: break
         }
@@ -52,7 +52,7 @@ enum TransactionEnum : Identifiable {
         case .generalIncome(let sub): return sub.validate()
         case .payment(let sub): return sub.validate()
         case .audit(let sub): return sub.validate()
-        case .payday: break
+        case .payday(let sub): return sub.validate()
         case .creditCardTrans: break
         case .transfer: break
         }
@@ -66,7 +66,7 @@ enum TransactionEnum : Identifiable {
         case .generalIncome(let sub): sub.clear()
         case .payment(let sub): sub.clear()
         case .audit(let sub): sub.clear()
-        case .payday: break
+        case .payday(let sub): sub.clear()
         case .creditCardTrans: break
         case .transfer: break
         }
@@ -92,16 +92,23 @@ struct TransactionsView : View {
     var body : some View {
         HStack {
             Menu {
-                Text("Simple")
+                Text("Basic")
                 Button("Manual Transactions", action: {
                     sub_trans.append(.manual(sub: ManualTransactionsViewModel()))
                 } )
-                Button("General Income", action: {
-                    sub_trans.append(.generalIncome(sub: GeneralIncomeViewModel()))
-                }).help("Gift or Interest")
                 Button("Payment", action: {
                     sub_trans.append(.payment(sub: PaymentViewModel()))
                 })
+                
+                Divider()
+                
+                Text("Account Control")
+                Button("General Income", action: {
+                    sub_trans.append(.generalIncome(sub: GeneralIncomeViewModel()))
+                }).help("Gift or Interest")
+                Button("Payday", action: {
+                    sub_trans.append(.payday(sub: PaydayViewModel()))
+                }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
                 Button(action: {
                     sub_trans.append(.audit(sub: AuditViewModel()))
                 }) {
@@ -111,19 +118,15 @@ struct TransactionsView : View {
                 Divider()
                 
                 Text("Grouped")
-                Button("Payday", action: {}).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
                 Button("Credit Card Transactions", action: {}).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
                 
                 Divider()
                 
-                Menu {
-                    Button("One-to-One", action: {})
-                    Button("One-to-Many", action: {})
-                    Button("Many-to-One", action: {})
-                    Button("Many-to-Many", action: {})
-                } label: {
-                    Text("Transfer")
-                }
+                Text("Transfer")
+                Button("One-to-One", action: {})
+                Button("One-to-Many", action: {})
+                Button("Many-to-One", action: {})
+                Button("Many-to-Many", action: {})
                 
             } label: {
                 Label("Add", systemImage: "plus")
@@ -160,7 +163,7 @@ struct TransactionsView : View {
                     case .generalIncome(let sub): GeneralIncome(vm: sub).padding(.bottom, 5)
                     case .payment(let sub): Payment(vm: sub).padding(.bottom, 5)
                     case .audit(let sub): Audit(vm: sub).padding(.bottom, 5)
-                    case .payday: Text("payday")
+                    case .payday(let sub): Payday(vm: sub).padding(.bottom, 5)
                     case .creditCardTrans: Text("credit card trans")
                     case .transfer: Text("Transfer")
                     }

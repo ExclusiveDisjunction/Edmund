@@ -14,9 +14,8 @@ class AuditViewModel : ObservableObject, TransViewBase {
         
         return [ account + "." + sub_account : -amount];
     }
-    func create_transactions() throws(TransactionError) -> [LedgerEntry] {
-        guard !account.isEmpty else { throw TransactionError(kind: .empty_argument, on: "account") }
-        guard !sub_account.isEmpty else { throw TransactionError(kind: .empty_argument, on: "sub account") }
+    func create_transactions() -> [LedgerEntry]? {
+        if !validate() { return nil }
         
         return [ LedgerEntry(id: UUID(), memo: "Audit", credit: 0, debit: amount, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Audit", tender: account, sub_tender: sub_account) ];
     }

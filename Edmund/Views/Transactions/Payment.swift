@@ -18,8 +18,45 @@ class PaymentViewModel : TransViewBase, ObservableObject {
     func compile_deltas() -> Dictionary<String, Decimal> {
         return Dictionary<String, Decimal>();
     }
-    func create_transactions() throws(TransactionError) -> [LedgerEntry] {
-        return [];
+    func create_transactions() -> [LedgerEntry]? {
+        if !validate() { return nil }
+        
+        let memo: String;
+        let sub_tender: String;
+        let sub_category: String;
+        let credit: Decimal;
+        let debit: Decimal;
+        
+        switch payment_type {
+        case .bill:
+            memo = reason;
+            sub_tender = sub_account_name;
+            sub_category = "Bill";
+            credit = 0;
+            debit = amount;
+        case .loan:
+            memo = "Loan to " + reason;
+            sub_tender = "Loan";
+            sub_category = "Loan";
+            credit = 0;
+            debit = amount;
+        case .repayment:
+            memo = "Repayment from " + reason;
+            sub_tender = "Loan";
+            sub_category = "Loan";
+            credit = amount;
+            debit = 0;
+        case .refund:
+            memo = "Refund for " + reason;
+            sub_tender = "Refund";
+            sub_category = "Refund";
+            credit = amount;
+            debit = 0;
+        }
+        
+        return [
+            LedgerEntry(id: UUID(), memo: memo, credit: credit, debit: debit, date: Date.now, added_on: Date.now, location: "Bank", category: "Payment", sub_category: sub_category, tender: account_name, sub_tender: sub_tender)
+        ]
     }
     func validate() -> Bool {
         var emptys: [String] = [];
@@ -56,7 +93,7 @@ class PaymentViewModel : TransViewBase, ObservableObject {
     @Published var payment_type: PaymentType = .bill
     @Published var account_name: String = "";
     @Published var sub_account_name: String = "";
-    @Published var amount: Double = 0.00;
+    @Published var amount: Decimal = 0.00;
     @Published var reason: String = "";
 }
 

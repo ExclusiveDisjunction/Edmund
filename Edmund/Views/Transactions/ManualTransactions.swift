@@ -18,18 +18,8 @@ class ManualTransactionsViewModel : ObservableObject, TransViewBase {
         adding.reduce(into: [:]) { $0[$1.tender + "." + $1.sub_tender] = $1.credit - $1.debit }
     }
     @discardableResult
-    func create_transactions() throws(TransactionError) -> [LedgerEntry] {
-        guard !self.account.isEmpty else { throw TransactionError(kind: .empty_argument, on: "Tender") }
-        
-        for item in adding {
-            guard item.memo != "" else { throw TransactionError(kind: .empty_argument, on: "Memo")}
-            guard item.location != "" else { throw TransactionError(kind: .empty_argument, on: "Location")}
-            guard item.category != "" else { throw TransactionError(kind: .empty_argument, on: "Category")}
-            guard item.sub_category != "" else { throw TransactionError(kind: .empty_argument, on: "Sub Category")}
-            guard item.sub_tender != "" else { throw TransactionError(kind: .empty_argument, on: "Sub Tender")}
-            
-            item.tender = self.account;
-        }
+    func create_transactions() -> [LedgerEntry]? {
+        if !validate() { return nil; }
         
         return adding;
     }

@@ -22,10 +22,8 @@ class GeneralIncomeViewModel : ObservableObject, TransViewBase {
         
         return [tender + "." + sub_tender : amount];
     }
-    func create_transactions() throws(TransactionError) -> [LedgerEntry] {
-        guard !merchant.isEmpty else { throw TransactionError(kind: .empty_argument, on: "merchant") }
-        guard !tender.isEmpty else { throw TransactionError(kind: .empty_argument, on: "account")}
-        guard !sub_tender.isEmpty else { throw TransactionError(kind: .empty_argument, on: "sub account")}
+    func create_transactions() -> [LedgerEntry]? {
+        if !validate() { return nil}
         
         switch kind {
         case .gift: return [ LedgerEntry(id: UUID(), memo: "Gift from " + merchant, credit: amount, debit: 0, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Gift", tender: tender, sub_tender: sub_tender) ]

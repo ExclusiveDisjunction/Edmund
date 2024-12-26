@@ -10,9 +10,7 @@ import Foundation;
 
 protocol TransViewBase : Identifiable {
     func compile_deltas() -> Dictionary<String, Decimal>;
-    @discardableResult
-    func create_transactions() throws(TransactionError) -> [LedgerEntry];
-    @discardableResult
+    func create_transactions() -> [LedgerEntry]?;
     func validate() -> Bool;
     
     func clear();
