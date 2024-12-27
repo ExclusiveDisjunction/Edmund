@@ -10,27 +10,43 @@ import SwiftData;
 import Foundation;
 
 class ManualTransactionsViewModel : ObservableObject, TransViewBase {
-    @Published var adding : [LedgerEntry] = [];
-    @Published var account: String = "";
-    @Published var err_msg: String? = nil;
-    
-    func compile_deltas() -> Dictionary<String, Decimal> {
-        adding.reduce(into: [:]) { $0[$1.tender + "." + $1.sub_tender] = $1.credit - $1.debit }
+    init(account: Binding<String>? = nil) {
+        self.account = account;
     }
-    @discardableResult
+    
+    @Published var adding : [LedgerEntry] = [];
+    @Published var account: Binding<String>?;
+    @Published var err_msg: String? = nil;
+    @Published var show_account: Bool = true;
+    
+    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+        adding.reduce(into: [:]) { $0[AccountPair(account: $1.account, sub_account: $1.sub_account)] = $1.credit - $1.debit }
+    }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil; }
         
         return adding;
     }
-    @discardableResult
     func validate() -> Bool {
-        let empty_acc: Bool = account.isEmpty;
+        let empty_acc: Bool;
         var empty_lines: [Int] = [];
         
-        for (i, row) in adding.enumerated() {
-            if row.memo.isEmpty || row.category.isEmpty || row.category.isEmpty || row.sub_category.isEmpty || row.tender.isEmpty || row.sub_tender.isEmpty {
-                    empty_lines.append(i+1);
+        if let acc = account {
+            empty_acc = acc.wrappedValue.isEmpty;
+            
+            for (i, row) in adding.enumerated() {
+                if row.memo.isEmpty || row.category.isEmpty || row.category.isEmpty || row.sub_category.isEmpty || row.sub_account.isEmpty {
+                        empty_lines.append(i+1);
+                }
+            }
+        }
+        else {
+            empty_acc = false;
+            
+            for (i, row) in adding.enumerated() {
+                if row.memo.isEmpty || row.category.isEmpty || row.category.isEmpty || row.sub_category.isEmpty || row.account.isEmpty || row.sub_account.isEmpty {
+                        empty_lines.append(i+1);
+                }
             }
         }
         
@@ -53,7 +69,9 @@ class ManualTransactionsViewModel : ObservableObject, TransViewBase {
     }
     func clear() {
         adding = []
-        account = ""
+        if let acc = account {
+            acc.wrappedValue = "";
+        }
         err_msg = nil
     }
 }
@@ -81,11 +99,6 @@ struct ManualTransactions: View {
                 }
                 Spacer()
             }.padding([.leading, .trailing], 10).padding(.top, 5)
-            
-            HStack {
-                Text("For Account:")
-                TextField("Enter Account Name", text: $vm.account);
-            }.padding([.leading, .trailing], 10)
             
             HStack {
                 Button(action: {
@@ -122,8 +135,18 @@ struct ManualTransactions: View {
                 TableColumn("Sub Category") { $item in
                     TextField("Sub Category", text: $item.sub_category)
                 }
-                TableColumn("Sub Tender") { $item in
-                    TextField("Sub Tender", text: $item.sub_tender)
+                if let acc = vm.account {
+                    TableColumn("Account") { $item in
+                        TextField("Account", text: acc)
+                    }
+                }
+                else {
+                    TableColumn("Account") { $item in
+                        TextField("Account", text: $item.account);
+                    }
+                }
+                TableColumn("Sub Account") { $item in
+                    TextField("Sub Account", text: $item.sub_account)
                 }
             }.padding(5).frame(minHeight: 150)
         }.background(.background.opacity(0.5)).cornerRadius(5)
@@ -131,5 +154,10 @@ struct ManualTransactions: View {
 }
 
 #Preview {
-    ManualTransactions(vm: ManualTransactionsViewModel())
+    var test_account = "Checking";
+    ManualTransactions(vm: ManualTransactionsViewModel(account: Binding<String>(get: {
+        test_account
+    }, set: { v in
+        test_account = v
+    })))
 }

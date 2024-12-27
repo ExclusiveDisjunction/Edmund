@@ -16,21 +16,21 @@ enum TransactionEnum : Identifiable {
     case payment(sub: PaymentViewModel)
     case audit(sub: AuditViewModel)
     case payday(sub: PaydayViewModel)
-    case creditCardTrans
+    case creditCardTrans(sub: CreditCardTransViewModel)
     case transfer
     
-    func compile_deltas() -> Dictionary<String, Decimal> {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
         switch self {
         case .manual(let sub): return sub.compile_deltas()
         case .generalIncome(let sub): return sub.compile_deltas()
         case .payment(let sub): return sub.compile_deltas()
         case .audit(let sub): return sub.compile_deltas()
         case .payday(let sub): return sub.compile_deltas()
-        case .creditCardTrans: break
+        case .creditCardTrans(let sub): return sub.compile_deltas()
         case .transfer: break
         }
         
-        return Dictionary<String, Decimal>();
+        return [:];
     }
     func create_transactions() -> [LedgerEntry]? {
         switch self {
@@ -39,13 +39,12 @@ enum TransactionEnum : Identifiable {
         case .payment(let sub): return sub.create_transactions()
         case .audit(let sub): return sub.create_transactions()
         case .payday(let sub): return sub.create_transactions()
-        case .creditCardTrans: break
+        case .creditCardTrans(let sub): return sub.create_transactions()
         case .transfer: break
         }
         
         return [];
     }
-    @discardableResult
     func validate() -> Bool {
         switch self {
         case .manual(let sub): return sub.validate()
@@ -53,7 +52,7 @@ enum TransactionEnum : Identifiable {
         case .payment(let sub): return sub.validate()
         case .audit(let sub): return sub.validate()
         case .payday(let sub): return sub.validate()
-        case .creditCardTrans: break
+        case .creditCardTrans(let sub): return sub.validate()
         case .transfer: break
         }
         
@@ -67,7 +66,7 @@ enum TransactionEnum : Identifiable {
         case .payment(let sub): sub.clear()
         case .audit(let sub): sub.clear()
         case .payday(let sub): sub.clear()
-        case .creditCardTrans: break
+        case .creditCardTrans(let sub): sub.clear()
         case .transfer: break
         }
     }
@@ -80,7 +79,7 @@ struct TransactionsView : View {
     
     private func validate() {
         for transaction in sub_trans {
-            transaction.validate()
+            let _ = transaction.validate()
         }
     }
     private func clear_all() {
@@ -118,7 +117,9 @@ struct TransactionsView : View {
                 Divider()
                 
                 Text("Grouped")
-                Button("Credit Card Transactions", action: {}).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
+                Button("Credit Card Transactions", action: {
+                    sub_trans.append(.creditCardTrans(sub: CreditCardTransViewModel()))
+                }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
                 
                 Divider()
                 
@@ -164,7 +165,7 @@ struct TransactionsView : View {
                     case .payment(let sub): Payment(vm: sub).padding(.bottom, 5)
                     case .audit(let sub): Audit(vm: sub).padding(.bottom, 5)
                     case .payday(let sub): Payday(vm: sub).padding(.bottom, 5)
-                    case .creditCardTrans: Text("credit card trans")
+                    case .creditCardTrans(let sub): CreditCardTrans(vm: sub).padding(.bottom, 5)
                     case .transfer: Text("Transfer")
                     }
                 }

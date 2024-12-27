@@ -8,11 +8,11 @@
 import SwiftUI
 
 class AuditViewModel : ObservableObject, TransViewBase {
-    func compile_deltas() -> Dictionary<String, Decimal> {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
         if (!validate())
         { return [:]; }
         
-        return [ account + "." + sub_account : -amount];
+        return [ AccountPair(account: account, sub_account: sub_account) : -amount];
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil }

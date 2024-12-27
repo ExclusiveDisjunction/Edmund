@@ -26,8 +26,8 @@ struct AccountsTable: View {
             TableColumn("Location", value: \.location)
             TableColumn("Category", value: \.category)
             TableColumn("Sub Category", value: \.sub_category)
-            TableColumn("Tender", value: \.tender)
-            TableColumn("Sub Tender", value: \.sub_tender) 
+            TableColumn("Tender", value: \.account)
+            TableColumn("Sub Tender", value: \.sub_account) 
         }
     }
 }

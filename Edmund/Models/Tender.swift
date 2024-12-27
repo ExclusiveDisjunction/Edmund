@@ -21,8 +21,8 @@ public class LedgerEntry : ObservableObject, Identifiable
         self.location = location
         self.category = category
         self.sub_category = sub_category
-        self.tender = tender
-        self.sub_tender = sub_tender
+        self.account = tender
+        self.sub_account = sub_tender
     }
     
     public var id: UUID;
@@ -34,6 +34,27 @@ public class LedgerEntry : ObservableObject, Identifiable
     public var location: String;
     public var category: String;
     public var sub_category: String;
-    public var tender: String;
-    public var sub_tender: String;
+    public var account: String;
+    public var sub_account: String;
+}
+
+public struct AccountPair : Hashable {
+    public static func == (lhs: AccountPair, rhs: AccountPair) -> Bool {
+        return lhs.account == rhs.account && lhs.sub_account == rhs.sub_account;
+    }
+    
+    init(account: String, sub_account: String) {
+        self.account = account;
+        self.sub_account = sub_account;
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(account)
+        hasher.combine(sub_account)
+    }
+    
+    var account: String;
+    var sub_account: String;
+    
+    
 }
