@@ -43,6 +43,10 @@ public struct AccountPair : Hashable {
         return lhs.account == rhs.account && lhs.sub_account == rhs.sub_account;
     }
     
+    init() {
+        self.account = "";
+        self.sub_account = "";
+    }
     init(account: String, sub_account: String) {
         self.account = account;
         self.sub_account = sub_account;

@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DDC6E7ED2D20EF3B00ABF4B0 /* Todo.md in Resources */ = {isa = PBXBuildFile; fileRef = DDC6E7EC2D20EF3700ABF4B0 /* Todo.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DD742EC42CD822AB00BA6813 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDC6E7EC2D20EF3700ABF4B0 /* Todo.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Todo.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		DD742EBB2CD822AB00BA6813 = {
 			isa = PBXGroup;
 			children = (
+				DDC6E7EC2D20EF3700ABF4B0 /* Todo.md */,
 				DD742EC62CD822AB00BA6813 /* Edmund */,
 				DD742EC52CD822AB00BA6813 /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDC6E7ED2D20EF3B00ABF4B0 /* Todo.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

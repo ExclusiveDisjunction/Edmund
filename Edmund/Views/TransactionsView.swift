@@ -19,6 +19,8 @@ enum TransactionEnum : Identifiable {
     case creditCardTrans(sub: CreditCardTransViewModel)
     case one_one_transfer(sub: OneOneTransferVM)
     case one_many_transfer(sub: OneManyTransferVM)
+    case many_one_transfer(sub: ManyOneTransferVM)
+    case many_many_transfer(sub: ManyManyTransferVM)
     
     func compile_deltas() -> Dictionary<AccountPair, Decimal> {
         switch self {
@@ -30,6 +32,8 @@ enum TransactionEnum : Identifiable {
         case .creditCardTrans(let sub): return sub.compile_deltas()
         case .one_one_transfer(let sub): return sub.compile_deltas()
         case .one_many_transfer(let sub): return sub.compile_deltas()
+        case .many_one_transfer(let sub): return sub.compile_deltas()
+        case .many_many_transfer(let sub): return sub.compile_deltas()
         }
     }
     func create_transactions() -> [LedgerEntry]? {
@@ -42,6 +46,8 @@ enum TransactionEnum : Identifiable {
         case .creditCardTrans(let sub): return sub.create_transactions()
         case .one_one_transfer(let sub): return sub.create_transactions()
         case .one_many_transfer(let sub): return sub.create_transactions()
+        case .many_one_transfer(let sub): return sub.create_transactions()
+        case .many_many_transfer(let sub): return sub.create_transactions()
         }
     }
     func validate() -> Bool {
@@ -54,6 +60,8 @@ enum TransactionEnum : Identifiable {
         case .creditCardTrans(let sub): return sub.validate()
         case .one_one_transfer(let sub): return sub.validate()
         case .one_many_transfer(let sub): return sub.validate()
+        case .many_one_transfer(let sub): return sub.validate()
+        case .many_many_transfer(let sub): return sub.validate()
         }
     }
     
@@ -65,8 +73,10 @@ enum TransactionEnum : Identifiable {
         case .audit(let sub): sub.clear()
         case .payday(let sub): sub.clear()
         case .creditCardTrans(let sub): sub.clear()
-        case .one_one_transfer(let sub): return sub.clear()
-        case .one_many_transfer(let sub): return sub.clear()
+        case .one_one_transfer(let sub): sub.clear()
+        case .one_many_transfer(let sub): sub.clear()
+        case .many_one_transfer(let sub): sub.clear()
+        case .many_many_transfer(let sub): sub.clear()
         }
     }
 }
@@ -92,23 +102,33 @@ struct TransactionsView : View {
             Menu {
                 Text("Basic")
                 Button("Manual Transactions", action: {
-                    sub_trans.append(.manual(sub: ManualTransactionsViewModel()))
+                    withAnimation {
+                        sub_trans.append(.manual(sub: ManualTransactionsViewModel()))
+                    }
                 } )
                 Button("Payment", action: {
-                    sub_trans.append(.payment(sub: PaymentViewModel()))
+                    withAnimation {
+                        sub_trans.append(.payment(sub: PaymentViewModel()))
+                    }
                 })
                 
                 Divider()
                 
                 Text("Account Control")
                 Button("General Income", action: {
-                    sub_trans.append(.generalIncome(sub: GeneralIncomeViewModel()))
+                    withAnimation {
+                        sub_trans.append(.generalIncome(sub: GeneralIncomeViewModel()))
+                    }
                 }).help("Gift or Interest")
                 Button("Payday", action: {
-                    sub_trans.append(.payday(sub: PaydayViewModel()))
+                    withAnimation {
+                        sub_trans.append(.payday(sub: PaydayViewModel()))
+                    }
                 }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
                 Button(action: {
-                    sub_trans.append(.audit(sub: AuditViewModel()))
+                    withAnimation {
+                        sub_trans.append(.audit(sub: AuditViewModel()))
+                    }
                 }) {
                     Text("Audit").foregroundStyle(Color.red)
                 }
@@ -117,20 +137,34 @@ struct TransactionsView : View {
                 
                 Text("Grouped")
                 Button("Credit Card Transactions", action: {
-                    sub_trans.append(.creditCardTrans(sub: CreditCardTransViewModel()))
+                    withAnimation {
+                        sub_trans.append(.creditCardTrans(sub: CreditCardTransViewModel()))
+                    }
                 }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
                 
                 Divider()
                 
                 Text("Transfer")
                 Button("One-to-One", action: {
-                    sub_trans.append(.one_one_transfer(sub: OneOneTransferVM()))
+                    withAnimation {
+                        sub_trans.append(.one_one_transfer(sub: OneOneTransferVM()))
+                    }
                 })
                 Button("One-to-Many", action: {
-                    sub_trans.append(.one_many_transfer(sub: OneManyTransferVM()))
+                    withAnimation {
+                        sub_trans.append(.one_many_transfer(sub: OneManyTransferVM()))
+                    }
                 })
-                Button("Many-to-One", action: {}).disabled(true)
-                Button("Many-to-Many", action: {}).disabled(true)
+                Button("Many-to-One", action: {
+                    withAnimation {
+                        sub_trans.append(.many_one_transfer(sub: ManyOneTransferVM()))
+                    }
+                })
+                Button("Many-to-Many", action: {
+                    withAnimation {
+                        sub_trans.append(.many_many_transfer(sub: ManyManyTransferVM()))
+                    }
+                })
                 
             } label: {
                 Label("Add", systemImage: "plus")
@@ -171,6 +205,8 @@ struct TransactionsView : View {
                     case .creditCardTrans(let sub): CreditCardTrans(vm: sub).padding(.bottom, 5)
                     case .one_one_transfer(let sub): OneOneTransfer(vm: sub).padding(.bottom, 5)
                     case .one_many_transfer(let sub): OneManyTransfer(vm: sub).padding(.bottom, 5)
+                    case .many_one_transfer(let sub): ManyOneTransfer(vm: sub).padding(.bottom, 5)
+                    case .many_many_transfer(let sub): ManyManyTransfer(vm: sub).padding(.bottom, 5)
                     }
                 }
              }
