@@ -9,7 +9,7 @@ import SwiftUI;
 
 @Observable
 class ManyOneTransferVM : TransViewBase {
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
         return [:];
     }
     func create_transactions() -> [LedgerEntry]? {
@@ -20,12 +20,12 @@ class ManyOneTransferVM : TransViewBase {
     }
     func clear() {
         err_msg = nil;
-        acc = AccountPair(account: "", sub_account: "");
+        acc = NamedPair(kind: .account);
         multi.clear();
     }
      
     var err_msg: String? = nil;
-    var acc: AccountPair = AccountPair(account: "", sub_account: "");
+    var acc: NamedPair = NamedPair(kind: .account);
     var multi: ManyTransferTableVM = ManyTransferTableVM(minHeight: 90);
 }
 struct ManyOneTransfer : View {
@@ -50,7 +50,7 @@ struct ManyOneTransfer : View {
             
             HStack {
                 Text("Move \(vm.multi.total, format: .currency(code: "USD")) into")
-                AccPair(acc: $vm.acc)
+                NamedPairEditor(acc: $vm.acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

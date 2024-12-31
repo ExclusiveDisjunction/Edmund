@@ -12,30 +12,32 @@ public enum GeneralIncomeKind {
     case interest
 }
 
-class GeneralIncomeViewModel : ObservableObject, TransViewBase {
+@Observable
+class GeneralIncomeViewModel : TransViewBase {
     var id: UUID = UUID()
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
         if !validate() {
             return [:];
         }
         
-        return [AccountPair(account: self.account, sub_account: self.sub_account) : amount];
+        return [ account : amount];
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil}
         
         switch kind {
-        case .gift: return [ LedgerEntry(id: UUID(), memo: "Gift from " + merchant, credit: amount, debit: 0, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Gift", tender: account, sub_tender: sub_account) ]
-        case .interest: return [ LedgerEntry(id: UUID(), memo: "Interest", credit: amount, debit: 0, date: Date.now, added_on: Date.now, location: merchant, category: "Account Control", sub_category: "Interest", tender: account, sub_tender: sub_account) ]
+        case .gift: return [ LedgerEntry(memo: "Gift from " + merchant, credit: amount, debit: 0, date: Date.now, location: "Bank", category_pair: .init("Account Control", "Gift", kind: .category), account_pair: account) ]
+            
+        case .interest: return [ LedgerEntry(memo: "Interest", credit: amount, debit: 0, date: Date.now, location: merchant, category_pair: NamedPair("Account Control", "Interest", kind: .category), account_pair: self.account) ]
         }
     }
     func validate() -> Bool {
         var emptys: [String] = [];
         
         if merchant.isEmpty { emptys.append("merchant") }
-        if account.isEmpty { emptys.append("account") }
-        if sub_account.isEmpty { emptys.append("sub account") }
+        if account.parentEmpty { emptys.append("account") }
+        if account.childEmpty { emptys.append("sub account") }
         
         if !emptys.isEmpty {
             err_msg = "The following fields are empty: " + emptys.joined(separator: ", ")
@@ -50,22 +52,19 @@ class GeneralIncomeViewModel : ObservableObject, TransViewBase {
         merchant = "";
         amount = 0.00;
         kind = .gift;
-        account = "";
-        sub_account = "";
+        account = NamedPair(kind: .account);
         err_msg = "";
     }
     
-    @Published var merchant: String = "";
-    @Published var amount: Decimal = 0;
-    @Published var kind: GeneralIncomeKind = .gift;
-    @Published var account: String = "";
-    @Published var sub_account: String = "";
-    @Published var err_msg: String? = nil;
+    var merchant: String = "";
+    var amount: Decimal = 0;
+    var kind: GeneralIncomeKind = .gift;
+    var account: NamedPair = NamedPair(kind: .account);
+    var err_msg: String? = nil;
 }
 
 struct GeneralIncome: View {
-    var id: UUID = UUID();
-    @ObservedObject var vm: GeneralIncomeViewModel;
+    @Bindable var vm: GeneralIncomeViewModel;
 
     var body: some View {
         VStack {
@@ -92,8 +91,7 @@ struct GeneralIncome: View {
             }.padding([.leading, .trailing], 5).padding(.bottom, 3)
             HStack {
                 Text("Into:")
-                TextField("Account", text: $vm.account)
-                TextField("Sub Account", text: $vm.sub_account)
+                NamedPairEditor(acc: $vm.account)
             }.padding([.leading, .trailing], 10).padding(.bottom, 5)
         }.background(.background.opacity(0.5)).cornerRadius(5)
     }

@@ -10,21 +10,25 @@ import SwiftData
 
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var trans_vm: TransactionsViewModel = TransactionsViewModel();
 
     var body: some View {
         NavigationSplitView {
             List {
                 NavigationLink {
-                    AccountsTable()
+                    TransactionsTable()
                 } label: {
                     Text("Ledger")
                 }
                 NavigationLink {
-                    VStack {
-                        TransactionsView()
-                    }
+                    TransactionsView(vm: trans_vm).frame(maxHeight: .infinity)
                 } label: {
                     Text("Transactions")
+                }
+                NavigationLink {
+                    
+                } label: {
+                    Text("Balance Sheet")
                 }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
@@ -35,5 +39,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView()
+    MainView().frame(width: 700, height: 600)
 }

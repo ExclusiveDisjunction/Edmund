@@ -14,8 +14,9 @@ enum PaymentType {
     case loan
 }
 
-class PaymentViewModel : TransViewBase, ObservableObject {
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+@Observable
+class PaymentViewModel : TransViewBase {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
         if !validate() { return [:]; }
         
         let sub_account: String;
@@ -36,7 +37,7 @@ class PaymentViewModel : TransViewBase, ObservableObject {
             amount = self.amount;
         }
         
-        return [AccountPair(account: self.account_name, sub_account: sub_account) : amount];
+        return [NamedPair(self.account_name, sub_account, kind: .account): amount];
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil }
@@ -75,7 +76,7 @@ class PaymentViewModel : TransViewBase, ObservableObject {
         }
         
         return [
-            LedgerEntry(id: UUID(), memo: memo, credit: credit, debit: debit, date: Date.now, added_on: Date.now, location: "Bank", category: "Payment", sub_category: sub_category, tender: account_name, sub_tender: sub_tender)
+            LedgerEntry(memo: memo, credit: credit, debit: debit, date: Date.now, location: "Bank", category: "Payment", sub_category: sub_category, account: account_name, sub_account: sub_tender)
         ]
     }
     func validate() -> Bool {
@@ -109,18 +110,16 @@ class PaymentViewModel : TransViewBase, ObservableObject {
     }
     
     
-    @Published var err_msg: String? = nil;
-    @Published var payment_type: PaymentType = .bill
-    @Published var account_name: String = "";
-    @Published var sub_account_name: String = "";
-    @Published var amount: Decimal = 0.00;
-    @Published var reason: String = "";
+    var err_msg: String? = nil;
+    var payment_type: PaymentType = .bill
+    var account_name: String = "";
+    var sub_account_name: String = "";
+    var amount: Decimal = 0.00;
+    var reason: String = "";
 }
 
 struct Payment: View {
-    var id: UUID = UUID();
-    
-    @ObservedObject var vm: PaymentViewModel;
+    @Bindable var vm: PaymentViewModel;
     
     var body: some View {
         VStack {

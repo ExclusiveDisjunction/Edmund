@@ -19,8 +19,8 @@ class ManualTransactionsViewModel : ObservableObject, TransViewBase {
     @Published var err_msg: String? = nil;
     @Published var show_account: Bool = true;
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
-        adding.reduce(into: [:]) { $0[AccountPair(account: $1.account, sub_account: $1.sub_account)] = $1.credit - $1.debit }
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
+        adding.reduce(into: [:]) { $0[$1.account_pair] = $1.credit - $1.debit }
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil; }
@@ -83,7 +83,7 @@ struct ManualTransactions: View {
     @State private var selected: UUID?;
     
     private func add_trans() {
-        vm.adding.append(LedgerEntry(id: UUID(), memo: "", credit: 0.00, debit: 0.00, date: Date.now, added_on: Date.now, location: "", category: "", sub_category: "", tender: "", sub_tender: ""))
+        vm.adding.append(LedgerEntry(memo: "", credit: 0.00, debit: 0.00, date: Date.now, location: "", category: "", sub_category: "", account: "", sub_account: ""))
     }
     private func remove_trans() {
         if selected == nil { return }

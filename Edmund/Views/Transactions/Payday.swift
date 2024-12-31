@@ -11,10 +11,11 @@ enum BreakdownKind {
     case simple;
     case percent;
 }
+@Observable
 class PaydayBreakdown: Identifiable {
     init(account_name: String, kind: BreakdownKind) {
         self.amount = 0;
-        self.acc = AccountPair(account: account_name, sub_account: "");
+        self.acc = NamedPair(account_name, "", kind: .account);
         self.kind = kind;
     }
     
@@ -22,13 +23,14 @@ class PaydayBreakdown: Identifiable {
     
     var kind: BreakdownKind;
     var amount: Decimal;
-    var acc: AccountPair;
+    var acc: NamedPair;
 }
 
-class PaydayViewModel: ObservableObject, TransViewBase {
-    private func compute_balances() -> (Dictionary<AccountPair, Decimal>, Decimal) {
+@Observable
+class PaydayViewModel: TransViewBase {
+    private func compute_balances() -> (Dictionary<NamedPair, Decimal>, Decimal) {
         var total = amount;
-        var result: Dictionary<AccountPair, Decimal> = [:];
+        var result: Dictionary<NamedPair, Decimal> = [:];
         
         for item in breakdowns {
             switch item.kind {
@@ -45,7 +47,7 @@ class PaydayViewModel: ObservableObject, TransViewBase {
         return (result, total);
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
         if !validate() {
             return [:];
         }
@@ -58,12 +60,16 @@ class PaydayViewModel: ObservableObject, TransViewBase {
     func create_transactions() -> [LedgerEntry]? {
         let balances = self.compile_deltas();
         
+        //This is all of the breakdowns combined, which are regarded as "Transfer"
         var result: [LedgerEntry] = balances.map({ (acc, balance) in
-            LedgerEntry(id: UUID(), memo: acc.sub_account + " to " + acc.sub_account, credit: balance, debit: 0, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Pay", tender: acc.account, sub_tender: acc.sub_account)
+            LedgerEntry(memo: acc.child + " to " + acc.child, credit: balance, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc)
         });
     
-        result.insert(LedgerEntry(id: UUID(), memo: "Pay", credit: amount, debit: 0, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Pay", tender: acc.account, sub_tender: acc.sub_account), at: 0)
-        result.insert(LedgerEntry(id: UUID(), memo: "Pay to " + acc.account, credit: 0, debit: amount, date: Date.now, added_on: Date.now, location: "Bank", category: "Account Control", sub_category: "Pay", tender: acc.account, sub_tender: acc.sub_account), at: 1);
+        //This is the actual pay coming into the account
+        result.insert(LedgerEntry(memo: "Pay", credit: amount, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Pay", kind: .category), account_pair: acc), at: 0)
+        
+        //This is the transfer out of pay, but into the breakdowns
+        result.insert(LedgerEntry(memo: "Pay to " + acc.parent, credit: 0, debit: amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc), at: 1);
         
         return result;
     }
@@ -72,14 +78,14 @@ class PaydayViewModel: ObservableObject, TransViewBase {
         var empty_lines: [Int] = [];
         var invalid_lines: [Int] = [];
         
-        if acc.account.isEmpty { empty_fields.append("account") }
-        if acc.sub_account.isEmpty { empty_fields.append("sub account") }
-        if rem_acc.account.isEmpty { empty_fields.append("remander account") }
-        if rem_acc.sub_account.isEmpty { empty_fields.append("remander sub account") }
+        if acc.parent.isEmpty { empty_fields.append("account") }
+        if acc.child.isEmpty { empty_fields.append("sub account") }
+        if rem_acc.parent.isEmpty { empty_fields.append("remander account") }
+        if rem_acc.child.isEmpty { empty_fields.append("remander sub account") }
         
         var balance: Decimal = 0.0;
         for (i, d) in breakdowns.enumerated() {
-            if d.acc.sub_account.isEmpty || d.acc.account.isEmpty { empty_lines.append(i + 1) }
+            if d.acc.child.isEmpty || d.acc.parent.isEmpty { empty_lines.append(i + 1) }
             
             switch d.kind {
             case .simple:
@@ -130,8 +136,8 @@ class PaydayViewModel: ObservableObject, TransViewBase {
     
     func clear() {
         amount = 0
-        acc = AccountPair(account: "", sub_account: "Pay");
-        rem_acc = AccountPair(account: "", sub_account: "");
+        acc = NamedPair("", "Pay", kind: .account);
+        rem_acc = NamedPair(kind: .account);
         breakdowns = [];
         err_msg = nil;
     }
@@ -148,15 +154,15 @@ class PaydayViewModel: ObservableObject, TransViewBase {
         return self.compute_balances().1;
     }
     
-    @Published var amount: Decimal = 0;
-    @Published var acc: AccountPair = AccountPair(account: "", sub_account: "Pay");
-    @Published var rem_acc: AccountPair = AccountPair(account: "", sub_account: "");
-    @Published var breakdowns: [PaydayBreakdown] = [];
-    @Published var err_msg: String? = nil;
+    var amount: Decimal = 0;
+    var acc: NamedPair = NamedPair("", "Pay", kind: .account);
+    var rem_acc: NamedPair = NamedPair(kind: .account);
+    var breakdowns: [PaydayBreakdown] = [];
+    var err_msg: String? = nil;
 }
 
 struct Payday: View {
-    @ObservedObject var vm: PaydayViewModel;
+    @Bindable var vm: PaydayViewModel;
     @State private var selected: UUID?;
     
     private func amount_field(item_kind: BreakdownKind, binding: Binding<PaydayBreakdown>) -> some View {
@@ -182,8 +188,7 @@ struct Payday: View {
                 Text("Amount of")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("into")
-                TextField("Account", text: $vm.acc.account)
-                TextField("Sub Account", text: $vm.acc.sub_account)
+                NamedPairEditor(acc: $vm.acc)
             }
             
             HStack {
@@ -194,14 +199,14 @@ struct Payday: View {
             HStack {
                 Button(action: {
                     vm.breakdowns.append(
-                        PaydayBreakdown(account_name: vm.acc.account, kind: .simple)
+                        PaydayBreakdown(account_name: vm.acc.parent, kind: .simple)
                     )
                 }) {
                     Label("Add Simple", systemImage: "plus")
                 }.help("Add a breakdown that takes a specific amount from the pay")
                 Button(action: {
                     vm.breakdowns.append(
-                        PaydayBreakdown(account_name: vm.acc.account, kind: .percent)
+                        PaydayBreakdown(account_name: vm.acc.parent, kind: .percent)
                     )
                 }) {
                     Label("Add Percentage", systemImage: "percent")
@@ -226,17 +231,13 @@ struct Payday: View {
                     amount_field(item_kind: item.kind, binding: $item)
                 }
                 TableColumn("Account") { $item in
-                    TextField("Account", text: $item.acc.account)
-                }
-                TableColumn("Sub Account") { $item in
-                    TextField("Sub Account", text: $item.acc.sub_account)
+                    NamedPairEditor(acc: $item.acc)
                 }
             }.frame(minHeight: 170)
             
             HStack {
                 Text("Insert remaining balance into")
-                TextField("Account", text: $vm.rem_acc.account);
-                TextField("Sub Account", text: $vm.rem_acc.sub_account)
+                NamedPairEditor(acc: $vm.rem_acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

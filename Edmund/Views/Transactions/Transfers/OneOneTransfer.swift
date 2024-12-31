@@ -12,11 +12,11 @@ class OneOneTransferVM : TransViewBase {
     init() {
         err_msg = nil;
         amount = 0;
-        src = AccountPair();
-        dest = AccountPair();
+        src = NamedPair(kind: .account);
+        dest = NamedPair(kind: .account);
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
         return [:];
     }
     func create_transactions() -> [LedgerEntry]? {
@@ -28,15 +28,15 @@ class OneOneTransferVM : TransViewBase {
     func clear() {
         err_msg = nil;
         amount = 0;
-        src = AccountPair();
-        dest = AccountPair();
+        src = NamedPair(kind: .account);
+        dest = NamedPair(kind: .account);
     }
     
     
     var err_msg: String?;
     var amount: Decimal;
-    var src: AccountPair;
-    var dest: AccountPair;
+    var src: NamedPair;
+    var dest: NamedPair;
 }
 
 struct OneOneTransfer : View {
@@ -60,12 +60,12 @@ struct OneOneTransfer : View {
                    
                 GridRow {
                     Text("From")
-                    AccPair(acc: $vm.src)
+                    NamedPairEditor(acc: $vm.src)
                 }
                 
                 GridRow {
                     Text("Into")
-                    AccPair(acc: $vm.dest)
+                    NamedPairEditor(acc: $vm.dest)
                 }
                 
             }.padding(.bottom, 10).frame(minWidth: 300, maxWidth: .infinity)

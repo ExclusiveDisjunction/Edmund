@@ -20,7 +20,7 @@ class CreditCardTransViewModel : ObservableObject, TransViewBase {
         )
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
         return [:];
     }
     func create_transactions() -> [LedgerEntry]? {

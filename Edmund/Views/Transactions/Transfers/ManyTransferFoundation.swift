@@ -11,14 +11,14 @@ import SwiftUI;
 class ManyTableEntry : Identifiable {
     init() {
         self.amount = 0;
-        self.acc = AccountPair();
+        self.acc = NamedPair(kind: .account);
         self.id = UUID();
         self.selected = false;
     }
     
     
     var amount: Decimal;
-    var acc: AccountPair;
+    var acc: NamedPair;
     var id: UUID;
     var selected: Bool;
 }
@@ -86,7 +86,7 @@ struct ManyTransferTable : View {
                     GridRow {
                         Toggle("Selected", isOn: $item.selected).labelsHidden()
                         TextField("Amount", value: $item.amount, format: .currency(code: "USD")).disabled(item.selected)
-                        AccPair(acc: $item.acc).disabled(item.selected)
+                        NamedPairEditor(acc: $item.acc).disabled(item.selected)
                     }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
                 }.frame(maxHeight: vm.minHeight)
             }.padding().background(.background.opacity(0.7))

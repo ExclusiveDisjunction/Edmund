@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData;
 
-struct AccountsTable: View {
+struct TransactionsTable: View {
     @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
     
     var body: some View {
@@ -24,14 +24,16 @@ struct AccountsTable: View {
                 Text(item.t_date, style: .date)
             }.width(100)
             TableColumn("Location", value: \.location)
-            TableColumn("Category", value: \.category)
-            TableColumn("Sub Category", value: \.sub_category)
-            TableColumn("Tender", value: \.account)
-            TableColumn("Sub Tender", value: \.sub_account) 
+            TableColumn("Category") { (item: LedgerEntry) in
+                NamedPairViewer(acc: item.category_pair)
+            }
+            TableColumn("Account") { item in
+                NamedPairViewer(acc: item.account_pair)
+            }
         }
     }
 }
 
 #Preview {
-    AccountsTable()
+    TransactionsTable()
 }
