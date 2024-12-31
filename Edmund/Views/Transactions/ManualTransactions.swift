@@ -9,18 +9,21 @@ import SwiftUI;
 import SwiftData;
 import Foundation;
 
-class ManualTransactionsViewModel : ObservableObject, TransViewBase {
+@Observable
+class ManualTransactionsViewModel : TransViewBase {
     init(account: Binding<String>? = nil) {
         self.account = account;
     }
     
-    @Published var adding : [LedgerEntry] = [];
-    @Published var account: Binding<String>?;
-    @Published var err_msg: String? = nil;
-    @Published var show_account: Bool = true;
+    var adding : [LedgerEntry] = [];
+    var account: Binding<String>?;
+    var err_msg: String? = nil;
+    var show_account: Bool = true;
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
-        adding.reduce(into: [:]) { $0[$1.account_pair] = $1.credit - $1.debit }
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+        if !validate() { return nil; }
+        
+        return adding.reduce(into: [:]) { $0[$1.account_pair] = $1.credit - $1.debit };
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil; }
@@ -79,7 +82,7 @@ class ManualTransactionsViewModel : ObservableObject, TransViewBase {
 struct ManualTransactions: View {
     var id: UUID = UUID();
 
-    @ObservedObject var vm: ManualTransactionsViewModel;
+    @Bindable var vm: ManualTransactionsViewModel;
     @State private var selected: UUID?;
     
     private func add_trans() {

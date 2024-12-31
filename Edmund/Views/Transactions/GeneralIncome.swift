@@ -16,7 +16,7 @@ public enum GeneralIncomeKind {
 class GeneralIncomeViewModel : TransViewBase {
     var id: UUID = UUID()
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
         if !validate() {
             return [:];
         }

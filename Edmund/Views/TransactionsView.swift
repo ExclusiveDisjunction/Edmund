@@ -22,7 +22,7 @@ enum TransactionEnum : Identifiable {
     case many_one_transfer(sub: ManyOneTransferVM)
     case many_many_transfer(sub: ManyManyTransferVM)
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
         switch self {
         case .manual(let sub): return sub.compile_deltas()
         case .generalIncome(let sub): return sub.compile_deltas()

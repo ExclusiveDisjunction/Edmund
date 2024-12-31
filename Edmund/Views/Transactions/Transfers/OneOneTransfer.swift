@@ -16,13 +16,37 @@ class OneOneTransferVM : TransViewBase {
         dest = NamedPair(kind: .account);
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
-        return [:];
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+        if !validate() { return nil; }
+        
+        return [
+            src: -amount,
+            dest: amount
+        ];
     }
     func create_transactions() -> [LedgerEntry]? {
-        return [];
+        if !validate() { return nil; }
+        
+        return [
+            LedgerEntry(memo: src.child + " to " + dest.child, credit: 0, debit: amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: src),
+            LedgerEntry(memo: src.child + " to " + dest.child, credit: amount, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: dest)
+        ];
     }
     func validate() -> Bool {
+        if src.isEmpty && dest.isEmpty {
+            err_msg = "Source and Destination accounts are empty";
+        }
+        else if src.isEmpty {
+            err_msg = "Source account is empty";
+        }
+        else if dest.isEmpty {
+            err_msg = "Destination account is empty";
+        }
+        else {
+            err_msg = nil;
+            return true;
+        }
+        
         return false;
     }
     func clear() {

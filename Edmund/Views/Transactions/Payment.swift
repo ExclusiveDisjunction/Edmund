@@ -16,8 +16,8 @@ enum PaymentType {
 
 @Observable
 class PaymentViewModel : TransViewBase {
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
-        if !validate() { return [:]; }
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+        if !validate() { return nil; }
         
         let sub_account: String;
         let amount: Decimal;

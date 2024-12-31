@@ -38,6 +38,30 @@ class ManyTransferTableVM {
         entries = [ManyTableEntry()];
     }
     
+    func get_empty_rows() -> [Int] {
+        var result: [Int] = [];
+        
+        for (i, d) in entries.enumerated() {
+            if d.acc.isEmpty {
+                result.append(i)
+            }
+        }
+        
+        return result;
+    }
+    func create_transactions(transfer_into: Bool) -> [LedgerEntry]? {
+        var result: [LedgerEntry] = [];
+        for entry in entries {
+            guard !entry.acc.isEmpty else { return nil; }
+            
+            result.append(
+                LedgerEntry(memo: (transfer_into ? "Various to " + entry.acc.child : entry.acc.child + " to Various"), credit: transfer_into ? entry.amount : 0, debit: transfer_into ? 0 : entry.amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: entry.acc)
+            );
+        }
+        
+        return result;
+    }
+    
     var entries: [ManyTableEntry];
     var minHeight: CGFloat;
     

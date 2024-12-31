@@ -9,13 +9,50 @@ import SwiftUI;
 
 @Observable
 class ManyOneTransferVM : TransViewBase {
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
-        return [:];
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+        if !validate() { return nil }
+        
+        var result: [NamedPair: Decimal] = [
+            acc: multi.total
+        ];
+        
+        multi.entries.forEach {
+            result[$0.acc] = -$0.amount
+        }
+        
+        return result;
     }
     func create_transactions() -> [LedgerEntry]? {
-        return [];
+        if !validate() { return nil }
+        
+        if var sub_acc = self.multi.create_transactions(transfer_into: false) {
+            sub_acc.append(
+                LedgerEntry(memo: "Various to " + acc.child, credit: multi.total, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc)
+            );
+            return sub_acc;
+        }
+        else {
+            return nil;
+        }
     }
     func validate() -> Bool {
+        let acc_empty = self.acc.isEmpty;
+        let child_empty: [Int] = self.multi.get_empty_rows();
+        
+        if acc_empty && !child_empty.isEmpty {
+            err_msg = "Account is empty and the following lines contain empty fields: " + child_empty.map(String.init).joined(separator: ", ")
+        }
+        else if acc_empty {
+            err_msg = "Account is empty"
+        }
+        else if !child_empty.isEmpty {
+            err_msg = "The following lines contained empty fields: " + child_empty.map(String.init).joined(separator: ", ")
+        }
+        else {
+            err_msg = nil;
+            return true;
+        }
+        
         return false;
     }
     func clear() {

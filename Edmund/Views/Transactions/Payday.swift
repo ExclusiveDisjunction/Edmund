@@ -47,9 +47,9 @@ class PaydayViewModel: TransViewBase {
         return (result, total);
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
         if !validate() {
-            return [:];
+            return nil;
         }
         
         var result = compute_balances();
@@ -59,9 +59,10 @@ class PaydayViewModel: TransViewBase {
     }
     func create_transactions() -> [LedgerEntry]? {
         let balances = self.compile_deltas();
+        guard balances != nil else { return nil; }
         
         //This is all of the breakdowns combined, which are regarded as "Transfer"
-        var result: [LedgerEntry] = balances.map({ (acc, balance) in
+        var result: [LedgerEntry] = balances!.map({ (acc, balance) in
             LedgerEntry(memo: acc.child + " to " + acc.child, credit: balance, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc)
         });
     

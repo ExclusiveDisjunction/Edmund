@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-class CreditCardTransViewModel : ObservableObject, TransViewBase {
+@Observable
+class CreditCardTransViewModel : TransViewBase {
     init() {
         sub_transactions = ManualTransactionsViewModel(account: Binding<String>(
             get: {
@@ -20,8 +21,8 @@ class CreditCardTransViewModel : ObservableObject, TransViewBase {
         )
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal> {
-        return [:];
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+        return nil;
     }
     func create_transactions() -> [LedgerEntry]? {
         return nil;
@@ -66,16 +67,16 @@ class CreditCardTransViewModel : ObservableObject, TransViewBase {
         err_msg = nil
     }
     
-    @Published var account: String = "";
-    @Published var target_account: String = "";
-    @Published var target_sub_account: String = "Credit Card";
-    @Published var sub_transactions: ManualTransactionsViewModel? = nil;
-    @Published var err_msg: String? = nil;
+    var account: String = "";
+    var target_account: String = "";
+    var target_sub_account: String = "Credit Card";
+    var sub_transactions: ManualTransactionsViewModel? = nil;
+    var err_msg: String? = nil;
 }
 
 struct CreditCardTrans: View {
     
-    @ObservedObject var vm: CreditCardTransViewModel;
+    @Bindable var vm: CreditCardTransViewModel;
     
     var body: some View {
         VStack {
