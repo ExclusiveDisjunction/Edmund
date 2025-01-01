@@ -100,7 +100,7 @@ struct BalanceSheet: View {
             }.padding([.leading, .bottom])
             
             if vm.computed.isEmpty {
-                Text("There are no transactions, and therefore no balances").italic().padding()
+                Text("There are no transactions, or this page needs to be refreshed").italic().padding()
                 Spacer()
             }
             else {
