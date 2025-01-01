@@ -8,134 +8,196 @@
 import SwiftUI
 import SwiftData;
 
-enum TransactionEnum : Identifiable {
-    var id: UUID { UUID() }
+enum TransactionEnum {
+    case manual(sub: ManualTransactionsViewModel = .init())
+    case generalIncome(sub: GeneralIncomeViewModel = .init())
+    case payment(sub: PaymentViewModel = .init())
+    case audit(sub: AuditViewModel = .init())
+    case payday(sub: PaydayViewModel = .init())
+    case creditCardTrans(sub: CreditCardTransViewModel = .init())
+    case one_one_transfer(sub: OneOneTransferVM = .init())
+    case one_many_transfer(sub: OneManyTransferVM = .init())
+    case many_one_transfer(sub: ManyOneTransferVM = .init())
+    case many_many_transfer(sub: ManyManyTransferVM = .init())
     
-    case manual(sub: ManualTransactionsViewModel)
-    case generalIncome(sub: GeneralIncomeViewModel)
-    case payment(sub: PaymentViewModel)
-    case audit(sub: AuditViewModel)
-    case payday(sub: PaydayViewModel)
-    case creditCardTrans(sub: CreditCardTransViewModel)
-    case one_one_transfer(sub: OneOneTransferVM)
-    case one_many_transfer(sub: OneManyTransferVM)
-    case many_one_transfer(sub: ManyOneTransferVM)
-    case many_many_transfer(sub: ManyManyTransferVM)
+    func as_trans_view_base() -> any TransViewBase {
+        switch self {
+        case .manual(let sub): return sub
+        case .generalIncome(let sub): return sub
+        case .payment(let sub): return sub
+        case .audit(let sub): return sub
+        case .payday(let sub): return sub
+        case .creditCardTrans(let sub): return sub
+        case .one_one_transfer(let sub): return sub
+        case .one_many_transfer(let sub): return sub
+        case .many_one_transfer(let sub): return sub
+        case .many_many_transfer(let sub): return sub
+        }
+    }
     
     func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
-        switch self {
-        case .manual(let sub): return sub.compile_deltas()
-        case .generalIncome(let sub): return sub.compile_deltas()
-        case .payment(let sub): return sub.compile_deltas()
-        case .audit(let sub): return sub.compile_deltas()
-        case .payday(let sub): return sub.compile_deltas()
-        case .creditCardTrans(let sub): return sub.compile_deltas()
-        case .one_one_transfer(let sub): return sub.compile_deltas()
-        case .one_many_transfer(let sub): return sub.compile_deltas()
-        case .many_one_transfer(let sub): return sub.compile_deltas()
-        case .many_many_transfer(let sub): return sub.compile_deltas()
-        }
+        return self.as_trans_view_base().compile_deltas()
     }
     func create_transactions() -> [LedgerEntry]? {
-        switch self {
-        case .manual(let sub): return sub.create_transactions()
-        case .generalIncome(let sub): return sub.create_transactions()
-        case .payment(let sub): return sub.create_transactions()
-        case .audit(let sub): return sub.create_transactions()
-        case .payday(let sub): return sub.create_transactions()
-        case .creditCardTrans(let sub): return sub.create_transactions()
-        case .one_one_transfer(let sub): return sub.create_transactions()
-        case .one_many_transfer(let sub): return sub.create_transactions()
-        case .many_one_transfer(let sub): return sub.create_transactions()
-        case .many_many_transfer(let sub): return sub.create_transactions()
-        }
+        return self.as_trans_view_base().create_transactions()
     }
     func validate() -> Bool {
-        switch self {
-        case .manual(let sub): return sub.validate()
-        case .generalIncome(let sub): return sub.validate()
-        case .payment(let sub): return sub.validate()
-        case .audit(let sub): return sub.validate()
-        case .payday(let sub): return sub.validate()
-        case .creditCardTrans(let sub): return sub.validate()
-        case .one_one_transfer(let sub): return sub.validate()
-        case .one_many_transfer(let sub): return sub.validate()
-        case .many_one_transfer(let sub): return sub.validate()
-        case .many_many_transfer(let sub): return sub.validate()
-        }
+        return self.as_trans_view_base().validate()
+    }
+    func clear() {
+        self.as_trans_view_base().clear()
+    }
+}
+    
+@Observable
+class TransactionWrapperVM : Identifiable, TransViewBase {
+    init(_ inner: TransactionEnum) {
+        self.inner = inner;
     }
     
+    var id: UUID = UUID()
+    
+    var selected: Bool = false;
+    var inner: TransactionEnum;
+    
+    func validate() -> Bool {
+        inner.validate()
+    }
+    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+        inner.compile_deltas()
+    }
+    func create_transactions() -> [LedgerEntry]? {
+        inner.create_transactions()
+    }
     func clear() {
-        switch self {
-        case .manual(let sub): sub.clear()
-        case .generalIncome(let sub): sub.clear()
-        case .payment(let sub): sub.clear()
-        case .audit(let sub): sub.clear()
-        case .payday(let sub): sub.clear()
-        case .creditCardTrans(let sub): sub.clear()
-        case .one_one_transfer(let sub): sub.clear()
-        case .one_many_transfer(let sub): sub.clear()
-        case .many_one_transfer(let sub): sub.clear()
-        case .many_many_transfer(let sub): sub.clear()
-        }
+        inner.clear()
+    }
+}
+struct TransactionWrapper : View {
+    @Bindable var vm: TransactionWrapperVM;
+    
+    var body: some View {
+        HStack {
+            VStack {
+                Toggle("Selected", isOn: $vm.selected).labelsHidden()
+            }
+            VStack {
+                switch vm.inner {
+                case .manual(let sub): ManualTransactions(vm: sub)
+                case .generalIncome(let sub): GeneralIncome(vm: sub)
+                case .payment(let sub): Payment(vm: sub)
+                case .audit(let sub): Audit(vm: sub)
+                case .payday(let sub): Payday(vm: sub)
+                case .creditCardTrans(let sub): CreditCardTrans(vm: sub)
+                case .one_one_transfer(let sub): OneOneTransfer(vm: sub)
+                case .one_many_transfer(let sub): OneManyTransfer(vm: sub)
+                case .many_one_transfer(let sub): ManyOneTransfer(vm: sub)
+                case .many_many_transfer(let sub): ManyManyTransfer(vm: sub).disabled(vm.selected)
+                }
+            }.disabled(vm.selected).background(vm.selected ? Color.accentColor.opacity(0.2) : Color.clear)
+        }.padding(.bottom, 5)
     }
 }
 
 @Observable
 class TransactionsViewModel {
+    var sub_trans: [TransactionWrapperVM] = [];
     
-    var sub_trans: [TransactionEnum] = [];
+    func clear_all() {
+        sub_trans = [];
+    }
+    func remove_selected() {
+        sub_trans.removeAll(where: { item in
+            item.selected
+        })
+    }
 }
 
 struct TransactionsView : View {
     
     @Bindable var vm: TransactionsViewModel;
-    @State var selected: UUID?;
+    @Environment(\.modelContext) private var context;
+    @State var alert_msg: String = .init();
+    @State var show_alert: Bool = false;
+    @State var alert_is_err: Bool = true;
     
-    private func validate() {
+    private func validate() -> Bool {
         for transaction in vm.sub_trans {
-            let _ = transaction.validate()
+            if !transaction.validate() { return false }
         }
+        
+        alert_msg = "All cells validated."
+        alert_is_err = false;
+        show_alert = true;
+        return true
     }
-    private func clear_all() {
+    private func reset_all() {
         for transaction in vm.sub_trans {
             transaction.clear();
         }
+    }
+    private func clear_all() {
+        vm.clear_all();
+    }
+    private func remove_selected() {
+        vm.remove_selected();
+    }
+    private func enact() {
+        if !self.validate() {
+            alert_is_err = true;
+            alert_msg = "One or more cells have errors, please resolve them and try again.";
+            show_alert = true;
+            return;
+        }
+        
+        for (i, item) in vm.sub_trans.enumerated() {
+            if let list = item.create_transactions() {
+                for transaction in list {
+                    context.insert(transaction);
+                }
+            }
+            else {
+                alert_is_err = true;
+                alert_msg = "Unexpected result from cell \(i)."
+                show_alert = true;
+                return;
+            }
+        }
+        
+        clear_all();
+        alert_is_err = false;
+        alert_msg = "Enacted successfully";
+        show_alert = true;
     }
     
     var body : some View {
         VStack {
             HStack {
+                Text("Current Transactions").font(.title)
+                Spacer()
+            }.padding([.top, .leading, .trailing]).padding(.bottom, 5)
+            
+            HStack {
                 Menu {
                     Text("Basic")
                     Button("Manual Transactions", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.manual(sub: ManualTransactionsViewModel()))
-                        }
+                        vm.sub_trans.append(.init(.manual()))
                     } )
                     Button("Payment", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.payment(sub: PaymentViewModel()))
-                        }
+                        vm.sub_trans.append(.init(.payment()))
                     })
                     
                     Divider()
                     
                     Text("Account Control")
                     Button("General Income", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.generalIncome(sub: GeneralIncomeViewModel()))
-                        }
+                        vm.sub_trans.append(.init(.generalIncome()))
                     }).help("Gift or Interest")
                     Button("Payday", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.payday(sub: PaydayViewModel()))
-                        }
+                        vm.sub_trans.append( .init( .payday() ) )
                     }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
                     Button(action: {
-                        withAnimation {
-                            vm.sub_trans.append(.audit(sub: AuditViewModel()))
-                        }
+                        vm.sub_trans.append(.init(.audit()))
                     }) {
                         Text("Audit").foregroundStyle(Color.red)
                     }
@@ -144,33 +206,23 @@ struct TransactionsView : View {
                     
                     Text("Grouped")
                     Button("Credit Card Transactions", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.creditCardTrans(sub: CreditCardTransViewModel()))
-                        }
+                        vm.sub_trans.append( .init( .creditCardTrans() ) )
                     }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
                     
                     Divider()
                     
                     Text("Transfer")
                     Button("One-to-One", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.one_one_transfer(sub: OneOneTransferVM()))
-                        }
+                        vm.sub_trans.append( .init( .one_one_transfer() ) )
                     })
                     Button("One-to-Many", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.one_many_transfer(sub: OneManyTransferVM()))
-                        }
+                        vm.sub_trans.append( .init( .one_many_transfer() ) )
                     })
                     Button("Many-to-One", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.many_one_transfer(sub: ManyOneTransferVM()))
-                        }
+                        vm.sub_trans.append( .init( .many_one_transfer() ) )
                     })
                     Button("Many-to-Many", action: {
-                        withAnimation {
-                            vm.sub_trans.append(.many_many_transfer(sub: ManyManyTransferVM()))
-                        }
+                        vm.sub_trans.append( .init( .many_many_transfer() ) )
                     })
                     
                 } label: {
@@ -178,46 +230,51 @@ struct TransactionsView : View {
                 }.help("Add a specific kind of transaction to the editor")
                 
                 Button(action: {
-                    validate()
+                    let _ = validate()
                 }) {
                     Label("Validate", systemImage: "slider.horizontal.2.square")
                 }.help("Determine if there are errors in any transaction")
                 
-                Button(action: {}) {
+                Button(action: enact) {
                     Label("Enact", systemImage: "pencil")
                 }.help("Apply these transactions to the system")
                 
-                Button(action: {
-                    clear_all()
-                }) {
-                    Label("Clear", systemImage: "pencil.slash").foregroundStyle(.red)
-                }
-            }.padding([.top, .leading, .trailing]).padding(.bottom, 5)
+            }.padding([.leading, .trailing]).padding(.bottom, 5)
             
             HStack {
-                Text("Current Transactions").font(.title).padding([.leading, .trailing]).padding(.bottom, 5)
-                Spacer()
-            }
+                Button(action: reset_all) {
+                    Label("Reset Cells", systemImage: "pencil.slash").foregroundStyle(.red)
+                }
+                Button(action: {
+                    withAnimation{
+                        self.remove_selected()
+                    }
+                }) {
+                    Label("Remove Selected Cells", systemImage: "trash").foregroundStyle(.red)
+                }
+                Button(action: {
+                    withAnimation {
+                        self.clear_all()
+                    }
+                }) {
+                    Label("Remove All Cells", systemImage: "trash").foregroundStyle(.red)
+                }
+            }.padding([.leading, .trailing]).padding(.bottom, 5)
             
             ScrollView {
-                ForEach(vm.sub_trans) { trans in
-                    VStack {
-                        switch trans {
-                        case .manual(let sub): ManualTransactions(vm: sub).padding(.bottom, 5)
-                        case .generalIncome(let sub): GeneralIncome(vm: sub).padding(.bottom, 5)
-                        case .payment(let sub): Payment(vm: sub).padding(.bottom, 5)
-                        case .audit(let sub): Audit(vm: sub).padding(.bottom, 5)
-                        case .payday(let sub): Payday(vm: sub).padding(.bottom, 5)
-                        case .creditCardTrans(let sub): CreditCardTrans(vm: sub).padding(.bottom, 5)
-                        case .one_one_transfer(let sub): OneOneTransfer(vm: sub).padding(.bottom, 5)
-                        case .one_many_transfer(let sub): OneManyTransfer(vm: sub).padding(.bottom, 5)
-                        case .many_one_transfer(let sub): ManyOneTransfer(vm: sub).padding(.bottom, 5)
-                        case .many_many_transfer(let sub): ManyManyTransfer(vm: sub).padding(.bottom, 5)
-                        }
+                VStack {
+                    ForEach(vm.sub_trans) { vm in
+                        TransactionWrapper(vm: vm)
                     }
                 }
             }.padding()
-        }
+        }.alert(alert_is_err ? "Validation Errors" : "Notice", isPresented: $show_alert, actions: {
+            Button("Ok", action: {
+                show_alert = false;
+            })
+        }, message: {
+            Text(alert_msg)
+        })
     }
 }
 

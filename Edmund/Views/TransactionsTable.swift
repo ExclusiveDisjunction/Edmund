@@ -18,7 +18,7 @@ struct TransactionsTable: View {
                 Text(item.credit, format: .currency(code: "USD"))
             }.width(50)
             TableColumn("Debits") { item in
-                Text(item.credit, format: .currency(code: "USD"))
+                Text(item.debit, format: .currency(code: "USD"))
             }.width(50)
             TableColumn("Date") { item in
                 Text(item.t_date, style: .date)

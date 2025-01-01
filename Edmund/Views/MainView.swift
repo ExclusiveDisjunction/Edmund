@@ -10,7 +10,8 @@ import SwiftData
 
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var trans_vm: TransactionsViewModel = TransactionsViewModel();
+    @State private var trans_vm: TransactionsViewModel = .init();
+    @State private var balance_vm: BalanceSheetVM = .init();
 
     var body: some View {
         NavigationSplitView {
@@ -26,7 +27,7 @@ struct MainView: View {
                     Text("Transactions")
                 }
                 NavigationLink {
-                    
+                    BalanceSheet(vm: balance_vm)
                 } label: {
                     Text("Balance Sheet")
                 }
