@@ -41,10 +41,23 @@ public class LedgerEntry : ObservableObject, Identifiable
     public var sub_account: String;
     
     public var category_pair: NamedPair {
-        NamedPair(self.category, self.sub_category, kind: .category)
+        get {
+            NamedPair(self.category, self.sub_category, kind: .category)
+        }
+        set(v) {
+            self.category = v.parent;
+            self.sub_category = v.child;
+        }
+        
     }
     public var account_pair: NamedPair {
-        NamedPair(self.account, self.sub_account, kind: .account)
+        get {
+            NamedPair(self.account, self.sub_account, kind: .account)
+        }
+        set(v) {
+            self.account = v.parent;
+            self.sub_account = v.child;
+        }
     }
 }
 

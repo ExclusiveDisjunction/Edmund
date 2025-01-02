@@ -9,60 +9,51 @@ import SwiftUI;
 import SwiftData;
 import Foundation;
 
-@Observable
-class ManualTransactionsViewModel : TransViewBase {
-    init(account: Binding<String>? = nil) {
-        self.account = account;
+class ManTransactionLine : Identifiable {
+    init(_ entry: LedgerEntry = .init(memo: "", credit: 0, debit: 0, date: Date.now, location: "", category_pair: .init(kind: .category), account_pair: .init(kind: .account))) {
+        self.entry = entry;
     }
     
-    var adding : [LedgerEntry] = [];
-    var account: Binding<String>?;
+    var id: UUID = UUID();
+    var entry: LedgerEntry;
+    var selected: Bool = false;
+    
+    func contains_empty(show_account: Bool) -> Bool {
+        entry.memo.isEmpty || entry.category_pair.isEmpty || (show_account ? entry.account_pair.isEmpty : entry.sub_account.isEmpty)
+    }
+}
+
+@Observable
+class ManualTransactionsViewModel : TransViewBase {
+    init(show_account: Bool = true) {
+        self.show_account = show_account;
+        adding.append(.init())
+    }
+    
+    var adding : [ManTransactionLine] = [];
+    var show_account: Bool;
+    var enable_dates: Bool = true;
     var err_msg: String? = nil;
-    var show_account: Bool = true;
     
     func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
         if !validate() { return nil; }
         
-        return adding.reduce(into: [:]) { $0[$1.account_pair] = $1.credit - $1.debit };
+        return adding.reduce(into: [:]) { $0[$1.entry.account_pair] = $1.entry.credit - $1.entry.debit };
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil; }
         
-        return adding;
+        return adding.reduce(into: []) { $0.append($1.entry)};
     }
     func validate() -> Bool {
-        let empty_acc: Bool;
-        var empty_lines: [Int] = [];
-        
-        if let acc = account {
-            empty_acc = acc.wrappedValue.isEmpty;
-            
-            for (i, row) in adding.enumerated() {
-                if row.memo.isEmpty || row.category.isEmpty || row.category.isEmpty || row.sub_category.isEmpty || row.sub_account.isEmpty {
-                        empty_lines.append(i+1);
-                }
-            }
-        }
-        else {
-            empty_acc = false;
-            
-            for (i, row) in adding.enumerated() {
-                if row.memo.isEmpty || row.category.isEmpty || row.category.isEmpty || row.sub_category.isEmpty || row.account.isEmpty || row.sub_account.isEmpty {
-                        empty_lines.append(i+1);
-                }
+        let empty_lines: [Int] = adding.enumerated().reduce(into: []) { result, pair in
+            if pair.element.contains_empty(show_account: self.show_account) {
+                result.append(pair.offset)
             }
         }
         
-        if empty_acc && !empty_lines.isEmpty {
-            err_msg = "Account is empty and the following lines are empty: " + empty_lines.map(String.init).joined(separator: ", ");
-            return false;
-        }
-        else if !empty_acc && !empty_lines.isEmpty {
-            err_msg = "The following lines are empty: " + empty_lines.map(String.init).joined(separator: ", ");
-            return false;
-        }
-        else if empty_acc && empty_lines.isEmpty {
-            err_msg = "Account is empty";
+        if !empty_lines.isEmpty {
+            err_msg = "The following lines contain empty fields: " + empty_lines.map(String.init).joined(separator: ", ")
             return false;
         }
         else {
@@ -72,25 +63,18 @@ class ManualTransactionsViewModel : TransViewBase {
     }
     func clear() {
         adding = []
-        if let acc = account {
-            acc.wrappedValue = "";
-        }
         err_msg = nil
     }
 }
 
 struct ManualTransactions: View {
-    var id: UUID = UUID();
-
     @Bindable var vm: ManualTransactionsViewModel;
-    @State private var selected: UUID?;
     
     private func add_trans() {
-        vm.adding.append(LedgerEntry(memo: "", credit: 0.00, debit: 0.00, date: Date.now, location: "", category: "", sub_category: "", account: "", sub_account: ""))
+        vm.adding.append(.init( .init(memo: "", credit: 0.00, debit: 0.00, date: Date.now, location: "", category_pair: NamedPair(kind: .category), account_pair: NamedPair(kind: .account))))
     }
-    private func remove_trans() {
-        if selected == nil { return }
-        vm.adding.removeAll(where: { $0.id == selected })
+    private func remove_selected() {
+        vm.adding.removeAll(where: { $0.selected })
     }
     
     var body: some View {
@@ -104,18 +88,46 @@ struct ManualTransactions: View {
             }.padding([.leading, .trailing], 10).padding(.top, 5)
             
             HStack {
-                Button(action: {
-                    add_trans()
-                }) {
+                Button(action: add_trans) {
                     Label("Add", systemImage: "plus")
                 }.help("Add a transaction to the table")
-                Button(action: {
-                    remove_trans()
-                }) {
-                    Label("Remove", systemImage: "trash").foregroundStyle(.red)
-                }.disabled(selected == nil).help("Delete the currently selected transaction")
+                Button(action: remove_selected) {
+                    Label("Remove Selected", systemImage: "trash").foregroundStyle(.red)
+                }.help("Remove all transactions that are currently selected")
             }.padding(.bottom, 5)
             
+            Toggle("Enable Dates", isOn: $vm.enable_dates)
+            
+            ScrollView {
+                Grid {
+                    GridRow {
+                        Text("")
+                        Text("Memo")
+                        Text("Credit")
+                        Text("Debit")
+                        Text("Date")
+                        Text("Location")
+                        Text("Category")
+                        if vm.show_account {
+                            Text("Account")
+                        }
+                    }
+                    ForEach($vm.adding) { $item in
+                        GridRow {
+                            Toggle("Selected", isOn: $item.selected).labelsHidden()
+                            TextField("Memo", text: $item.entry.memo).frame(minWidth: 120)
+                            TextField("Money In", value: $item.entry.credit, format: .currency(code: "USD")).frame(minWidth: 60)
+                            TextField("Money Out", value: $item.entry.debit, format: .currency(code: "USD")).frame(minWidth: 60)
+                            DatePicker("Date", selection: $item.entry.t_date, displayedComponents: .date).labelsHidden().disabled(!vm.enable_dates)
+                            TextField("Location", text: $item.entry.location).frame(minWidth: 100)
+                            NamedPairEditor(acc: $item.entry.category_pair).frame(minWidth: 200)
+                            NamedPairEditor(acc: $item.entry.account_pair).frame(minWidth: 200)
+                        }.disabled(item.selected)
+                    }
+                }.padding(5)
+            }
+            
+            /*
             Table($vm.adding, selection: $selected) {
                 TableColumn("Memo") { $item in
                     TextField("Description", text: $item.memo)
@@ -152,15 +164,12 @@ struct ManualTransactions: View {
                     TextField("Sub Account", text: $item.sub_account)
                 }
             }.padding(5).frame(minHeight: 150)
+            */
         }.background(.background.opacity(0.5)).cornerRadius(5)
     }
 }
 
 #Preview {
     var test_account = "Checking";
-    ManualTransactions(vm: ManualTransactionsViewModel(account: Binding<String>(get: {
-        test_account
-    }, set: { v in
-        test_account = v
-    })))
+    ManualTransactions(vm: .init(show_account: true))
 }

@@ -10,21 +10,14 @@ import SwiftUI
 @Observable
 class CreditCardTransViewModel : TransViewBase {
     init() {
-        sub_transactions = ManualTransactionsViewModel(account: Binding<String>(
-            get: {
-                self.account
-            },
-            set: { v in
-                self.account = v
-            }
-            )
-        )
+        sub_transactions = ManualTransactionsViewModel(show_account: false)
     }
     
     func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
         return nil;
     }
     func create_transactions() -> [LedgerEntry]? {
+        //Keep in mind that I have to fill in the account, manual transactions will not do it for me.
         return nil;
     }
     func validate() -> Bool {
