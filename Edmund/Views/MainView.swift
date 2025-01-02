@@ -56,6 +56,11 @@ struct MainView: View {
                 } label: {
                     Label("Budget", systemImage: "wand.and.sparkles")
                 }
+                NavigationLink {
+                    
+                } label: {
+                    Label("Management", systemImage: "building")
+                }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {

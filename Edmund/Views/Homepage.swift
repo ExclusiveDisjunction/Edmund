@@ -41,14 +41,14 @@ struct Homepage : View {
                         Text("Add, modify, and remove bills").multilineTextAlignment(.center)
                     }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
                     GridRow {
-                        Text("")
                         Text("Budget").font(.headline)
                         Text("")
+                        Text("Management").font(.headline)
                     }.frame(maxWidth: .infinity)
                     GridRow {
-                        Text("")
                         Text("Update and determine the budget").multilineTextAlignment(.center)
                         Text("")
+                        Text("Modify all data stored and resetting the ledger").multilineTextAlignment(.center)
                     }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
                 }
             }.padding()
