@@ -13,4 +13,5 @@
         1. Bill mode
         2. Repayment mode
         3. Loan mode
-4. Add a composite transaction field
+4. Add a composite transaction view
+5. Finish up Paychecks, which needs the Jobs and Taxes to be made. 
