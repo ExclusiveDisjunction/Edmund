@@ -17,28 +17,53 @@ struct MainView: View {
         NavigationSplitView {
             List {
                 NavigationLink {
-                    TransactionsTable()
+                    Homepage()
                 } label: {
-                    Text("Ledger")
+                    Label("Welcome", systemImage: "house")
+                }
+                NavigationLink {
+                    LedgerTable()
+                } label: {
+                    Label("Ledger", systemImage: "clipboard")
                 }
                 NavigationLink {
                     TransactionsView(vm: trans_vm).frame(maxHeight: .infinity)
                 } label: {
-                    Text("Transactions")
+                    Label("Transactions", systemImage: "pencil")
                 }
                 NavigationLink {
                     BalanceSheet(vm: balance_vm)
                 } label: {
-                    Text("Balance Sheet")
+                    Label("Balance Sheet", systemImage: "plus.forwardslash.minus")
+                }
+                NavigationLink {
+                    
+                } label: {
+                    Label("Accounts & Categories", systemImage: "bag")
+                }
+                NavigationLink {
+                    
+                } label: {
+                    Label("Paychecks", systemImage: "dollarsign.bank.building")
+                }
+                NavigationLink {
+                    
+                } label: {
+                    Label("Bills", systemImage: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
+                }
+                NavigationLink {
+                    
+                } label: {
+                    Label("Budget", systemImage: "wand.and.sparkles")
                 }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
-            Text("Welcome!")
+            Homepage()
         }
     }
 }
 
 #Preview {
-    MainView().frame(width: 700, height: 600)
+    MainView().frame(width: 800, height: 600)
 }

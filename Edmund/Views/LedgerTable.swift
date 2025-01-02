@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData;
 
-struct TransactionsTable: View {
+struct LedgerTable: View {
     @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
     
     var body: some View {
@@ -35,5 +35,5 @@ struct TransactionsTable: View {
 }
 
 #Preview {
-    TransactionsTable()
+    LedgerTable()
 }

@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct ui_demoApp: App {
+    @Environment(\.openWindow) var openWindow;
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             LedgerEntry.self
@@ -27,6 +29,15 @@ struct ui_demoApp: App {
         WindowGroup {
             MainView()
             
-        } .modelContainer(sharedModelContainer)
+        } .modelContainer(sharedModelContainer).commands {
+            GeneralCommands()
+        }
+        
+        WindowGroup(id: "Balance Sheet") {
+            BalanceSheet(vm: .init())
+        }.modelContainer(sharedModelContainer)
+        WindowGroup(id: "Ledger") {
+            LedgerTable()
+        }.modelContainer(sharedModelContainer)
     }
 }

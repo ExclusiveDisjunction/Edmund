@@ -114,9 +114,7 @@ struct CompositeTransaction : View {
             
             ScrollView {
                 VStack {
-                    ForEach($vm.entries) { $item in
-                        
-                    }
+                    
                 }
             }.frame(minHeight: 120)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)

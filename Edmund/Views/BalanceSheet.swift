@@ -137,7 +137,6 @@ struct BalanceSheet: View {
 }
 
 #Preview {
-    /*
     BalanceSheet(vm: BalanceSheetVM(synthetic: [
         .init(account: "Checking", subs: [
             .init("DI", credits: 30, debits: 70),
@@ -149,7 +148,6 @@ struct BalanceSheet: View {
             .init("Main", credits: 1000, debits: 100)
         ])
     ]))
-    */
     
-    BalanceSheet(vm: BalanceSheetVM())
+    //BalanceSheet(vm: BalanceSheetVM())
 }
