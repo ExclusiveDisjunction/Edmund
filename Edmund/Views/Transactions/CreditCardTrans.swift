@@ -98,7 +98,7 @@ struct CreditCardTrans: View {
                 Text("Balance transfer from")
                 TextField("Target Account", text: $vm.target_account)
                 TextField("Target Sub Account", text: $vm.target_sub_account)
-            }
+            }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }
 }
