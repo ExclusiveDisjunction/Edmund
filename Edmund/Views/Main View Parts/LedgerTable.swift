@@ -21,14 +21,14 @@ struct LedgerTable: View {
                 Text(item.debit, format: .currency(code: "USD"))
             }.width(50)
             TableColumn("Date") { item in
-                Text(item.t_date, style: .date)
+                Text(item.date, style: .date)
             }.width(100)
             TableColumn("Location", value: \.location)
             TableColumn("Category") { (item: LedgerEntry) in
-                NamedPairViewer(acc: item.category_pair)
+                CategoryNameViewer(category: item.category)
             }
             TableColumn("Account") { item in
-                NamedPairViewer(acc: item.account_pair)
+                AccountNameViewer(account: item.account)
             }
         }
     }

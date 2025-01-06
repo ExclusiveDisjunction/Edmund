@@ -9,10 +9,10 @@ import SwiftUI;
 
 @Observable
 class ManyOneTransferVM : TransViewBase {
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() { return nil }
         
-        var result: [NamedPair: Decimal] = [
+        var result: [AccountPair: Decimal] = [
             acc: multi.total
         ];
         
@@ -27,7 +27,7 @@ class ManyOneTransferVM : TransViewBase {
         
         if var sub_acc = self.multi.create_transactions(transfer_into: false) {
             sub_acc.append(
-                LedgerEntry(memo: "Various to " + acc.child, credit: multi.total, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc)
+                .init(memo: "Various to " + acc.sub_account, credit: multi.total, debit: 0, date: Date.now, location: "Bank", category: .init("Account Control", "Transfer"), account: acc)
             );
             return sub_acc;
         }
@@ -57,13 +57,13 @@ class ManyOneTransferVM : TransViewBase {
     }
     func clear() {
         err_msg = nil;
-        acc = NamedPair(kind: .account);
+        acc = .init()
         multi.clear();
     }
      
     var err_msg: String? = nil;
-    var acc: NamedPair = NamedPair(kind: .account);
-    var multi: ManyTransferTableVM = ManyTransferTableVM(minHeight: 90);
+    var acc: AccountPair = .init();
+    var multi: ManyTransferTableVM = .init(minHeight: 90);
 }
 struct ManyOneTransfer : View {
     
@@ -87,7 +87,7 @@ struct ManyOneTransfer : View {
             
             HStack {
                 Text("Move \(vm.multi.total, format: .currency(code: "USD")) into")
-                NamedPairEditor(acc: $vm.acc)
+                AccountNameEditor(account: $vm.acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

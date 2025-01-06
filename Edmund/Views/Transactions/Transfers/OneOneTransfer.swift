@@ -12,11 +12,11 @@ class OneOneTransferVM : TransViewBase {
     init() {
         err_msg = nil;
         amount = 0;
-        src = NamedPair(kind: .account);
-        dest = NamedPair(kind: .account);
+        src = .init()
+        dest = .init()
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() { return nil; }
         
         return [
@@ -28,8 +28,24 @@ class OneOneTransferVM : TransViewBase {
         if !validate() { return nil; }
         
         return [
-            LedgerEntry(memo: src.child + " to " + dest.child, credit: 0, debit: amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: src),
-            LedgerEntry(memo: src.child + " to " + dest.child, credit: amount, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: dest)
+            .init(
+                memo: src.sub_account + " to " + dest.sub_account,
+                credit: 0,
+                debit: amount,
+                date: Date.now,
+                location: "Bank",
+                category: .init("Account Control", "Transfer"),
+                account: src
+            ),
+            .init(
+                memo: src.sub_account + " to " + dest.sub_account,
+                credit: amount,
+                debit: 0,
+                date: Date.now,
+                location: "Bank",
+                category: .init("Account Control", "Transfer"),
+                account: dest
+            )
         ];
     }
     func validate() -> Bool {
@@ -52,15 +68,15 @@ class OneOneTransferVM : TransViewBase {
     func clear() {
         err_msg = nil;
         amount = 0;
-        src = NamedPair(kind: .account);
-        dest = NamedPair(kind: .account);
+        src = .init()
+        dest = .init()
     }
     
     
     var err_msg: String?;
     var amount: Decimal;
-    var src: NamedPair;
-    var dest: NamedPair;
+    var src: AccountPair;
+    var dest: AccountPair;
 }
 
 struct OneOneTransfer : View {
@@ -84,12 +100,12 @@ struct OneOneTransfer : View {
                    
                 GridRow {
                     Text("From")
-                    NamedPairEditor(acc: $vm.src)
+                    AccountNameEditor(account: $vm.src)
                 }
                 
                 GridRow {
                     Text("Into")
-                    NamedPairEditor(acc: $vm.dest)
+                    AccountNameEditor(account: $vm.dest)
                 }
                 
             }.padding(.bottom, 10).frame(minWidth: 300, maxWidth: .infinity)

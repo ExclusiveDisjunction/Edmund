@@ -16,7 +16,7 @@ enum PaymentType {
 
 @Observable
 class PaymentViewModel : TransViewBase {
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() { return nil; }
         
         let sub_account: String;
@@ -37,7 +37,7 @@ class PaymentViewModel : TransViewBase {
             amount = self.amount;
         }
         
-        return [NamedPair(self.account_name, sub_account, kind: .account): amount];
+        return [.init(self.account_name, sub_account): amount];
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil }
@@ -76,7 +76,15 @@ class PaymentViewModel : TransViewBase {
         }
         
         return [
-            LedgerEntry(memo: memo, credit: credit, debit: debit, date: Date.now, location: "Bank", category: "Payment", sub_category: sub_category, account: account_name, sub_account: sub_tender)
+            .init(
+                memo: memo,
+                credit: credit,
+                debit: debit,
+                date: Date.now,
+                location: "Bank",
+                category: .init("Payment", sub_category),
+                account: .init(account_name, sub_tender)
+            )
         ]
     }
     func validate() -> Bool {

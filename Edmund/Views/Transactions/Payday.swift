@@ -15,7 +15,7 @@ enum BreakdownKind {
 class PaydayBreakdown: Identifiable {
     init(account_name: String, kind: BreakdownKind) {
         self.amount = 0;
-        self.acc = NamedPair(account_name, "", kind: .account);
+        self.acc = .init(account_name, "");
         self.kind = kind;
     }
     
@@ -23,14 +23,14 @@ class PaydayBreakdown: Identifiable {
     
     var kind: BreakdownKind;
     var amount: Decimal;
-    var acc: NamedPair;
+    var acc: AccountPair;
 }
 
 @Observable
 class PaydayViewModel: TransViewBase {
-    private func compute_balances() -> (Dictionary<NamedPair, Decimal>, Decimal) {
+    private func compute_balances() -> (Dictionary<AccountPair, Decimal>, Decimal) {
         var total = amount;
-        var result: Dictionary<NamedPair, Decimal> = [:];
+        var result: Dictionary<AccountPair, Decimal> = [:];
         
         for item in breakdowns {
             switch item.kind {
@@ -47,7 +47,7 @@ class PaydayViewModel: TransViewBase {
         return (result, total);
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() {
             return nil;
         }
@@ -59,34 +59,63 @@ class PaydayViewModel: TransViewBase {
     }
     func create_transactions() -> [LedgerEntry]? {
         let balances = self.compile_deltas();
-        guard balances != nil else { return nil; }
+        if let balances = balances {
+            var result: [LedgerEntry] = balances.map({ (acc, balance) in
+                    .init(
+                        memo: self.acc.sub_account + " to " + acc.sub_account,
+                        credit: balance,
+                        debit: 0,
+                        date: Date.now,
+                        location: "Bank",
+                        category: .init("Account Control", "Transfer"),
+                        account: acc)
+            });
         
-        //This is all of the breakdowns combined, which are regarded as "Transfer"
-        var result: [LedgerEntry] = balances!.map({ (acc, balance) in
-            LedgerEntry(memo: acc.child + " to " + acc.child, credit: balance, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc)
-        });
-    
-        //This is the actual pay coming into the account
-        result.insert(LedgerEntry(memo: "Pay", credit: amount, debit: 0, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Pay", kind: .category), account_pair: acc), at: 0)
-        
-        //This is the transfer out of pay, but into the breakdowns
-        result.insert(LedgerEntry(memo: "Pay to " + acc.parent, credit: 0, debit: amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc), at: 1);
-        
-        return result;
+            //This is the actual pay coming into the account
+            result.insert(
+                .init(
+                    memo: "Pay",
+                    credit: amount,
+                    debit: 0,
+                    date: Date.now,
+                    location: "Bank",
+                    category: .init("Account Control", "Pay"),
+                    account: acc
+                ),
+                at: 0
+            )
+            
+            //This is the transfer out of pay, but into the breakdowns
+            result.insert(
+                .init(
+                    memo: "Pay to " + acc.account,
+                    credit: 0,
+                    debit: amount,
+                    date: Date.now,
+                    location: "Bank",
+                    category: .init("Account Control", "Transfer"),
+                    account: acc
+                ),
+                at: 1
+            );
+            
+            return result;
+        }
+        else {
+            return nil;
+        }
     }
     func validate() -> Bool {
         var empty_fields: [String] = [];
         var empty_lines: [Int] = [];
         var invalid_lines: [Int] = [];
         
-        if acc.parent.isEmpty { empty_fields.append("account") }
-        if acc.child.isEmpty { empty_fields.append("sub account") }
-        if rem_acc.parent.isEmpty { empty_fields.append("remander account") }
-        if rem_acc.child.isEmpty { empty_fields.append("remander sub account") }
+        if acc.isEmpty { empty_fields.append("account") }
+        if rem_acc.isEmpty { empty_fields.append("remander account") }
         
         var balance: Decimal = 0.0;
         for (i, d) in breakdowns.enumerated() {
-            if d.acc.child.isEmpty || d.acc.parent.isEmpty { empty_lines.append(i + 1) }
+            if d.acc.isEmpty { empty_lines.append(i + 1) }
             
             switch d.kind {
             case .simple:
@@ -109,7 +138,6 @@ class PaydayViewModel: TransViewBase {
         }
         
         let balance_invalid: Bool = balance > amount;
-        
         var messages: [String] = [];
         
         if !empty_fields.isEmpty {
@@ -137,8 +165,8 @@ class PaydayViewModel: TransViewBase {
     
     func clear() {
         amount = 0
-        acc = NamedPair("", "Pay", kind: .account);
-        rem_acc = NamedPair(kind: .account);
+        acc = .init("", "Pay");
+        rem_acc = .init();
         breakdowns = [];
         err_msg = nil;
     }
@@ -156,8 +184,8 @@ class PaydayViewModel: TransViewBase {
     }
     
     var amount: Decimal = 0;
-    var acc: NamedPair = NamedPair("", "Pay", kind: .account);
-    var rem_acc: NamedPair = NamedPair(kind: .account);
+    var acc: AccountPair = .init("", "Pay");
+    var rem_acc: AccountPair = .init();
     var breakdowns: [PaydayBreakdown] = [];
     var err_msg: String? = nil;
 }
@@ -189,7 +217,7 @@ struct Payday: View {
                 Text("Amount of")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("into")
-                NamedPairEditor(acc: $vm.acc)
+                AccountNameEditor(account: $vm.acc)
             }
             
             HStack {
@@ -200,14 +228,14 @@ struct Payday: View {
             HStack {
                 Button(action: {
                     vm.breakdowns.append(
-                        PaydayBreakdown(account_name: vm.acc.parent, kind: .simple)
+                        PaydayBreakdown(account_name: vm.acc.account, kind: .simple)
                     )
                 }) {
                     Label("Add Simple", systemImage: "plus")
                 }.help("Add a breakdown that takes a specific amount from the pay")
                 Button(action: {
                     vm.breakdowns.append(
-                        PaydayBreakdown(account_name: vm.acc.parent, kind: .percent)
+                        PaydayBreakdown(account_name: vm.acc.account, kind: .percent)
                     )
                 }) {
                     Label("Add Percentage", systemImage: "percent")
@@ -231,14 +259,14 @@ struct Payday: View {
                 TableColumn("Amount") { $item in
                     amount_field(item_kind: item.kind, binding: $item)
                 }
-                TableColumn("Account") { $item in
-                    NamedPairEditor(acc: $item.acc)
+                TableColumn("Account") { ($item: Binding<PaydayBreakdown>) in
+                    AccountNameEditor(account: $item.acc)
                 }
             }.frame(minHeight: 170)
             
             HStack {
                 Text("Insert remaining balance into")
-                NamedPairEditor(acc: $vm.rem_acc)
+                AccountNameEditor(account: $vm.rem_acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

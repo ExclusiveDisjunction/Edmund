@@ -14,7 +14,9 @@ struct ui_demoApp: App {
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            LedgerEntry.self
+            LedgerEntry.self,
+            AccountPair.self,
+            CategoryPair.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

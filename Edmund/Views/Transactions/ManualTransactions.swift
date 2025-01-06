@@ -9,8 +9,9 @@ import SwiftUI;
 import SwiftData;
 import Foundation;
 
+@Observable
 class ManTransactionLine : Identifiable {
-    init(_ entry: LedgerEntry = .init(memo: "", credit: 0, debit: 0, date: Date.now, location: "", category_pair: .init(kind: .category), account_pair: .init(kind: .account))) {
+    init(_ entry: LedgerEntry = .init(memo: "", credit: 0, debit: 0, date: Date.now, location: "", category: .init(), account: .init())) {
         self.entry = entry;
     }
     
@@ -19,12 +20,35 @@ class ManTransactionLine : Identifiable {
     var selected: Bool = false;
     
     func contains_empty(show_account: Bool) -> Bool {
-        entry.memo.isEmpty || entry.category_pair.isEmpty || (show_account ? entry.account_pair.isEmpty : entry.sub_account.isEmpty)
+        entry.memo.isEmpty || entry.category.isEmpty || (show_account ? entry.account.isEmpty : entry.account.sub_account.isEmpty)
+    }
+}
+
+struct ManTransLineView : View {
+    @Binding var line: ManTransactionLine;
+    @Binding var enable_dates: Bool;
+    @Binding var show_account: Bool;
+    
+    var body: some View {
+        Toggle("Selected", isOn: $line.selected).labelsHidden()
+        TextField("Memo", text: $line.entry.memo).frame(minWidth: 120).disabled(line.selected)
+        TextField("Money In", value: $line.entry.credit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(line.selected)
+        TextField("Money Out", value: $line.entry.debit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(line.selected)
+        DatePicker("Date", selection: $line.entry.date, displayedComponents: .date).labelsHidden().disabled(!enable_dates || line.selected)
+        TextField("Location", text: $line.entry.location).frame(minWidth: 100).disabled(line.selected)
+        CategoryNameEditor(category: $line.entry.category).frame(minWidth: 200).disabled(line.selected)
+        
+        if show_account {
+            AccountNameEditor(account: $line.entry.account).frame(minWidth: 200).disabled(line.selected)
+        }
+        else {
+            TextField("Sub Account", text: $line.entry.account.sub_account).frame(minWidth: 200).disabled(line.selected)
+        }
     }
 }
 
 @Observable
-class ManualTransactionsViewModel : TransViewBase {
+class ManualTransactionsVM : TransViewBase {
     init(show_account: Bool = true) {
         self.show_account = show_account;
         adding.append(.init())
@@ -35,10 +59,10 @@ class ManualTransactionsViewModel : TransViewBase {
     var enable_dates: Bool = true;
     var err_msg: String? = nil;
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() { return nil; }
         
-        return adding.reduce(into: [:]) { $0[$1.entry.account_pair] = $1.entry.credit - $1.entry.debit };
+        return adding.reduce(into: [:]) { $0[$1.entry.account] = $1.entry.credit - $1.entry.debit };
     }
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil; }
@@ -68,10 +92,10 @@ class ManualTransactionsViewModel : TransViewBase {
 }
 
 struct ManualTransactions: View {
-    @Bindable var vm: ManualTransactionsViewModel;
+    @Bindable var vm: ManualTransactionsVM;
     
     private func add_trans() {
-        vm.adding.append(.init( .init(memo: "", credit: 0.00, debit: 0.00, date: Date.now, location: "", category_pair: NamedPair(kind: .category), account_pair: NamedPair(kind: .account))))
+        vm.adding.append(.init())
     }
     private func remove_selected() {
         vm.adding.removeAll(where: { $0.selected })
@@ -125,20 +149,7 @@ struct ManualTransactions: View {
                     }
                     ForEach($vm.adding) { $item in
                         GridRow {
-                            Toggle("Selected", isOn: $item.selected).labelsHidden()
-                            TextField("Memo", text: $item.entry.memo).frame(minWidth: 120).disabled(item.selected)
-                            TextField("Money In", value: $item.entry.credit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(item.selected)
-                            TextField("Money Out", value: $item.entry.debit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(item.selected)
-                            DatePicker("Date", selection: $item.entry.t_date, displayedComponents: .date).labelsHidden().disabled(!vm.enable_dates || item.selected)
-                            TextField("Location", text: $item.entry.location).frame(minWidth: 100).disabled(item.selected)
-                            NamedPairEditor(acc: $item.entry.category_pair).frame(minWidth: 200).disabled(item.selected)
-                            
-                            if vm.show_account {
-                                NamedPairEditor(acc: $item.entry.account_pair).frame(minWidth: 200).disabled(item.selected)
-                            }
-                            else {
-                                TextField("Sub Account", text: $item.entry.sub_account).frame(minWidth: 200).disabled(item.selected)
-                            }
+                            ManTransLineView(line: $item, enable_dates: $vm.enable_dates, show_account: $vm.show_account)
                         }
                     }
                 }.padding().background(.background.opacity(0.7))

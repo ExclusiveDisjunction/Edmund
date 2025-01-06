@@ -14,7 +14,7 @@ class CompositeTransactionVM : TransViewBase {
         
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() { return nil }
         
         return [acc: credit ? total : -total];
@@ -23,7 +23,14 @@ class CompositeTransactionVM : TransViewBase {
         if !validate() { return nil }
         
         return [
-            LedgerEntry(memo: memo, credit: self.credit ? total : 0, debit: self.credit ? 0 : total, date: self.date, location: location, category_pair: category, account_pair: acc)
+            .init(
+                memo: memo,
+                credit: self.credit ? total : 0,
+                debit: self.credit ? 0 : total,
+                date: self.date,
+                location: location,
+                category: category,
+                account: acc)
         ]
     }
     func validate() -> Bool {
@@ -46,8 +53,8 @@ class CompositeTransactionVM : TransViewBase {
         memo = "";
         date = Date.now;
         location = "Various";
-        category = NamedPair(kind: .category);
-        acc = NamedPair(kind: .account);
+        category = .init()
+        acc = .init()
         entries = [];
         credit = false;
         err_msg = nil;
@@ -56,8 +63,8 @@ class CompositeTransactionVM : TransViewBase {
     var memo: String = ""
     var date: Date = Date.now
     var location: String = "Various"
-    var category: NamedPair = NamedPair(kind: .category)
-    var acc: NamedPair = NamedPair(kind: .account)
+    var category: CategoryPair = .init()
+    var acc: AccountPair = .init()
     var entries: [Decimal] = [];
     var credit: Bool = false;
     var err_msg: String? = nil;
@@ -95,11 +102,11 @@ struct CompositeTransaction : View {
                 }
                 GridRow {
                     Text("Category")
-                    NamedPairEditor(acc: $vm.category)
+                    CategoryNameEditor(category: $vm.category)
                 }
                 GridRow {
                     Text("Account")
-                    NamedPairEditor(acc: $vm.acc)
+                    AccountNameEditor(account: $vm.acc)
                 }
             }.padding(.bottom, 5)
             

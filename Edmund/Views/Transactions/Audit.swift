@@ -9,7 +9,7 @@ import SwiftUI
 
 @Observable
 class AuditViewModel : TransViewBase {
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if (!validate())
         { return nil; }
         
@@ -18,28 +18,35 @@ class AuditViewModel : TransViewBase {
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil }
         
-        return [ LedgerEntry(memo: "Audit", credit: 0, debit: amount, date: Date.now, location: "Bank", category_pair: .init("Account Control", "Audit", kind: .category), account_pair: account) ];
+        return [
+            LedgerEntry(
+                memo: "Audit",
+                credit: 0,
+                debit: amount,
+                date: Date.now,
+                location: "Bank",
+                category: .init("Account Control", "Audit"),
+                account: account)
+        ];
     }
     func validate() -> Bool {
-        var empty_ones: [String] = [];
-        
-        if account.parentEmpty { empty_ones.append("account") }
-        if account.childEmpty { empty_ones.append("sub account") }
-    
-        if empty_ones.isEmpty { return true }
+        if account.isEmpty {
+            err_msg = "Account is empty"
+            return false;
+        }
         else {
-            err_msg = "The following fields are empty: \(empty_ones.joined(separator: ", "))"
-            return false
+            err_msg = nil;
+            return true;
         }
     }
     func clear() {
         amount = 0
-        account = NamedPair(kind: .account)
+        account = .init()
         err_msg = nil
     }
     
     var amount: Decimal = 0;
-    var account: NamedPair = NamedPair(kind: .account)
+    var account: AccountPair = .init()
     var err_msg: String? = nil
     var id: UUID = UUID();
 }
@@ -61,7 +68,7 @@ struct Audit: View {
                 Text("Deduct")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("from")
-                NamedPairEditor(acc: $vm.account)
+                AccountNameEditor(account: $vm.account)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

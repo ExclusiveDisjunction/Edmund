@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData;
 
 enum TransactionEnum {
-    case manual(sub: ManualTransactionsViewModel = .init())
+    case manual(sub: ManualTransactionsVM = .init())
     case generalIncome(sub: GeneralIncomeViewModel = .init())
     case payment(sub: PaymentViewModel = .init())
     case audit(sub: AuditViewModel = .init())
@@ -37,7 +37,7 @@ enum TransactionEnum {
         }
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         return self.as_trans_view_base().compile_deltas()
     }
     func create_transactions() -> [LedgerEntry]? {
@@ -65,7 +65,7 @@ class TransactionWrapperVM : Identifiable, TransViewBase {
     func validate() -> Bool {
         inner.validate()
     }
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         inner.compile_deltas()
     }
     func create_transactions() -> [LedgerEntry]? {

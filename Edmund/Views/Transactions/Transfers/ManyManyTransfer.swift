@@ -15,10 +15,10 @@ class ManyManyTransferVM : TransViewBase {
         bottom = ManyTransferTableVM();
     }
     
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !validate() { return nil }
         
-        var result: [NamedPair: Decimal] = [:];
+        var result: [AccountPair: Decimal] = [:];
         
         top.entries.forEach { result[$0.acc] = $0.amount }
         bottom.entries.forEach{ result[$0.acc] = -$0.amount }

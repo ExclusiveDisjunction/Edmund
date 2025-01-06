@@ -9,10 +9,10 @@ import SwiftUI
 
 @Observable
 class OneManyTransferVM : TransViewBase {
-    func compile_deltas() -> Dictionary<NamedPair, Decimal>? {
+    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if !self.validate() { return nil; }
         
-        var result: [NamedPair: Decimal] = [
+        var result: [AccountPair: Decimal] = [
             acc: -amount
         ];
         
@@ -26,7 +26,14 @@ class OneManyTransferVM : TransViewBase {
         if !self.validate() { return nil; }
         
         var result: [LedgerEntry] = [
-            LedgerEntry(memo: self.acc.child + " to Various", credit: 0, debit: amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: acc)
+            .init(
+                memo: self.acc.sub_account + " to Various",
+                credit: 0,
+                debit: amount,
+                date: Date.now,
+                location: "Bank",
+                category: .init("Account Control", "Transfer"),
+                account: acc)
         ];
         
         if let sub_result = self.multi.create_transactions(transfer_into: true) {
@@ -61,13 +68,13 @@ class OneManyTransferVM : TransViewBase {
     func clear() {
         err_msg = nil;
         amount = 0;
-        acc = NamedPair(kind: .account);
+        acc = .init()
         multi.clear();
     }
      
     var err_msg: String? = nil;
     var amount: Decimal = 0.0;
-    var acc: NamedPair = NamedPair(kind: .account);
+    var acc: AccountPair = .init()
     var multi: ManyTransferTableVM = ManyTransferTableVM();
 }
 struct OneManyTransfer : View {
@@ -93,7 +100,7 @@ struct OneManyTransfer : View {
                 }
                 GridRow {
                     Text("From")
-                    NamedPairEditor(acc: $vm.acc)
+                    AccountNameEditor(account: $vm.acc)
                 }
             }
             

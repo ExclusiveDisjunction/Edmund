@@ -11,14 +11,14 @@ import SwiftUI;
 class ManyTableEntry : Identifiable {
     init() {
         self.amount = 0;
-        self.acc = NamedPair(kind: .account);
+        self.acc = .init();
         self.id = UUID();
         self.selected = false;
     }
     
     
     var amount: Decimal;
-    var acc: NamedPair;
+    var acc: AccountPair;
     var id: UUID;
     var selected: Bool;
 }
@@ -55,7 +55,14 @@ class ManyTransferTableVM {
             guard !entry.acc.isEmpty else { return nil; }
             
             result.append(
-                LedgerEntry(memo: (transfer_into ? "Various to " + entry.acc.child : entry.acc.child + " to Various"), credit: transfer_into ? entry.amount : 0, debit: transfer_into ? 0 : entry.amount, date: Date.now, location: "Bank", category_pair: NamedPair("Account Control", "Transfer", kind: .category), account_pair: entry.acc)
+                .init(
+                    memo: (transfer_into ? "Various to " + entry.acc.sub_account : entry.acc.sub_account + " to Various"),
+                    credit: transfer_into ? entry.amount : 0,
+                    debit: transfer_into ? 0 : entry.amount,
+                    date: Date.now,
+                    location: "Bank",
+                    category: .init("Account Control", "Transfer"),
+                    account: entry.acc)
             );
         }
         
@@ -110,7 +117,7 @@ struct ManyTransferTable : View {
                     GridRow {
                         Toggle("Selected", isOn: $item.selected).labelsHidden()
                         TextField("Amount", value: $item.amount, format: .currency(code: "USD")).disabled(item.selected)
-                        NamedPairEditor(acc: $item.acc).disabled(item.selected)
+                        AccountNameEditor(account: $item.acc).disabled(item.selected)
                     }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
                 }.frame(maxHeight: vm.minHeight)
             }.padding().background(.background.opacity(0.7))
