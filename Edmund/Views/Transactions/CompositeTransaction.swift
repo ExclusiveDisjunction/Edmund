@@ -113,8 +113,26 @@ struct CompositeTransaction : View {
             }
             
             ScrollView {
-                VStack {
-                    
+                Grid {
+                    let upper_bound: Int = .init(
+                        ceil(Double.init(vm.entries.count) / 4.0)
+                    )
+                    /*
+                    ForEach(vm.entries.windows(ofSize: 4)) { group in
+                        GridRow {
+                            ForEach(group) { item in
+                                Text("Here")
+                            }
+                        }
+                    }
+                    ForEach(0..<upper_bound, id: \Int.self) { row_index in
+                        GridRow {
+                            ForEach(row_index..<(row_index * 4)) {
+                                Text("\($0, format: .currency(code: "USD"))")
+                            }
+                        }
+                    }
+                    */
                 }
             }.frame(minHeight: 120)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)

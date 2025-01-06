@@ -19,6 +19,7 @@ enum TransactionEnum {
     case one_many_transfer(sub: OneManyTransferVM = .init())
     case many_one_transfer(sub: ManyOneTransferVM = .init())
     case many_many_transfer(sub: ManyManyTransferVM = .init())
+    case composite(sub: CompositeTransactionVM = .init())
     
     func as_trans_view_base() -> any TransViewBase {
         switch self {
@@ -32,6 +33,7 @@ enum TransactionEnum {
         case .one_many_transfer(let sub): return sub
         case .many_one_transfer(let sub): return sub
         case .many_many_transfer(let sub): return sub
+        case .composite(let sub): return sub
         }
     }
     
@@ -92,7 +94,8 @@ struct TransactionWrapper : View {
                 case .one_one_transfer(let sub): OneOneTransfer(vm: sub)
                 case .one_many_transfer(let sub): OneManyTransfer(vm: sub)
                 case .many_one_transfer(let sub): ManyOneTransfer(vm: sub)
-                case .many_many_transfer(let sub): ManyManyTransfer(vm: sub).disabled(vm.selected)
+                case .many_many_transfer(let sub): ManyManyTransfer(vm: sub)
+                case .composite(let sub): CompositeTransaction(vm: sub)
                 }
             }.disabled(vm.selected).background(vm.selected ? Color.accentColor.opacity(0.2) : Color.clear)
         }.padding(.bottom, 5)
@@ -117,18 +120,14 @@ struct TransactionsView : View {
     
     @Bindable var vm: TransactionsViewModel;
     @Environment(\.modelContext) private var context;
-    @State var alert_msg: String = .init();
-    @State var show_alert: Bool = false;
-    @State var alert_is_err: Bool = true;
+    @State var alert_context: AlertContext = .init();
     
     private func validate() -> Bool {
         for transaction in vm.sub_trans {
             if !transaction.validate() { return false }
         }
         
-        alert_msg = "All cells validated."
-        alert_is_err = false;
-        show_alert = true;
+        alert_context = .init("All cells validated", is_error: false)
         return true
     }
     private func reset_all() {
@@ -144,9 +143,7 @@ struct TransactionsView : View {
     }
     private func enact() {
         if !self.validate() {
-            alert_is_err = true;
-            alert_msg = "One or more cells have errors, please resolve them and try again.";
-            show_alert = true;
+            alert_context = .init("One or more cells have errors, please resolve them and try again")
             return;
         }
         
@@ -157,17 +154,13 @@ struct TransactionsView : View {
                 }
             }
             else {
-                alert_is_err = true;
-                alert_msg = "Unexpected result from cell \(i)."
-                show_alert = true;
+                alert_context = .init("Unexpected null result from cell \(i)")
                 return;
             }
         }
         
         clear_all();
-        alert_is_err = false;
-        alert_msg = "Enacted successfully";
-        show_alert = true;
+        alert_context = .init("Enacted successfully", is_error: false)
     }
     
     var body : some View {
@@ -183,6 +176,9 @@ struct TransactionsView : View {
                     Button("Manual Transactions", action: {
                         vm.sub_trans.append(.init(.manual()))
                     } )
+                    Button("Composite Transaction", action: {
+                        vm.sub_trans.append( .init( .composite() ) )
+                    })
                     Button("Payment", action: {
                         vm.sub_trans.append(.init(.payment()))
                     })
@@ -268,12 +264,12 @@ struct TransactionsView : View {
                     }
                 }
             }.padding()
-        }.alert(alert_is_err ? "Validation Errors" : "Notice", isPresented: $show_alert, actions: {
+        }.alert(alert_context.is_error ? "Validation Errors" : "Notice", isPresented: $alert_context.show_alert, actions: {
             Button("Ok", action: {
-                show_alert = false;
+                alert_context.show_alert = false;
             })
         }, message: {
-            Text(alert_msg)
+            Text(alert_context.message)
         })
     }
 }
