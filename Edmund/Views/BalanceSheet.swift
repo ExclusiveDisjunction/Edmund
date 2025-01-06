@@ -132,7 +132,7 @@ struct BalanceSheet: View {
                     }.background(.background.opacity(0.5)).padding()
                 }
             }
-        }
+        }.onAppear(perform: update_balances)
     }
 }
 
