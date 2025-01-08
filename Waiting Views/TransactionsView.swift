@@ -37,7 +37,7 @@ enum TransactionEnum {
         }
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<SubAccount, Decimal>? {
         return self.as_trans_view_base().compile_deltas()
     }
     func create_transactions() -> [LedgerEntry]? {
@@ -65,9 +65,11 @@ class TransactionWrapperVM : Identifiable, TransViewBase {
     func validate() -> Bool {
         inner.validate()
     }
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    /*
+    func compile_deltas() -> Dictionary<SubAccount, Decimal>? {
         inner.compile_deltas()
     }
+     */
     func create_transactions() -> [LedgerEntry]? {
         inner.create_transactions()
     }

@@ -7,66 +7,60 @@
 
 import SwiftUI;
 
-struct AccountNameEditor : View {
-    @Binding var account: AccountPair;
+struct AccountPicker : View {
     
     var body: some View {
-        HStack {
-            TextField("Account", text: $account.account)
-            TextField("Sub Account", text: $account.sub_account)
-        }
+        Text("not yet")
     }
 }
-struct AccountNameViewer : View {
-    var account: AccountPair;
+struct SubAccountViewer : View {
+    var account: SubAccount;
     
-    var body: some View {
-        Text("\(account.account) . \(account.sub_account)")
+    var body : some View {
+        Text("comming")
     }
 }
-
-struct CategoryNameEditor : View {
-    @Binding var category: CategoryPair;
-    
+struct CategoryPicker : View {
     var body: some View {
-        TextField("Category", text: $category.category)
-        TextField("Sub Category", text: $category.sub_category)
+        Text("not yet")
     }
 }
-struct CategoryNameViewer : View {
-    var category: CategoryPair;
+struct SubCategoryViewer : View {
+    var category: SubCategory;
     
     var body: some View {
-        Text("\(category.category) . \(category.sub_category)")
+        Text("comming")
     }
 }
 
 #Preview {
-    var acc: AccountPair = .init("Checking", "")
-    var cat: CategoryPair = .init("Account Control", "Pay")
+    var account: Account = .init("Checking")
+    var sub_acc: SubAccount = .init("", parent: account)
+    var cat: Category = .init("Account Control")
+    var sub_cat: SubCategory = .init("Pay", parent: cat)
     
-    let acc_bind: Binding<AccountPair> = .init(
+    let acc_bind: Binding<SubAccount> = .init(
         get: {
-            acc
+            sub_acc
         },
         set: {
-            acc = $0
+            sub_acc = $0
         }
     )
-    let cat_bind: Binding<CategoryPair> = .init(
+    let cat_bind: Binding<SubCategory> = .init(
         get: {
-            cat
+            sub_cat
         },
         set: {
-            cat = $0
+            sub_cat = $0
         }
     )
     
     VStack {
-        AccountNameEditor(account: acc_bind)
-        AccountNameViewer(account: acc)
+        AccountPicker()
+        SubAccountViewer(account: sub_acc)
         Divider()
-        CategoryNameEditor(category: cat_bind)
-        CategoryNameViewer(category: cat)
+        CategoryPicker()
+        SubCategoryViewer(category: sub_cat)
     }
 }

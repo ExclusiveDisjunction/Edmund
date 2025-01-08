@@ -9,8 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct AccsAndCats : View {
-    @Query var accs: [AccountPair];
-    @Query var cats: [CategoryPair];
     @State var show_accs: Bool = true;
     
     var body: some View {
@@ -30,7 +28,7 @@ struct AccsAndCats : View {
             
             if show_accs {
                 Text("Showing Accounts")
-                Spacer()
+                AccountsVE()
             }
             else {
                 Text("Showing Categories")

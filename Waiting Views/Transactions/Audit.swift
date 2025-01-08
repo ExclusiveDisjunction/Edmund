@@ -9,12 +9,14 @@ import SwiftUI
 
 @Observable
 class AuditViewModel : TransViewBase {
+    /*
     func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
         if (!validate())
         { return nil; }
         
         return [ account : -amount];
     }
+     */
     func create_transactions() -> [LedgerEntry]? {
         if !validate() { return nil }
         
