@@ -24,11 +24,11 @@ struct LedgerTable: View {
                 Text(item.date, style: .date)
             }.width(100)
             TableColumn("Location", value: \.location)
-            TableColumn("Category") { (item: LedgerEntry) in
-                CategoryNameViewer(category: item.category)
+            TableColumn("Category") { item in
+                SubCategoryViewer(category: item.category)
             }
             TableColumn("Account") { item in
-                AccountNameViewer(account: item.account)
+                SubAccountViewer(account: item.account)
             }
         }
     }

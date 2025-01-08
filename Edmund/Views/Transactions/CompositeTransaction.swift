@@ -121,10 +121,11 @@ struct CompositeTransaction : View {
             
             ScrollView {
                 Grid {
+                    /*
                     let upper_bound: Int = .init(
                         ceil(Double.init(vm.entries.count) / 4.0)
                     )
-                    /*
+                    
                     ForEach(vm.entries.windows(ofSize: 4)) { group in
                         GridRow {
                             ForEach(group) { item in
