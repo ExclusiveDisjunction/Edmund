@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD3F600E2D2F35B200F32FCE /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = DD3F600D2D2F35B200F32FCE /* SQLite */; };
 		DDC6E7ED2D20EF3B00ABF4B0 /* Todo.md in Resources */ = {isa = PBXBuildFile; fileRef = DDC6E7EC2D20EF3700ABF4B0 /* Todo.md */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD3F600E2D2F35B200F32FCE /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +73,7 @@
 			);
 			name = Edmund;
 			packageProductDependencies = (
+				DD3F600D2D2F35B200F32FCE /* SQLite */,
 			);
 			productName = "ui-demo";
 			productReference = DD742EC42CD822AB00BA6813 /* Edmund.app */;
@@ -100,6 +103,9 @@
 			);
 			mainGroup = DD742EBB2CD822AB00BA6813;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DD3F600C2D2F35B200F32FCE /* XCRemoteSwiftPackageReference "SQLite.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DD742EC52CD822AB00BA6813 /* Products */;
 			projectDirPath = "";
@@ -338,6 +344,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DD3F600C2D2F35B200F32FCE /* XCRemoteSwiftPackageReference "SQLite.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DD3F600D2D2F35B200F32FCE /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD3F600C2D2F35B200F32FCE /* XCRemoteSwiftPackageReference "SQLite.swift" */;
+			productName = SQLite;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DD742EBC2CD822AB00BA6813 /* Project object */;
 }
