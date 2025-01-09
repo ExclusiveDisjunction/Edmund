@@ -12,9 +12,13 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-class EdmundSQL {
+class EdmundSQL: Identifiable {
     init(_ conn: Connection) throws {
         self.conn = conn
+        try self.sanityCheck()
+    }
+    init() throws {
+        self.conn = try .init(.inMemory)
         try self.sanityCheck()
     }
     
@@ -25,6 +29,8 @@ class EdmundSQL {
         try SubCategory.createTable(db: conn)
         try RawLedgerEntry.createTable(db: conn)
     }
+    
+    var id: UUID = UUID();
     
     static var previewSQL: EdmundSQL {
         do {
@@ -196,9 +202,20 @@ class EdmundSQL {
     }
 }
 
+extension UTType {
+    static var edmund_doc: UTType {
+        if let type = UTType("com.exdisj.eddoc") {
+            return type
+        }
+        else {
+            fatalError("cannot lookup UTType for edmund documents")
+        }
+    }
+}
+
 struct EdmundDocument : FileDocument {
     
-    static var readableContentTypes: [UTType] = [ .database ]
+    static var readableContentTypes: [UTType] = [ .edmund_doc ]
     
     var data: EdmundSQL;
     var path: String;
@@ -224,20 +241,27 @@ struct EdmundDocument : FileDocument {
     }
     
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        do {
         //If the file is in memory, we need to save it to a path.
-        if let inMemory = data.isInMemory {
-            if inMemory {
-                try data.moveToFile(path: path)
+            if let inMemory = data.isInMemory {
+                if inMemory {
+                    let backup = try data.conn.backup(usingConnection: try .init(path))
+                    try backup.step()
+                    backup.finish()
+                }
             }
+            else {
+                throw CocoaError(.fileNoSuchFile)
+            }
+            
+            //Clean up database
+            
+            return try FileWrapper(url: URL(fileURLWithPath: path))
         }
-        else {
-            throw CocoaError(.fileNoSuchFile)
+        catch let e {
+            print(e.localizedDescription)
+            throw e
         }
-        
-        //Clean up database
-        
-        let fileData = try Data(contentsOf: URL(fileURLWithPath: path))
-        return FileWrapper(regularFileWithContents: fileData)
     }
     
     

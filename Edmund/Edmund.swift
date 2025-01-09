@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct ui_demoApp: App {
     @Environment(\.openWindow) var openWindow;
+    @State var openDocuments: [EdmundSQL] = [];
     
     /*
     var sharedModelContainer: ModelContainer = {
@@ -30,10 +31,17 @@ struct ui_demoApp: App {
      */
      
     var body: some Scene {
+        /*
         DocumentGroup(newDocument: EdmundDocument()) { document in
             MainView( vm: .init(document.$document) )
             
         }
+         */
+        
+        WindowGroup() {
+            MainView()
+        }
+        
         /*.commands {
             GeneralCommands()
         }

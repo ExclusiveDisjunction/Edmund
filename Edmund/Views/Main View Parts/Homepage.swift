@@ -8,6 +8,7 @@
 import SwiftUI;
 
 struct Homepage : View {
+    @Binding var doc: EdmundSQL?;
     
     var body: some View {
         VStack {
@@ -17,45 +18,59 @@ struct Homepage : View {
                 Text("Personal Budgeting Software").font(.subheadline)
             }.padding()
             Divider()
-            VStack {
-                Text("Topics").font(.title2).padding()
-                Grid {
-                    GridRow {
-                        Text("Ledger").font(.headline)
-                        Text("Transactions").font(.headline)
-                        Text("Balance Sheet").font(.headline)
-                    }.frame(maxWidth: .infinity)
-                    GridRow {
-                        Text("Review all transactions").multilineTextAlignment(.center)
-                        Text("Add to the ledger to update balances").multilineTextAlignment(.center)
-                        Text("Review the credits, debits, and balances of all accounts & sub accounts").multilineTextAlignment(.center)
-                    }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
-                    GridRow {
-                        Text("Accounts & Categories").font(.headline)
-                        Text("Paychecks").font(.headline)
-                        Text("Bills").font(.headline)
-                    }.frame(maxWidth: .infinity)
-                    GridRow {
-                        Text("Add and modify accounts & categories").multilineTextAlignment(.center)
-                        Text("Record and review paychecks").multilineTextAlignment(.center)
-                        Text("Add, modify, and remove bills").multilineTextAlignment(.center)
-                    }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
-                    GridRow {
-                        Text("Budget").font(.headline)
-                        Text("")
-                        Text("Management").font(.headline)
-                    }.frame(maxWidth: .infinity)
-                    GridRow {
-                        Text("Update and determine the budget").multilineTextAlignment(.center)
-                        Text("")
-                        Text("Modify all data stored and resetting the ledger").multilineTextAlignment(.center)
-                    }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
-                }
-            }.padding()
+            if let _ = doc {
+                VStack {
+                    Text("Topics").font(.title2).padding()
+                    Grid {
+                        GridRow {
+                            Text("Ledger").font(.headline)
+                            Text("Transactions").font(.headline)
+                            Text("Balance Sheet").font(.headline)
+                        }.frame(maxWidth: .infinity)
+                        GridRow {
+                            Text("Review all transactions").multilineTextAlignment(.center)
+                            Text("Add to the ledger to update balances").multilineTextAlignment(.center)
+                            Text("Review the credits, debits, and balances of all accounts & sub accounts").multilineTextAlignment(.center)
+                        }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
+                        GridRow {
+                            Text("Accounts & Categories").font(.headline)
+                            Text("Paychecks").font(.headline)
+                            Text("Bills").font(.headline)
+                        }.frame(maxWidth: .infinity)
+                        GridRow {
+                            Text("Add and modify accounts & categories").multilineTextAlignment(.center)
+                            Text("Record and review paychecks").multilineTextAlignment(.center)
+                            Text("Add, modify, and remove bills").multilineTextAlignment(.center)
+                        }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
+                        GridRow {
+                            Text("Budget").font(.headline)
+                            Text("")
+                            Text("Management").font(.headline)
+                        }.frame(maxWidth: .infinity)
+                        GridRow {
+                            Text("Update and determine the budget").multilineTextAlignment(.center)
+                            Text("")
+                            Text("Modify all data stored and resetting the ledger").multilineTextAlignment(.center)
+                        }.padding(.bottom).frame(maxWidth: .infinity, maxHeight: 70)
+                    }
+                }.padding()
+            }
+            else {
+                Text("To begin, please open a file, or create a new one")
+            }
         }.frame(minHeight: 550)
     }
 }
 
 #Preview {
-    Homepage()
+    var doc: EdmundSQL? = nil;
+    let binding: Binding<EdmundSQL?> = .init(
+        get: {
+            doc
+        },
+        set: {
+            doc = $0
+        }
+    )
+    Homepage(doc: binding)
 }
