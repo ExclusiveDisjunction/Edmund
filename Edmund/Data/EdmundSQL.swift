@@ -218,12 +218,12 @@ struct EdmundDocument : FileDocument {
     static var readableContentTypes: [UTType] = [ .edmund_doc ]
     
     var data: EdmundSQL;
-    var path: String;
+    var path: URL?;
     
     init() {
         do {
             data = try .init(try .init(.inMemory))
-            path = "";
+            path = nil;
         }
         catch {
             fatalError("Could not create database in memory")
@@ -237,26 +237,28 @@ struct EdmundDocument : FileDocument {
         self.data = try .init(
             Connection(path)
         )
-        self.path = path;
+        self.path = .init(string: path)
     }
     
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         do {
-        //If the file is in memory, we need to save it to a path.
-            if let inMemory = data.isInMemory {
-                if inMemory {
-                    let backup = try data.conn.backup(usingConnection: try .init(path))
-                    try backup.step()
-                    backup.finish()
-                }
+            let true_path: URL;
+            if let path = self.path {
+                true_path = path
             }
             else {
-                throw CocoaError(.fileNoSuchFile)
+                true_path = FileManager.default.temporaryDirectory.appendingPathComponent("edmund_db_\(UUID().uuidString).eddoc")
+                
+                let new_db = try Connection(
+                    true_path.path
+                )
+                let backup = try data.conn.backup(usingConnection: new_db);
+                try backup.step()
+                backup.finish()
             }
             
-            //Clean up database
-            
-            return try FileWrapper(url: URL(fileURLWithPath: path))
+            let data = try Data(contentsOf: true_path)
+            return FileWrapper(regularFileWithContents: data)
         }
         catch let e {
             print(e.localizedDescription)

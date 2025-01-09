@@ -38,9 +38,25 @@ struct ui_demoApp: App {
         }
          */
         
-        WindowGroup() {
-            MainView()
+        DocumentGroup(newDocument: EdmundDocument()) { document in
+            MainView(
+                document: document.$document,
+                vm: .init(document.document.data)
+            )
         }
+        
+        /*
+        
+        WindowGroup() {
+            Welcome()
+        }
+        
+        WindowGroup("Edmund", id: "main", for: UUID.self) { id in
+            if let id = id.wrappedValue, let document = openDocuments.first(where: { $0.id == id }) {
+                MainView(vm: .init(document))
+            }
+        }
+         */
         
         /*.commands {
             GeneralCommands()
