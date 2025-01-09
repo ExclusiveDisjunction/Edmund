@@ -242,12 +242,15 @@ struct EdmundDocument : FileDocument {
     
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         do {
-            let true_path: URL;
+            let true_path: URL; //The actual path of the file in the file system.
+            let path_is_temp: Bool;
             if let path = self.path {
                 true_path = path
+                path_is_temp = false
             }
             else {
                 true_path = FileManager.default.temporaryDirectory.appendingPathComponent("edmund_db_\(UUID().uuidString).eddoc")
+                path_is_temp = true
                 
                 let new_db = try Connection(
                     true_path.path
@@ -258,6 +261,10 @@ struct EdmundDocument : FileDocument {
             }
             
             let data = try Data(contentsOf: true_path)
+            if path_is_temp {
+                try FileManager.default.removeItem(at: true_path)
+            }
+            
             return FileWrapper(regularFileWithContents: data)
         }
         catch let e {
