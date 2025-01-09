@@ -88,6 +88,12 @@ class SubCategory : Identifiable, Hashable {
     @Relationship(deleteRule: .cascade, inverse: \Category.children) var parent: Category;
     var name: String;
     
+    @Attribute(.unique) var identifier: String {
+        get {
+            parent.name + "." + name
+        }
+    }
+    
     var isEmpty: Bool {
         parent.isEmpty || name.isEmpty
     }
