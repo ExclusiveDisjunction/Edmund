@@ -13,12 +13,12 @@ class MainViewVM {
     init(_ document: EdmundSQL) {
         self.ledger_vm = .init(document)
         self.balance_vm = .init(document)
-        self.trans_vm = .init(document)
+        //self.trans_vm = .init(document)
     }
     
     var ledger_vm: LedgerViewerVM;
     var balance_vm: BalanceSheetVM;
-    var trans_vm: TransactionsVM;
+    //var trans_vm: TransactionsVM;
 }
 
 struct MainView: View {
@@ -39,7 +39,7 @@ struct MainView: View {
                     Label("Ledger", systemImage: "clipboard")
                 }
                 NavigationLink {
-                    TransactionsView(vm: vm.trans_vm)
+                    //TransactionsView(vm: vm.trans_vm)
                 } label: {
                     Label("Transactions", systemImage: "pencil")
                 }
@@ -82,7 +82,7 @@ struct MainView: View {
 }
 
 #Preview {
-    var doc: EdmundDocument = .init()
+    var doc = EdmundDocument.previewDocument
     let bind: Binding<EdmundDocument> = .init(
         get: {
             doc

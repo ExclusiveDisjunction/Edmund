@@ -10,8 +10,17 @@ import SwiftData
 
 @main
 struct ui_demoApp: App {
+    init() {
+        do {
+            self.newDocument = .init(data: try .init(source: nil))
+        } catch {
+            fatalError("Unable to create new document")
+        }
+    }
+    
     @Environment(\.openWindow) var openWindow;
     @State var openDocuments: [EdmundSQL] = [];
+    private var newDocument: EdmundDocument;
     
     /*
     var sharedModelContainer: ModelContainer = {
@@ -38,7 +47,7 @@ struct ui_demoApp: App {
         }
          */
         
-        DocumentGroup(newDocument: EdmundDocument()) { document in
+        DocumentGroup(newDocument: newDocument) { document in
             MainView(
                 document: document.$document,
                 vm: .init(document.document.data)

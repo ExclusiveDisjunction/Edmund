@@ -6,19 +6,31 @@
 //
 
 import SQLite
-import SQLite3
 import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
 class EdmundSQL: Identifiable {
-    init(_ conn: Connection) throws {
-        self.conn = conn
-        try self.sanityCheck()
+    /// Attempts to make a connection on a temporary path, constructed from the source.
+    convenience init(source: URL?) throws {
+        do {
+            let new_path = FileManager.default.temporaryDirectory.appendingPathComponent("edmund_db_\(UUID().uuidString).eddoc")
+            if let source = source {
+                try FileManager.default.copyItem(at: source, to: new_path)
+            }
+            
+            let connection = try Connection(new_path.path)
+            try self.init(conn: connection, path: new_path)
+        }
+        catch let e {
+            print("unable to open because of \(e.localizedDescription)")
+            throw e
+        }
     }
-    init() throws {
-        self.conn = try .init(.inMemory)
+    init(conn: Connection, path: URL?) throws {
+        self.conn = conn
+        self.path = path
         try self.sanityCheck()
     }
     
@@ -31,18 +43,20 @@ class EdmundSQL: Identifiable {
     }
     
     var id: UUID = UUID();
+    var conn: Connection;
+    /// The path of the connection in the file system, represented in the temporary directory.
+    var path: URL?;
     
     static var previewSQL: EdmundSQL {
         do {
-            return try EdmundSQL(try .init(.inMemory))
+            return try EdmundSQL(conn: try .init(.inMemory), path: nil)
         }
         catch {
             fatalError("unable to make a default sql")
         }
     }
     
-    var conn: Connection
-    
+    /*
     var isInMemory: Bool? {
         do {
             for row in try conn.prepare("PRAGMA database_list") {
@@ -61,14 +75,7 @@ class EdmundSQL: Identifiable {
             return nil;
         }
     }
-    func moveToFile(path: String) throws{
-        let new_conn = try Connection(path)
-        sqlite3_backup_init(new_conn.handle, "main", conn.handle, "main").map { backup in
-            sqlite3_backup_step(backup, -1)
-            sqlite3_backup_finish(backup)
-        }
-        conn = new_conn
-    }
+     */
     
     func getAccounts() -> [Account]? {
         do {
@@ -218,53 +225,35 @@ struct EdmundDocument : FileDocument {
     static var readableContentTypes: [UTType] = [ .edmund_doc ]
     
     var data: EdmundSQL;
-    var path: URL?;
     
-    init() {
+    static var previewDocument: EdmundDocument {
         do {
-            data = try .init(try .init(.inMemory))
-            path = nil;
+            return .init(data: try .init(source: nil))
         }
         catch {
-            fatalError("Could not create database in memory")
+            fatalError("Unable to create preview document")
         }
+    }
+    
+    init(data: EdmundSQL) {
+        self.data = data
     }
     init(configuration: ReadConfiguration) throws {
         guard let path = configuration.file.filename else{
             throw CocoaError(.fileNoSuchFile)
         }
         
-        self.data = try .init(
-            Connection(path)
-        )
-        self.path = .init(string: path)
+        let url = URL(fileURLWithPath: path)
+        self.data = try .init(source: url)
     }
     
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         do {
-            let true_path: URL; //The actual path of the file in the file system.
-            let path_is_temp: Bool;
-            if let path = self.path {
-                true_path = path
-                path_is_temp = false
-            }
-            else {
-                true_path = FileManager.default.temporaryDirectory.appendingPathComponent("edmund_db_\(UUID().uuidString).eddoc")
-                path_is_temp = true
-                
-                let new_db = try Connection(
-                    true_path.path
-                )
-                let backup = try data.conn.backup(usingConnection: new_db);
-                try backup.step()
-                backup.finish()
+            guard let true_path = data.path else {
+                throw CocoaError(.fileNoSuchFile)
             }
             
             let data = try Data(contentsOf: true_path)
-            if path_is_temp {
-                try FileManager.default.removeItem(at: true_path)
-            }
-            
             return FileWrapper(regularFileWithContents: data)
         }
         catch let e {
