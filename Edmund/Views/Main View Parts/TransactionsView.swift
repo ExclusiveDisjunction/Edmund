@@ -105,8 +105,13 @@ struct TransactionWrapper : View {
 }
 
 @Observable
-class TransactionsViewModel {
+class TransactionsVM {
+    init(_ document: EdmundSQL) {
+        self.document = document;
+    }
+    
     var sub_trans: [TransactionWrapperVM] = [];
+    var document: EdmundSQL;
     
     func clear_all() {
         sub_trans = [];
@@ -120,7 +125,7 @@ class TransactionsViewModel {
 
 struct TransactionsView : View {
     
-    @Bindable var vm: TransactionsViewModel;
+    @Bindable var vm: TransactionsVM;
     @Environment(\.modelContext) private var context;
     @State var alert_context: AlertContext = .init();
     
