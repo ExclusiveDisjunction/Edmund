@@ -24,7 +24,7 @@ class Category : Identifiable {
     static let table = Table("categories")
     static let name_col = SQLite.Expression<String>("name")
     
-    static func createAccountsTable(db: Connection) throws {
+    static func createTable(db: Connection) throws {
         try db.run(table.create { t in
             t.column(name_col, primaryKey: true)
         })
@@ -49,7 +49,7 @@ class SubCategory : Identifiable {
     static let id_col = SQLite.Expression<Int64>("id")
     static let parent_col = SQLite.Expression<String>("parent")
     
-    static func createSubAccountsTable(db: Connection) throws {
+    static func createTable(db: Connection) throws {
         try db.run(table.create(ifNotExists: true) {
             $0.column(id_col, primaryKey: .autoincrement)
             $0.column(name_col)

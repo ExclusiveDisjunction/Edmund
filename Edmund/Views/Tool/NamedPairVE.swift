@@ -14,7 +14,7 @@ struct AccountPicker : View {
     }
 }
 struct SubAccountViewer : View {
-    var account: SubAccount;
+    let account: SubAccount;
     
     var body : some View {
         Text("comming")
@@ -26,7 +26,7 @@ struct CategoryPicker : View {
     }
 }
 struct SubCategoryViewer : View {
-    var category: SubCategory;
+    let category: SubCategory;
     
     var body: some View {
         Text("comming")

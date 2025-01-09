@@ -8,10 +8,22 @@
 import SwiftUI
 import SwiftData
 
+@Observable
+class MainViewVM {
+    init(_ document: Binding<EdmundDocument>) {
+        self._document = document;
+        self.ledger_vm = .init(document.wrappedValue.data)
+        self.balance_vm = .init(document.wrappedValue.data)
+    }
+    
+    var document: Binding<EdmundDocument>;
+    var ledger_vm: LedgerViewerVM;
+    var balance_vm: BalanceSheetVM;
+}
+
 struct MainView: View {
-    @Environment(\.modelContext) private var modelContext
-    //@State private var trans_vm: TransactionsViewModel = .init();
-    @State private var balance_vm: BalanceSheetVM = .init();
+    @Bindable var vm: MainViewVM;
+    
 
     var body: some View {
         NavigationSplitView {
@@ -22,7 +34,7 @@ struct MainView: View {
                     Label("Welcome", systemImage: "house")
                 }
                 NavigationLink {
-                    LedgerTable()
+                    LedgerViewer(vm: vm.ledger_vm)
                 } label: {
                     Label("Ledger", systemImage: "clipboard")
                 }
@@ -32,7 +44,7 @@ struct MainView: View {
                     Label("Transactions", systemImage: "pencil")
                 }
                 NavigationLink {
-                    BalanceSheet(vm: balance_vm)
+                    BalanceSheet(vm: vm.balance_vm)
                 } label: {
                     Label("Balance Sheet", systemImage: "plus.forwardslash.minus")
                 }
@@ -70,5 +82,15 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView().frame(width: 800, height: 600)
+    var doc: EdmundDocument = .init()
+    let doc_binding: Binding<EdmundDocument> = .init(
+        get: {
+            doc
+        },
+        set: {
+            doc = $0
+        }
+    )
+    
+    MainView(vm: .init(doc_binding)).frame(width: 800, height: 600)
 }

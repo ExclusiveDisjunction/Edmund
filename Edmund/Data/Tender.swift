@@ -41,7 +41,7 @@ class RawLedgerEntry : Identifiable {
     static let cat_col = SQLite.Expression<Int64>("sub_category")
     static let acc_col = SQLite.Expression<Int64>("sub_account")
     
-    static func createLedgerTable(db: Connection) throws {
+    static func createTable(db: Connection) throws {
         try db.run(table.create { t in
             t.column(t_id_col, primaryKey: .autoincrement)
             t.column(memo_col)

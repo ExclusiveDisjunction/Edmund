@@ -10,7 +10,7 @@ import SwiftData
 
 
 class BalanceSheetAccount : Identifiable {
-    init(account: String, from: Dictionary<String, (Decimal, Decimal)>) {
+    init(account: String, from: Dictionary<String, (Double, Double)>) {
         self.account = account;
         
         subs = from.reduce(into: []) { (result, row) in
@@ -28,61 +28,73 @@ class BalanceSheetAccount : Identifiable {
     
     var account: String;
     var subs: [BalanceSheetBalance];
-    var balance: Decimal {
+    var balance: Double {
         subs.reduce(into: 0) { $0 += $1.balance }
     }
 }
 class BalanceSheetBalance : Identifiable {
-    init(_ sub_account: String, credits: Decimal, debits: Decimal) {
+    init(_ sub_account: String, credits: Double, debits: Double) {
         self.sub_account = sub_account;
         self.credits = credits;
         self.debits = debits;
     }
     
     var sub_account: String;
-    var credits: Decimal;
-    var debits: Decimal;
-    var balance: Decimal {
+    var credits: Double;
+    var debits: Double;
+    var balance: Double {
         credits - debits
     }
 }
 
 @Observable
 class BalanceSheetVM {
-    init() {
-        
+    init(_ document: EdmundSQL) {
+        self.sql = document
     }
     init(synthetic: [BalanceSheetAccount]) {
+        self.sql = EdmundSQL.previewSQL;
         self.computed = synthetic;
-        self.computed.sort { $0.balance > $1.balance }
+        if var computed = self.computed {
+            computed.sort { $0.balance > $1.balance }
+        }
     }
     
-    func computeBalances(trans: [LedgerEntry]) {
-        var t_computed: Dictionary<String, Dictionary<String, (Decimal, Decimal)>> = [:];
+    func computeBalances() {
+        var t_computed: Dictionary<String, Dictionary<String, (Double, Double)>> = [:];
         
-        trans.forEach { t in
-            var prev = t_computed[t.account_name, default: [:]][t.sub_account_name, default: (0, 0)];
-            prev.0 += t.credit;
-            prev.1 += t.debit;
-            t_computed[t.account_name, default: [:]][t.sub_account_name] = prev;
+        if let trans = sql.getTransactions() {
+            
+            trans.forEach { t in
+                let acc_name = t.account.parent.name, sub_acc_name = t.account.name;
+                
+                var prev = t_computed[acc_name, default: [:]][sub_acc_name, default: (0, 0)];
+                prev.0 += t.inner.credit;
+                prev.1 += t.inner.debit;
+                t_computed[acc_name, default: [:]][sub_acc_name] = prev;
+            }
+            
+            computed = t_computed.reduce(into: []) {
+                $0.append(.init(account: $1.key, from: $1.value))
+            }
+            if var computed = self.computed {
+                computed.sort { $0.balance > $1.balance }
+            }
         }
-        
-        computed = [];
-        for (k, v) in t_computed {
-            computed.append(.init(account: k, from: v))
+        else {
+            computed = nil;
         }
-        self.computed.sort { $0.balance > $1.balance }
     }
 
-    var computed: [BalanceSheetAccount] = [];
+    var sql: EdmundSQL;
+    var computed: [BalanceSheetAccount]? = nil;
 }
 
 struct BalanceSheet: View {
-    @Query var transactions: [LedgerEntry];
     @Bindable var vm: BalanceSheetVM;
     
     private func update_balances() {
-        vm.computeBalances(trans: transactions);
+        vm.computeBalances();
     }
     
     var body: some View {
@@ -99,38 +111,45 @@ struct BalanceSheet: View {
                 Spacer()
             }.padding([.leading, .bottom])
             
-            if vm.computed.isEmpty {
-                Text("There are no transactions, or this page needs to be refreshed").italic().padding()
-                Spacer()
+            if let computed = vm.computed {
+                if computed.isEmpty {
+                    Text("There are no transactions, or a refresh is needed").italic().padding()
+                    Spacer()
+                }
+                else {
+                    ScrollView {
+                        VStack {
+                            ForEach(computed) { (item: BalanceSheetAccount) in
+                                VStack {
+                                    HStack {
+                                        Text(item.account).font(.headline)
+                                        Text("\(item.balance, format: .currency(code: "USD"))")
+                                        Spacer()
+                                    }.padding([.leading, .trailing, .bottom])
+                                     Table(item.subs) {
+                                         TableColumn("Sub Account") { balance in
+                                             Text(balance.sub_account)
+                                         }
+                                         TableColumn("Credit") { balance in
+                                             Text("\(balance.credits, format: .currency(code: "USD"))")
+                                         }
+                                         TableColumn("Debit") { balance in
+                                             Text("\(balance.debits, format: .currency(code: "USD"))")
+                                         }
+                                         TableColumn("Balance") { balance in
+                                             Text("\(balance.balance, format: .currency(code: "USD"))").foregroundStyle(balance.balance < 0 ? .red : .primary)
+                                         }
+                                     }.frame(minHeight: 150)
+                                }.padding([.bottom, .top])
+                            }
+                        }.background(.background.opacity(0.5)).padding()
+                    }
+                    Spacer()
+                }
             }
             else {
-                ScrollView {
-                    VStack {
-                        ForEach(vm.computed) { (item: BalanceSheetAccount) in
-                            VStack {
-                                HStack {
-                                    Text(item.account).font(.headline)
-                                    Text("\(item.balance, format: .currency(code: "USD"))")
-                                    Spacer()
-                                }.padding([.leading, .trailing, .bottom])
-                                Table(item.subs) {
-                                    TableColumn("Sub Account") { balance in
-                                        Text(balance.sub_account)
-                                    }
-                                    TableColumn("Credit") { balance in
-                                        Text("\(balance.credits, format: .currency(code: "USD"))")
-                                    }
-                                    TableColumn("Debit") { balance in
-                                        Text("\(balance.debits, format: .currency(code: "USD"))")
-                                    }
-                                    TableColumn("Balance") { balance in
-                                        Text("\(balance.balance, format: .currency(code: "USD"))").foregroundStyle(balance.balance < 0 ? .red : .primary)
-                                    }
-                                }.frame(minHeight: 150)
-                            }.padding([.bottom, .top])
-                        }
-                    }.background(.background.opacity(0.5)).padding()
-                }
+                Text("There is no data loaded, please refresh").italic().padding()
+                Spacer()
             }
         }.onAppear(perform: update_balances)
     }

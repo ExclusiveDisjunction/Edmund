@@ -6,17 +6,63 @@
 //
 
 import SQLite
+import SQLite3
 import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
 class EdmundSQL {
-    init(_ conn: Connection) {
+    init(_ conn: Connection) throws {
         self.conn = conn
+        try self.sanityCheck()
+    }
+    
+    private func sanityCheck() throws {
+        try Account.createTable(db: conn)
+        try SubAccount.createTable(db: conn)
+        try Category.createTable(db: conn)
+        try SubCategory.createTable(db: conn)
+        try RawLedgerEntry.createTable(db: conn)
+    }
+    
+    static var previewSQL: EdmundSQL {
+        do {
+            return try EdmundSQL(try .init(.inMemory))
+        }
+        catch {
+            fatalError("unable to make a default sql")
+        }
     }
     
     var conn: Connection
+    
+    var isInMemory: Bool? {
+        do {
+            for row in try conn.prepare("PRAGMA database_list") {
+                if let filePath = row[2] as? String {
+                    if filePath.isEmpty || filePath == ":memory:" {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        catch {
+            return nil;
+        }
+    }
+    func moveToFile(path: String) throws{
+        let new_conn = try Connection(path)
+        sqlite3_backup_init(new_conn.handle, "main", conn.handle, "main").map { backup in
+            sqlite3_backup_step(backup, -1)
+            sqlite3_backup_finish(backup)
+        }
+        conn = new_conn
+    }
     
     func getAccounts() -> [Account]? {
         do {
@@ -151,14 +197,47 @@ class EdmundSQL {
 }
 
 struct EdmundDocument : FileDocument {
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        
-    }
     
     static var readableContentTypes: [UTType] = [ .database ]
     
+    var data: EdmundSQL;
+    var path: String;
+    
+    init() {
+        do {
+            data = try .init(try .init(.inMemory))
+            path = "";
+        }
+        catch {
+            fatalError("Could not create database in memory")
+        }
+    }
     init(configuration: ReadConfiguration) throws {
+        guard let path = configuration.file.filename else{
+            throw CocoaError(.fileNoSuchFile)
+        }
         
+        self.data = try .init(
+            Connection(path)
+        )
+        self.path = path;
+    }
+    
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        //If the file is in memory, we need to save it to a path.
+        if let inMemory = data.isInMemory {
+            if inMemory {
+                try data.moveToFile(path: path)
+            }
+        }
+        else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        
+        //Clean up database
+        
+        let fileData = try Data(contentsOf: URL(fileURLWithPath: path))
+        return FileWrapper(regularFileWithContents: fileData)
     }
     
     

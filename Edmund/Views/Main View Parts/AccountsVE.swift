@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct AccountsVE : View {
-    @Query var accounts: [Account];
     @State var selected: UUID?;
     @State var alert: AlertContext = .init()
     
@@ -33,6 +32,7 @@ struct AccountsVE : View {
         VStack {
             Text("Accounts").font(.title)
             
+            /*
             HSplitView {
                 Table(accounts, selection: $selected) {
                     TableColumn("Name") {
@@ -54,6 +54,7 @@ struct AccountsVE : View {
                     }
                 }
             }
+             */
         }.padding().onAppear(perform: refresh)
     }
 }

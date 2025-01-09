@@ -12,6 +12,7 @@ import SwiftData
 struct ui_demoApp: App {
     @Environment(\.openWindow) var openWindow;
     
+    /*
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             LedgerEntry.self,
@@ -26,12 +27,14 @@ struct ui_demoApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+     */
+     
     var body: some Scene {
-        WindowGroup {
-            MainView()
+        DocumentGroup(newDocument: EdmundDocument()) { document in
+            MainView( vm: .init(document.$document) )
             
-        } .modelContainer(sharedModelContainer).commands {
+        }
+        /*.commands {
             GeneralCommands()
         }
         
@@ -41,5 +44,6 @@ struct ui_demoApp: App {
         WindowGroup(id: "Ledger") {
             LedgerTable()
         }.modelContainer(sharedModelContainer)
+         */
     }
 }
