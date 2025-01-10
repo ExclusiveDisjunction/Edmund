@@ -71,9 +71,10 @@ class Category : Identifiable, Hashable {
 }
 @Model
 class SubCategory : Identifiable, Hashable {
-    init(_ name: String , parent: Category) {
+    init(_ name: String , parent: Category, id: UUID = UUID()) {
         self.parent = parent
         self.name = name
+        self.id = id
     }
     
     static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
@@ -84,15 +85,9 @@ class SubCategory : Identifiable, Hashable {
         hasher.combine(name)
     }
     
-    var id: UUID = UUID();
+    @Attribute(.unique) var id: UUID;
     @Relationship(deleteRule: .cascade, inverse: \Category.children) var parent: Category;
     var name: String;
-    
-    @Attribute(.unique) var identifier: String {
-        get {
-            parent.name + "." + name
-        }
-    }
     
     var isEmpty: Bool {
         parent.isEmpty || name.isEmpty
