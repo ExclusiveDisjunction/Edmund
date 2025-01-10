@@ -1,0 +1,7 @@
+[package]
+name = "edmund"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gtk = { git = "https://github.com/gtk-rs/gtk4-rs.git", package = "gtk4" }
