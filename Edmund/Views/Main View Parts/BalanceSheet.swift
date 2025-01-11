@@ -61,10 +61,11 @@ class BalanceSheetVM {
         var t_computed: Dictionary<String, Dictionary<String, (Decimal, Decimal)>> = [:];
         
         trans.forEach { t in
-            var prev = t_computed[t.account_name, default: [:]][t.sub_account_name, default: (0, 0)];
+            let account_name = t.account.parent.name, sub_account_name = t.account.name;
+            var prev = t_computed[account_name, default: [:]][sub_account_name, default: (0, 0)];
             prev.0 += t.credit;
             prev.1 += t.debit;
-            t_computed[t.account_name, default: [:]][t.sub_account_name] = prev;
+            t_computed[account_name, default: [:]][sub_account_name] = prev;
         }
         
         computed = [];

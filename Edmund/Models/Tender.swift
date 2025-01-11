@@ -30,21 +30,8 @@ class LedgerEntry : ObservableObject, Identifiable
     var date: Date;
     var added_on: Date;
     var location: String;
-    @Relationship(deleteRule: .nullify, inverse: nil) var category: SubCategory;
-    @Relationship(deleteRule: .nullify, inverse: nil) var account: SubAccount;
-    
-    var account_name: String {
-        account.parent.name
-    }
-    var sub_account_name: String {
-        account.name
-    }
-    var category_name: String {
-        category.parent.name
-    }
-    var sub_category_name: String {
-        category.name
-    }
+    @Relationship(deleteRule: .cascade, inverse: nil) var category: SubCategory;
+    @Relationship(deleteRule: .cascade, inverse: nil) var account: SubAccount;
 }
 
 @Model
@@ -114,12 +101,22 @@ class Account : Identifiable, Hashable {
     var isEmpty : Bool {
         name.isEmpty
     }
+    
+    static var exampleAccounts: [Account] {
+        var accounts: [Account] = ["Checking", "Savings", "Savor"].map({ Account($0) });
+        for account in accounts {
+            account.children = ["DI", "Hold", "Bills"].map( { SubAccount($0, parent: account) })
+        }
+        
+        return accounts;
+    }
 }
 @Model
 class SubAccount : Identifiable, Hashable {
-    init(_ name: String, parent: Account) {
+    init(_ name: String, parent: Account, id: UUID = UUID()) {
         self.name = name
         self.parent = parent
+        self.id = id;
     }
     
     static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
@@ -130,7 +127,7 @@ class SubAccount : Identifiable, Hashable {
         hasher.combine(parent)
     }
     
-    var id: UUID = UUID();
-    @Attribute(.unique) var name: String;
+    @Attribute(.unique) var id: UUID;
+    var name: String;
     @Relationship(deleteRule: .cascade, inverse: \Account.children) var parent: Account;
 }

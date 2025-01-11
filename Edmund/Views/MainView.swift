@@ -10,7 +10,7 @@ import SwiftData
 
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var trans_vm: TransactionsViewModel = .init();
+    //@State private var trans_vm: TransactionsViewModel = .init();
     @State private var balance_vm: BalanceSheetVM = .init();
 
     var body: some View {
@@ -27,7 +27,7 @@ struct MainView: View {
                     Label("Ledger", systemImage: "clipboard")
                 }
                 NavigationLink {
-                    TransactionsView(vm: trans_vm).frame(maxHeight: .infinity)
+                    //TransactionsView(vm: trans_vm).frame(maxHeight: .infinity)
                 } label: {
                     Label("Transactions", systemImage: "pencil")
                 }
@@ -60,6 +60,23 @@ struct MainView: View {
                     
                 } label: {
                     Label("Management", systemImage: "building")
+                }
+                
+                Divider()
+                
+                NavigationLink {
+                    VStack {
+                        Button("Add Accounts", action: {
+                            let accounts = Account.exampleAccounts
+                            for account in accounts {
+                                modelContext.insert(account)
+                            }
+                        })
+                        
+                        AccountPicker(.account)
+                    }
+                } label: {
+                    Label("Debug", systemImage: "")
                 }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
