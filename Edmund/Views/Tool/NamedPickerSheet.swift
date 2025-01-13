@@ -16,29 +16,25 @@ enum NamedPairPickerMode {
 struct PickerSheet : View {
     @Binding var selectedID: UUID?;
     @State var mode: NamedPairPickerMode;
-    
-    @Query var accounts: [Account];
-    @Query private var categories: [Category];
+    @State var elements: Dictionary<UUID, NamedPair>;
     
     var body: some View {
         switch mode {
         case .account:
-            if !accounts.isEmpty {
-                Picker("Account", selection: $selectedID) {
-                    Text("None").tag(nil as UUID?)
-                    ForEach(accounts) { account in
-                        ForEach(account.children) { sub_account in
-                            SubAccountViewer(account: sub_account).tag(sub_account.id as UUID?)
-                        }
-                    }
-                }
-            }
-            else {
-                Text("There are no accounts to pick from, please add one").italic()
-            }
+            Text("Account")
         case .category:
-            Picker("Category", selection: $selectedID) {
-                
+            Text("Category")
+        }
+        
+        if elements.isEmpty {
+            Text("There are no elements to pick from").italic()
+        }
+        else {
+            Picker("", selection: $selectedID) {
+                Text("None").tag(nil as UUID?)
+                ForEach(elements) { (pair: (UUID, NamedPair)) in
+                    NamedPairViewer(pair: pair.1).tag(pair.0 as UUID?)
+                }
             }
         }
     }
