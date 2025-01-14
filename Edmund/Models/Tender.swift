@@ -103,7 +103,7 @@ class Account : Identifiable, Hashable {
     }
     
     static var exampleAccounts: [Account] {
-        var accounts: [Account] = ["Checking", "Savings", "Savor"].map({ Account($0) });
+        let accounts: [Account] = ["Checking", "Savings", "Savor"].map({ Account($0) });
         for account in accounts {
             account.children = ["DI", "Hold", "Bills"].map( { SubAccount($0, parent: account) })
         }

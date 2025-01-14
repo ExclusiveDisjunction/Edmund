@@ -73,7 +73,7 @@ struct MainView: View {
                             }
                         })
                         
-                        AccountPicker(.account)
+                        AccountPicker()
                     }
                 } label: {
                     Label("Debug", systemImage: "")
