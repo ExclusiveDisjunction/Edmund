@@ -50,14 +50,14 @@ class Category : Identifiable, Hashable {
     
     var id: UUID = UUID();
     @Attribute(.unique) var name: String;
-    @Relationship var children = [SubCategory]();
+    @Relationship(deleteRule: .cascade) var children = [SubCategory]();
     
     var isEmpty: Bool {
         name.isEmpty
     }
 }
 @Model
-class SubCategory : Identifiable, Hashable {
+class SubCategory : NamedPair {
     init(_ name: String , parent: Category, id: UUID = UUID()) {
         self.parent = parent
         self.name = name
@@ -79,6 +79,18 @@ class SubCategory : Identifiable, Hashable {
     var isEmpty: Bool {
         parent.isEmpty || name.isEmpty
     }
+    
+    var parent_name: String {
+        get { parent.name }
+        set(v) { parent.name = v}
+    }
+    var child_name: String {
+        get { name }
+        set(v) { name = v }
+    }
+    static var kind: NamedPairKind {
+        get { .category }
+    }
 }
 
 @Model
@@ -96,7 +108,7 @@ class Account : Identifiable, Hashable {
     
     var id: UUID = UUID();
     @Attribute(.unique) var name: String;
-    @Relationship var children = [SubAccount]();
+    @Relationship(deleteRule: .cascade) var children = [SubAccount]();
     
     var isEmpty : Bool {
         name.isEmpty
@@ -112,7 +124,7 @@ class Account : Identifiable, Hashable {
     }
 }
 @Model
-class SubAccount : Identifiable, Hashable {
+class SubAccount : NamedPair {
     init(_ name: String, parent: Account, id: UUID = UUID()) {
         self.name = name
         self.parent = parent
@@ -130,4 +142,20 @@ class SubAccount : Identifiable, Hashable {
     @Attribute(.unique) var id: UUID;
     var name: String;
     @Relationship(deleteRule: .cascade, inverse: \Account.children) var parent: Account;
+    
+    var isEmpty: Bool {
+        name.isEmpty || parent.name.isEmpty
+    }
+    
+    var parent_name: String {
+        get { parent.name }
+        set(v) { parent.name = v}
+    }
+    var child_name: String {
+        get { name }
+        set(v) { name = v }
+    }
+    static var kind: NamedPairKind {
+        get { .account }
+    }
 }

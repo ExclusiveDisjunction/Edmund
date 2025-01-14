@@ -8,29 +8,30 @@
 import SwiftUI
 import SwiftData
 
-struct AccountPicker : View {
-    init(names: NamedPair = .init()) {
-        self.names = names
-        self.selectedID = nil;
+struct NamedPairPicker<T> : View where T: NamedPair {
+    init(parent: String = "", child: String = "", on: [T]) {
+        self.selectedID = nil
+        self.names = .init(parent, child)
+        self.on = on
     }
     
     @State private var selectedID: UUID?;
-    @State private var names: NamedPair;
+    @State private var names: UnboundNamedPair;
     @State private var prev_selected_hash: Int? = nil;
     
     @State private var showing_sheet: Bool = false;
     
-    @Query private var accounts: [SubAccount];
+    private var on: [T];
 
-    func get_account() -> SubAccount? {
+    func get_account() -> T? {
         if let sel = selectedID {
             if names.hashValue == prev_selected_hash { //We already have our stuff, stored in selectedID
-                return accounts.first(where: { $0.id == sel })
+                return on.first(where: { $0.id == sel })
             }
         }
         
         //Otherwise, we will look up our target based on the texts given
-        return accounts.first(where: { $0.parent.name == names.name && $0.name == names.sub_name} )
+        return on.first(where: { $0.eqByName(names) } )
     }
     private func dismiss_sheet(action: NamedPickerAction) {
         switch action {
@@ -41,8 +42,8 @@ struct AccountPicker : View {
             showing_sheet = false;
             
         case .ok:
-            if let sel = selectedID, let acc = accounts.first(where: { $0.id == sel } ) {
-                self.names = .init(acc.parent.name, acc.name)
+            if let sel = selectedID, let acc = on.first(where: { $0.id == sel } ) {
+                self.names = .init(from: acc)
                 self.prev_selected_hash = names.hashValue;
             }
             
@@ -52,29 +53,16 @@ struct AccountPicker : View {
     
     var body: some View {
         HStack {
-            NamedPairEditor(pair: $names, parent_name: "Account", child_name: "Sub Account")
+            NamedPairEditor(pair: $names)
             Button("...", action: {
                 showing_sheet = true
             })
         }.sheet(isPresented: $showing_sheet) {
-            PickerSheet(selectedID: $selectedID, mode: .account, elements: accounts.to_named_pair(), on_dismiss: dismiss_sheet)
+            NamedPairPickerSheet(selectedID: $selectedID, elements: on, on_dismiss: dismiss_sheet)
         }
-    }
-}
-struct SubAccountViewer : View {
-    var account: SubAccount;
-    
-    var body : some View {
-        Text("\(account.parent.name), \(account.name)")
     }
 }
 
 #Preview {
-    let account: Account = .init("Checking")
-    let sub_acc: SubAccount = .init("DI", parent: account)
-    
-    VStack {
-        AccountPicker()
-        SubAccountViewer(account: sub_acc)
-    }
+    NamedPairPicker<SubAccount>(on: []).padding()
 }

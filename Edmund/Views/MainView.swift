@@ -12,6 +12,8 @@ struct MainView: View {
     @Environment(\.modelContext) private var modelContext
     //@State private var trans_vm: TransactionsViewModel = .init();
     @State private var balance_vm: BalanceSheetVM = .init();
+    
+    @Query private var accounts: [SubAccount];
 
     var body: some View {
         NavigationSplitView {
@@ -73,7 +75,7 @@ struct MainView: View {
                             }
                         })
                         
-                        AccountPicker()
+                        NamedPairPicker(on: accounts)
                     }
                 } label: {
                     Label("Debug", systemImage: "")

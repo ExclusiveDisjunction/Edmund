@@ -25,10 +25,10 @@ struct LedgerTable: View {
             }.width(100)
             TableColumn("Location", value: \.location)
             TableColumn("Category") { item in
-                SubCategoryViewer(category: item.category)
+                NamedPairViewer(pair: item.category)
             }
             TableColumn("Account") { item in
-                SubAccountViewer(account: item.account)
+                NamedPairViewer(pair: item.account)
             }
         }
     }

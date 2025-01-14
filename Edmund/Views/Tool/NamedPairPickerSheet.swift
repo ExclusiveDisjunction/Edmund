@@ -8,29 +8,29 @@
 import SwiftUI;
 import SwiftData;
 
-enum NamedPairPickerMode {
-    case account
-    case category
-}
+
 enum NamedPickerAction: String {
     case ok
     case cancel
 }
 
-struct PickerSheet : View {
+/// Represents the view to insert in the .sheet for the NamedPairPicker
+struct NamedPairPickerSheet<T> : View where T: NamedPair{
     @Binding var selectedID: UUID?;
-    @State var mode: NamedPairPickerMode;
-    @State var elements: [NamedPair];
+    @State var elements: [T];
+    
     var on_dismiss: ((NamedPickerAction) -> Void)
     
     var body: some View {
         VStack {
             HStack {
-                switch mode {
+                switch T.kind {
                 case .account:
                     Text("Account")
                 case .category:
                     Text("Category")
+                case .nondetermined:
+                    Text("Label")
                 }
                 
                 if elements.isEmpty {
@@ -69,12 +69,12 @@ struct PickerSheet : View {
             selected = $0
         }
     )
-    let elements: [NamedPair] = [
-        .init("Checking", "Pay", id: UUID()),
-        .init("Checking", "DI", id: UUID()),
-        .init("Checking", "Hold", id: UUID()),
-        .init("Savings", "Main", id: UUID()),
-        .init("Savings", "Hold", id: UUID())
+    let elements: [UnboundNamedPair] = [
+        .init("Checking", "Pay"),
+        .init("Checking", "DI"),
+        .init("Checking", "Hold"),
+        .init("Savings", "Main"),
+        .init("Savings", "Hold")
     ]
     
     if let selected = selected {
@@ -83,5 +83,5 @@ struct PickerSheet : View {
     else {
         Text("None Selected")
     }
-    PickerSheet(selectedID: selected_bind, mode: .account, elements: elements, on_dismiss: { print("done with \($0)") } )
+    NamedPairPickerSheet(selectedID: selected_bind, elements: elements, on_dismiss: { print("done with \($0)") } )
 }
