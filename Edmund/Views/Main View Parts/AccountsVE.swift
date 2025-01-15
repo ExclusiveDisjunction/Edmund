@@ -9,55 +9,59 @@ import SwiftUI
 import SwiftData
 
 struct AccountsVE : View {
-    @Query var accounts: [Account];
-    @State var selected: UUID?;
-    @State var alert: AlertContext = .init()
+    @Query private var accounts: [Account];
+    @State private var selected: UUID?;
+    @State private var alert: AlertContext = .init()
+    @State private var editing: Bool = false;
     
-    private func refresh() {
-        
-    }
     private func add_account() {
         
     }
     private func remove_account() {
         
     }
-    private func add_sub_account() {
+    private func add_sub_account(to: UUID) {
         
     }
-    private func remove_sub_account() {
+    private func remove_sub_account(to: UUID) {
         
     }
     
     var body : some View {
         VStack {
-            Text("Accounts").font(.title)
-            
-            HSplitView {
-                Table(accounts, selection: $selected) {
-                    TableColumn("Name") {
-                        Text($0.name)
-                    }
-                    TableColumn("Total Sub Accounts") {
-                        Text("\($0.children.count)")
-                    }
-                }
-                
-                VStack {
-                    if let sel = accounts.first(where: { $0.id == selected }) {
-                        Text("Account \(sel.name)")
-                        
-                        
-                    }
-                    else {
-                        Text("Please select an account to view its contents").italic().font(.footnote)
-                    }
+            HStack {
+                Text("Accounts").font(.title)
+                Spacer()
+            }
+            HStack {
+                Button(action: {
+                    editing.toggle()
+                }) {
+                    Label(editing ? "View" : "Edit", systemImage: editing ? "eye" : "pencil")
                 }
             }
-        }.padding().onAppear(perform: refresh)
+            
+            ScrollView {
+                ForEach(accounts) { account in
+                    VStack {
+                        HStack {
+                            Text("\(account.name)").font(.title3)
+                            Spacer()
+                        }
+                        ForEach(account.children) { child in
+                            HStack {
+                                Text("\(child.name)")
+                                Spacer()
+                            }.padding(.leading, 10)
+                        }
+                    }
+                    Divider()
+                }
+            }
+        }.padding()
     }
 }
 
 #Preview {
-    AccountsVE()
+    AccountsVE().modelContainer(ModelController.previewContainer)
 }

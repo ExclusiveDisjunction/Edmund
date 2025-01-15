@@ -12,22 +12,7 @@ import SwiftData
 struct ui_demoApp: App {
     @Environment(\.openWindow) var openWindow;
     
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            LedgerEntry.self,
-            Account.self,
-            SubAccount.self,
-            Category.self,
-            SubCategory.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    var sharedModelContainer: ModelContainer = ModelController.sharedModelContainer
 
     var body: some Scene {
         WindowGroup {

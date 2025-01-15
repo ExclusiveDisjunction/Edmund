@@ -52,6 +52,20 @@ class Category : Identifiable, Hashable {
     @Attribute(.unique) var name: String;
     @Relationship(deleteRule: .cascade) var children = [SubCategory]();
     
+    static let exampleCategories: [Category] = {
+        let result = [
+            Category("Food"),
+            Category("Bill"),
+            Category("Account Control")
+        ]
+        
+        for cat in result {
+            cat.children.append(contentsOf: ["One", "Two", "Three"].map( { SubCategory.init($0, parent: cat) } ) )
+        }
+        
+        return result;
+    }()
+    
     var isEmpty: Bool {
         name.isEmpty
     }
@@ -95,8 +109,9 @@ class SubCategory : NamedPair {
 
 @Model
 class Account : Identifiable, Hashable {
-    init(_ name: String) {
+    init(_ name: String, creditLimit: Decimal? = nil) {
         self.name = name;
+        self.creditLimit = creditLimit;
     }
     
     static func == (lhs: Account, rhs: Account) -> Bool {
@@ -108,6 +123,7 @@ class Account : Identifiable, Hashable {
     
     var id: UUID = UUID();
     @Attribute(.unique) var name: String;
+    @Attribute var creditLimit: Decimal?;
     @Relationship(deleteRule: .cascade) var children = [SubAccount]();
     
     var isEmpty : Bool {
@@ -116,6 +132,7 @@ class Account : Identifiable, Hashable {
     
     static var exampleAccounts: [Account] {
         let accounts: [Account] = ["Checking", "Savings", "Savor"].map({ Account($0) });
+        accounts[0].creditLimit = 400;
         for account in accounts {
             account.children = ["DI", "Hold", "Bills"].map( { SubAccount($0, parent: account) })
         }
