@@ -9,9 +9,9 @@ import SwiftUI;
 
 @Observable
 class ManyTableEntry : Identifiable {
-    init() {
+    init(accounts: [SubAccount]) {
         self.amount = 0;
-        self.account = .init();
+        self.account = .init(on: accounts);
         self.id = UUID();
         self.selected = false;
     }

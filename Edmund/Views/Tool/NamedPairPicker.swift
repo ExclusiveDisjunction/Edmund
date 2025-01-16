@@ -10,11 +10,12 @@ import SwiftData
 
 @Observable
 class NamedPickerVM<T> where T: NamedPair {
-    init(parent: String = "", child: String = "") {
+    init(parent: String = "", child: String = "", on: [T]) {
         self.names = .init(parent, child)
         self.selectedID = nil
         self.prev_selected_hash = nil
         self.last_result = nil
+        self.on = on
     }
     
     var selectedID: UUID?;
@@ -22,7 +23,7 @@ class NamedPickerVM<T> where T: NamedPair {
     var prev_selected_hash: Int?;
     
     var last_result: T?;
-    @Query var on: [T];
+    var on: [T];
     
     func get_account() -> T? {
         //First we check to see the previous result
@@ -60,7 +61,7 @@ class NamedPickerVM<T> where T: NamedPair {
 }
 
 struct NamedPairPicker<T> : View where T: NamedPair {
-    @Bindable var vm: NamedPickerVM<T>;
+    @Bindable var vm: NamedPickerVM<T>
     @State private var showing_sheet: Bool = false;
     
     private func dismiss_sheet(action: NamedPickerAction) {
