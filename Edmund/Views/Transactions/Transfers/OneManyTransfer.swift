@@ -9,34 +9,37 @@ import SwiftUI
 
 @Observable
 class OneManyTransferVM : TransViewBase {
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
         if !self.validate() { return nil; }
+        guard let acc = self.acc else { return nil }
         
-        var result: [AccountPair: Decimal] = [
-            acc: -amount
+        var result: [UUID: Decimal] = [
+            acc.id: -amount
         ];
         
         multi.entries.forEach {
-            result[$0.acc] = $0.amount
+            guard let acc = $0.account else { return }
+            result[acc.id] = $0.amount
         }
         
         return result;
     }
-    func create_transactions() -> [LedgerEntry]? {
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         if !self.validate() { return nil; }
+        guard let acc = self.acc else { return nil }
         
         var result: [LedgerEntry] = [
             .init(
-                memo: self.acc.sub_account + " to Various",
+                memo: acc.name + " to Various",
                 credit: 0,
                 debit: amount,
                 date: Date.now,
                 location: "Bank",
-                category: .init("Account Control", "Transfer"),
+                category: cats.account_control.transfer,
                 account: acc)
         ];
         
-        if let sub_result = self.multi.create_transactions(transfer_into: true) {
+        if let sub_result = self.multi.create_transactions(transfer_into: true, cats) {
             result.append(contentsOf: sub_result)
             
             return result;
@@ -46,7 +49,7 @@ class OneManyTransferVM : TransViewBase {
         }
     }
     func validate() -> Bool {
-        let acc_empty = acc.isEmpty;
+        let acc_empty = acc == nil;
         let empty_rows = multi.get_empty_rows();
         
         if acc_empty && !empty_rows.isEmpty {
@@ -68,13 +71,13 @@ class OneManyTransferVM : TransViewBase {
     func clear() {
         err_msg = nil;
         amount = 0;
-        acc = .init()
+        acc = nil
         multi.clear();
     }
      
     var err_msg: String? = nil;
     var amount: Decimal = 0.0;
-    var acc: AccountPair = .init()
+    var acc: SubAccount? = nil
     var multi: ManyTransferTableVM = ManyTransferTableVM();
 }
 struct OneManyTransfer : View {
@@ -100,7 +103,7 @@ struct OneManyTransfer : View {
                 }
                 GridRow {
                     Text("From")
-                    AccountNameEditor(account: $vm.acc)
+                    NamedPairPicker(target: $vm.acc)
                 }
             }
             

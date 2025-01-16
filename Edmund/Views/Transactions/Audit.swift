@@ -9,16 +9,18 @@ import SwiftUI
 
 @Observable
 class AuditViewModel : TransViewBase {
-    /*
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
+        guard let acc = self.account else { return nil }
+        
         if (!validate())
         { return nil; }
         
-        return [ account : -amount];
+        return [ acc.id : -amount];
     }
-     */
-    func create_transactions() -> [LedgerEntry]? {
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         if !validate() { return nil }
+        
+        guard let acc = self.account else { return nil }
         
         return [
             LedgerEntry(
@@ -27,12 +29,12 @@ class AuditViewModel : TransViewBase {
                 debit: amount,
                 date: Date.now,
                 location: "Bank",
-                category: .init("Account Control", "Audit"),
-                account: account)
+                category: cats.account_control.audit,
+                account: acc)
         ];
     }
     func validate() -> Bool {
-        if account.isEmpty {
+        if self.account == nil {
             err_msg = "Account is empty"
             return false;
         }
@@ -43,14 +45,14 @@ class AuditViewModel : TransViewBase {
     }
     func clear() {
         amount = 0
-        account = .init()
+        account = nil
         err_msg = nil
     }
     
-    var amount: Decimal = 0;
-    var account: AccountPair = .init()
+    var amount: Decimal = 0
+    var account: SubAccount? = nil
     var err_msg: String? = nil
-    var id: UUID = UUID();
+    var id: UUID = UUID()
 }
 
 struct Audit: View {
@@ -70,7 +72,7 @@ struct Audit: View {
                 Text("Deduct")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("from")
-                AccountNameEditor(account: $vm.account)
+                NamedPairPicker(target: $vm.account)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

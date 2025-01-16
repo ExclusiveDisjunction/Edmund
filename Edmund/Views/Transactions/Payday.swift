@@ -13,9 +13,9 @@ enum BreakdownKind {
 }
 @Observable
 class PaydayBreakdown: Identifiable {
-    init(account_name: String, kind: BreakdownKind) {
+    init(kind: BreakdownKind) {
         self.amount = 0;
-        self.acc = .init(account_name, "");
+        self.acc = nil;
         self.kind = kind;
     }
     
@@ -23,99 +23,102 @@ class PaydayBreakdown: Identifiable {
     
     var kind: BreakdownKind;
     var amount: Decimal;
-    var acc: AccountPair;
+    var acc: SubAccount?;
 }
 
 @Observable
 class PaydayViewModel: TransViewBase {
-    private func compute_balances() -> (Dictionary<AccountPair, Decimal>, Decimal) {
+    private func compute_balances() -> (Dictionary<SubAccount, Decimal>, Decimal) {
         var total = amount;
-        var result: Dictionary<AccountPair, Decimal> = [:];
+        var result: Dictionary<SubAccount, Decimal> = [:];
         
         for item in breakdowns {
+            guard let acc = item.acc else { continue }
+            
             switch item.kind {
             case .simple:
-                result[item.acc] = item.amount;
+                result[acc] = item.amount;
                 total -= item.amount;
             case .percent:
                 let changed_by = amount * item.amount;
-                result[item.acc] = changed_by;
+                result[acc] = changed_by;
                 total -= changed_by;
             }
         }
         
         return (result, total);
     }
+    private func compute_bal_with_rem() -> Dictionary<SubAccount, Decimal>? {
+        guard validate() else { return nil }
+        guard let rem_acc = self.rem_acc else { return nil }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
-        if !validate() {
-            return nil;
-        }
+        var (result, rem) = compute_balances();
+        result[rem_acc] = rem;
         
-        var result = compute_balances();
-        result.0[rem_acc] = result.1;
-        
-        return result.0;
+        return result
     }
-    func create_transactions() -> [LedgerEntry]? {
-        let balances = self.compile_deltas();
-        if let balances = balances {
-            var result: [LedgerEntry] = balances.map({ (acc, balance) in
-                    .init(
-                        memo: self.acc.sub_account + " to " + acc.sub_account,
-                        credit: balance,
-                        debit: 0,
-                        date: Date.now,
-                        location: "Bank",
-                        category: .init("Account Control", "Transfer"),
-                        account: acc)
-            });
+    
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
+        guard let result = compute_bal_with_rem() else { return nil }
         
-            //This is the actual pay coming into the account
-            result.insert(
+        return result.reduce(into: [:]) { $0[$1.key.id] = $1.value }
+    }
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
+        guard let balances = compute_bal_with_rem() else { return nil }
+        guard let our_acc = self.acc else { return nil }
+        
+        var result: [LedgerEntry] = balances.map({ (acc, balance) in
                 .init(
-                    memo: "Pay",
-                    credit: amount,
+                    memo: our_acc.name + " to " + acc.name,
+                    credit: balance,
                     debit: 0,
                     date: Date.now,
                     location: "Bank",
-                    category: .init("Account Control", "Pay"),
-                    account: acc
-                ),
-                at: 0
-            )
-            
-            //This is the transfer out of pay, but into the breakdowns
-            result.insert(
-                .init(
-                    memo: "Pay to " + acc.account,
-                    credit: 0,
-                    debit: amount,
-                    date: Date.now,
-                    location: "Bank",
-                    category: .init("Account Control", "Transfer"),
-                    account: acc
-                ),
-                at: 1
-            );
-            
-            return result;
-        }
-        else {
-            return nil;
-        }
+                    category: cats.account_control.transfer,
+                    account: acc)
+        });
+    
+        //This is the actual pay coming into the account
+        result.insert(
+            .init(
+                memo: "Pay",
+                credit: amount,
+                debit: 0,
+                date: Date.now,
+                location: "Bank",
+                category: cats.account_control.pay,
+                account: our_acc
+            ),
+            at: 0
+        )
+        
+        //This is the transfer out of pay, but into the breakdowns
+        result.insert(
+            .init(
+                memo: "Pay to " + our_acc.parent_name,
+                credit: 0,
+                debit: amount,
+                date: Date.now,
+                location: "Bank",
+                category: cats.account_control.transfer,
+                account: our_acc
+            ),
+            at: 1
+        );
+        
+        return result;
     }
     func validate() -> Bool {
         var empty_fields: [String] = [];
         var empty_lines: [Int] = [];
         var invalid_lines: [Int] = [];
         
-        if acc.isEmpty { empty_fields.append("account") }
-        if rem_acc.isEmpty { empty_fields.append("remander account") }
+        if acc == nil { empty_fields.append("account") }
+        if rem_acc == nil { empty_fields.append("remainder account") }
         
         var balance: Decimal = 0.0;
         for (i, d) in breakdowns.enumerated() {
-            if d.acc.isEmpty { empty_lines.append(i + 1) }
+            if d.acc == nil { empty_lines.append(i + 1) }
             
             switch d.kind {
             case .simple:
@@ -165,8 +168,8 @@ class PaydayViewModel: TransViewBase {
     
     func clear() {
         amount = 0
-        acc = .init("", "Pay");
-        rem_acc = .init();
+        acc = nil;
+        rem_acc = nil;
         breakdowns = [];
         err_msg = nil;
     }
@@ -184,8 +187,8 @@ class PaydayViewModel: TransViewBase {
     }
     
     var amount: Decimal = 0;
-    var acc: AccountPair = .init("", "Pay");
-    var rem_acc: AccountPair = .init();
+    var acc: SubAccount? = nil;
+    var rem_acc: SubAccount? = nil
     var breakdowns: [PaydayBreakdown] = [];
     var err_msg: String? = nil;
 }
@@ -217,7 +220,7 @@ struct Payday: View {
                 Text("Amount of")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("into")
-                AccountNameEditor(account: $vm.acc)
+                NamedPairPicker(target: $vm.acc, child_default: "Pay")
             }
             
             HStack {
@@ -228,14 +231,14 @@ struct Payday: View {
             HStack {
                 Button(action: {
                     vm.breakdowns.append(
-                        PaydayBreakdown(account_name: vm.acc.account, kind: .simple)
+                        PaydayBreakdown(kind: .simple)
                     )
                 }) {
                     Label("Add Simple", systemImage: "plus")
                 }.help("Add a breakdown that takes a specific amount from the pay")
                 Button(action: {
                     vm.breakdowns.append(
-                        PaydayBreakdown(account_name: vm.acc.account, kind: .percent)
+                        PaydayBreakdown(kind: .percent)
                     )
                 }) {
                     Label("Add Percentage", systemImage: "percent")
@@ -260,13 +263,13 @@ struct Payday: View {
                     amount_field(item_kind: item.kind, binding: $item)
                 }
                 TableColumn("Account") { ($item: Binding<PaydayBreakdown>) in
-                    AccountNameEditor(account: $item.acc)
+                    NamedPairPicker(target: $item.acc)
                 }
             }.frame(minHeight: 170)
             
             HStack {
                 Text("Insert remaining balance into")
-                AccountNameEditor(account: $vm.rem_acc)
+                NamedPairPicker(target: $vm.rem_acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

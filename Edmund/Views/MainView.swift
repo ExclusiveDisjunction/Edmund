@@ -13,7 +13,7 @@ struct MainView: View {
     //@State private var trans_vm: TransactionsViewModel = .init();
     @State private var balance_vm: BalanceSheetVM = .init();
     
-    @Query private var accounts: [SubAccount];
+    @State private var selected_acc: SubAccount? = nil;
 
     var body: some View {
         NavigationSplitView {
@@ -75,7 +75,7 @@ struct MainView: View {
                             }
                         })
                         
-                        NamedPairPicker(on: accounts)
+                        NamedPairPicker(target: $selected_acc)
                     }
                 } label: {
                     Label("Debug", systemImage: "")

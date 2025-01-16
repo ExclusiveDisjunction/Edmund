@@ -9,9 +9,9 @@ import SwiftUI;
 
 @Observable
 class ManyTableEntry : Identifiable {
-    init(accounts: [SubAccount]) {
+    init() {
         self.amount = 0;
-        self.account = .init(on: accounts);
+        self.account = nil;
         self.id = UUID();
         self.selected = false;
     }
@@ -20,7 +20,7 @@ class ManyTableEntry : Identifiable {
     var amount: Decimal;
     var id: UUID;
     var selected: Bool;
-    var account: NamedPickerVM<SubAccount>;
+    var account: SubAccount?;
 }
 
 @Observable
@@ -38,7 +38,7 @@ class ManyTransferTableVM {
         var result: [Int] = [];
         
         for (i, d) in entries.enumerated() {
-            if d.account.get_account() == nil {
+            if d.account == nil {
                 result.append(i)
             }
         }
@@ -48,7 +48,7 @@ class ManyTransferTableVM {
     func create_transactions(transfer_into: Bool, _ cats: CategoriesContext) -> [LedgerEntry]? {
         var result: [LedgerEntry] = [];
         for entry in entries {
-            guard let acc = entry.account.get_account() else { return nil; }
+            guard let acc = entry.account else { return nil; }
             
             result.append(
                 .init(

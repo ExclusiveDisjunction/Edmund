@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+/*
 @Observable
 class NamedPickerVM<T> where T: NamedPair {
     init(parent: String = "", child: String = "", on: [T]) {
@@ -59,17 +60,66 @@ class NamedPickerVM<T> where T: NamedPair {
         }
     }
 }
+ */
 
-struct NamedPairPicker<T> : View where T: NamedPair {
-    @Bindable var vm: NamedPickerVM<T>
+struct NamedPairPicker<T> : View where T: NamedPair, T: PersistentModel {
+    init(target: Binding<T?>, parent_default: String = "", child_default: String = "") {
+        self.target = target;
+        self.names = .init(parent_default, child_default)
+    }
+    
+    @State var target: Binding<T?>
     @State private var showing_sheet: Bool = false;
+    @State private var names: UnboundNamedPair
+    @State private var selectedID: UUID?;
+    @State private var prev_selected_hash: Int?;
+    
+    @State private var last_result: T?;
+    
+    @Query private var on: [T];
+    
+    func get_account() -> T? {
+        //First we check to see the previous result
+        if let res = last_result {
+            if res.eqByName(names) && res.id == selectedID {
+                return res
+            }
+        }
+        
+        if let sel = selectedID {
+            if names.hashValue == prev_selected_hash { //We already have our stuff, stored in selectedID
+                last_result = on.first(where: { $0.id == sel })
+                return last_result
+            }
+        }
+        
+        //Otherwise, we will look up our target based on the texts given
+        last_result = on.first(where: { $0.eqByName(names) } )
+        return last_result
+    }
+    func clear() {
+        names = .init()
+        selectedID = nil
+        prev_selected_hash = nil
+        last_result = nil
+    }
+    
+    func resolve_on_selected() {
+        if let id = self.selectedID, let acc = on.first(where: {$0.id == id } ) {
+            self.names = .init(from: acc)
+            self.prev_selected_hash = names.hashValue
+            self.last_result = acc
+        } else {
+            clear()
+        }
+    }
     
     private func dismiss_sheet(action: NamedPickerAction) {
         switch action {
         case .cancel:
-            vm.clear()
+            clear()
         case .ok:
-            vm.resolve_on_selected()
+            resolve_on_selected()
         }
         
         showing_sheet = false;
@@ -77,16 +127,28 @@ struct NamedPairPicker<T> : View where T: NamedPair {
     
     var body: some View {
         HStack {
-            NamedPairEditor(pair: $vm.names)
+            NamedPairEditor(pair: $names).onSubmit {
+                let _ = get_account()
+            }
             Button("...", action: {
                 showing_sheet = true
             })
         }.sheet(isPresented: $showing_sheet) {
-            NamedPairPickerSheet(selectedID: $vm.selectedID, elements: vm.on, on_dismiss: dismiss_sheet)
+            NamedPairPickerSheet(selectedID: $selectedID, elements: on, on_dismiss: dismiss_sheet)
         }
     }
 }
 
 #Preview {
-    NamedPairPicker<SubAccount>(vm: .init(on: [])).padding()
+    var pair: SubAccount? = nil;
+    let bind = Binding<SubAccount?>(
+        get: {
+            pair
+        },
+        set: {
+            pair = $0
+        }
+    );
+    
+    NamedPairPicker<SubAccount>(target: bind).padding()
 }

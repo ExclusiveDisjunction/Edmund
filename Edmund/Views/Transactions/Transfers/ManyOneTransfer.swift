@@ -9,25 +9,35 @@ import SwiftUI;
 
 @Observable
 class ManyOneTransferVM : TransViewBase {
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
         if !validate() { return nil }
+        guard let acc = self.acc else { return nil }
         
-        var result: [AccountPair: Decimal] = [
-            acc: multi.total
+        var result: [UUID: Decimal] = [
+            acc.id: multi.total
         ];
         
         multi.entries.forEach {
-            result[$0.acc] = -$0.amount
+            guard let acc = $0.account else { return }
+            result[acc.id] = -$0.amount
         }
         
         return result;
     }
-    func create_transactions() -> [LedgerEntry]? {
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         if !validate() { return nil }
+        guard let acc = self.acc else { return nil }
         
-        if var sub_acc = self.multi.create_transactions(transfer_into: false) {
+        if var sub_acc = self.multi.create_transactions(transfer_into: false, cats) {
             sub_acc.append(
-                .init(memo: "Various to " + acc.sub_account, credit: multi.total, debit: 0, date: Date.now, location: "Bank", category: .init("Account Control", "Transfer"), account: acc)
+                .init(
+                    memo: "Various to " + acc.name,
+                    credit: multi.total,
+                    debit: 0,
+                    date: Date.now,
+                    location: "Bank",
+                    category: cats.account_control.transfer,
+                    account: acc)
             );
             return sub_acc;
         }
@@ -36,7 +46,7 @@ class ManyOneTransferVM : TransViewBase {
         }
     }
     func validate() -> Bool {
-        let acc_empty = self.acc.isEmpty;
+        let acc_empty = self.acc == nil;
         let child_empty: [Int] = self.multi.get_empty_rows();
         
         if acc_empty && !child_empty.isEmpty {
@@ -57,13 +67,13 @@ class ManyOneTransferVM : TransViewBase {
     }
     func clear() {
         err_msg = nil;
-        acc = .init()
+        acc = nil
         multi.clear();
     }
      
-    var err_msg: String? = nil;
-    var acc: AccountPair = .init();
-    var multi: ManyTransferTableVM = .init(minHeight: 90);
+    var err_msg: String? = nil
+    var acc: SubAccount? = nil
+    var multi: ManyTransferTableVM = .init();
 }
 struct ManyOneTransfer : View {
     
@@ -87,7 +97,7 @@ struct ManyOneTransfer : View {
             
             HStack {
                 Text("Move \(vm.multi.total, format: .currency(code: "USD")) into")
-                AccountNameEditor(account: $vm.acc)
+                NamedPairPicker(target: $vm.acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

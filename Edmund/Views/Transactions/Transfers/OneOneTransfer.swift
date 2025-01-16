@@ -12,50 +12,53 @@ class OneOneTransferVM : TransViewBase {
     init() {
         err_msg = nil;
         amount = 0;
-        src = .init()
-        dest = .init()
+        src = nil
+        dest = nil
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
         if !validate() { return nil; }
+        guard let src = self.src, let dest = self.dest else { return nil}
         
         return [
-            src: -amount,
-            dest: amount
+            src.id: -amount,
+            dest.id: amount
         ];
     }
-    func create_transactions() -> [LedgerEntry]? {
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         if !validate() { return nil; }
+        
+        guard let src = self.src, let dest = self.dest else { return nil }
         
         return [
             .init(
-                memo: src.sub_account + " to " + dest.sub_account,
+                memo: src.name + " to " + dest.name,
                 credit: 0,
                 debit: amount,
                 date: Date.now,
                 location: "Bank",
-                category: .init("Account Control", "Transfer"),
+                category: cats.account_control.transfer,
                 account: src
             ),
             .init(
-                memo: src.sub_account + " to " + dest.sub_account,
+                memo: src.name + " to " + dest.name,
                 credit: amount,
                 debit: 0,
                 date: Date.now,
                 location: "Bank",
-                category: .init("Account Control", "Transfer"),
+                category: cats.account_control.transfer,
                 account: dest
             )
         ];
     }
     func validate() -> Bool {
-        if src.isEmpty && dest.isEmpty {
+        if src == nil && dest == nil{
             err_msg = "Source and Destination accounts are empty";
         }
-        else if src.isEmpty {
+        else if src == nil {
             err_msg = "Source account is empty";
         }
-        else if dest.isEmpty {
+        else if dest == nil{
             err_msg = "Destination account is empty";
         }
         else {
@@ -68,15 +71,15 @@ class OneOneTransferVM : TransViewBase {
     func clear() {
         err_msg = nil;
         amount = 0;
-        src = .init()
-        dest = .init()
+        src = nil
+        dest = nil
     }
     
     
     var err_msg: String?;
     var amount: Decimal;
-    var src: AccountPair;
-    var dest: AccountPair;
+    var src: SubAccount?;
+    var dest: SubAccount?;
 }
 
 struct OneOneTransfer : View {
@@ -100,12 +103,12 @@ struct OneOneTransfer : View {
                    
                 GridRow {
                     Text("From")
-                    AccountNameEditor(account: $vm.src)
+                    NamedPairPicker(target: $vm.src)
                 }
                 
                 GridRow {
                     Text("Into")
-                    AccountNameEditor(account: $vm.dest)
+                    NamedPairPicker(target: $vm.dest)
                 }
                 
             }.padding(.bottom, 10).frame(minWidth: 300, maxWidth: .infinity)

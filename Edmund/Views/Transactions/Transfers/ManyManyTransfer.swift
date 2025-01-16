@@ -15,20 +15,26 @@ class ManyManyTransferVM : TransViewBase {
         bottom = ManyTransferTableVM();
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
-        if !validate() { return nil }
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
+        guard validate() else { return nil }
         
-        var result: [AccountPair: Decimal] = [:];
+        var result: [UUID: Decimal] = [:];
         
-        top.entries.forEach { result[$0.acc] = $0.amount }
-        bottom.entries.forEach{ result[$0.acc] = -$0.amount }
+        top.entries.forEach {
+            guard let acc = $0.account else { return }
+            result[acc.id] = $0.amount
+        }
+        bottom.entries.forEach{
+            guard let acc = $0.account else { return }
+            result[acc.id] = -$0.amount
+        }
         
         return result;
     }
-    func create_transactions() -> [LedgerEntry]? {
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         if !validate() { return nil }
         
-        if var a = top.create_transactions(transfer_into: false), let b = bottom.create_transactions(transfer_into: true) {
+        if var a = top.create_transactions(transfer_into: false, cats), let b = bottom.create_transactions(transfer_into: true, cats) {
             a.append(contentsOf: b);
             return a;
         }

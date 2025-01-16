@@ -9,10 +9,10 @@ import SwiftUI
 
 @Observable
 class CreditCardTransViewModel : TransViewBase {
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
         return nil;
     }
-    func create_transactions() -> [LedgerEntry]? {
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         //Keep in mind that I have to fill in the account, manual transactions will not do it for me.
         return nil;
     }
@@ -22,7 +22,7 @@ class CreditCardTransViewModel : TransViewBase {
         if account.isEmpty {
             empty_fields.append("account")
         }
-        if target_account.isEmpty {
+        if target_account == nil {
             empty_fields.append("target account")
         }
         
@@ -47,14 +47,14 @@ class CreditCardTransViewModel : TransViewBase {
     }
     func clear() {
         account = "";
-        target_account = .init("", "Credit Card")
+        target_account = nil;
         sub_transactions.clear()
         err_msg = nil
     }
     
     var account: String = "";
-    var target_account: AccountPair = .init("", "Credit Card");
-    var sub_transactions: ManualTransactionsVM = .init(show_account: false)
+    var target_account: SubAccount? = nil
+    var sub_transactions: ManualTransactionsVM = .init()
     var err_msg: String? = nil;
 }
 
@@ -85,7 +85,7 @@ struct CreditCardTrans: View {
             
             HStack {
                 Text("Balance transfer from")
-                AccountNameEditor(account: $vm.target_account)
+                NamedPairPicker(target: $vm.target_account, child_default: "Credit Card")
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

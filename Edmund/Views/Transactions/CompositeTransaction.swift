@@ -14,13 +14,16 @@ class CompositeTransactionVM : TransViewBase {
         
     }
     
-    func compile_deltas() -> Dictionary<AccountPair, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
+        if !validate() { return nil }
+        guard let acc = self.acc else { return nil }
+        
+        return [acc.id: credit ? total : -total];
+    }
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
         if !validate() { return nil }
         
-        return [acc: credit ? total : -total];
-    }
-    func create_transactions() -> [LedgerEntry]? {
-        if !validate() { return nil }
+        guard let acc = self.acc, let cat = self.category else { return nil }
         
         return [
             .init(
@@ -29,7 +32,7 @@ class CompositeTransactionVM : TransViewBase {
                 debit: self.credit ? 0 : total,
                 date: self.date,
                 location: location,
-                category: category,
+                category: cat,
                 account: acc)
         ]
     }
@@ -37,8 +40,8 @@ class CompositeTransactionVM : TransViewBase {
         var empty_fields: [String] = [];
         
         if memo.isEmpty { empty_fields.append("memo") }
-        if category.isEmpty { empty_fields.append("category") }
-        if acc.isEmpty { empty_fields.append("account")}
+        if category == nil { empty_fields.append("category") }
+        if acc == nil { empty_fields.append("account")}
         
         if !empty_fields.isEmpty {
             err_msg = "The following fields are empty: " + empty_fields.joined(separator: ", ");
@@ -53,8 +56,8 @@ class CompositeTransactionVM : TransViewBase {
         memo = "";
         date = Date.now;
         location = "Various";
-        category = .init()
-        acc = .init()
+        category = nil
+        acc = nil
         entries = [];
         credit = false;
         err_msg = nil;
@@ -63,8 +66,8 @@ class CompositeTransactionVM : TransViewBase {
     var memo: String = ""
     var date: Date = Date.now
     var location: String = "Various"
-    var category: CategoryPair = .init()
-    var acc: AccountPair = .init()
+    var category: SubCategory? = nil
+    var acc: SubAccount? = nil
     var entries: [Decimal] = [];
     var credit: Bool = false;
     var err_msg: String? = nil;
@@ -102,11 +105,11 @@ struct CompositeTransaction : View {
                 }
                 GridRow {
                     Text("Category")
-                    CategoryNameEditor(category: $vm.category)
+                    NamedPairPicker(target: $vm.category)
                 }
                 GridRow {
                     Text("Account")
-                    AccountNameEditor(account: $vm.acc)
+                    NamedPairPicker(target: $vm.acc)
                 }
             }.padding(.bottom, 5)
             
