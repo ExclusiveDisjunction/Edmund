@@ -142,6 +142,7 @@ struct TransactionsView : View {
     @Bindable var vm: TransactionsViewModel;
     
     @Environment(\.modelContext) private var context;
+    @Query var categories: [SubCategory];
     @State var alert_context: AlertContext = .init();
     
     private func enact() {
@@ -149,8 +150,10 @@ struct TransactionsView : View {
             return;
         }
         
+        let cats = CategoriesContext(from: categories, context: self.context)
+        
         for (i, item) in vm.sub_trans.enumerated() {
-            if let list = item.create_transactions() {
+            if let list = item.create_transactions(cats) {
                 for transaction in list {
                     context.insert(transaction);
                 }

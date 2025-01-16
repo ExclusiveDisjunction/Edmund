@@ -11,7 +11,7 @@ import SwiftUI;
 class ManyTableEntry : Identifiable {
     init() {
         self.amount = 0;
-        self.acc = .init();
+        self.account = .init();
         self.id = UUID();
         self.selected = false;
     }
@@ -20,16 +20,13 @@ class ManyTableEntry : Identifiable {
     var amount: Decimal;
     var id: UUID;
     var selected: Bool;
+    var account: NamedPickerVM<SubAccount>;
 }
 
 @Observable
 class ManyTransferTableVM {
-    convenience init() {
-        self.init(minHeight: 140)
-    }
-    init(minHeight: CGFloat) {
+    init() {
         entries = [ManyTableEntry()];
-        self.minHeight = minHeight;
     }
     
     func clear() {
@@ -41,27 +38,28 @@ class ManyTransferTableVM {
         var result: [Int] = [];
         
         for (i, d) in entries.enumerated() {
-            if d.acc.isEmpty {
+            if d.account.get_account() == nil {
                 result.append(i)
             }
         }
         
         return result;
     }
-    func create_transactions(transfer_into: Bool) -> [LedgerEntry]? {
+    func create_transactions(transfer_into: Bool, _ cats: CategoriesContext) -> [LedgerEntry]? {
         var result: [LedgerEntry] = [];
         for entry in entries {
-            guard !entry.acc.isEmpty else { return nil; }
+            guard let acc = entry.account.get_account() else { return nil; }
             
             result.append(
                 .init(
-                    memo: (transfer_into ? "Various to " + entry.acc.sub_account : entry.acc.sub_account + " to Various"),
+                    memo: (transfer_into ? "Various to " + acc.name : acc.name + " to Various"),
                     credit: transfer_into ? entry.amount : 0,
                     debit: transfer_into ? 0 : entry.amount,
                     date: Date.now,
                     location: "Bank",
-                    category: .init("Account Control", "Transfer"),
-                    account: entry.acc)
+                    category: cats.account_control.transfer,
+                    account: acc
+                )
             );
         }
         
@@ -69,7 +67,6 @@ class ManyTransferTableVM {
     }
     
     var entries: [ManyTableEntry];
-    var minHeight: CGFloat;
     
     var total: Decimal {
         var sum: Decimal = 0;
@@ -116,9 +113,9 @@ struct ManyTransferTable : View {
                     GridRow {
                         Toggle("Selected", isOn: $item.selected).labelsHidden()
                         TextField("Amount", value: $item.amount, format: .currency(code: "USD")).disabled(item.selected)
-                        AccountNameEditor(account: $item.acc).disabled(item.selected)
+                        NamedPairPicker(vm: item.account).disabled(item.selected)
                     }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
-                }.frame(maxHeight: vm.minHeight)
+                }
             }.padding().background(.background.opacity(0.7))
         }
     }
