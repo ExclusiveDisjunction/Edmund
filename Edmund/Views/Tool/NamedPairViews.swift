@@ -18,16 +18,18 @@ struct NamedPairEditor<T> : View where T: NamedPair {
     @Binding var pair: T;
     
     var body: some View {
-        switch T.kind {
-        case .account:
-            TextField("Account", text: $pair.parent_name)
-            TextField("Sub Account", text: $pair.child_name)
-        case .category:
-            TextField("Category", text: $pair.parent_name)
-            TextField("Sub Category", text: $pair.child_name)
-        case .nondetermined:
-            TextField("Parent", text: $pair.parent_name)
-            TextField("Child", text: $pair.child_name)
+        HStack {
+            switch T.kind {
+            case .account:
+                TextField("Account", text: $pair.parent_name)
+                TextField("Sub Account", text: $pair.child_name)
+            case .category:
+                TextField("Category", text: $pair.parent_name)
+                TextField("Sub Category", text: $pair.child_name)
+            case .nondetermined:
+                TextField("Parent", text: $pair.parent_name)
+                TextField("Child", text: $pair.child_name)
+            }
         }
     }
 }

@@ -11,7 +11,8 @@ import SwiftData;
 enum TransactionEnum {
     case manual(sub: ManualTransactionsVM = .init())
     case generalIncome(sub: GeneralIncomeViewModel = .init())
-    case payment(sub: PaymentViewModel = .init())
+    case bill_pay(sub: BillPaymentVM = .init())
+    case personal_loan(sub: PersonalLoanTransVM = .init())
     case audit(sub: AuditViewModel = .init())
     case payday(sub: PaydayViewModel = .init())
     case creditCardTrans(sub: CreditCardTransViewModel = .init())
@@ -25,7 +26,8 @@ enum TransactionEnum {
         switch self {
         case .manual(let sub): return sub
         case .generalIncome(let sub): return sub
-        case .payment(let sub): return sub
+        case .bill_pay(let sub): return sub
+        case .personal_loan(let sub): return sub
         case .audit(let sub): return sub
         case .payday(let sub): return sub
         case .creditCardTrans(let sub): return sub
@@ -85,7 +87,8 @@ struct TransactionWrapper : View {
                 switch vm.inner {
                 case .manual(let sub): ManualTransactions(vm: sub)
                 case .generalIncome(let sub): GeneralIncome(vm: sub)
-                case .payment(let sub): Payment(vm: sub)
+                case .bill_pay(let sub): BillPayment(vm: sub)
+                case .personal_loan(let sub): PersonalLoanTrans(vm: sub)
                 case .audit(let sub): Audit(vm: sub)
                 case .payday(let sub): Payday(vm: sub)
                 case .creditCardTrans(let sub): CreditCardTrans(vm: sub)
@@ -184,8 +187,11 @@ struct TransactionsView : View {
                     Button("Composite Transaction", action: {
                         vm.sub_trans.append( .init( .composite() ) )
                     })
-                    Button("Payment", action: {
-                        vm.sub_trans.append(.init(.payment()))
+                    Button("Bill Payment", action: {
+                        vm.sub_trans.append(.init(.bill_pay()))
+                    })
+                    Button("Personal Loan", action: {
+                        vm.sub_trans.append(.init(.personal_loan()))
                     })
                     
                     Divider()
