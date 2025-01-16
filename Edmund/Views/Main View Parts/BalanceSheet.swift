@@ -8,38 +8,68 @@
 import SwiftUI
 import SwiftData
 
-
-class BalanceSheetAccount : Identifiable {
-    init(account: String, from: Dictionary<String, (Decimal, Decimal)>) {
-        self.account = account;
+struct BalanceResolver {
+    static func compileBalances(_ on: [LedgerEntry]) -> Dictionary<UUID, (Decimal, Decimal)> {
+        return BalanceResolver.compileBalancesAccounts(on).reduce(into: [:]) { $0[$1.key.id] = $1.value }
+    }
+    static func compileBalancesAccounts(_ on: [LedgerEntry]) -> Dictionary<SubAccount, (Decimal, Decimal)> {
+        var result: Dictionary<SubAccount, (Decimal, Decimal)> = [:];
         
-        subs = from.reduce(into: []) { (result, row) in
-            result.append(.init(row.key, credits: row.value.0, debits: row.value.1))
+        for entry in on {
+            var temp = result[entry.account, default: (0, 0)];
+            temp.0 += entry.credit;
+            temp.1 += entry.debit;
+            
+            result[entry.account] = temp;
         }
         
-        self.subs.sort { $0.balance > $1.balance }
+        return result;
     }
-    init(account: String, subs: [BalanceSheetBalance]) {
-        self.account = account;
+    static func uuidToSubAccounts(_ source: [SubAccount], target: Dictionary<UUID, (Decimal, Decimal)>) -> Dictionary<SubAccount, (Decimal, Decimal)> {
+        let lookup: Dictionary<UUID, SubAccount> = source.reduce(into: [:]) { $0[$1.id] = $1 }
+        
+        return target.reduce(into: [:]) { $0[lookup[$1.key, default: SubAccount("ERROR", parent: Account("ERROR"))] ] = $1.value }
+    }
+    
+    static func mergeByDeltas(balances: inout Dictionary<UUID, Decimal>, deltas: Dictionary<UUID, Decimal>) {
+        for item in deltas {
+            balances[item.key, default: 0] += item.value
+        }
+    }
+    
+    static func groupByAccountName(_ on: Dictionary<SubAccount, (Decimal, Decimal)>) -> Dictionary<String, [BalanceSheetBalance]> {
+        var result: Dictionary<String, [BalanceSheetBalance]> = [:];
+        
+        for item in on {
+            result[item.key.parent_name, default: []].append( BalanceSheetBalance(item.key.name, credits: item.value.0, debits: item.value.1) )
+        }
+        
+        return result
+    }
+}
+
+class BalanceSheetAccount : Identifiable {
+    init(name: String, subs: [BalanceSheetBalance]) {
+        self.name = name;
         self.subs = subs;
         
         self.subs.sort { $0.balance > $1.balance }
     }
     
-    var account: String;
+    var name: String;
     var subs: [BalanceSheetBalance];
     var balance: Decimal {
         subs.reduce(into: 0) { $0 += $1.balance }
     }
 }
 class BalanceSheetBalance : Identifiable {
-    init(_ sub_account: String, credits: Decimal, debits: Decimal) {
-        self.sub_account = sub_account;
-        self.credits = credits;
-        self.debits = debits;
+    init(_ name: String, credits: Decimal, debits: Decimal) {
+        self.name = name
+        self.credits = credits
+        self.debits = debits
     }
     
-    var sub_account: String;
+    var name: String;
     var credits: Decimal;
     var debits: Decimal;
     var balance: Decimal {
@@ -58,20 +88,10 @@ class BalanceSheetVM {
     }
     
     func computeBalances(trans: [LedgerEntry]) {
-        var t_computed: Dictionary<String, Dictionary<String, (Decimal, Decimal)>> = [:];
+        let rawBalances = BalanceResolver.compileBalancesAccounts(trans);
+        let zipped = BalanceResolver.groupByAccountName(rawBalances);
         
-        trans.forEach { t in
-            let account_name = t.account.parent.name, sub_account_name = t.account.name;
-            var prev = t_computed[account_name, default: [:]][sub_account_name, default: (0, 0)];
-            prev.0 += t.credit;
-            prev.1 += t.debit;
-            t_computed[account_name, default: [:]][sub_account_name] = prev;
-        }
-        
-        computed = [];
-        for (k, v) in t_computed {
-            computed.append(.init(account: k, from: v))
-        }
+        self.computed = zipped.map { BalanceSheetAccount(name: $0.key, subs: $0.value) }
         self.computed.sort { $0.balance > $1.balance }
     }
 
@@ -110,13 +130,13 @@ struct BalanceSheet: View {
                         ForEach(vm.computed) { (item: BalanceSheetAccount) in
                             VStack {
                                 HStack {
-                                    Text(item.account).font(.headline)
+                                    Text(item.name).font(.headline)
                                     Text("\(item.balance, format: .currency(code: "USD"))")
                                     Spacer()
                                 }.padding([.leading, .trailing, .bottom])
                                 Table(item.subs) {
                                     TableColumn("Sub Account") { balance in
-                                        Text(balance.sub_account)
+                                        Text(balance.name)
                                     }
                                     TableColumn("Credit") { balance in
                                         Text("\(balance.credits, format: .currency(code: "USD"))")
@@ -139,16 +159,16 @@ struct BalanceSheet: View {
 
 #Preview {
     BalanceSheet(vm: BalanceSheetVM(synthetic: [
-        .init(account: "Checking", subs: [
+        .init(name: "Checking", subs: [
             .init("DI", credits: 30, debits: 70),
             .init("Credit Card", credits: 40, debits: 10),
             .init("Utilities", credits: 100, debits: 30)
         ]),
-        .init(account: "Savings", subs: [
+        .init(name: "Savings", subs: [
             .init("Hold", credits: 0, debits: 100),
             .init("Main", credits: 1000, debits: 100)
         ])
     ]))
     
-    //BalanceSheet(vm: BalanceSheetVM())
+    BalanceSheet(vm: BalanceSheetVM())
 }

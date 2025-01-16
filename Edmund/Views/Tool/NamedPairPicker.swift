@@ -21,17 +21,29 @@ struct NamedPairPicker<T> : View where T: NamedPair {
     
     @State private var showing_sheet: Bool = false;
     
+    /// Represents the last value pulled out of `get_account`, used to speed up the retreival process.
+    @State private var last_result: T? = nil;
+    
     private var on: [T];
 
     func get_account() -> T? {
+        //First we check to see the previous result
+        if let res = last_result {
+            if res.eqByName(names) && res.id == selectedID {
+                return res
+            }
+        }
+        
         if let sel = selectedID {
             if names.hashValue == prev_selected_hash { //We already have our stuff, stored in selectedID
-                return on.first(where: { $0.id == sel })
+                last_result = on.first(where: { $0.id == sel })
+                return last_result
             }
         }
         
         //Otherwise, we will look up our target based on the texts given
-        return on.first(where: { $0.eqByName(names) } )
+        last_result = on.first(where: { $0.eqByName(names) } )
+        return last_result
     }
     private func dismiss_sheet(action: NamedPickerAction) {
         switch action {

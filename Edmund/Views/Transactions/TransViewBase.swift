@@ -9,8 +9,8 @@ import SwiftUI;
 import Foundation;
 
 protocol TransViewBase : Identifiable {
-    func compile_deltas() -> Dictionary<SubAccount, Decimal>?;
-    //func create_transactions() -> [LedgerEntry]?;
+    func compile_deltas() -> Dictionary<UUID, Decimal>?;
+    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]?;
     func validate() -> Bool;
     
     func clear();

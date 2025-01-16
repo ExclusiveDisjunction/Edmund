@@ -37,11 +37,11 @@ enum TransactionEnum {
         }
     }
     
-    func compile_deltas() -> Dictionary<SubAccount, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
         return self.as_trans_view_base().compile_deltas()
     }
-    func create_transactions() -> [LedgerEntry]? {
-        return self.as_trans_view_base().create_transactions()
+    func create_transactions(_ cat: CategoriesContext) -> [LedgerEntry]? {
+        return self.as_trans_view_base().create_transactions(cat)
     }
     func validate() -> Bool {
         return self.as_trans_view_base().validate()
@@ -50,7 +50,7 @@ enum TransactionEnum {
         self.as_trans_view_base().clear()
     }
 }
-    
+
 @Observable
 class TransactionWrapperVM : Identifiable, TransViewBase {
     init(_ inner: TransactionEnum) {
@@ -65,13 +65,11 @@ class TransactionWrapperVM : Identifiable, TransViewBase {
     func validate() -> Bool {
         inner.validate()
     }
-    /*
-    func compile_deltas() -> Dictionary<SubAccount, Decimal>? {
+    func compile_deltas() -> Dictionary<UUID, Decimal>? {
         inner.compile_deltas()
     }
-     */
-    func create_transactions() -> [LedgerEntry]? {
-        inner.create_transactions()
+    func create_transactions(_ cat: CategoriesContext) -> [LedgerEntry]? {
+        inner.create_transactions(cat)
     }
     func clear() {
         inner.clear()
@@ -82,9 +80,7 @@ struct TransactionWrapper : View {
     
     var body: some View {
         HStack {
-            VStack {
-                Toggle("Selected", isOn: $vm.selected).labelsHidden()
-            }
+            Toggle("Selected", isOn: $vm.selected).labelsHidden()
             VStack {
                 switch vm.inner {
                 case .manual(let sub): ManualTransactions(vm: sub)
@@ -111,41 +107,45 @@ class TransactionsViewModel {
     func clear_all() {
         sub_trans = [];
     }
+    func reset_all() {
+        sub_trans.forEach( { $0.clear() })
+    }
     func remove_selected() {
         sub_trans.removeAll(where: { item in
             item.selected
         })
     }
+    
+    func validate(alert: inout AlertContext, okShowAlert: Bool = true) -> Bool {
+        var result: Bool = true;
+        for transaction in sub_trans {
+            if !transaction.validate() {
+                result = false
+            }
+        }
+        
+        if result {
+            if okShowAlert {
+                alert = .init("All cells validated", is_error: false)
+            }
+            return true
+        }
+        else {
+            alert = .init("One or more cells did not validate. Please correct errors & try again.", is_error: true)
+            return true
+        }
+    }
+
 }
 
 struct TransactionsView : View {
-    
     @Bindable var vm: TransactionsViewModel;
+    
     @Environment(\.modelContext) private var context;
     @State var alert_context: AlertContext = .init();
     
-    private func validate() -> Bool {
-        for transaction in vm.sub_trans {
-            if !transaction.validate() { return false }
-        }
-        
-        alert_context = .init("All cells validated", is_error: false)
-        return true
-    }
-    private func reset_all() {
-        for transaction in vm.sub_trans {
-            transaction.clear();
-        }
-    }
-    private func clear_all() {
-        vm.clear_all();
-    }
-    private func remove_selected() {
-        vm.remove_selected();
-    }
     private func enact() {
-        if !self.validate() {
-            alert_context = .init("One or more cells have errors, please resolve them and try again")
+        if !vm.validate(alert: &alert_context, okShowAlert: false) {
             return;
         }
         
@@ -161,7 +161,7 @@ struct TransactionsView : View {
             }
         }
         
-        clear_all();
+        vm.clear_all();
         alert_context = .init("Enacted successfully", is_error: false)
     }
     
@@ -228,7 +228,7 @@ struct TransactionsView : View {
                 }.help("Add a specific kind of transaction to the editor")
                 
                 Button(action: {
-                    let _ = validate()
+                    let _ = vm.validate(alert: &alert_context)
                 }) {
                     Label("Validate", systemImage: "slider.horizontal.2.square")
                 }.help("Determine if there are errors in any transaction")
@@ -240,19 +240,19 @@ struct TransactionsView : View {
             }.padding([.leading, .trailing]).padding(.bottom, 5)
             
             HStack {
-                Button(action: reset_all) {
+                Button(action: vm.reset_all) {
                     Label("Reset Cells", systemImage: "pencil.slash").foregroundStyle(.red)
                 }
                 Button(action: {
                     withAnimation{
-                        self.remove_selected()
+                        vm.remove_selected()
                     }
                 }) {
                     Label("Remove Selected Cells", systemImage: "trash").foregroundStyle(.red)
                 }
                 Button(action: {
                     withAnimation {
-                        self.clear_all()
+                        vm.clear_all()
                     }
                 }) {
                     Label("Remove All Cells", systemImage: "trash").foregroundStyle(.red)

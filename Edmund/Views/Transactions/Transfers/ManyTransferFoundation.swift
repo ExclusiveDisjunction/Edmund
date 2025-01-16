@@ -18,7 +18,6 @@ class ManyTableEntry : Identifiable {
     
     
     var amount: Decimal;
-    var acc: AccountPair;
     var id: UUID;
     var selected: Bool;
 }
