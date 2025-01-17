@@ -12,23 +12,36 @@ struct BalanceVerifyRow : Identifiable {
     
     var id: UUID = UUID()
     @State var name: String;
-    @State var balance: Double;
-    @State var creditLimit: Double;
-    @State var expectedBalance: Double;
+    @State var avalibleCredit: Decimal;
+    @State var creditLimit: Decimal;
+    @State var balance: Decimal;
     
-    var variance: Double {
+    var expectedBalance: Decimal {
+        creditLimit - avalibleCredit
+    }
+    var variance: Decimal {
         balance - expectedBalance
     }
 }
 
 struct BalanceVerification: View {
-    @Query(filter: #Predicate<Account> { $0.creditLimit != nil }) private var accounts: [Account];
     @Query private var transactions: [LedgerEntry];
     @State private var manual: Bool = false;
     @State private var rows: [BalanceVerifyRow] = [];
     
     private func refresh() {
+        let bals = BalanceResolver.compileBalancesAccounts(transactions).filter { $0.key.creditLimit != nil };
         
+        rows = bals.reduce(into: []) {
+            $0.append(
+                BalanceVerifyRow(
+                    name: $1.key.name,
+                    avalibleCredit: $1.key.creditLimit!, //Already checked with filter, default is credit limit
+                    creditLimit: $1.key.creditLimit!, //Already checked with filter
+                    balance: $1.value.0 - $1.value.0
+                 )
+            )
+        }
     }
     
     var body: some View {
@@ -53,10 +66,22 @@ struct BalanceVerification: View {
                 Grid {
                     GridRow {
                         Text("Accout Name")
+                        Text("Avalible Credit")
                         Text("Credit Limit")
                         Text("Current Balance")
                         Text("Expected Balance")
                         Text("Variance")
+                    }
+                    Divider()
+                    ForEach($rows) { $item in
+                        GridRow {
+                            Text("\(item.name)")
+                            TextField("Amount", value: $item.avalibleCredit, format: .currency(code: "USD"))
+                            Text("\(item.creditLimit, format: .currency(code: "USD"))")
+                            Text("\(item.balance, format: .currency(code: "USD"))")
+                            Text("\(item.expectedBalance, format: .currency(code: "USD"))")
+                            Text("\(item.variance, format: .currency(code: "USD"))")
+                        }
                     }
                 }
             }

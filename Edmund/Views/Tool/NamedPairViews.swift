@@ -16,10 +16,11 @@ struct NamedPairViewer<T>: View where T: NamedPair {
 }
 struct NamedPairEditor<T> : View where T: NamedPair {
     @Binding var pair: T;
+    var kind: NamedPairKind = T.kind;
     
     var body: some View {
         HStack {
-            switch T.kind {
+            switch kind {
             case .account:
                 TextField("Account", text: $pair.parent_name)
                 TextField("Sub Account", text: $pair.child_name)

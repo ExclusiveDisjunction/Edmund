@@ -15,7 +15,7 @@ enum NamedPickerAction: String {
 }
 
 /// Represents the view to insert in the .sheet for the NamedPairPicker
-struct NamedPairPickerSheet<T> : View where T: NamedPair{
+struct NamedPairPickerSheet<T> : View where T: NamedPair {
     @Binding var selectedID: UUID?;
     @State var elements: [T];
     

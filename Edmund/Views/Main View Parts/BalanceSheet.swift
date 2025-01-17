@@ -10,9 +10,9 @@ import SwiftData
 
 struct BalanceResolver {
     static func compileBalances(_ on: [LedgerEntry]) -> Dictionary<UUID, (Decimal, Decimal)> {
-        return BalanceResolver.compileBalancesAccounts(on).reduce(into: [:]) { $0[$1.key.id] = $1.value }
+        return BalanceResolver.compileBalancesSubAccounts(on).reduce(into: [:]) { $0[$1.key.id] = $1.value }
     }
-    static func compileBalancesAccounts(_ on: [LedgerEntry]) -> Dictionary<SubAccount, (Decimal, Decimal)> {
+    static func compileBalancesSubAccounts(_ on: [LedgerEntry]) -> Dictionary<SubAccount, (Decimal, Decimal)> {
         var result: Dictionary<SubAccount, (Decimal, Decimal)> = [:];
         
         for entry in on {
@@ -24,6 +24,19 @@ struct BalanceResolver {
         }
         
         return result;
+    }
+    static func compileBalancesAccounts(_ on: [LedgerEntry]) -> Dictionary<Account, (Decimal, Decimal)> {
+        var result: Dictionary<Account, (Decimal, Decimal)> = [:];
+        
+        for entry in on {
+            var temp = result[entry.account.parent, default: (0, 0)];
+            temp.0 += entry.credit;
+            temp.1 += entry.debit;
+            
+            result[entry.account.parent] = temp;
+        }
+        
+        return result
     }
     static func uuidToSubAccounts(_ source: [SubAccount], target: Dictionary<UUID, (Decimal, Decimal)>) -> Dictionary<SubAccount, (Decimal, Decimal)> {
         let lookup: Dictionary<UUID, SubAccount> = source.reduce(into: [:]) { $0[$1.id] = $1 }
@@ -88,7 +101,7 @@ class BalanceSheetVM {
     }
     
     func computeBalances(trans: [LedgerEntry]) {
-        let rawBalances = BalanceResolver.compileBalancesAccounts(trans);
+        let rawBalances = BalanceResolver.compileBalancesSubAccounts(trans);
         let zipped = BalanceResolver.groupByAccountName(rawBalances);
         
         self.computed = zipped.map { BalanceSheetAccount(name: $0.key, subs: $0.value) }
@@ -158,17 +171,5 @@ struct BalanceSheet: View {
 }
 
 #Preview {
-    BalanceSheet(vm: BalanceSheetVM(synthetic: [
-        .init(name: "Checking", subs: [
-            .init("DI", credits: 30, debits: 70),
-            .init("Credit Card", credits: 40, debits: 10),
-            .init("Utilities", credits: 100, debits: 30)
-        ]),
-        .init(name: "Savings", subs: [
-            .init("Hold", credits: 0, debits: 100),
-            .init("Main", credits: 1000, debits: 100)
-        ])
-    ]))
-    
-    BalanceSheet(vm: BalanceSheetVM())
+    BalanceSheet(vm: BalanceSheetVM()).modelContainer(ModelController.previewContainer)
 }

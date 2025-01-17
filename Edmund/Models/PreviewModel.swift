@@ -5,6 +5,7 @@
 //  Created by Hollan on 1/14/25.
 //
 
+import Foundation
 import SwiftData
 
 @MainActor
@@ -35,6 +36,25 @@ class ModelController {
             let categories = Category.exampleCategories;
             for category in categories {
                 result.mainContext.insert(category)
+            }
+            
+            //We make our own manual LedgerEntry
+            let ledger: [LedgerEntry] = [ ("A", 0, 10, accounts[0].children[1], categories[0].children[1]), ("B", 0, 10, accounts[0].children[2], categories[0].children[1]), ("C", 10, 4, accounts[1].children[1], categories[0].children[1])].reduce(into: []) {
+                $0.append(
+                    LedgerEntry(
+                        memo: $1.0,
+                        credit: $1.1,
+                        debit: $1.2,
+                        date: Date.now,
+                        added_on: Date.now,
+                        location: "Bank",
+                        category: $1.4,
+                        account: $1.3)
+                )
+            }
+            
+            for entry in ledger {
+                result.mainContext.insert(entry)
             }
             
             return result
