@@ -17,7 +17,9 @@ class ModelController {
                 Account.self,
                 SubAccount.self,
                 Category.self,
-                SubCategory.self
+                SubCategory.self,
+                Bill.self,
+                Utility.self
             ]
         )
     }()
@@ -37,7 +39,7 @@ class ModelController {
             for category in categories {
                 result.mainContext.insert(category)
             }
-            
+
             //We make our own manual LedgerEntry
             let ledger: [LedgerEntry] = [ ("A", 0, 10, accounts[0].children[1], categories[0].children[1]), ("B", 0, 10, accounts[0].children[2], categories[0].children[1]), ("C", 10, 4, accounts[1].children[1], categories[0].children[1])].reduce(into: []) {
                 $0.append(
@@ -54,7 +56,16 @@ class ModelController {
             }
             
             for entry in ledger {
-                result.mainContext.insert(entry)
+                result.mainContext.insert(entry);
+            }
+            
+            let bills = Bill.exampleBills;
+            for bill in bills {
+                result.mainContext.insert(bill)
+            }
+            let utilities = Utility.exampleUtilities;
+            for utility in utilities {
+                result.mainContext.insert(utility)
             }
             
             return result

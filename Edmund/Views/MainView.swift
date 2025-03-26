@@ -37,7 +37,7 @@ struct MainView: View {
                     Label("Balance Sheet", systemImage: "plus.forwardslash.minus")
                 }
                 NavigationLink {
-                    
+                    AccsAndCats()
                 } label: {
                     Label("Accounts & Categories", systemImage: "bag")
                 }
@@ -47,7 +47,7 @@ struct MainView: View {
                     Label("Paychecks", systemImage: "dollarsign.bank.building")
                 }
                 NavigationLink {
-                    
+                    BillsView()
                 } label: {
                     Label("Bills", systemImage: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
                 }
@@ -78,5 +78,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView().frame(width: 800, height: 600)
+    MainView().frame(width: 800, height: 600).modelContainer(ModelController.previewContainer)
 }
