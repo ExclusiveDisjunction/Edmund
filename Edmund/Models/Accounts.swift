@@ -9,7 +9,12 @@ import Foundation
 import SwiftData
 
 @Model
-class Account : Identifiable, Hashable {
+final class Account : Identifiable, Hashable, BoundPairParent {
+    required init() {
+        self.name = ""
+        self.creditLimit = nil
+        self.id = UUID()
+    }
     init(_ name: String, creditLimit: Decimal? = nil) {
         self.name = name;
         self.creditLimit = creditLimit;
@@ -28,6 +33,14 @@ class Account : Identifiable, Hashable {
     @Attribute var creditLimit: Decimal?;
     @Relationship(deleteRule: .cascade) var children = [SubAccount]();
     
+    var bound_pairs: [SubAccount] {
+        get { children }
+        set(v) { children = v }
+    }
+    static var kind: NamedPairKind {
+        .account
+    }
+    
     var isEmpty : Bool {
         name.isEmpty
     }
@@ -43,7 +56,12 @@ class Account : Identifiable, Hashable {
     }
 }
 @Model
-class SubAccount : NamedPair {
+final class SubAccount : NamedPair, BoundPair {
+    required init() {
+        self.name = ""
+        self.parent = Account();
+        self.id = UUID();
+    }
     init(_ name: String, parent: Account, id: UUID = UUID()) {
         self.name = name
         self.parent = parent
@@ -61,6 +79,11 @@ class SubAccount : NamedPair {
     @Attribute(.unique) var id: UUID;
     var name: String;
     @Relationship(deleteRule: .cascade, inverse: \Account.children) var parent: Account;
+    
+    var pair_parent: Account {
+        get { parent }
+        set(v) { parent = v }
+    }
     
     var isEmpty: Bool {
         name.isEmpty || parent.name.isEmpty

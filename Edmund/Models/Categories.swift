@@ -9,7 +9,11 @@ import Foundation
 import SwiftData
 
 @Model
-class Category : Identifiable, Hashable {
+final class Category : Identifiable, Hashable, BoundPairParent {
+    required init() {
+        self.name = ""
+        self.id = UUID()
+    }
     init(_ name: String = "") {
         self.name = name
         self.id = UUID()
@@ -26,6 +30,12 @@ class Category : Identifiable, Hashable {
     var id: UUID;
     @Attribute(.unique) var name: String;
     @Relationship(deleteRule: .cascade) var children = [SubCategory]();
+    
+    var bound_pairs: [SubCategory] {
+        get { children }
+        set(v) { children = v }
+    }
+    static var kind: NamedPairKind { .category }
     
     static let exampleCategories: [Category] = {
         let result = [
@@ -46,7 +56,14 @@ class Category : Identifiable, Hashable {
     }
 }
 @Model
-class SubCategory : NamedPair {
+class SubCategory : NamedPair, BoundPair, Identifiable {
+    typealias P = Category;
+    
+    required init() {
+        self.parent = Category()
+        self.name = ""
+        self.id = UUID()
+    }
     init(_ name: String , parent: Category, id: UUID = UUID()) {
         self.parent = parent
         self.name = name
@@ -64,6 +81,12 @@ class SubCategory : NamedPair {
     @Attribute(.unique) var id: UUID;
     @Relationship(deleteRule: .cascade, inverse: \Category.children) var parent: Category;
     var name: String;
+    
+    var pair_parent: Category {
+        get{ parent }
+        set(v) { parent = v }
+    }
+
     
     var isEmpty: Bool {
         parent.isEmpty || name.isEmpty

@@ -159,6 +159,7 @@ struct ManualTransactions: View {
                         Text("Category")
                         Text("Account")
                     }
+                    
                     Divider()
                     
                     ForEach($vm.adding) { $item in

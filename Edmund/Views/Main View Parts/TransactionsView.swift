@@ -61,7 +61,6 @@ class TransactionWrapperVM : Identifiable, TransViewBase {
     
     var id: UUID = UUID()
     
-    var selected: Bool = false;
     var inner: TransactionEnum;
     
     func validate() -> Bool {
@@ -82,23 +81,20 @@ struct TransactionWrapper : View {
     
     var body: some View {
         HStack {
-            Toggle("Selected", isOn: $vm.selected).labelsHidden()
-            VStack {
-                switch vm.inner {
-                case .manual(let sub): ManualTransactions(vm: sub)
-                case .generalIncome(let sub): GeneralIncome(vm: sub)
-                case .bill_pay(let sub): BillPayment(vm: sub)
-                case .personal_loan(let sub): PersonalLoanTrans(vm: sub)
-                case .audit(let sub): Audit(vm: sub)
-                case .payday(let sub): Payday(vm: sub)
-                case .creditCardTrans(let sub): CreditCardTrans(vm: sub)
-                case .one_one_transfer(let sub): OneOneTransfer(vm: sub)
-                case .one_many_transfer(let sub): OneManyTransfer(vm: sub)
-                case .many_one_transfer(let sub): ManyOneTransfer(vm: sub)
-                case .many_many_transfer(let sub): ManyManyTransfer(vm: sub)
-                case .composite(let sub): CompositeTransaction(vm: sub)
-                }
-            }.disabled(vm.selected).background(vm.selected ? Color.accentColor.opacity(0.2) : Color.clear)
+            switch vm.inner {
+            case .manual(let sub): ManualTransactions(vm: sub)
+            case .generalIncome(let sub): GeneralIncome(vm: sub)
+            case .bill_pay(let sub): BillPayment(vm: sub)
+            case .personal_loan(let sub): PersonalLoanTrans(vm: sub)
+            case .audit(let sub): Audit(vm: sub)
+            case .payday(let sub): Payday(vm: sub)
+            case .creditCardTrans(let sub): CreditCardTrans(vm: sub)
+            case .one_one_transfer(let sub): OneOneTransfer(vm: sub)
+            case .one_many_transfer(let sub): OneManyTransfer(vm: sub)
+            case .many_one_transfer(let sub): ManyOneTransfer(vm: sub)
+            case .many_many_transfer(let sub): ManyManyTransfer(vm: sub)
+            case .composite(let sub): CompositeTransaction(vm: sub)
+            }
         }.padding(.bottom, 5)
     }
 }
@@ -113,10 +109,8 @@ class TransactionsViewModel {
     func reset_all() {
         sub_trans.forEach( { $0.clear() })
     }
-    func remove_selected() {
-        sub_trans.removeAll(where: { item in
-            item.selected
-        })
+    func remove_specific(_ id: TransactionWrapperVM.ID) {
+        self.sub_trans.removeAll(where: {$0.id == id} )
     }
     
     func validate(alert: inout AlertContext, okShowAlert: Bool = true) -> Bool {
@@ -175,8 +169,17 @@ struct TransactionsView : View {
         VStack {
             ScrollView {
                 VStack {
-                    ForEach(vm.sub_trans) { vm in
-                        TransactionWrapper(vm: vm)
+                    ForEach(vm.sub_trans) { s_vm in
+                        TransactionWrapper(vm: s_vm)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                withAnimation {
+                                    vm.remove_specific(s_vm.id)
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
                 }
             }.padding()
@@ -255,14 +258,6 @@ struct TransactionsView : View {
                 Button(action: enact) {
                     Label("Enact", systemImage: "pencil")
                 }.help("Attempt to apply the transactions to the system")
-                
-                Button(action: {
-                    withAnimation{
-                        vm.remove_selected()
-                    }
-                }) {
-                    Image(systemName: "trash").foregroundStyle(.red)
-                }.help("Remove selected cells")
                 
                 Button(action: {
                     withAnimation {

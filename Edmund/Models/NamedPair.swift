@@ -6,11 +6,25 @@
 //
 
 import Foundation
+import SwiftData
 
-enum NamedPairKind {
-    case account
-    case category
-    case nondetermined
+enum NamedPairKind : String, Equatable {
+    case account = "Account"
+    case category = "Category"
+    
+    func pluralized() -> String {
+        switch self {
+        case .account: "Accounts"
+        case .category: "Categories"
+        }
+    }
+    func subName() -> String {
+        "Sub \(self.rawValue)"
+    }
+    func subNamePlural() -> String {
+        "Sub \(self.pluralized())"
+    }
+    
 }
 protocol NamedPair : Hashable, Identifiable<UUID> {
     var parent_name: String { get set }
@@ -21,6 +35,23 @@ extension NamedPair {
     func eqByName(_ rhs: any NamedPair) -> Bool {
         self.parent_name == rhs.parent_name && self.child_name == rhs.child_name
     }
+}
+
+protocol BoundPairParent : Identifiable<UUID>, PersistentModel {
+    associatedtype C: BoundPair where C.P == Self;
+    
+    init();
+    
+    var name: String { get set }
+    var bound_pairs: [C] { get set }
+    static var kind: NamedPairKind { get}
+}
+protocol BoundPair : Identifiable<UUID>, PersistentModel, NamedPair {
+    associatedtype P: BoundPairParent;
+    
+    init();
+    
+    var pair_parent: P { get set }
 }
 
 struct UnboundNamedPair : NamedPair {

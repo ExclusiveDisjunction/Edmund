@@ -41,13 +41,13 @@ struct MainView: View {
                 }
                 
                 NavigationLink {
-                    AllAccountsViewEdit()
+                    AllNamedPairViewEdit<Account>()
                 } label: {
                     Text("Accounts")
                 }
                 
                 NavigationLink {
-                    AllCategoriesViewEdit()
+                    AllNamedPairViewEdit<Category>()
                 } label: {
                     Text("Categories")
                 }
