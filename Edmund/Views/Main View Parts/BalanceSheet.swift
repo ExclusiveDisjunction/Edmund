@@ -126,13 +126,6 @@ struct BalanceSheet: View {
                 Spacer()
             }.padding()
             
-            HStack {
-                Button(action: update_balances) {
-                    Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-                }
-                Spacer()
-            }.padding([.leading, .bottom])
-            
             if vm.computed.isEmpty {
                 Text("There are no transactions, or this page needs to be refreshed").italic().padding()
                 Spacer()
@@ -167,6 +160,11 @@ struct BalanceSheet: View {
                 }
             }
         }.onAppear(perform: update_balances)
+            .toolbar {
+                Button(action: update_balances) {
+                    Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+                }
+            }
     }
 }
 

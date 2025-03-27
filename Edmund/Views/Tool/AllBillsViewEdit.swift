@@ -8,6 +8,26 @@
 import SwiftUI
 import SwiftData
 
+struct GeneralActionsPanel: View {
+    var on_add: () -> Void;
+    var on_edit: () -> Void;
+    var on_delete: () -> Void;
+    
+    var body: some View {
+        HStack {
+            Button(action: on_add) {
+                Image(systemName: "plus")
+            }
+            Button(action: on_edit) {
+                Image(systemName: "pencil")
+            }
+            Button(action: on_delete) {
+                Image(systemName: "trash").foregroundStyle(.red)
+            }
+        }
+    }
+}
+
 struct AllBillsViewEdit : View {
     @State var showSheet = false;
     @State private var selectedBill: Bill?;
@@ -59,21 +79,7 @@ struct AllBillsViewEdit : View {
                 Text("\(kind.toString()) Bills").font(.title)
                 Spacer()
             }
-            
-            HStack {
-                Button(action: add_bill) {
-                    Label("Add", systemImage: "plus")
-                }
-                
-                Button(action: edit_selected) {
-                    Label("Edit", systemImage: "pencil")
-                }.disabled(tableSelected == nil)
-                
-                Button(action: remove_selected) {
-                    Label("Remove", systemImage: "trash").foregroundStyle(.red)
-                }
-            }
-            
+        
             Table(self.bills, selection: $tableSelected) {
                 TableColumn("Name") { bill in
                     Text(bill.name)
@@ -96,6 +102,8 @@ struct AllBillsViewEdit : View {
             }
         }.padding().sheet(item: $selectedBill) { bill in
             BillEditor(bill: bill)
+        }.toolbar() {
+            GeneralActionsPanel(on_add: add_bill, on_edit: edit_selected, on_delete: remove_selected)
         }
     }
 }

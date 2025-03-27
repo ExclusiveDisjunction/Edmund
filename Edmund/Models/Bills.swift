@@ -120,9 +120,85 @@ class Bill : Identifiable{
     }
 }
 
+enum Month: Int, Equatable {
+    case jan = 1
+    case feb = 2
+    case mar = 3
+    case apr = 4
+    case may = 5
+    case jun = 6
+    case jul = 7
+    case aug = 8
+    case sept = 9
+    case oct = 10
+    case nov = 11
+    case dec = 12
+    
+    static func fromString(_ val: String) -> Month {
+        switch val {
+        case "January": .jan
+        case "February": .feb
+        case "March": .mar
+        case "April": .apr
+        case "May": .may
+        case "June": .jun
+        case "July": .jul
+        case "August": .aug
+        case "September": .sept
+        case "October": .oct
+        case "November": .nov
+        case "December": .dec
+        default: .dec
+        }
+    }
+    
+    func toString() -> String {
+        switch self {
+        case .jan: "January"
+        case .feb: "February"
+        case .mar: "March"
+        case .apr: "April"
+        case .may : "May"
+        case .jun: "June"
+        case .jul: "July"
+        case .aug: "August"
+        case .sept: "September"
+        case .oct: "October"
+        case .nov: "November"
+        case .dec: "December"
+        }
+    }
+}
+
+@Model
+class UtilityEntry: Identifiable {
+    init(_ month: Month, _ amount: Decimal) {
+        self.rawMonth = month.rawValue
+        self.amount = amount
+    }
+    
+    var id = UUID()
+    private var rawMonth: Int;
+    var amount: Decimal;
+    @Relationship var parent: Utility?;
+    
+    func getRawMonth() -> Int {
+        self.rawMonth
+    }
+    
+    var month: Month {
+        get {
+            Month(rawValue: self.rawMonth)!
+        }
+        set(v) {
+            self.rawMonth = v.rawValue
+        }
+    }
+}
+
 @Model
 class Utility: Identifiable {
-    init(name: String, amounts: [Decimal]) {
+    init(name: String, amounts: [UtilityEntry]) {
         self.id = UUID()
         self.name = name
         self.amounts = amounts
@@ -130,21 +206,33 @@ class Utility: Identifiable {
     
     var id: UUID;
     @Attribute(.unique) var name: String
-    var amounts: [Decimal]
+    @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) var amounts: [UtilityEntry]
     
     var pricePerWeek: Decimal {
         get {
-            let avg = self.amounts.reduce(Decimal(0.0), { $0 + $1 }) / Decimal(self.amounts.count)
+            let avg = self.amounts.reduce(Decimal(0.0), { $0 + $1.amount }) / Decimal(self.amounts.count)
             return avg / 4.0;
         }
     }
     
     static var exampleUtilities: [Utility] {
         [
-            Utility(name: "Gas", amounts: [25, 23, 28, 27]),
-            Utility(name: "Electric", amounts: [30, 31, 38, 36]),
-            Utility(name: "Internet", amounts: [34, 25, 35, 35]),
-            Utility(name: "Water", amounts: [10, 12, 14, 15])
+            Utility(name: "Gas", amounts: [.init(Month.jan, 25),
+                                           .init(Month.feb, 23),
+                                           .init(Month.mar, 28),
+                                           .init(Month.apr, 27)]),
+            Utility(name: "Electric", amounts: [.init(Month.jan, 30),
+                                                .init(Month.feb, 31),
+                                                .init(Month.mar, 38),
+                                                .init(Month.apr, 36)]),
+            Utility(name: "Internet", amounts: [.init(Month.jan, 34),
+                                                .init(Month.feb, 25),
+                                                .init(Month.mar, 35),
+                                                .init(Month.apr, 35)]),
+            Utility(name: "Water", amounts: [.init(Month.jan, 10),
+                                             .init(Month.feb, 12),
+                                             .init(Month.mar, 14),
+                                             .init(Month.apr, 15)])
         ]
     }
 }

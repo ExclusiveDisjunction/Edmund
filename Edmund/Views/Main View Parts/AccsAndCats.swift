@@ -13,14 +13,15 @@ struct AccsAndCats : View {
     
     var body: some View {
         TabView {
-            Tab("Accounts", systemImage: "") {
-                Text("Showing Accounts")
-            }
-
-
-            Tab("Categories", systemImage: "") {
-                Text("Showing Categories")
-            }
+            Text("Showing Accounts")
+                .tabItem {
+                    Text("Accounts")
+                }
+            
+            Text("Showing Categories")
+                .tabItem {
+                    Text("Categories")
+                }
         }
     }
 }

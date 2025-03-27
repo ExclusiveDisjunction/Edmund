@@ -30,7 +30,12 @@ struct BillEditor : View {
             Grid {
                 GridRow {
                     Text("Name")
-                    TextField("Name", text: $bill.name)
+                    if !nameRed {
+                        TextField("Name", text: $bill.name)
+                    }
+                    else {
+                        TextField("Name", text: $bill.name).border(Color.red)
+                    }
                 }
                 
                 GridRow {
@@ -69,7 +74,7 @@ struct BillEditor : View {
 }
 
 #Preview {
-    var bill = Bill(name: "Test", amount: 40, kind: .simple, period: .monthly)
+    let bill = Bill(name: "Test", amount: 40, kind: .simple, period: .monthly)
     
     BillEditor(bill: bill).modelContainer(ModelController.previewContainer)
 }

@@ -178,6 +178,27 @@ struct TransactionsView : View {
                 Spacer()
             }.padding([.top, .leading, .trailing]).padding(.bottom, 5)
             
+            
+            
+            HStack {
+               
+            }.padding([.leading, .trailing]).padding(.bottom, 5)
+            
+            ScrollView {
+                VStack {
+                    ForEach(vm.sub_trans) { vm in
+                        TransactionWrapper(vm: vm)
+                    }
+                }
+            }.padding()
+        }.alert(alert_context.is_error ? "Validation Errors" : "Notice", isPresented: $alert_context.show_alert, actions: {
+            Button("Ok", action: {
+                alert_context.show_alert = false;
+            })
+        }, message: {
+            Text(alert_context.message)
+        })
+        .toolbar {
             HStack {
                 Menu {
                     Text("Basic")
@@ -244,47 +265,28 @@ struct TransactionsView : View {
                 
                 Button(action: enact) {
                     Label("Enact", systemImage: "pencil")
-                }.help("Apply these transactions to the system")
+                }.help("Attempt to apply the transactions to the system")
                 
-            }.padding([.leading, .trailing]).padding(.bottom, 5)
-            
-            HStack {
-                Button(action: vm.reset_all) {
-                    Label("Reset Cells", systemImage: "pencil.slash").foregroundStyle(.red)
-                }
                 Button(action: {
                     withAnimation{
                         vm.remove_selected()
                     }
                 }) {
-                    Label("Remove Selected Cells", systemImage: "trash").foregroundStyle(.red)
-                }
+                    Image(systemName: "trash").foregroundStyle(.red)
+                }.help("Remove selected cells")
+                
                 Button(action: {
                     withAnimation {
                         vm.clear_all()
                     }
                 }) {
-                    Label("Remove All Cells", systemImage: "trash").foregroundStyle(.red)
-                }
-            }.padding([.leading, .trailing]).padding(.bottom, 5)
-            
-            ScrollView {
-                VStack {
-                    ForEach(vm.sub_trans) { vm in
-                        TransactionWrapper(vm: vm)
-                    }
-                }
-            }.padding()
-        }.alert(alert_context.is_error ? "Validation Errors" : "Notice", isPresented: $alert_context.show_alert, actions: {
-            Button("Ok", action: {
-                alert_context.show_alert = false;
-            })
-        }, message: {
-            Text(alert_context.message)
-        })
+                    Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(.red)
+                }.help("Remove all cells")
+            }
+        }.frame(minWidth: 700)
     }
 }
 
 #Preview {
-    TransactionsView(vm: TransactionsViewModel())
+    TransactionsView(vm: TransactionsViewModel()).frame(width: 700)
 }
