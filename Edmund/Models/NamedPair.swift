@@ -11,11 +11,13 @@ import SwiftData
 enum NamedPairKind : String, Equatable {
     case account = "Account"
     case category = "Category"
+    case nondetermined = "Non-Determined"
     
     func pluralized() -> String {
         switch self {
         case .account: "Accounts"
         case .category: "Categories"
+            case .nondetermined: "Non-Determined Pairs"
         }
     }
     func subName() -> String {
