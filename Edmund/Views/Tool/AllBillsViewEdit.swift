@@ -75,11 +75,6 @@ struct AllBillsViewEdit : View {
 
     var body: some View {
         VStack {
-            HStack {
-                Text("\(kind.toString()) Bills").font(.title)
-                Spacer()
-            }
-        
             Table(self.bills, selection: $tableSelected) {
                 TableColumn("Name") { bill in
                     Text(bill.name)
@@ -104,7 +99,7 @@ struct AllBillsViewEdit : View {
             BillEditor(bill: bill)
         }.toolbar() {
             GeneralActionsPanel(on_add: add_bill, on_edit: edit_selected, on_delete: remove_selected)
-        }
+        }.navigationTitle("\(kind.toString()) Bills")
     }
 }
 

@@ -30,7 +30,8 @@ struct LedgerTable: View {
             TableColumn("Account") { item in
                 NamedPairViewer(pair: item.account)
             }
-        }
+        }.padding()
+            .navigationTitle("Ledger")
     }
 }
 

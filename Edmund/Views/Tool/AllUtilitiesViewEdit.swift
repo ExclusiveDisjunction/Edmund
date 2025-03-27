@@ -44,11 +44,6 @@ struct AllUtilitiesViewEdit : View {
     
     var body: some View {
         VStack {
-            HStack {
-                Text("Utilities").font(.title)
-                Spacer()
-            }
-            
             HSplitView {
                 VStack {
                     Table(self.utilities, selection: $tableSelected) {
@@ -110,7 +105,7 @@ struct AllUtilitiesViewEdit : View {
                     Label("Remove", systemImage: "trash").foregroundStyle(.red)
                 }
             }
-        }
+        }.navigationTitle("Utilities")
     }
 }
 

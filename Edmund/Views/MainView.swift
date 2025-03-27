@@ -19,55 +19,66 @@ struct MainView: View {
                 NavigationLink {
                     Homepage()
                 } label: {
-                    Label("Welcome", systemImage: "house")
+                    Text("Welcome")
                 }
+                
                 NavigationLink {
                     LedgerTable()
                 } label: {
-                    Label("Ledger", systemImage: "clipboard")
+                    Text("Ledger")
                 }
+                
                 NavigationLink {
                     TransactionsView(vm: trans_vm)
                 } label: {
-                    Label("Transactions", systemImage: "pencil")
+                    Text("Transactions")
                 }
+                
                 NavigationLink {
                     BalanceSheet(vm: balance_vm)
                 } label: {
-                    Label("Balance Sheet", systemImage: "plus.forwardslash.minus")
-                }
-                NavigationLink {
-                    AccsAndCats()
-                } label: {
-                    Label("Accounts & Categories", systemImage: "bag")
-                }
-                NavigationLink {
-                    
-                } label: {
-                    Label("Paychecks", systemImage: "dollarsign.bank.building")
-                }
-                NavigationLink {
-                    BillsView()
-                } label: {
-                    Label("Bills", systemImage: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
-                }
-                NavigationLink {
-                    
-                } label: {
-                    Label("Budget", systemImage: "wand.and.sparkles")
-                }
-                NavigationLink {
-                    
-                } label: {
-                    Label("Management", systemImage: "building")
+                    Text("Balance Sheet")
                 }
                 
-                Divider()
+                NavigationLink {
+                    AllAccountsViewEdit()
+                } label: {
+                    Text("Accounts")
+                }
+                
+                NavigationLink {
+                    AllCategoriesViewEdit()
+                } label: {
+                    Text("Categories")
+                }
+                
+                NavigationLink {
+                    AllBillsViewEdit(kind: .simple)
+                } label: {
+                    Text("Simple Bills")
+                }
+                
+                NavigationLink {
+                    AllBillsViewEdit(kind: .complex)
+                } label: {
+                    Text("Complex Bills")
+                }
+                
+                NavigationLink {
+                    AllUtilitiesViewEdit()
+                } label: {
+                    Text("Utilities")
+                }
                 
                 NavigationLink {
                     
                 } label: {
-                    Label("Debug", systemImage: "")
+                    Text("Budget")
+                }
+                NavigationLink {
+                    
+                } label: {
+                    Text("Management")
                 }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)

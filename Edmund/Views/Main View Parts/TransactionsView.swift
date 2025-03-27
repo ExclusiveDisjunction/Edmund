@@ -173,17 +173,6 @@ struct TransactionsView : View {
     
     var body : some View {
         VStack {
-            HStack {
-                Text("Current Transactions").font(.title)
-                Spacer()
-            }.padding([.top, .leading, .trailing]).padding(.bottom, 5)
-            
-            
-            
-            HStack {
-               
-            }.padding([.leading, .trailing]).padding(.bottom, 5)
-            
             ScrollView {
                 VStack {
                     ForEach(vm.sub_trans) { vm in
@@ -284,6 +273,7 @@ struct TransactionsView : View {
                 }.help("Remove all cells")
             }
         }.frame(minWidth: 700)
+            .navigationTitle("Transactions Editor")
     }
 }
 

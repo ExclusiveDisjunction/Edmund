@@ -121,10 +121,6 @@ struct BalanceSheet: View {
     
     var body: some View {
         VStack {
-            HStack {
-                Text("Balance Sheet").font(.title)
-                Spacer()
-            }.padding()
             
             if vm.computed.isEmpty {
                 Text("There are no transactions, or this page needs to be refreshed").italic().padding()
@@ -160,11 +156,13 @@ struct BalanceSheet: View {
                 }
             }
         }.onAppear(perform: update_balances)
-            .toolbar {
-                Button(action: update_balances) {
-                    Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-                }
+        .toolbar {
+            Button(action: update_balances) {
+                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
             }
+        }
+        .navigationTitle("Balance Sheet")
+        
     }
 }
 

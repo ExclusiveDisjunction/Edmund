@@ -53,6 +53,7 @@ struct Homepage : View {
                 }
             }.padding()
         }.frame(minHeight: 550)
+            .navigationTitle("Edmund")
     }
 }
 
