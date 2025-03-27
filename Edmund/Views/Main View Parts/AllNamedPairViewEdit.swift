@@ -31,7 +31,6 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             let child = T.C.init()
             
             parent.bound_pairs.append(child)
-            child.pair_parent = parent
             modelContext.insert(child)
             
             selectedChild = child

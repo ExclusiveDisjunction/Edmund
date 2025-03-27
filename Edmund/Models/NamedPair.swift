@@ -40,7 +40,7 @@ extension NamedPair {
 }
 
 protocol BoundPairParent : Identifiable<UUID>, PersistentModel {
-    associatedtype C: BoundPair where C.P == Self;
+    associatedtype C: BoundPair;
     
     init();
     
@@ -49,11 +49,7 @@ protocol BoundPairParent : Identifiable<UUID>, PersistentModel {
     static var kind: NamedPairKind { get}
 }
 protocol BoundPair : Identifiable<UUID>, PersistentModel, NamedPair {
-    associatedtype P: BoundPairParent;
-    
     init();
-    
-    var pair_parent: P { get set }
 }
 
 struct UnboundNamedPair : NamedPair {

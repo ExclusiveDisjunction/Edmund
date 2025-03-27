@@ -80,18 +80,13 @@ final class SubAccount : NamedPair, BoundPair {
     var name: String;
     @Relationship(deleteRule: .cascade, inverse: \Account.children) var parent: Account;
     
-    var pair_parent: Account {
-        get { parent }
-        set(v) { parent = v }
-    }
-    
     var isEmpty: Bool {
         name.isEmpty || parent.name.isEmpty
     }
     
     var parent_name: String {
         get { parent.name }
-        set(v) { parent.name = v}
+        set(v) { parent.name = v }
     }
     var child_name: String {
         get { name }
