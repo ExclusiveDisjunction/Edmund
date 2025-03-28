@@ -29,11 +29,13 @@ struct BalanceResolver {
         var result: Dictionary<Account, (Decimal, Decimal)> = [:];
         
         for entry in on {
-            var temp = result[entry.account.parent, default: (0, 0)];
-            temp.0 += entry.credit;
-            temp.1 += entry.debit;
-            
-            result[entry.account.parent] = temp;
+            if let parent = entry.account.parent {
+                var temp = result[parent, default: (0, 0)];
+                temp.0 += entry.credit;
+                temp.1 += entry.debit;
+                
+                result[parent] = temp;
+            }
         }
         
         return result
@@ -54,7 +56,7 @@ struct BalanceResolver {
         var result: Dictionary<String, [BalanceSheetBalance]> = [:];
         
         for item in on {
-            result[item.key.parent_name, default: []].append( BalanceSheetBalance(item.key.name, credits: item.value.0, debits: item.value.1) )
+            result[item.key.parent_name ?? "", default: []].append( BalanceSheetBalance(item.key.name, credits: item.value.0, debits: item.value.1) )
         }
         
         return result

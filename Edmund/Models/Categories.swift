@@ -29,12 +29,8 @@ final class Category : Identifiable, Hashable, BoundPairParent {
     
     var id: UUID;
     @Attribute(.unique) var name: String;
-    @Relationship(deleteRule: .cascade) var children = [SubCategory]();
-    
-    var bound_pairs: [SubCategory] {
-        get { children }
-        set(v) { children = v }
-    }
+    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) var children = [SubCategory]();
+
     static var kind: NamedPairKind { .category }
     
     static let exampleCategories: [Category] = {
@@ -56,15 +52,13 @@ final class Category : Identifiable, Hashable, BoundPairParent {
     }
 }
 @Model
-class SubCategory : NamedPair, BoundPair, Identifiable {
-    typealias P = Category;
-    
+class SubCategory : BoundPair, Equatable {
     required init() {
-        self.parent = Category()
+        self.parent = nil
         self.name = ""
         self.id = UUID()
     }
-    init(_ name: String , parent: Category, id: UUID = UUID()) {
+    init(_ name: String , parent: Category?, id: UUID = UUID()) {
         self.parent = parent
         self.name = name
         self.id = id
@@ -79,27 +73,14 @@ class SubCategory : NamedPair, BoundPair, Identifiable {
     }
     
     @Attribute(.unique) var id: UUID;
-    @Relationship(deleteRule: .cascade, inverse: \Category.children) var parent: Category;
+    @Relationship var parent: Category?;
     var name: String;
-    
-    var pair_parent: Category {
-        get{ parent }
-        set(v) { parent = v }
-    }
 
     
     var isEmpty: Bool {
-        parent.isEmpty || name.isEmpty
+        parent?.isEmpty ?? false || name.isEmpty
     }
     
-    var parent_name: String {
-        get { parent.name }
-        set(v) { parent.name = v}
-    }
-    var child_name: String {
-        get { name }
-        set(v) { name = v }
-    }
     static var kind: NamedPairKind {
         get { .category }
     }
@@ -119,7 +100,8 @@ struct PaymentsTransContext {
     let bill: SubCategory;
 }
 
-/// Provides a lookup for the basic SubCategories that are used by the program. 
+
+/// Provides a lookup for the basic SubCategories that are used by the program.
 class CategoriesContext {
     private static func insert(into: ModelContext, parent: String, child: String) -> SubCategory {
         let result = SubCategory(child, parent: Category(parent))
@@ -150,7 +132,7 @@ class CategoriesContext {
         var payment: Dictionary<String, SubCategory> = [:];
         
         for sub_cat in from {
-            switch sub_cat.parent.name {
+            switch sub_cat.parent?.name ?? "" {
             case "Account Control":
                 account_control[sub_cat.name] = sub_cat;
             case "Payment":

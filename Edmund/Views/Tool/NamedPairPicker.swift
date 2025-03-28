@@ -8,49 +8,97 @@
 import SwiftUI
 import SwiftData
 
-struct NamedPairPicker<T> : View where T: NamedPair, T: PersistentModel {
-    init(target: Binding<T?>, parent_default: String = "", child_default: String = "") {
-        self.target = target;
-        self.names = .init(parent_default, child_default)
+@Observable
+class PairHelper: Identifiable, Hashable, Equatable {
+       
+    init(_ parent: String, _ child: String) {
+        self.parent = parent
+        self.child = child
+    }
+    init<T>(_ target: T) where T: BoundPair {
+        self.parent = target.parent_name ?? ""
+        self.child = target.name
     }
     
-    @State var target: Binding<T?>
+    var parent: String;
+    var child: String;
+    var id: UUID = UUID();
+    
+    func clear() {
+        self.parent = ""
+        self.child = ""
+    }
+    
+    static func == (lhs: PairHelper, rhs: PairHelper) -> Bool {
+        lhs.parent == rhs.parent && lhs.child == rhs.child
+    }
+    static func ==<T>(lhs: PairHelper, rhs: T) -> Bool where T: BoundPair {
+        lhs.parent == rhs.parent_name && lhs.child == rhs.name
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(parent)
+        hasher.combine(child)
+    }
+}
+
+struct PairEditor : View {
+    @Bindable var pair: PairHelper;
+    var kind: NamedPairKind;
+    
+    var body: some View {
+        HStack {
+            TextField(kind.rawValue, text: $pair.parent)
+            TextField(kind.subNamePlural(), text: $pair.child)
+        }
+    }
+}
+
+struct NamedPairPicker<P> : View where P: BoundPairParent, P: PersistentModel {
+    init(target: Binding<P.C?>, parent_default: String = "", child_default: String = "") {
+        self._target = target;
+        self.working = .init(parent_default, child_default)
+    }
+    
+    @Binding var target: P.C?;
     @State private var showing_sheet: Bool = false;
-    @State private var names: UnboundNamedPair
-    @State private var selectedID: UUID?;
+    
+    @State private var working: PairHelper;
+    
+    @State private var selectedID: P.C.ID?;
     @State private var prev_selected_hash: Int?;
     
-    @Query private var on: [T];
+    @Query private var on: [P];
+    @Query var all_children: [P.C];
     
     func get_account() {
         //First we check to see the previous result
-        if let res = target.wrappedValue {
-            if res.eqByName(names) && res.id == selectedID {
-                //do nothing, we have our result
+        if let res = target {
+            if working == res && res.id == selectedID {
                 return
             }
         }
         
         if let sel = selectedID {
-            if names.hashValue == prev_selected_hash { //We already have our stuff, stored in selectedID
-                target.wrappedValue = on.first(where: { $0.id == sel })
+            if working.hashValue == prev_selected_hash { //We already have our stuff, stored in selectedID
+                target = all_children.first(where: { $0.id == sel })
             }
         }
         
         //Otherwise, we will look up our target based on the texts given
-        target.wrappedValue = on.first(where: { $0.eqByName(names) } )
+        target = all_children.first(where: { working == $0 } )
     }
     func clear() {
-        names = .init()
+        working.clear()
         selectedID = nil
         prev_selected_hash = nil
     }
     
     func resolve_on_selected() {
-        if let id = self.selectedID, let acc = on.first(where: {$0.id == id } ) {
-            self.names = .init(from: acc)
-            self.prev_selected_hash = names.hashValue
-            self.target.wrappedValue = acc
+        if let id = self.selectedID, let acc = all_children.first(where: {$0.id == id } ) {
+            self.working = .init(acc)
+            self.prev_selected_hash = self.working.hashValue
+            self.target = acc
         } else {
             clear()
         }
@@ -69,14 +117,14 @@ struct NamedPairPicker<T> : View where T: NamedPair, T: PersistentModel {
     
     var body: some View {
         HStack {
-            NamedPairEditor(pair: $names, kind: T.kind).onSubmit {
+            PairEditor(pair: working, kind: P.kind).onSubmit {
                 get_account()
             }
             Button("...", action: {
                 showing_sheet = true
             })
         }.sheet(isPresented: $showing_sheet) {
-            NamedPairPickerSheet(selectedID: $selectedID, elements: on, on_dismiss: { action in
+            NamedPairPickerSheet<P>(selectedID: $selectedID, on_dismiss: { action in
                 dismiss_sheet(action: action)
             })
         }
@@ -94,5 +142,5 @@ struct NamedPairPicker<T> : View where T: NamedPair, T: PersistentModel {
         }
     );
     
-    NamedPairPicker(target: bind).padding()
+    NamedPairPicker<Category>(target: bind).padding()
 }

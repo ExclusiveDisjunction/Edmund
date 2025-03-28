@@ -72,7 +72,7 @@ struct Audit: View {
                 Text("Deduct")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("from")
-                NamedPairPicker(target: $vm.account)
+                NamedPairPicker<Account>(target: $vm.account)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

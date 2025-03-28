@@ -7,37 +7,31 @@
 
 import SwiftUI;
 
-struct NamedPairViewer<T>: View where T: NamedPair {
+struct NamedPairViewer<T>: View where T: BoundPair {
     @State var pair: T;
     
     var body: some View {
-        Text("\(pair.parent_name), \(pair.child_name)")
+        Text("\(pair.parent_name ?? "(No \(T.kind.rawValue))"), \(pair.name)")
     }
 }
-struct NamedPairEditor<T> : View where T: NamedPair {
+struct NamedPairEditor<T> : View where T: BoundPair {
     @Binding var pair: T;
     var kind: NamedPairKind = T.kind;
     
     var body: some View {
         HStack {
-            switch kind {
-            case .account:
-                TextField("Account", text: $pair.parent_name)
-                TextField("Sub Account", text: $pair.child_name)
-            case .category:
-                TextField("Category", text: $pair.parent_name)
-                TextField("Sub Category", text: $pair.child_name)
-            case .nondetermined:
-                TextField("Parent", text: $pair.parent_name)
-                TextField("Child", text: $pair.child_name)
-            }
+            TextField(T.kind.rawValue, text: Binding(
+                get: { pair.parent_name ?? "" },
+                set: { pair.parent_name = $0 }
+            ))
+            TextField(T.kind.subNamePlural(), text: $pair.name)
         }
     }
 }
 
 #Preview {
-    var named_pair: UnboundNamedPair = .init("Father", "Son");
-    let pair_bind: Binding<UnboundNamedPair> = .init(
+    var named_pair = Category.exampleCategories[0].children[0];
+    let pair_bind: Binding = .init(
         get: {
             named_pair
         },

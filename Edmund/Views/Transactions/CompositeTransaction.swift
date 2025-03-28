@@ -105,11 +105,11 @@ struct CompositeTransaction : View {
                 }
                 GridRow {
                     Text("Category")
-                    NamedPairPicker(target: $vm.category)
+                    NamedPairPicker<Category>(target: $vm.category)
                 }
                 GridRow {
                     Text("Account")
-                    NamedPairPicker(target: $vm.acc)
+                    NamedPairPicker<Account>(target: $vm.acc)
                 }
             }.padding(.bottom, 5)
             

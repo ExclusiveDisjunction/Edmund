@@ -121,7 +121,7 @@ struct PersonalLoanTrans : View {
                     } else {
                         Text("Into")
                     }
-                    NamedPairPicker(target: $vm.account, child_default: "Loan")
+                    NamedPairPicker<Account>(target: $vm.account, child_default: "Loan")
                 }
                 
                 if vm.show_date {

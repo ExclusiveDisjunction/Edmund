@@ -31,18 +31,9 @@ final class Account : Identifiable, Hashable, BoundPairParent {
     var id: UUID;
     @Attribute(.unique) var name: String;
     @Attribute var creditLimit: Decimal?;
-    @Relationship(deleteRule: .cascade) var children = [SubAccount]();
-    
-    var bound_pairs: [SubAccount] {
-        get { children }
-        set(v) { children = v }
-    }
+    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) var children = [SubAccount]();
     static var kind: NamedPairKind {
         .account
-    }
-    
-    var isEmpty : Bool {
-        name.isEmpty
     }
     
     static var exampleAccounts: [Account] {
@@ -56,16 +47,16 @@ final class Account : Identifiable, Hashable, BoundPairParent {
     }
 }
 @Model
-final class SubAccount : NamedPair, BoundPair {
+final class SubAccount : BoundPair, Equatable {
     required init() {
         self.name = ""
         self.parent = Account();
         self.id = UUID();
     }
-    init(_ name: String, parent: Account, id: UUID = UUID()) {
+    init(_ name: String, parent: Account?, id: UUID = UUID()) {
         self.name = name
         self.parent = parent
-        self.id = id;
+        self.id = id
     }
     
     static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
@@ -78,20 +69,8 @@ final class SubAccount : NamedPair, BoundPair {
     
     @Attribute(.unique) var id: UUID;
     var name: String;
-    @Relationship(deleteRule: .cascade, inverse: \Account.children) var parent: Account;
+    @Relationship var parent: Account?;
     
-    var isEmpty: Bool {
-        name.isEmpty || parent.name.isEmpty
-    }
-    
-    var parent_name: String {
-        get { parent.name }
-        set(v) { parent.name = v }
-    }
-    var child_name: String {
-        get { name }
-        set(v) { name = v }
-    }
     static var kind: NamedPairKind {
         get { .account }
     }

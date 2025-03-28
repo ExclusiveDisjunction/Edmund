@@ -15,32 +15,35 @@ enum NamedPickerAction: String {
 }
 
 /// Represents the view to insert in the .sheet for the NamedPairPicker
-struct NamedPairPickerSheet<T> : View where T: NamedPair {
-    @Binding var selectedID: UUID?;
-    @State var elements: [T];
+struct NamedPairPickerSheet<P> : View where P: BoundPairParent, P: PersistentModel {
+    @Binding var selectedID: P.C.ID?;
+    @State private var parentSelected: P.ID?;
+    
+    @Query private var parents: [P];
     
     var on_dismiss: ((NamedPickerAction) -> Void)
     
     var body: some View {
         VStack {
             HStack {
-                switch T.kind {
-                case .account:
-                    Text("Account")
-                case .category:
-                    Text("Category")
-                case .nondetermined:
-                    Text("Label")
-                }
+                Text(P.kind.rawValue)
                 
-                if elements.isEmpty {
+                if parents.isEmpty {
                     Text("There are no elements to pick from").italic()
                 }
                 else {
+                    Picker("", selection: $parentSelected) {
+                        Text("None").tag(nil as P.ID?)
+                        ForEach(parents) { parent in
+                            Text(parent.name).tag(parent.id)
+                        }
+                    }
                     Picker("", selection: $selectedID) {
-                        Text("None").tag(nil as UUID?)
-                        ForEach(elements) { pair in
-                            NamedPairViewer(pair: pair).tag(pair.id)
+                        Text("None").tag(nil as P.C.ID?)
+                        if let parentID = parentSelected, let children = parents.first( where: { $0.id == parentID} )?.children {
+                            ForEach(children) { child in
+                                Text(child.name).tag(child.id)
+                            }
                         }
                     }
                 }
@@ -69,13 +72,6 @@ struct NamedPairPickerSheet<T> : View where T: NamedPair {
             selected = $0
         }
     )
-    let elements: [UnboundNamedPair] = [
-        .init("Checking", "Pay"),
-        .init("Checking", "DI"),
-        .init("Checking", "Hold"),
-        .init("Savings", "Main"),
-        .init("Savings", "Hold")
-    ]
     
     if let selected = selected {
         Text("Selected: \(selected.uuidString)")
@@ -83,5 +79,5 @@ struct NamedPairPickerSheet<T> : View where T: NamedPair {
     else {
         Text("None Selected")
     }
-    NamedPairPickerSheet(selectedID: selected_bind, elements: elements, on_dismiss: { print("done with \($0)") } )
+    NamedPairPickerSheet<Account>(selectedID: selected_bind, on_dismiss: { print("done with \($0)") } )
 }

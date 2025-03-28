@@ -110,7 +110,7 @@ struct GeneralIncome: View {
             }.padding([.leading, .trailing], 5).padding(.bottom, 3)
             HStack {
                 Text("Into:")
-                NamedPairPicker(target: $vm.account)
+                NamedPairPicker<Account>(target: $vm.account)
             }.padding([.leading, .trailing], 10).padding(.bottom, 5)
         }.background(.background.opacity(0.5)).cornerRadius(5)
     }

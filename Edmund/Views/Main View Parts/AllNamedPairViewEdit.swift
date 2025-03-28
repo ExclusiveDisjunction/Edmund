@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel {
+struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel, T.C.P == T {
     @Query private var targets: [T];
     @Query private var children: [T.C];
     
@@ -30,7 +30,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
         if let parent = targets.first(where: {$0.id == tableSelected}) {
             let child = T.C.init()
             
-            parent.bound_pairs.append(child)
+            child.parent = parent
             modelContext.insert(child)
             
             selectedChild = child
@@ -52,19 +52,28 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     private func remove_selected() {
         guard let parentID = tableSelected else { return }
         
-        if let childID = tableSelectedChild {
-            if let child = children.first(where: {$0.id == childID } ) {
+        if let parent = targets.first(where: {$0.id == parentID} ) {
+            if let childID = tableSelectedChild, let child = parent.children.first(where: {$0.id == childID} ) {
                 modelContext.delete(child)
             }
-        }
-        else {
-            if let parent = targets.first( where: {$0.id == parentID } ) {
+            else {
                 modelContext.delete(parent)
             }
         }
     }
     private func remove_many_child(_ id: Set<T.C.ID>) {
+        let elements = children.filter { id.contains($0.id) }
         
+        for element in elements {
+            modelContext.delete(element)
+        }
+    }
+    private func remove_many_parent(_ id: Set<T.ID>) {
+        let parent = targets.filter { id.contains($0.id) }
+        
+        for element in parent {
+            modelContext.delete(element)
+        }
     }
     
     var body: some View {
@@ -74,18 +83,29 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                     Text(target.name)
                 }
             }.padding(.trailing).frame(minWidth: 300, idealWidth: 350)
+                .contextMenu(forSelectionType: T.ID.self) { selection in
+                    Button(role: .destructive) {
+                        withAnimation {
+                            remove_many_parent(selection)
+                        }
+                    } label: {
+                        Text("Delete")
+                    }
+                }
             
             if let selected = targets.first(where: {$0.id == tableSelected}) {
                 VStack {
                     Text("\(T.kind.subNamePlural())")
                     
-                    Table(selected.bound_pairs, selection: $tableSelectedChild) {
+                    Table(selected.children, selection: $tableSelectedChild) {
                         TableColumn("Name") { value in
-                            Text(value.child_name)
+                            Text(value.name)
                         }
                     }.contextMenu(forSelectionType: T.C.ID.self) { selection in
                         Button(role: .destructive) {
-                            
+                            withAnimation {
+                                remove_many_child(selection)
+                            }
                         } label: {
                             Text("Delete")
                         }
@@ -103,21 +123,37 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
         .navigationTitle(T.kind.pluralized())
         .toolbar {
             Menu {
-                Button(action: add_parent) {
+                Button(action: {
+                    withAnimation {
+                        add_parent()
+                    }
+                }) {
                     Text(T.kind.rawValue)
                 }
-                Button(action: add_child) {
+                Button(action: {
+                    withAnimation {
+                        add_child()
+                    }
+                }) {
                     Text(T.kind.subName())
                 }
             } label: {
                 Label("Add", systemImage: "plus")
             }.help("Add a \(T.kind.rawValue)")
             
-            Button(action: edit_selected) {
+            Button(action: {
+                withAnimation {
+                    edit_selected()
+                }
+            }) {
                 Label("Edit", systemImage: "pencil")
             }.help("Edit the current \(T.kind.rawValue)")
             
-            Button(action: remove_selected) {
+            Button(action: {
+                withAnimation {
+                    remove_selected()
+                }
+            }) {
                 Label("Remove", systemImage: "trash").foregroundStyle(.red)
             }.help("Remove the current \(T.kind.rawValue)")
             

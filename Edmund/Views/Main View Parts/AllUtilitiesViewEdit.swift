@@ -30,13 +30,21 @@ struct AllUtilitiesViewEdit : View {
         }
     }
     private func remove_utility() {
-        if let selected = utilities.first(where: {$0.id == tableSelected} ) {
+        if var selected = utilities.first(where: {$0.id == tableSelected} ) {
+            for child in selected.amounts {
+                child.parent = nil
+            }
+            selected.amounts.removeAll()
             modelContext.delete(selected)
         }
     }
     private func remove_specific(_ id_set: Set<Utility.ID>) {
         for id in id_set {
-            if let found = utilities.first(where: {$0.id == id} ) {
+            if var found = utilities.first(where: {$0.id == id} ) {
+                for child in found.amounts {
+                    child.parent = nil
+                }
+                found.amounts.removeAll()
                 modelContext.delete(found)
             }
         }

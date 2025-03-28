@@ -95,7 +95,7 @@ class PaydayViewModel: TransViewBase {
         //This is the transfer out of pay, but into the breakdowns
         result.insert(
             .init(
-                memo: "Pay to " + our_acc.parent_name,
+                memo: "Pay to " + (our_acc.parent_name ?? ""),
                 credit: 0,
                 debit: amount,
                 date: Date.now,
@@ -220,7 +220,7 @@ struct Payday: View {
                 Text("Amount of")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("into")
-                NamedPairPicker(target: $vm.acc, child_default: "Pay")
+                NamedPairPicker<Account>(target: $vm.acc, child_default: "Pay")
             }
             
             HStack {
@@ -263,13 +263,13 @@ struct Payday: View {
                     amount_field(item_kind: item.kind, binding: $item)
                 }
                 TableColumn("Account") { ($item: Binding<PaydayBreakdown>) in
-                    NamedPairPicker(target: $item.acc)
+                    NamedPairPicker<Account>(target: $item.acc)
                 }
             }.frame(minHeight: 170)
             
             HStack {
                 Text("Insert remaining balance into")
-                NamedPairPicker(target: $vm.rem_acc)
+                NamedPairPicker<Account>(target: $vm.rem_acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

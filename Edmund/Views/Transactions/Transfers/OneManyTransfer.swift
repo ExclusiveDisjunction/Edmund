@@ -103,7 +103,7 @@ struct OneManyTransfer : View {
                 }
                 GridRow {
                     Text("From")
-                    NamedPairPicker(target: $vm.acc)
+                    NamedPairPicker<Account>(target: $vm.acc)
                 }
             }
             
