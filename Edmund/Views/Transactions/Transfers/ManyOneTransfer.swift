@@ -97,7 +97,7 @@ struct ManyOneTransfer : View {
             
             HStack {
                 Text("Move \(vm.multi.total, format: .currency(code: "USD")) into")
-                NamedPairPicker<Account>(target: $vm.acc)
+                NamedPairPicker(target: $vm.acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

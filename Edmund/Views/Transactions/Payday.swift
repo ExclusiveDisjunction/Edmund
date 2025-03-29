@@ -220,7 +220,7 @@ struct Payday: View {
                 Text("Amount of")
                 TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
                 Text("into")
-                NamedPairPicker<Account>(target: $vm.acc, child_default: "Pay")
+                NamedPairPicker(target: $vm.acc, child_default: "Pay")
             }
             
             HStack {
@@ -263,13 +263,13 @@ struct Payday: View {
                     amount_field(item_kind: item.kind, binding: $item)
                 }
                 TableColumn("Account") { ($item: Binding<PaydayBreakdown>) in
-                    NamedPairPicker<Account>(target: $item.acc)
+                    NamedPairPicker(target: $item.acc)
                 }
             }.frame(minHeight: 170)
             
             HStack {
                 Text("Insert remaining balance into")
-                NamedPairPicker<Account>(target: $vm.rem_acc)
+                NamedPairPicker(target: $vm.rem_acc)
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

@@ -85,7 +85,7 @@ struct CreditCardTrans: View {
             
             HStack {
                 Text("Balance transfer from")
-                NamedPairPicker<Account>(target: $vm.target_account, child_default: "Credit Card")
+                NamedPairPicker(target: $vm.target_account, child_default: "Credit Card")
             }.padding(.bottom, 5)
         }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
     }

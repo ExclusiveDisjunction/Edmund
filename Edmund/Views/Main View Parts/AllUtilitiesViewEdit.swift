@@ -12,6 +12,13 @@ struct AllUtilitiesViewEdit : View {
     @Query var utilities: [Utility];
     @State private var tableSelected: Utility.ID?;
     @State private var selectedUtility: Utility?;
+    
+#if os(macOS)
+    @State private var showPresenter: Bool = true;
+#else
+    @State private var showPresenter: Bool = false;
+#endif
+    
     @Environment(\.modelContext) private var modelContext;
     
     private var totalPPW: Decimal {
@@ -25,61 +32,64 @@ struct AllUtilitiesViewEdit : View {
         self.selectedUtility = newUtility;
     }
     private func edit_utility() {
-        if let selected = utilities.first(where: {$0.id == tableSelected} ) {
+        if let id = tableSelected {
+            edit_specific(id)
+        }
+    }
+    private func edit_specific(_ id: Utility.ID) {
+        if let selected = utilities.first(where: { $0.id == id }) {
             selectedUtility = selected
         }
     }
     private func remove_utility() {
-        if var selected = utilities.first(where: {$0.id == tableSelected} ) {
-            for child in selected.amounts {
-                child.parent = nil
-            }
-            selected.amounts.removeAll()
+        if let selected = utilities.first(where: {$0.id == tableSelected} ) {
             modelContext.delete(selected)
         }
     }
     private func remove_specific(_ id_set: Set<Utility.ID>) {
-        for id in id_set {
-            if var found = utilities.first(where: {$0.id == id} ) {
-                for child in found.amounts {
-                    child.parent = nil
-                }
-                found.amounts.removeAll()
-                modelContext.delete(found)
-            }
+        let targets = utilities.filter( { id_set.contains($0.id) } );
+        for target in targets {
+            modelContext.delete(target)
         }
     }
     
     var body: some View {
         VStack {
-            HSplitView {
-                VStack {
-                    Table(self.utilities, selection: $tableSelected) {
-                        TableColumn("Name") { util in
-                            Text(util.name)
-                        }
-                        TableColumn("Avg. Price Per Week") { util in
-                            Text(util.pricePerWeek, format: .currency(code: "USD"))
-                        }
-                    }.frame(minWidth: 300, idealWidth: 350).contextMenu(forSelectionType: Utility.ID.self) { selection in
-                        Button(role: .destructive) {
-                            remove_specific(selection)
-                        } label: {
-                            Label("Delete", systemImage: "trash").foregroundStyle(.red)
+            VStack {
+                Table(self.utilities, selection: $tableSelected) {
+                    TableColumn("Name") { util in
+                        Text(util.name)
+                    }
+                    TableColumn("Avg. Price Per Week") { util in
+                        Text(util.pricePerWeek, format: .currency(code: "USD"))
+                    }
+                }.frame(minWidth: 300, idealWidth: 350).contextMenu(forSelectionType: Utility.ID.self) { selection in
+                    
+                    if let first = selection.first {
+                        Button(action: {
+                            edit_specific(first)
+                        }) {
+                            Label("Edit", systemImage: "pencil")
                         }
                     }
                     
-                    Spacer()
-                    
-                    HStack {
-                        Spacer()
-                        Text("Total Price Per Week:")
-                        Text(self.totalPPW, format: .currency(code: "USD"))
+                    Button(role: .destructive) {
+                        remove_specific(selection)
+                    } label: {
+                        Label("Delete", systemImage: "trash").foregroundStyle(.red)
                     }
-                }.padding(.trailing)
+                }
                 
-                if let target = utilities.first(where: {$0.id == tableSelected }) {
-                    VStack {
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    Text("Total Price Per Week:")
+                    Text(self.totalPPW, format: .currency(code: "USD"))
+                }
+            }.padding(.trailing).inspector(isPresented: $showPresenter, content: {
+                VStack {
+                    if let target = utilities.first(where: {$0.id == tableSelected }) {
                         Text("\(target.name) Datapoints").font(.headline)
                         
                         List(target.amounts, id: \.id) { value in
@@ -87,20 +97,18 @@ struct AllUtilitiesViewEdit : View {
                         }
                         
                         Spacer()
-                    }.padding(.leading).frame(minWidth: 200)
-                }
-                else {
-                    VStack {
+                    }
+                    else {
                         Spacer()
                         Text("Please select a utilitiy to view its datapoints").italic().font(.subheadline).multilineTextAlignment(.center)
                         Spacer()
-                    }.padding()
-               }
-            }.frame(minHeight: 300)
+                    }
+                }.padding(.leading).inspectorColumnWidth(min: 150, ideal: 200, max: 300)
+            })
         }.padding().sheet(item: $selectedUtility, content: { utility in
             UtilityEditor(utility: utility)
         }).toolbar {
-            HStack {
+            ToolbarItemGroup {
                 Button(action: add_utility) {
                     Label("Add", systemImage: "plus")
                 }
@@ -111,6 +119,14 @@ struct AllUtilitiesViewEdit : View {
                 
                 Button(action: remove_utility) {
                     Label("Remove", systemImage: "trash").foregroundStyle(.red)
+                }
+                
+                Button(action: {
+                    withAnimation {
+                        showPresenter.toggle()
+                    }
+                }) {
+                    Label(showPresenter ? "Hide Details" : "Show Details", systemImage: "sidebar.right")
                 }
             }
         }.navigationTitle("Utilities")

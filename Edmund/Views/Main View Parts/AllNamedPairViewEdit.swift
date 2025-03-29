@@ -18,6 +18,12 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     @State private var tableSelectedChild: T.C.ID?;
     @State private var showAlert = false;
     
+#if os(macOS)
+    @State private var showPresenter: Bool = true;
+#else
+    @State private var showPresenter: Bool = false;
+#endif
+    
     @Environment(\.modelContext) private var modelContext;
     
     private func add_parent() {
@@ -77,24 +83,22 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     }
     
     var body: some View {
-        HSplitView {
-            Table(targets, selection: $tableSelected) {
-                TableColumn("Name") { target in
-                    Text(target.name)
+        Table(targets, selection: $tableSelected) {
+            TableColumn("Name") { target in
+                Text(target.name)
+            }
+        }.padding(.trailing).frame(minWidth: 300, idealWidth: 350)
+        .contextMenu(forSelectionType: T.ID.self) { selection in
+            Button(role: .destructive) {
+                withAnimation {
+                    remove_many_parent(selection)
                 }
-            }.padding(.trailing).frame(minWidth: 300, idealWidth: 350)
-                .contextMenu(forSelectionType: T.ID.self) { selection in
-                    Button(role: .destructive) {
-                        withAnimation {
-                            remove_many_parent(selection)
-                        }
-                    } label: {
-                        Text("Delete")
-                    }
-                }
-            
-            if let selected = targets.first(where: {$0.id == tableSelected}) {
-                VStack {
+            } label: {
+                Text("Delete")
+            }
+        }.inspector(isPresented: $showPresenter, content: {
+            VStack {
+                if let selected = targets.first(where: {$0.id == tableSelected}) {
                     Text("\(T.kind.subNamePlural())")
                     
                     Table(selected.children, selection: $tableSelectedChild) {
@@ -110,54 +114,60 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                             Text("Delete")
                         }
                     }
-                }.padding(.leading).frame(minWidth: 200)
-            }
-            else {
-                VStack {
+                }
+                else {
                     Spacer()
                     Text("Please select an \(T.kind.rawValue) to view it's \(T.kind.subNamePlural()).").italic().font(.subheadline).multilineTextAlignment(.center)
                     Spacer()
-                }.padding(.leading).frame(minWidth: 200)
-            }
-        }.padding()
+                }
+            }.padding(.leading).inspectorColumnWidth(min: 150, ideal: 200, max: 300)
+        }).padding()
         .navigationTitle(T.kind.pluralized())
         .toolbar {
-            Menu {
+            ToolbarItemGroup {
+                Menu {
+                    Button(action: {
+                        withAnimation {
+                            add_parent()
+                        }
+                    }) {
+                        Text(T.kind.rawValue)
+                    }
+                    Button(action: {
+                        withAnimation {
+                            add_child()
+                        }
+                    }) {
+                        Text(T.kind.subName())
+                    }
+                } label: {
+                    Label("Add", systemImage: "plus")
+                }.help("Add a \(T.kind.rawValue)")
+                
                 Button(action: {
                     withAnimation {
-                        add_parent()
+                        edit_selected()
                     }
                 }) {
-                    Text(T.kind.rawValue)
-                }
+                    Label("Edit", systemImage: "pencil")
+                }.help("Edit the current \(T.kind.rawValue)")
+                
                 Button(action: {
                     withAnimation {
-                        add_child()
+                        remove_selected()
                     }
                 }) {
-                    Text(T.kind.subName())
+                    Label("Remove", systemImage: "trash").foregroundStyle(.red)
+                }.help("Remove the current \(T.kind.rawValue)")
+                
+                Button(action: {
+                    withAnimation {
+                        showPresenter.toggle()
+                    }
+                }) {
+                    Label(showPresenter ? "Hide Details" : "Show Details", systemImage: "sidebar.right")
                 }
-            } label: {
-                Label("Add", systemImage: "plus")
-            }.help("Add a \(T.kind.rawValue)")
-            
-            Button(action: {
-                withAnimation {
-                    edit_selected()
-                }
-            }) {
-                Label("Edit", systemImage: "pencil")
-            }.help("Edit the current \(T.kind.rawValue)")
-            
-            Button(action: {
-                withAnimation {
-                    remove_selected()
-                }
-            }) {
-                Label("Remove", systemImage: "trash").foregroundStyle(.red)
-            }.help("Remove the current \(T.kind.rawValue)")
-            
-            
+            }
         }
         .alert("Error", isPresented: $showAlert, actions: {
             Button("Ok", action: {
@@ -166,6 +176,12 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
         }, message: {
             Text("Please select a \(T.kind.rawValue) to add a \(T.kind.subName()).")
         })
+        .sheet(item: $selected) { item in
+            NamedPairParentEditor(target: item)
+        }
+        .sheet(item: $selectedChild) { item in
+            NamedPairChildEditor(target: item)
+        }
     }
 }
 

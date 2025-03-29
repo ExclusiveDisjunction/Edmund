@@ -15,31 +15,31 @@ enum NamedPickerAction: String {
 }
 
 /// Represents the view to insert in the .sheet for the NamedPairPicker
-struct NamedPairPickerSheet<P> : View where P: BoundPairParent, P: PersistentModel {
-    @Binding var selectedID: P.C.ID?;
-    @State private var parentSelected: P.ID?;
+struct NamedPairPickerSheet<C> : View where C: BoundPair, C: PersistentModel {
+    @Binding var selectedID: C.ID?;
+    @State private var parentSelected: C.P.ID?;
     
-    @Query private var parents: [P];
+    @Query private var parents: [C.P];
     
     var on_dismiss: ((NamedPickerAction) -> Void)
     
     var body: some View {
         VStack {
             HStack {
-                Text(P.kind.rawValue)
+                Text(C.kind.rawValue)
                 
                 if parents.isEmpty {
                     Text("There are no elements to pick from").italic()
                 }
                 else {
                     Picker("", selection: $parentSelected) {
-                        Text("None").tag(nil as P.ID?)
+                        Text("None").tag(nil as C.P.ID?)
                         ForEach(parents) { parent in
                             Text(parent.name).tag(parent.id)
                         }
                     }
                     Picker("", selection: $selectedID) {
-                        Text("None").tag(nil as P.C.ID?)
+                        Text("None").tag(nil as C.ID?)
                         if let parentID = parentSelected, let children = parents.first( where: { $0.id == parentID} )?.children {
                             ForEach(children) { child in
                                 Text(child.name).tag(child.id)
@@ -79,5 +79,5 @@ struct NamedPairPickerSheet<P> : View where P: BoundPairParent, P: PersistentMod
     else {
         Text("None Selected")
     }
-    NamedPairPickerSheet<Account>(selectedID: selected_bind, on_dismiss: { print("done with \($0)") } )
+    NamedPairPickerSheet<SubCategory>(selectedID: selected_bind, on_dismiss: { print("done with \($0)") } ).modelContainer(ModelController.previewContainer)
 }

@@ -55,8 +55,8 @@ struct ManTransLineView : View {
         TextField("Money Out", value: $line.debit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(line.selected)
         DatePicker("Date", selection: $line.date, displayedComponents: .date).labelsHidden().disabled(!enable_dates || line.selected)
         TextField("Location", text: $line.location).frame(minWidth: 100).disabled(line.selected)
-        NamedPairPicker<Category>(target: $line.category).frame(minWidth: 200).disabled(line.selected)
-        NamedPairPicker<Account>(target: $line.account).frame(minWidth: 200).disabled(line.selected)
+        NamedPairPicker(target: $line.category).frame(minWidth: 200).disabled(line.selected)
+        NamedPairPicker(target: $line.account).frame(minWidth: 200).disabled(line.selected)
     }
 }
 

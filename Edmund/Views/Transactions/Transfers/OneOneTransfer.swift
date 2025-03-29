@@ -103,12 +103,12 @@ struct OneOneTransfer : View {
                    
                 GridRow {
                     Text("From")
-                    NamedPairPicker<Account>(target: $vm.src)
+                    NamedPairPicker(target: $vm.src)
                 }
                 
                 GridRow {
                     Text("Into")
-                    NamedPairPicker<Account>(target: $vm.dest)
+                    NamedPairPicker(target: $vm.dest)
                 }
                 
             }.padding(.bottom, 10).frame(minWidth: 300, maxWidth: .infinity)

@@ -54,22 +54,22 @@ struct PairEditor : View {
     }
 }
 
-struct NamedPairPicker<P> : View where P: BoundPairParent, P: PersistentModel {
-    init(target: Binding<P.C?>, parent_default: String = "", child_default: String = "") {
+struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel {
+    init(target: Binding<C?>, parent_default: String = "", child_default: String = "") {
         self._target = target;
         self.working = .init(parent_default, child_default)
     }
     
-    @Binding var target: P.C?;
+    @Binding var target: C?;
     @State private var showing_sheet: Bool = false;
     
     @State private var working: PairHelper;
     
-    @State private var selectedID: P.C.ID?;
+    @State private var selectedID: C.ID?;
     @State private var prev_selected_hash: Int?;
     
-    @Query private var on: [P];
-    @Query var all_children: [P.C];
+    @Query private var on: [C.P];
+    @Query var all_children: [C];
     
     func get_account() {
         //First we check to see the previous result
@@ -117,14 +117,14 @@ struct NamedPairPicker<P> : View where P: BoundPairParent, P: PersistentModel {
     
     var body: some View {
         HStack {
-            PairEditor(pair: working, kind: P.kind).onSubmit {
+            PairEditor(pair: working, kind: C.kind).onSubmit {
                 get_account()
             }
             Button("...", action: {
                 showing_sheet = true
             })
         }.sheet(isPresented: $showing_sheet) {
-            NamedPairPickerSheet<P>(selectedID: $selectedID, on_dismiss: { action in
+            NamedPairPickerSheet<C>(selectedID: $selectedID, on_dismiss: { action in
                 dismiss_sheet(action: action)
             })
         }
@@ -142,5 +142,5 @@ struct NamedPairPicker<P> : View where P: BoundPairParent, P: PersistentModel {
         }
     );
     
-    NamedPairPicker<Category>(target: bind).padding()
+    NamedPairPicker(target: bind).padding()
 }
