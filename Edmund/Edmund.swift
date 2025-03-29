@@ -12,7 +12,11 @@ import SwiftData
 struct ui_demoApp: App {
     @Environment(\.openWindow) var openWindow;
     
+#if DEBUG
+    var sharedModelContainer = ModelController.previewContainer
+#else
     var sharedModelContainer: ModelContainer = ModelController.sharedModelContainer
+#endif
 
     var body: some Scene {
         WindowGroup {
