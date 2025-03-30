@@ -12,6 +12,7 @@ struct AllUtilitiesViewEdit : View {
     @Query var utilities: [Utility];
     @State private var tableSelected: Utility.ID?;
     @State private var selectedUtility: Utility?;
+    @State private var sortOrder = [KeyPathComparator(\UtilityEntry.monthYear, order: .forward)]
     
 #if os(macOS)
     @State private var showPresenter: Bool = true;
@@ -92,8 +93,15 @@ struct AllUtilitiesViewEdit : View {
                     if let target = utilities.first(where: {$0.id == tableSelected }) {
                         Text("\(target.name) Datapoints").font(.headline)
                         
-                        List(target.amounts, id: \.id) { value in
-                            Text(value.amount, format: .currency(code: "USD"))
+                        Table(target.amounts, sortOrder: $sortOrder) {
+                            TableColumn("Time") { value in
+                                Text(verbatim: "\(value.month.asShortString), \(value.year)")
+                            }
+                            TableColumn("Amount") { value in
+                                Text(value.amount, format: .currency(code: "USD"))
+                            }
+                        }.onChange(of: sortOrder) { _, order in
+                            target.amounts.sort(using: order)
                         }
                         
                         Spacer()
@@ -103,7 +111,7 @@ struct AllUtilitiesViewEdit : View {
                         Text("Please select a utilitiy to view its datapoints").italic().font(.subheadline).multilineTextAlignment(.center)
                         Spacer()
                     }
-                }.padding(.leading).inspectorColumnWidth(min: 150, ideal: 200, max: 300)
+                }.padding(.leading).inspectorColumnWidth(min: 250, ideal: 300, max: 350)
             })
         }.padding().sheet(item: $selectedUtility, content: { utility in
             UtilityEditor(utility: utility)

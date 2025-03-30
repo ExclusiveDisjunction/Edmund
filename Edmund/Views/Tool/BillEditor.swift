@@ -46,11 +46,9 @@ struct BillEditor : View {
                 GridRow {
                     Text("Fequency")
                     Picker("Frequency", selection: $bill.period) {
-                        Text("Weekly").tag(BillsPeriod.weekly)
-                        Text("Monthly").tag(BillsPeriod.monthly)
-                        Text("Quarter-annually").tag(BillsPeriod.triMonthly)
-                        Text("Semi-annually").tag(BillsPeriod.hexMonthly)
-                        Text("Annually").tag(BillsPeriod.anually)
+                        ForEach(BillsPeriod.allCases) { period in
+                            Text(period.rawValue).tag(period)
+                        }
                     }.labelsHidden()
                 }
             }
@@ -74,7 +72,7 @@ struct BillEditor : View {
 }
 
 #Preview {
-    let bill = Bill(name: "Test", amount: 40, kind: .simple, period: .monthly)
+    let bill = Bill(name: "Test", amount: 40, kind: .subscription, period: .monthly)
     
     BillEditor(bill: bill).modelContainer(ModelController.previewContainer)
 }

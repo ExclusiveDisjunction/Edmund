@@ -9,31 +9,38 @@ import SwiftData
 import Foundation
 
 enum BillsKind : String, CaseIterable, Identifiable, Equatable {
-    case simple
-    case complex
+    case subscription = "Subscription"
+    case bill = "Bill"
     
-    var id: Self { self }
-    func toString() -> String {
-        return switch self {
-        case .simple: "Simple"
-        case .complex: "Complex"
+    var plural: String {
+        switch self {
+            case .subscription: "Subscriptions"
+            case .bill: "Bills"
         }
     }
+    var determined: String {
+        switch self {
+            case .subscription: "A Subscription"
+            case .bill: "A Bill"
+        }
+    }
+    
+    var id: Self { self }
 }
 
 enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
-    case weekly
-    case monthly
-    case triMonthly
-    case hexMonthly
-    case anually
+    case weekly = "Weekly"
+    case monthly = "Monthly"
+    case quarterly = "Quarterly"
+    case semiAnually = "Semi-Anually"
+    case anually = "Anually"
     
     var timesPerYear: Int {
         switch self {
         case .weekly: 52
         case .monthly: 12
-        case .triMonthly: 4
-        case .hexMonthly: 2
+        case .quarterly: 4
+        case .semiAnually: 2
         case .anually: 1
         }
     }
@@ -41,23 +48,13 @@ enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
         switch val {
         case 52: return .weekly
         case 12: return .monthly
-        case 4: return .triMonthly
-        case 2: return .hexMonthly
+        case 4: return .quarterly
+        case 2: return .semiAnually
         default: return .anually
         }
     }
     
     var id: Self { self }
-    
-    func toString() -> String {
-        switch self {
-        case .weekly: "Weekly"
-        case .monthly: "Monthly"
-        case .triMonthly: "Quarterly"
-        case .hexMonthly: "Semi-Annually"
-        case .anually: "Annually"
-        }
-    }
 }
 
 @Model
@@ -66,21 +63,21 @@ class Bill : Identifiable{
         self.id = UUID()
         self.name = name
         self.amount = amount
-        self.isSimple = kind == .simple
+        self.isSubscription = kind == .subscription
         self.timesPerYear = period.timesPerYear
     }
     
     var id: UUID
     @Attribute(.unique) var name: String
     var amount: Decimal;
-    var isSimple: Bool;
+    var isSubscription: Bool;
     
     var kind: BillsKind {
         get {
-            self.isSimple ? .simple : .complex
+            self.isSubscription ? .subscription : .bill
         }
         set(v) {
-            self.isSimple = v == .simple
+            self.isSubscription = v == .subscription
         }
     }
     func kindMatches(_ kind: BillsKind) -> Bool {
@@ -102,8 +99,8 @@ class Bill : Identifiable{
             switch self.period {
             case .weekly: self.amount
             case .monthly: self.amount / 4
-            case .triMonthly: self.amount / 12
-            case .hexMonthly: self.amount / 24
+            case .quarterly: self.amount / 12
+            case .semiAnually: self.amount / 24
             case .anually: self.amount / 52
             }
         }
@@ -111,11 +108,11 @@ class Bill : Identifiable{
     
     static var exampleBills: [Bill] {
         [
-            .init(name: "Apple Music", amount: 5.99, kind: .simple),
-            .init(name: "iCloud", amount: 2.99, kind: .simple),
-            .init(name: "YouTube Premium", amount: 9.99, kind: .simple),
-            .init(name: "Student Loan", amount: 56, kind: .complex),
-            .init(name: "Car Insurance", amount: 899, kind: .complex, period: .hexMonthly)
+            .init(name: "Apple Music", amount: 5.99, kind: .subscription),
+            .init(name: "iCloud", amount: 2.99, kind: .subscription),
+            .init(name: "YouTube Premium", amount: 9.99, kind: .subscription),
+            .init(name: "Student Loan", amount: 56, kind: .bill),
+            .init(name: "Car Insurance", amount: 899, kind: .bill, period: .semiAnually)
         ]
     }
 }
@@ -152,33 +149,51 @@ enum Month: Int, Equatable {
         }
     }
     
-    func toString() -> String {
+    var asString: String {
         switch self {
-        case .jan: "January"
-        case .feb: "February"
-        case .mar: "March"
-        case .apr: "April"
-        case .may : "May"
-        case .jun: "June"
-        case .jul: "July"
-        case .aug: "August"
-        case .sept: "September"
-        case .oct: "October"
-        case .nov: "November"
-        case .dec: "December"
+            case .jan: "January"
+            case .feb: "February"
+            case .mar: "March"
+            case .apr: "April"
+            case .may : "May"
+            case .jun: "June"
+            case .jul: "July"
+            case .aug: "August"
+            case .sept: "September"
+            case .oct: "October"
+            case .nov: "November"
+            case .dec: "December"
+        }
+    }
+    var asShortString: String {
+        switch self {
+            case .jan: "Jan"
+            case .feb: "Feb"
+            case .mar: "Mar"
+            case .apr: "Apr"
+            case .may : "May"
+            case .jun: "Jun"
+            case .jul: "Jul"
+            case .aug: "Aug"
+            case .sept: "Sept"
+            case .oct: "Oct"
+            case .nov: "Nov"
+            case .dec: "Dec"
         }
     }
 }
 
 @Model
 class UtilityEntry: Identifiable {
-    init(_ month: Month, _ amount: Decimal) {
+    init(_ month: Month, _ year: Int, _ amount: Decimal) {
         self.rawMonth = month.rawValue
         self.amount = amount
+        self.year = year
     }
     
     var id = UUID()
     private var rawMonth: Int;
+    var year: Int;
     var amount: Decimal;
     @Relationship var parent: Utility?;
     
@@ -193,6 +208,9 @@ class UtilityEntry: Identifiable {
         set(v) {
             self.rawMonth = v.rawValue
         }
+    }
+    var monthYear: Int {
+        year * 12 + rawMonth
     }
 }
 
@@ -217,22 +235,22 @@ class Utility: Identifiable {
     
     static var exampleUtilities: [Utility] {
         [
-            Utility(name: "Gas", amounts: [.init(Month.jan, 25),
-                                           .init(Month.feb, 23),
-                                           .init(Month.mar, 28),
-                                           .init(Month.apr, 27)]),
-            Utility(name: "Electric", amounts: [.init(Month.jan, 30),
-                                                .init(Month.feb, 31),
-                                                .init(Month.mar, 38),
-                                                .init(Month.apr, 36)]),
-            Utility(name: "Internet", amounts: [.init(Month.jan, 34),
-                                                .init(Month.feb, 25),
-                                                .init(Month.mar, 35),
-                                                .init(Month.apr, 35)]),
-            Utility(name: "Water", amounts: [.init(Month.jan, 10),
-                                             .init(Month.feb, 12),
-                                             .init(Month.mar, 14),
-                                             .init(Month.apr, 15)])
+            Utility(name: "Gas", amounts: [.init(Month.jan, 2025, 25),
+                                           .init(Month.feb, 2025, 23),
+                                           .init(Month.mar, 2024, 28),
+                                           .init(Month.apr, 2024, 27)]),
+            Utility(name: "Electric", amounts: [.init(Month.jan, 2025, 30),
+                                                .init(Month.feb, 2025, 31),
+                                                .init(Month.mar, 2024, 38),
+                                                .init(Month.apr, 2024, 36)]),
+            Utility(name: "Internet", amounts: [.init(Month.jan, 2025, 34),
+                                                .init(Month.feb, 2025, 25),
+                                                .init(Month.mar, 2024, 35),
+                                                .init(Month.apr, 2024, 35)]),
+            Utility(name: "Water", amounts: [.init(Month.jan, 2025, 10),
+                                             .init(Month.feb, 2025, 12),
+                                             .init(Month.mar, 2024, 14),
+                                             .init(Month.apr, 2024, 15)])
         ]
     }
 }

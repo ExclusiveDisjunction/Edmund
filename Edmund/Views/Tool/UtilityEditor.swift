@@ -34,7 +34,7 @@ struct UtilityEditor : View {
     
     private func add_amount() {
         withAnimation {
-            utility.amounts.append(UtilityEntry(Month.jan, 0));
+            utility.amounts.append(UtilityEntry(Month.jan, Calendar.current.component(.year, from: Date()), 0));
         }
     }
     private func remove_amount() {
@@ -84,7 +84,7 @@ struct UtilityEditor : View {
                             Button(action: add_amount) {
                                 Image(systemName: "plus")
                             }
-                        }.frame(minHeight: 100, maxHeight: 250)
+                        }.frame(minHeight: 70, maxHeight: .infinity)
                         Spacer()
                     }
                 }
@@ -104,7 +104,7 @@ struct UtilityEditor : View {
             })
         }, message: {
             Text("Please ensure that the name is not empty.")
-        })
+        }).frame(minHeight: 100)
     }
 }
 

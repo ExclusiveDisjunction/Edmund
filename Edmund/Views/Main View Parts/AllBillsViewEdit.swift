@@ -33,25 +33,12 @@ struct AllBillsViewEdit : View {
     @State private var selectedBill: Bill?;
     @State private var tableSelected: Bill.ID?;
     @Environment(\.modelContext) var modelContext;
-    
-    let kind: BillsKind // The kind of bills to display
         
-    @Query private var bills: [Bill]
- 
-    init(kind: BillsKind) {
-        let isSimple = kind == .simple
-        
-        let predicate = #Predicate<Bill> { bill in
-            bill.isSimple == isSimple
-        };
-        
-        _bills = Query(filter: predicate, sort: \.name)
-        self.kind = kind
-    }
+    @Query(sort: \Bill.name) private var bills: [Bill]
     
     private func add_bill() {
         withAnimation {
-            let new_bill = Bill(name: "", amount: 0, kind: self.kind)
+            let new_bill = Bill(name: "", amount: 0, kind: .subscription)
             modelContext.insert(new_bill)
             selectedBill = new_bill
         }
@@ -79,11 +66,14 @@ struct AllBillsViewEdit : View {
                 TableColumn("Name") { bill in
                     Text(bill.name)
                 }
+                TableColumn("Kind") { bill in
+                    Text(bill.kind.rawValue)
+                }
                 TableColumn("Amount") { bill in
                     Text(bill.amount, format: .currency(code: "USD"))
                 }
                 TableColumn("Frequency") { bill in
-                    Text(bill.period.toString())
+                    Text(bill.period.rawValue)
                 }
                 TableColumn("Price per Week") { bill in
                     Text(bill.pricePerWeek, format: .currency(code: "USD"))
@@ -99,10 +89,10 @@ struct AllBillsViewEdit : View {
             BillEditor(bill: bill)
         }.toolbar() {
             GeneralActionsPanel(on_add: add_bill, on_edit: edit_selected, on_delete: remove_selected)
-        }.navigationTitle("\(kind.toString()) Bills")
+        }.navigationTitle("Bills")
     }
 }
 
 #Preview {
-    AllBillsViewEdit(kind: .simple).modelContainer(ModelController.previewContainer)
+    AllBillsViewEdit().modelContainer(ModelController.previewContainer)
 }

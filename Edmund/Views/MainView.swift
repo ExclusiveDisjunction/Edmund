@@ -53,15 +53,9 @@ struct MainView: View {
                 }
                 
                 NavigationLink {
-                    AllBillsViewEdit(kind: .simple)
+                    AllBillsViewEdit()
                 } label: {
-                    Text("Simple Bills")
-                }
-                
-                NavigationLink {
-                    AllBillsViewEdit(kind: .complex)
-                } label: {
-                    Text("Complex Bills")
+                    Text("Bills")
                 }
                 
                 NavigationLink {
