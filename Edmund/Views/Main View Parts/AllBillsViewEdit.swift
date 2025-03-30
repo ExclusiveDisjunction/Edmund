@@ -28,13 +28,74 @@ struct GeneralActionsPanel: View {
     }
 }
 
+enum SortedColumn: String, CaseIterable, Identifiable {
+    case name = "Name", amount = "Amount", pricePerWeek = "Price Per Week"
+    
+    var id: Self { self }
+}
+
+@Observable
+class FilterCase: Identifiable {
+    init(val: BillsKind) {
+        self.id = UUID();
+        self.isSelected = true;
+        self.val = val
+    }
+    
+    var id: UUID
+    var isSelected: Bool
+    var val: BillsKind
+}
+
+@Observable
+class SortingModel : Identifiable {
+    var sorting: SortedColumn = .name
+    var ascending: Bool = true
+    var showingKinds: [FilterCase] = BillsKind.allCases.map { FilterCase(val: $0 ) };
+    
+    func toggleSort(_ col: SortedColumn) {
+        if col == sorting {
+            ascending.toggle()
+        }
+        else {
+            sorting = col
+            ascending = true
+        }
+    }
+    
+    func apply(_ on: [Bill]) -> [Bill] {
+        let sorted = on.sorted { lhs, rhs in
+            switch sorting {
+                case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
+                case .amount: ascending ? lhs.amount < rhs.amount : lhs.amount > rhs.amount
+                case .pricePerWeek: ascending ? lhs.pricePerWeek < rhs.pricePerWeek : lhs.pricePerWeek > rhs.pricePerWeek
+            }
+        }
+        
+        return sorted.filter { item in
+            showingKinds.first(where: {$0.val == item.kind && $0.isSelected == true } ) != nil
+        }
+    }
+}
+
+struct SortingHandle : Identifiable{
+    @Bindable var model: SortingModel;
+    var id = UUID();
+}
+
 struct AllBillsViewEdit : View {
     @State var showSheet = false;
     @State private var selectedBill: Bill?;
+    @State private var sorting: SortingModel = .init();
+    @State private var sortingHandle: SortingHandle?;
     @State private var tableSelected: Bill.ID?;
+    
     @Environment(\.modelContext) var modelContext;
         
-    @Query(sort: \Bill.name) private var bills: [Bill]
+    @Query private var bills: [Bill]
+    private var sortedBills: [Bill] {
+        sorting.apply(bills)
+    }
     
     private func add_bill() {
         withAnimation {
@@ -62,13 +123,9 @@ struct AllBillsViewEdit : View {
 
     var body: some View {
         VStack {
-            Table(self.bills, selection: $tableSelected) {
-                TableColumn("Name") { bill in
-                    Text(bill.name)
-                }
-                TableColumn("Kind") { bill in
-                    Text(bill.kind.rawValue)
-                }
+            Table(self.sortedBills, selection: $tableSelected) {
+                TableColumn("Name", value: \Bill.name)
+                TableColumn("Kind", value: \.kind.rawValue)
                 TableColumn("Amount") { bill in
                     Text(bill.amount, format: .currency(code: "USD"))
                 }
@@ -87,8 +144,38 @@ struct AllBillsViewEdit : View {
             }
         }.padding().sheet(item: $selectedBill) { bill in
             BillEditor(bill: bill)
-        }.toolbar() {
+        }.toolbar {
+            Button(action: {
+                sortingHandle = .init(model: sorting)
+            }) {
+                Label("Sort & Filter", systemImage: "line.3.horizontal.decrease.circle")
+            }
             GeneralActionsPanel(on_add: add_bill, on_edit: edit_selected, on_delete: remove_selected)
+        }.popover(item: $sortingHandle) { sort in
+            Grid {
+                GridRow {
+                    Text("Sort By")
+                    Picker("Sorting Column", selection: sort.$model.sorting) {
+                        ForEach(SortedColumn.allCases, id: \.id) { col in
+                            Text(col.rawValue).tag(col)
+                        }
+                    }.labelsHidden()
+                }
+                
+                GridRow {
+                    Text("Ascending?")
+                    Toggle("Ascending", isOn: sort.$model.ascending).labelsHidden()
+                }
+                
+                GridRow {
+                    Text("Bill Kinds")
+                    List {
+                        ForEach(sort.$model.showingKinds) { $kind in
+                            Toggle(kind.val.rawValue, isOn: $kind.isSelected)
+                        }
+                    }.frame(minHeight: 60)
+                }
+            }.padding().frame(minWidth: 300)
         }.navigationTitle("Bills")
     }
 }
