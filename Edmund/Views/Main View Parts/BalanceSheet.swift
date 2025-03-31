@@ -76,6 +76,7 @@ class BalanceSheetAccount : Identifiable {
     var balance: Decimal {
         subs.reduce(into: 0) { $0 += $1.balance }
     }
+    var expanded = true;
 }
 class BalanceSheetBalance : Identifiable {
     init(_ name: String, credits: Decimal, debits: Decimal) {
@@ -134,27 +135,36 @@ struct BalanceSheet: View {
                         ForEach(vm.computed) { (item: BalanceSheetAccount) in
                             VStack {
                                 HStack {
-                                    Text(item.name).font(.headline)
-                                    Text("\(item.balance, format: .currency(code: "USD"))")
+                                    Text(item.name).font(.title2)
+                                    Text("\(item.balance, format: .currency(code: "USD"))").foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
                                     Spacer()
-                                }.padding([.leading, .trailing, .bottom])
-                                Table(item.subs) {
-                                    TableColumn("Sub Account") { balance in
-                                        Text(balance.name)
+                                }.padding()
+                                
+                                if item.expanded {
+                                    Grid {
+                                        GridRow {
+                                            Text("Sub Account").frame(maxWidth: .infinity).font(.headline)
+                                            Text("Credit").frame(maxWidth: .infinity).font(.headline)
+                                            Text("Debit").frame(maxWidth: .infinity).font(.headline)
+                                            Text("Balance").frame(maxWidth: .infinity).font(.headline)
+                                        }
+                                        Divider()
+                                        
+                                        ForEach(item.subs) { sub in
+                                            GridRow {
+                                                Text(sub.name)
+                                                Text("\(sub.credits, format: .currency(code: "USD"))")
+                                                Text("\(sub.debits, format: .currency(code: "USD"))")
+                                                Text("\(sub.balance, format: .currency(code: "USD"))").foregroundStyle(sub.balance < 0 ? .red : .primary )
+                                            }
+                                        }
                                     }
-                                    TableColumn("Credit") { balance in
-                                        Text("\(balance.credits, format: .currency(code: "USD"))")
-                                    }
-                                    TableColumn("Debit") { balance in
-                                        Text("\(balance.debits, format: .currency(code: "USD"))")
-                                    }
-                                    TableColumn("Balance") { balance in
-                                        Text("\(balance.balance, format: .currency(code: "USD"))").foregroundStyle(balance.balance < 0 ? .red : .primary)
-                                    }
-                                }.frame(minHeight: 150)
-                            }.padding([.bottom, .top])
+                                }
+                                
+                                Divider()
+                            }
                         }
-                    }.background(.background.opacity(0.5)).padding()
+                    }
                 }
             }
         }.onAppear(perform: update_balances)
@@ -164,6 +174,7 @@ struct BalanceSheet: View {
             }
         }
         .navigationTitle("Balance Sheet")
+        .padding()
         
     }
 }

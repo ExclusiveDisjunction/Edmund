@@ -13,10 +13,12 @@ final class Category : Identifiable, Hashable, BoundPairParent {
     required init() {
         self.name = ""
         self.id = UUID()
+        self.children = []
     }
-    init(_ name: String = "") {
+    init(_ name: String = "", children: [SubCategory] = [], id: UUID = UUID()) {
         self.name = name
-        self.id = UUID()
+        self.id = id
+        self.children = children;
     }
     
     static func ==(lhs: Category, rhs: Category) -> Bool {
@@ -29,22 +31,42 @@ final class Category : Identifiable, Hashable, BoundPairParent {
     
     var id: UUID;
     @Attribute(.unique) var name: String;
-    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) var children = [SubCategory]();
+    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) var children: [SubCategory];
 
     static var kind: NamedPairKind { .category }
     
     static let exampleCategories: [Category] = {
-        let result = [
-            Category("Food"),
-            Category("Bill"),
-            Category("Account Control")
+        [
+            exampleCategory,
+            .init("Account Control", children: [
+                .init("Transfer"),
+                .init("Pay"),
+                .init("Audit"),
+                .init("Initial")
+            ]),
+            .init("Personal", children: [
+                .init("Dining"),
+                .init("Entertainment")
+            ]),
+            .init("Home", children: [
+                .init("Groceries"),
+                .init("Health"),
+                .init("Decor"),
+                .init("Repairs")
+            ]),
+            .init("Car", children: [
+                .init("Gas"),
+                .init("Maintenence"),
+                .init("Decor")
+            ])
         ]
-        
-        for cat in result {
-            cat.children.append(contentsOf: ["One", "Two", "Three"].map( { SubCategory.init($0, parent: cat) } ) )
-        }
-        
-        return result;
+    }()
+    static let exampleCategory: Category = {
+        .init("Bills", children: [
+            .init("Utilities"),
+            .init("Subscriptions"),
+            .init("Bills")
+        ])
     }()
     
     var isEmpty: Bool {
@@ -58,7 +80,7 @@ class SubCategory : BoundPair, Equatable {
         self.name = ""
         self.id = UUID()
     }
-    init(_ name: String , parent: Category?, id: UUID = UUID()) {
+    init(_ name: String, parent: Category? = nil, id: UUID = UUID()) {
         self.parent = parent
         self.name = name
         self.id = id
@@ -84,6 +106,8 @@ class SubCategory : BoundPair, Equatable {
     static var kind: NamedPairKind {
         get { .category }
     }
+    
+    static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills"))
 }
 
 struct AcctCtlContext {

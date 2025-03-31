@@ -14,11 +14,13 @@ final class Account : Identifiable, Hashable, BoundPairParent {
         self.name = ""
         self.creditLimit = nil
         self.id = UUID()
+        self.children = [];
     }
-    init(_ name: String, creditLimit: Decimal? = nil) {
+    init(_ name: String, creditLimit: Decimal? = nil, children: [SubAccount] = []) {
         self.name = name;
         self.creditLimit = creditLimit;
         self.id = UUID()
+        self.children = children
     }
     
     static func == (lhs: Account, rhs: Account) -> Bool {
@@ -31,20 +33,35 @@ final class Account : Identifiable, Hashable, BoundPairParent {
     var id: UUID;
     @Attribute(.unique) var name: String;
     @Attribute var creditLimit: Decimal?;
-    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) var children = [SubAccount]();
+    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) var children: [SubAccount];
     static var kind: NamedPairKind {
         .account
     }
     
-    static var exampleAccounts: [Account] {
-        let accounts: [Account] = ["Checking", "Savings", "Savor"].map({ Account($0) });
-        accounts[0].creditLimit = 400;
-        for account in accounts {
-            account.children = ["DI", "Hold", "Bills"].map( { SubAccount($0, parent: account) })
-        }
-        
-        return accounts;
-    }
+    static let exampleAccounts: [Account] = {
+        [
+            exampleAccount,
+            .init("Savings", creditLimit: nil, children: [
+                .init("Main"),
+                .init("Reserved"),
+                .init("Rent")
+            ]),
+            .init("Credit", creditLimit: 3000, children: [
+                .init("DI"),
+                .init("Groceries")
+            ])
+        ]
+    }()
+    static let exampleAccount: Account = {
+        .init("Checking", creditLimit: nil, children: [
+            .init("DI"),
+            .init("Gas"),
+            .init("Health"),
+            .init("Groceries"),
+            .init("Pay"),
+            .init("Credit Card")
+        ])
+    }()
 }
 @Model
 final class SubAccount : BoundPair, Equatable {
@@ -53,7 +70,7 @@ final class SubAccount : BoundPair, Equatable {
         self.parent = Account();
         self.id = UUID();
     }
-    init(_ name: String, parent: Account?, id: UUID = UUID()) {
+    init(_ name: String, parent: Account? = nil, id: UUID = UUID()) {
         self.name = name
         self.parent = parent
         self.id = id
@@ -73,5 +90,9 @@ final class SubAccount : BoundPair, Equatable {
     
     static var kind: NamedPairKind {
         get { .account }
+    }
+    
+    static var exampleSubAccount: SubAccount {
+        .init("DI", parent: .init("Checking"))
     }
 }

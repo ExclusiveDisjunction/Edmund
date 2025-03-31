@@ -24,7 +24,7 @@ struct NamedPairEditor<T> : View where T: BoundPair {
                 get: { pair.parent_name ?? "" },
                 set: { pair.parent_name = $0 }
             ))
-            TextField(T.kind.subNamePlural(), text: $pair.name)
+            TextField(T.kind.subNamePlural, text: $pair.name)
         }
     }
 }

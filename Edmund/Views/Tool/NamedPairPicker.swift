@@ -49,7 +49,7 @@ struct PairEditor : View {
     var body: some View {
         HStack {
             TextField(kind.rawValue, text: $pair.parent)
-            TextField(kind.subNamePlural(), text: $pair.child)
+            TextField(kind.subNamePlural, text: $pair.child)
         }
     }
 }

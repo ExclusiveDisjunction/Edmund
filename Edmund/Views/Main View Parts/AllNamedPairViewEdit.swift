@@ -8,21 +8,30 @@
 import SwiftUI
 import SwiftData
 
+@Observable
+class AllPairsHelper<T> : Identifiable where T: BoundPairParent {
+    init(_ target: T) {
+        self.target = target
+        self.id = UUID()
+    }
+    
+    var target: T
+    var id: UUID
+    var childrenShown: Bool = false
+}
+
 struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel, T.C.P == T {
-    @Query private var targets: [T];
+    @Query private var parents: [T];
     @Query private var children: [T.C];
+    @State private var expandAll: Bool = false;
+    @State private var collapseAll: Bool = false;
+    
+    private var helpers: [AllPairsHelper<T>] {
+        parents.map { AllPairsHelper( $0 ) }
+    }
     
     @State private var selected: T?;
-    @State private var tableSelected: T.ID?;
     @State private var selectedChild: T.C?;
-    @State private var tableSelectedChild: T.C.ID?;
-    @State private var showAlert = false;
-    
-#if os(macOS)
-    @State private var showPresenter: Bool = true;
-#else
-    @State private var showPresenter: Bool = false;
-#endif
     
     @Environment(\.modelContext) private var modelContext;
     
@@ -32,154 +41,119 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
         
         selected = parent 
     }
-    private func add_child() {
-        if let parent = targets.first(where: {$0.id == tableSelected}) {
-            let child = T.C.init()
-            
-            child.parent = parent
-            modelContext.insert(child)
-            
-            selectedChild = child
-        }
-        else {
-            showAlert = true
-        }
-    }
-    private func edit_selected() {
-        guard let parentID = tableSelected else { return }
+    private func add_child(_ parent: T.ID) {
+        guard let parent = parents.first(where: {$0.id == parent }) else { return }
+        let child = T.C.init()
         
-        if let childID = tableSelectedChild {
-            self.selectedChild = children.first(where: {$0.id == childID } );
-        }
-        else {
-            self.selected = targets.first(where: {$0.id == parentID } );
-        }
-    }
-    private func remove_selected() {
-        guard let parentID = tableSelected else { return }
+        child.parent = parent
+        modelContext.insert(child)
         
-        if let parent = targets.first(where: {$0.id == parentID} ) {
-            if let childID = tableSelectedChild, let child = parent.children.first(where: {$0.id == childID} ) {
-                modelContext.delete(child)
-            }
-            else {
-                modelContext.delete(parent)
-            }
-        }
+        selectedChild = child
     }
-    private func remove_many_child(_ id: Set<T.C.ID>) {
-        let elements = children.filter { id.contains($0.id) }
+    private func remove_parent(_ id: T.ID) {
+        guard let target = parents.first(where: {$0.id == id }) else { return }
         
-        for element in elements {
-            modelContext.delete(element)
-        }
+        modelContext.delete(target)
     }
-    private func remove_many_parent(_ id: Set<T.ID>) {
-        let parent = targets.filter { id.contains($0.id) }
+    private func remove_child(_ id: T.C.ID) {
+        guard let element = children.first(where: { $0.id == id }) else { return }
         
-        for element in parent {
-            modelContext.delete(element)
-        }
+        modelContext.delete(element)
     }
     
     var body: some View {
-        Table(targets, selection: $tableSelected) {
-            TableColumn("Name") { target in
-                Text(target.name)
-            }
-        }.padding(.trailing).frame(minWidth: 300, idealWidth: 350)
-        .contextMenu(forSelectionType: T.ID.self) { selection in
-            Button(role: .destructive) {
-                withAnimation {
-                    remove_many_parent(selection)
+        List {
+            ForEach(helpers) { helper in
+                Button(action: {
+                    withAnimation(.spring()) {
+                        helper.childrenShown.toggle()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: helper.childrenShown ? "chevron.down" : "chevron.right")
+                        Text(helper.target.name)
+                        Spacer()
+                    }.contentShape(Rectangle())
+                }.buttonStyle(.plain).contextMenu {
+                    Button(action: {
+                        add_child(helper.target.id)
+                    }) {
+                        Label("Add \(T.kind.subName)", systemImage: "plus")
+                    }
+                    Button(action: {
+                        selected = helper.target
+                    }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    Button(action: {
+                        remove_parent(helper.target.id)
+                    }) {
+                        Label("Delete", systemImage: "trash").foregroundStyle(.red)
+                    }
                 }
-            } label: {
-                Text("Delete")
-            }
-        }.inspector(isPresented: $showPresenter, content: {
-            VStack {
-                if let selected = targets.first(where: {$0.id == tableSelected}) {
-                    Text("\(T.kind.subNamePlural())")
-                    
-                    Table(selected.children, selection: $tableSelectedChild) {
-                        TableColumn("Name") { value in
-                            Text(value.name)
-                        }
-                    }.contextMenu(forSelectionType: T.C.ID.self) { selection in
-                        Button(role: .destructive) {
-                            withAnimation {
-                                remove_many_child(selection)
+                
+                if helper.childrenShown {
+                    ForEach(helper.target.children) { child in
+                        HStack {
+                            Text(child.name).padding(.leading, 30)
+                        }.contentShape(Rectangle()).contextMenu {
+                            Button(action: {
+                                selectedChild = child
+                            }) {
+                                Label("Edit", systemImage: "pencil")
                             }
-                        } label: {
-                            Text("Delete")
+                            Button(action: {
+                                remove_child(child.id)
+                            }) {
+                                Label("Delete", systemImage: "trash").foregroundStyle(.red)
+                            }
                         }
                     }
                 }
-                else {
-                    Spacer()
-                    Text("Please select an \(T.kind.rawValue) to view it's \(T.kind.subNamePlural()).").italic().font(.subheadline).multilineTextAlignment(.center)
-                    Spacer()
-                }
-            }.padding(.leading).inspectorColumnWidth(min: 150, ideal: 200, max: 300)
-        }).padding()
-        .navigationTitle(T.kind.pluralized())
+            }
+        }.padding()
+        .navigationTitle(T.kind.pluralized)
         .toolbar {
             ToolbarItemGroup {
-                Menu {
-                    Button(action: {
-                        withAnimation {
-                            add_parent()
+                Button(action: {
+                    withAnimation {
+                        for helper in helpers {
+                            helper.childrenShown = true
                         }
-                    }) {
-                        Text(T.kind.rawValue)
-                    }
-                    Button(action: {
-                        withAnimation {
-                            add_child()
-                        }
-                    }) {
-                        Text(T.kind.subName())
-                    }
-                } label: {
-                    Label("Add", systemImage: "plus")
-                }.help("Add a \(T.kind.rawValue)")
-                
-                Button(action: {
-                    withAnimation {
-                        edit_selected()
                     }
                 }) {
-                    Label("Edit", systemImage: "pencil")
-                }.help("Edit the current \(T.kind.rawValue)")
-                
-                Button(action: {
-                    withAnimation {
-                        remove_selected()
-                    }
-                }) {
-                    Label("Remove", systemImage: "trash").foregroundStyle(.red)
-                }.help("Remove the current \(T.kind.rawValue)")
-                
-                Button(action: {
-                    withAnimation {
-                        showPresenter.toggle()
-                    }
-                }) {
-                    Label(showPresenter ? "Hide Details" : "Show Details", systemImage: "sidebar.right")
+                    Label("Expand All", systemImage: "arrow.down.to.line")
                 }
+                
+                Button(action: {
+                    withAnimation {
+                        for helper in helpers {
+                            helper.childrenShown = false
+                        }
+                    }
+                }) {
+                    Label("Collapse All", systemImage: "arrow.up.to.line")
+                }
+                
+                Button(action: add_parent) {
+                    Label("Add \(T.kind.rawValue)", systemImage: "plus")
+                }.help("Add a \(T.kind.rawValue)")
             }
         }
-        .alert("Error", isPresented: $showAlert, actions: {
-            Button("Ok", action: {
-                showAlert = false
-            })
-        }, message: {
-            Text("Please select a \(T.kind.rawValue) to add a \(T.kind.subName()).")
-        })
-        .sheet(item: $selected) { item in
+        .sheet(item: $selected, onDismiss: {
+            let empty = parents.filter { $0.name.isEmpty };
+            for item in empty {
+                modelContext.delete(item)
+            }
+        }) { item in
             NamedPairParentEditor(target: item)
         }
-        .sheet(item: $selectedChild) { item in
+        .sheet(item: $selectedChild, onDismiss: {
+            let empty = children.filter { $0.name.isEmpty || $0.parent == nil };
+            for item in empty {
+                modelContext.delete(item)
+            }
+        }) { item in
             NamedPairChildEditor(target: item)
         }
     }

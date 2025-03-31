@@ -22,7 +22,7 @@ struct ui_demoApp: App {
         WindowGroup {
             MainView()
             
-        } .modelContainer(sharedModelContainer).commands {
+        }.modelContainer(sharedModelContainer).commands {
             GeneralCommands()
         }
         
@@ -32,5 +32,11 @@ struct ui_demoApp: App {
         WindowGroup(id: "Ledger") {
             LedgerTable()
         }.modelContainer(sharedModelContainer)
+        
+        #if os(macOS)
+        Settings {
+            SettingsView()
+        }
+        #endif
     }
 }

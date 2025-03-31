@@ -13,18 +13,18 @@ enum NamedPairKind : String, Equatable {
     case category = "Category"
     case nondetermined = "Non-Determined"
     
-    func pluralized() -> String {
+    var pluralized:  String {
         switch self {
         case .account: "Accounts"
         case .category: "Categories"
             case .nondetermined: "Non-Determined Pairs"
         }
     }
-    func subName() -> String {
+    var subName: String {
         "Sub \(self.rawValue)"
     }
-    func subNamePlural() -> String {
-        "Sub \(self.pluralized())"
+    var subNamePlural: String {
+        "Sub \(self.pluralized)"
     }
     
 }
@@ -59,6 +59,19 @@ extension BoundPair {
                 parent.name = value
             }
         }
+    }
+}
+
+extension Array where Element: BoundPair {
+    func findPair(_ parent: String, _ child: String) -> Element? {
+        self.first(where: {$0.name == child && $0.parent_name == parent } )
+    }
+}
+extension Array where Element: BoundPairParent {
+    func findPair(_ parent: String, _ child: String) -> Element.C? {
+        guard let foundParent = self.first(where: {$0.name == parent } ) else { return nil }
+        
+        return foundParent.children.first(where: {$0.name == child } )
     }
 }
 

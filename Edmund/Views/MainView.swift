@@ -10,6 +10,7 @@ import SwiftData
 
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage("enableTransactions") var enableTransactions: Bool?;
     @State private var trans_vm: TransactionsViewModel = .init();
     @State private var balance_vm: BalanceSheetVM = .init();
 
@@ -22,34 +23,36 @@ struct MainView: View {
                     Text("Welcome")
                 }
                 
-                NavigationLink {
-                    LedgerTable()
-                } label: {
-                    Text("Ledger")
-                }
-                
-                NavigationLink {
-                    TransactionsView(vm: trans_vm)
-                } label: {
-                    Text("Transactions")
-                }
-                
-                NavigationLink {
-                    BalanceSheet(vm: balance_vm)
-                } label: {
-                    Text("Balance Sheet")
-                }
-                
-                NavigationLink {
-                    AllNamedPairViewEdit<Account>()
-                } label: {
-                    Text("Accounts")
-                }
-                
-                NavigationLink {
-                    AllNamedPairViewEdit<Category>()
-                } label: {
-                    Text("Categories")
+                if enableTransactions ?? true {
+                    NavigationLink {
+                        LedgerTable()
+                    } label: {
+                        Text("Ledger")
+                    }
+                    
+                    NavigationLink {
+                        TransactionsView(vm: trans_vm)
+                    } label: {
+                        Text("Transactions")
+                    }
+                    
+                    NavigationLink {
+                        BalanceSheet(vm: balance_vm)
+                    } label: {
+                        Text("Balance Sheet")
+                    }
+                    
+                    NavigationLink {
+                        AllNamedPairViewEdit<Account>()
+                    } label: {
+                        Text("Accounts")
+                    }
+                    
+                    NavigationLink {
+                        AllNamedPairViewEdit<Category>()
+                    } label: {
+                        Text("Categories")
+                    }
                 }
                 
                 NavigationLink {
@@ -69,13 +72,15 @@ struct MainView: View {
                 } label: {
                     Text("Budget")
                 }
+                
+#if os(iOS)
                 NavigationLink {
-                    
+                    SettingsView().navigationTitle("Settings")
                 } label: {
-                    Text("Management")
+                    Text("Settings")
                 }
-            }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
+#endif
+        }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             Homepage()
         }

@@ -32,6 +32,14 @@ enum SortedColumn: String, CaseIterable, Identifiable {
     case name = "Name", amount = "Amount", pricePerWeek = "Price Per Week"
     
     var id: Self { self }
+    /// Represents the question that would denote ascending order
+    var orderedName: String {
+        switch self {
+        case .name: "Alphabetical?"
+        case .amount: "Cheapest First?"
+        case .pricePerWeek: "Cheapest First?"
+        }
+    }
 }
 
 @Observable
@@ -149,33 +157,33 @@ struct AllBillsViewEdit : View {
                 sortingHandle = .init(model: sorting)
             }) {
                 Label("Sort & Filter", systemImage: "line.3.horizontal.decrease.circle")
+            }.popover(item: $sortingHandle) { sort in
+                Grid {
+                    GridRow {
+                        Text("Sort By")
+                        Picker("Sorting Column", selection: sort.$model.sorting) {
+                            ForEach(SortedColumn.allCases, id: \.id) { col in
+                                Text(col.rawValue).tag(col)
+                            }
+                        }.labelsHidden()
+                    }
+                    
+                    GridRow {
+                        Text(sort.model.sorting.orderedName)
+                        Toggle("Ascending", isOn: sort.$model.ascending).labelsHidden()
+                    }
+                    
+                    GridRow {
+                        Text("Bill Kinds")
+                        List {
+                            ForEach(sort.$model.showingKinds) { $kind in
+                                Toggle(kind.val.rawValue, isOn: $kind.isSelected)
+                            }
+                        }.frame(minHeight: 60)
+                    }
+                }.padding().frame(minWidth: 300)
             }
             GeneralActionsPanel(on_add: add_bill, on_edit: edit_selected, on_delete: remove_selected)
-        }.popover(item: $sortingHandle) { sort in
-            Grid {
-                GridRow {
-                    Text("Sort By")
-                    Picker("Sorting Column", selection: sort.$model.sorting) {
-                        ForEach(SortedColumn.allCases, id: \.id) { col in
-                            Text(col.rawValue).tag(col)
-                        }
-                    }.labelsHidden()
-                }
-                
-                GridRow {
-                    Text("Ascending?")
-                    Toggle("Ascending", isOn: sort.$model.ascending).labelsHidden()
-                }
-                
-                GridRow {
-                    Text("Bill Kinds")
-                    List {
-                        ForEach(sort.$model.showingKinds) { $kind in
-                            Toggle(kind.val.rawValue, isOn: $kind.isSelected)
-                        }
-                    }.frame(minHeight: 60)
-                }
-            }.padding().frame(minWidth: 300)
         }.navigationTitle("Bills")
     }
 }

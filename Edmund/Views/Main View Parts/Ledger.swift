@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData;
 
 struct LedgerTable: View {
+    @AppStorage("showAsBalances") private var showAsBalances: Bool?;
     @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
     @State private var selected = Set<LedgerEntry.ID>();
     @State private var editing: LedgerEntry?;
@@ -39,16 +40,25 @@ struct LedgerTable: View {
     
     var body: some View {
         Table(data, selection: $selected) {
-            TableColumn("Memo", value: \.memo).width(130)
-            TableColumn("Credits") { item in
-                Text(item.credit, format: .currency(code: "USD"))
-            }.width(50)
-            TableColumn("Debits") { item in
-                Text(item.debit, format: .currency(code: "USD"))
-            }.width(50)
+            TableColumn("Memo", value: \.memo)
+            if showAsBalances ?? false {
+                TableColumn("Balance") { item in
+                    Text(item.balance, format: .currency(code: "USD"))
+                }
+            }
+            else {
+                TableColumn("Credits") { item in
+                    Text(item.credit, format: .currency(code: "USD"))
+                }
+                TableColumn("Debits") { item in
+                    Text(item.debit, format: .currency(code: "USD"))
+                }
+            }
+            
+            
             TableColumn("Date") { item in
                 Text(item.date, style: .date)
-            }.width(100)
+            }
             TableColumn("Location", value: \.location)
             TableColumn("Category") { item in
                 NamedPairViewer(pair: item.category)
