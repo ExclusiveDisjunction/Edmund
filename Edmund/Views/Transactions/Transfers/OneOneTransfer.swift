@@ -8,7 +8,7 @@
 import SwiftUI;
 
 @Observable
-class OneOneTransferVM : TransViewBase {
+class OneOneTransferVM : TransactionEditor {
     init() {
         err_msg = nil;
         amount = 0;

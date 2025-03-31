@@ -34,7 +34,7 @@ struct UtilityEditor : View {
     
     private func add_amount() {
         withAnimation {
-            utility.amounts.append(UtilityEntry(Month.jan, Calendar.current.component(.year, from: Date()), 0));
+            utility.amounts.append(.init(Date.now, 0));
         }
     }
     private func remove_amount() {

@@ -10,7 +10,6 @@ import SwiftData
 
 @Observable
 class PairHelper: Identifiable, Hashable, Equatable {
-       
     init(_ parent: String, _ child: String) {
         self.parent = parent
         self.child = child
@@ -55,85 +54,42 @@ struct PairEditor : View {
 }
 
 struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel {
-    init(target: Binding<C?>, parent_default: String = "", child_default: String = "") {
+    init(target: Binding<C.ID?>, parent_default: String = "", child_default: String = "") {
         self._target = target;
-        self.working = .init(parent_default, child_default)
+        //self.working = .init(parent_default, child_default)
     }
     
-    @Binding var target: C?;
-    @State private var showing_sheet: Bool = false;
+    @Binding var target: C.ID?;
+    @Query private var parents: [C.P];
+    //@Query var children: [C];
     
-    @State private var working: PairHelper;
-    
-    @State private var selectedID: C.ID?;
-    @State private var prev_selected_hash: Int?;
-    
-    @Query private var on: [C.P];
-    @Query var all_children: [C];
-    
-    func get_account() {
-        //First we check to see the previous result
-        if let res = target {
-            if working == res && res.id == selectedID {
-                return
-            }
-        }
-        
-        if let sel = selectedID {
-            if working.hashValue == prev_selected_hash { //We already have our stuff, stored in selectedID
-                target = all_children.first(where: { $0.id == sel })
-            }
-        }
-        
-        //Otherwise, we will look up our target based on the texts given
-        target = all_children.first(where: { working == $0 } )
-    }
-    func clear() {
-        working.clear()
-        selectedID = nil
-        prev_selected_hash = nil
-    }
-    
-    func resolve_on_selected() {
-        if let id = self.selectedID, let acc = all_children.first(where: {$0.id == id } ) {
-            self.working = .init(acc)
-            self.prev_selected_hash = self.working.hashValue
-            self.target = acc
-        } else {
-            clear()
-        }
-    }
-    
-    private func dismiss_sheet(action: NamedPickerAction) {
-        switch action {
-        case .cancel:
-            clear()
-        case .ok:
-            resolve_on_selected()
-        }
-        
-        showing_sheet = false;
-    }
+    @State private var selectedParentID: C.P.ID?;
+    @State private var selectedChildID: C.ID?;
     
     var body: some View {
         HStack {
-            PairEditor(pair: working, kind: C.kind).onSubmit {
-                get_account()
-            }
-            Button("...", action: {
-                showing_sheet = true
-            })
-        }.sheet(isPresented: $showing_sheet) {
-            NamedPairPickerSheet<C>(selectedID: $selectedID, on_dismiss: { action in
-                dismiss_sheet(action: action)
-            })
+            Picker(C.kind.rawValue, selection: $selectedParentID) {
+                Text("None").tag(nil as C.P.ID?)
+                ForEach(parents) { parent in
+                    Text(parent.name).tag(parent.id)
+                }
+            }.labelsHidden()
+            
+            Picker(C.kind.subName, selection: $selectedChildID) {
+                Text("None").tag(nil as C.ID?)
+                if let parentID = selectedParentID, let parent = parents.first(where: {$0.id == parentID } ) {
+                    ForEach(parent.children) { child in
+                        Text(child.name).tag(child.id)
+                    }
+                }
+            }.labelsHidden()
         }
     }
 }
 
 #Preview {
-    var pair: SubCategory? = nil;
-    let bind = Binding<SubCategory?>(
+    var pair: SubCategory.ID? = nil;
+    let bind = Binding<SubCategory.ID?>(
         get: {
             pair
         },
@@ -142,5 +98,5 @@ struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel {
         }
     );
     
-    NamedPairPicker(target: bind).padding()
+    NamedPairPicker<SubCategory>(target: bind).padding().modelContainer(ModelController.previewContainer)
 }

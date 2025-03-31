@@ -9,7 +9,7 @@ import SwiftUI;
 import Foundation;
 
 @Observable
-class CompositeTransactionVM : TransViewBase {
+class CompositeTransactionVM : TransactionEditor {
     init() {
         
     }

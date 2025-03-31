@@ -8,7 +8,7 @@
 import SwiftUI;
 
 @Observable
-class ManyManyTransferVM : TransViewBase {
+class ManyManyTransferVM : TransactionEditor {
     init() {
         err_msg = nil;
         top = ManyTransferTableVM();

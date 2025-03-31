@@ -113,7 +113,7 @@ struct ManyTransferTable : View {
                     GridRow {
                         Toggle("Selected", isOn: $item.selected).labelsHidden()
                         TextField("Amount", value: $item.amount, format: .currency(code: "USD")).disabled(item.selected)
-                        NamedPairPicker(target: $item.account).disabled(item.selected)
+                        NamedPairPicker<SubAccount>(target: $item.account).disabled(item.selected)
                     }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
                 }
             }.padding().background(.background.opacity(0.7))

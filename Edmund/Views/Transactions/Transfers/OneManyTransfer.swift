@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-class OneManyTransferVM : TransViewBase {
+class OneManyTransferVM : TransactionEditor {
     func compile_deltas() -> Dictionary<UUID, Decimal>? {
         if !self.validate() { return nil; }
         guard let acc = self.acc else { return nil }

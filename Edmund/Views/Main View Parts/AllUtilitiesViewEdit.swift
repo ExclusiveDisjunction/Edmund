@@ -12,7 +12,7 @@ struct AllUtilitiesViewEdit : View {
     @Query var utilities: [Utility];
     @State private var tableSelected: Utility.ID?;
     @State private var selectedUtility: Utility?;
-    @State private var sortOrder = [KeyPathComparator(\UtilityEntry.monthYear, order: .forward)]
+    @State private var sortOrder = [KeyPathComparator(\UtilityEntry.date, order: .forward)]
     
 #if os(macOS)
     @State private var showPresenter: Bool = true;
@@ -95,7 +95,7 @@ struct AllUtilitiesViewEdit : View {
                         
                         Table(target.amounts, sortOrder: $sortOrder) {
                             TableColumn("Time") { value in
-                                Text(verbatim: "\(value.month.asShortString), \(value.year)")
+                                Text(value.date.formatted(date: .abbreviated, time: .omitted))
                             }
                             TableColumn("Amount") { value in
                                 Text(value.amount, format: .currency(code: "USD"))

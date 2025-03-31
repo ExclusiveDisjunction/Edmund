@@ -8,24 +8,49 @@
 import SwiftData
 import Foundation
 
-enum BillsKind : String, CaseIterable, Identifiable, Equatable {
+enum BillsKind : String, Filterable {
+    typealias On = Bill
+    
     case subscription = "Subscription"
     case bill = "Bill"
     
-    var plural: String {
-        switch self {
-            case .subscription: "Subscriptions"
-            case .bill: "Bills"
-        }
+    var id: Self { self }
+    
+    var toString: String {
+        self.rawValue
     }
-    var determined: String {
+    var toStringPlural: String {
+        self.rawValue + "s"
+    }
+    
+    func accepts(_ val: Bill) -> Bool {
+        val.kind == self
+    }
+}
+enum BillsSort : String, Sortable {
+    typealias On = Bill;
+    
+    case name = "Name", amount = "Amount", pricePerWeek = "Price Per Week"
+    
+    var id: Self { self }
+    var toString: String {
+        self.rawValue
+    }
+    var ascendingQuestion: String {
         switch self {
-            case .subscription: "A Subscription"
-            case .bill: "A Bill"
+            case .name: "Alphabetical?"
+            case .amount: "Cheapest First?"
+            case .pricePerWeek: "Cheapest First?"
         }
     }
     
-    var id: Self { self }
+    func compare(_ lhs: Bill, _ rhs: Bill, _ ascending: Bool) -> Bool {
+        switch self {
+            case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
+            case .amount: ascending ? lhs.amount < rhs.amount : lhs.amount > rhs.amount
+            case .pricePerWeek: ascending ? lhs.pricePerWeek < rhs.pricePerWeek : lhs.pricePerWeek > rhs.pricePerWeek
+        }
+    }
 }
 
 enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
@@ -58,7 +83,10 @@ enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
 }
 
 @Model
-class Bill : Identifiable{
+final class Bill : Identifiable, Queryable {
+    typealias SortType = BillsSort
+    typealias FilterType = BillsKind
+    
     init(name: String, amount: Decimal, kind: BillsKind, period: BillsPeriod = .monthly) {
         self.id = UUID()
         self.name = name
@@ -185,42 +213,27 @@ enum Month: Int, Equatable {
 
 @Model
 class UtilityEntry: Identifiable {
-    init(_ month: Month, _ year: Int, _ amount: Decimal) {
-        self.rawMonth = month.rawValue
+    init(_ date: Date, _ amount: Decimal) {
+        self.date = date
         self.amount = amount
-        self.year = year
     }
     
     var id = UUID()
-    private var rawMonth: Int;
-    var year: Int;
+    var date: Date;
     var amount: Decimal;
     @Relationship var parent: Utility?;
-    
-    func getRawMonth() -> Int {
-        self.rawMonth
-    }
-    
-    var month: Month {
-        get {
-            Month(rawValue: self.rawMonth)!
-        }
-        set(v) {
-            self.rawMonth = v.rawValue
-        }
-    }
-    var monthYear: Int {
-        year * 12 + rawMonth
-    }
 }
 
 @Model
-class Utility: Identifiable {
+final class Utility: Identifiable { //, Queryable {
     init(name: String, amounts: [UtilityEntry]) {
         self.id = UUID()
         self.name = name
         self.amounts = amounts
     }
+    
+    //typealias SortType = UtilitySort;
+    //typealias FilterType = UtilityFilter;
     
     var id: UUID;
     @Attribute(.unique) var name: String
@@ -235,7 +248,8 @@ class Utility: Identifiable {
     
     static var exampleUtilities: [Utility] {
         [
-            Utility(name: "Gas", amounts: [.init(Month.jan, 2025, 25),
+            /*
+            Utility(name: "Gas", amounts: [.init(, 25),
                                            .init(Month.feb, 2025, 23),
                                            .init(Month.mar, 2024, 28),
                                            .init(Month.apr, 2024, 27)]),
@@ -251,6 +265,7 @@ class Utility: Identifiable {
                                              .init(Month.feb, 2025, 12),
                                              .init(Month.mar, 2024, 14),
                                              .init(Month.apr, 2024, 15)])
+             */
         ]
     }
 }

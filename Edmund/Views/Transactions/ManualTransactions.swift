@@ -61,7 +61,7 @@ struct ManTransLineView : View {
 }
 
 @Observable
-class ManualTransactionsVM : TransViewBase {
+class ManualTransactionsVM : TransactionEditor {
     init() {
         adding.append(.init())
     }

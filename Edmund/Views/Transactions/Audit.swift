@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-class AuditViewModel : TransViewBase {
+class AuditViewModel : TransactionEditor {
     func compile_deltas() -> Dictionary<UUID, Decimal>? {
         guard let acc = self.account else { return nil }
         

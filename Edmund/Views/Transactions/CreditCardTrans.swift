@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-class CreditCardTransViewModel : TransViewBase {
+class CreditCardTransViewModel : TransactionEditor {
     func compile_deltas() -> Dictionary<UUID, Decimal>? {
         return nil;
     }

@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @Observable
-class BillPaymentVM : TransViewBase {
+class BillPaymentVM : TransactionEditor {
     init() {
         
     }

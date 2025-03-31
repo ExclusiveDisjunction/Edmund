@@ -8,10 +8,7 @@
 import SwiftUI;
 import Foundation;
 
-protocol TransViewBase : Identifiable {
-    func compile_deltas() -> Dictionary<UUID, Decimal>?;
+protocol TransactionEditor : Identifiable {
     func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]?;
     func validate() -> Bool;
-    
-    func clear();
 }

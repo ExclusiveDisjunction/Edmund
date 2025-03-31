@@ -29,9 +29,35 @@
 		DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Views/Transactions/Audit.swift,
+				Views/Transactions/BillPayment.swift,
+				Views/Transactions/CompositeTransaction.swift,
+				Views/Transactions/CreditCardTrans.swift,
+				Views/Transactions/GeneralIncome.swift,
+				Views/Transactions/ManualTransactions.swift,
+				Views/Transactions/Payday.swift,
+				Views/Transactions/PersonLoan.swift,
+				Views/Transactions/TransactionEditor.swift,
+				Views/Transactions/Transfers/ManyManyTransfer.swift,
+				Views/Transactions/Transfers/ManyOneTransfer.swift,
+				Views/Transactions/Transfers/ManyTransferFoundation.swift,
+				Views/Transactions/Transfers/OneManyTransfer.swift,
+				Views/Transactions/Transfers/OneOneTransfer.swift,
+			);
+			target = DD34E6012D99D21D009E3875 /* Edmund */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DD34E6042D99D21D009E3875 /* Edmund */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */,
+			);
 			path = Edmund;
 			sourceTree = "<group>";
 		};

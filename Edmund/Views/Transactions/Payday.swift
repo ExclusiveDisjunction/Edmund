@@ -27,7 +27,7 @@ class PaydayBreakdown: Identifiable {
 }
 
 @Observable
-class PaydayViewModel: TransViewBase {
+class PaydayViewModel: TransactionEditor {
     private func compute_balances() -> (Dictionary<SubAccount, Decimal>, Decimal) {
         var total = amount;
         var result: Dictionary<SubAccount, Decimal> = [:];

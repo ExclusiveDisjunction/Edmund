@@ -13,7 +13,7 @@ public enum GeneralIncomeKind {
 }
 
 @Observable
-class GeneralIncomeViewModel : TransViewBase {
+class GeneralIncomeViewModel : TransactionEditor {
     var id: UUID = UUID()
     
     func compile_deltas() -> Dictionary<UUID, Decimal>? {

@@ -11,7 +11,7 @@ import SwiftData
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage("enableTransactions") var enableTransactions: Bool?;
-    @State private var trans_vm: TransactionsViewModel = .init();
+    //@State private var trans_vm: TransactionsViewModel = .init();
     @State private var balance_vm: BalanceSheetVM = .init();
 
     var body: some View {
@@ -28,12 +28,6 @@ struct MainView: View {
                         LedgerTable()
                     } label: {
                         Text("Ledger")
-                    }
-                    
-                    NavigationLink {
-                        TransactionsView(vm: trans_vm)
-                    } label: {
-                        Text("Transactions")
                     }
                     
                     NavigationLink {
