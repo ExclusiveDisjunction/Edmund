@@ -27,29 +27,15 @@ struct BillEditor : View {
     
     var body: some View {
         VStack {
-            Grid {
-                GridRow {
-                    Text("Name")
-                    if !nameRed {
-                        TextField("Name", text: $bill.name)
-                    }
-                    else {
-                        TextField("Name", text: $bill.name).border(Color.red)
-                    }
-                }
-                
-                GridRow {
-                    Text("Amount")
+            Form {
+                Section {
+                    TextField("Name", text: $bill.name)
                     TextField("Amount", value: $bill.amount, format: .currency(code: "USD"))
-                }
-                
-                GridRow {
-                    Text("Fequency")
                     Picker("Frequency", selection: $bill.period) {
                         ForEach(BillsPeriod.allCases) { period in
                             Text(period.rawValue).tag(period)
                         }
-                    }.labelsHidden()
+                    }
                 }
             }
             

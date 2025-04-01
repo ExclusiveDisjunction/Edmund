@@ -12,12 +12,10 @@ import SwiftData
 final class Category : Identifiable, Hashable, BoundPairParent {
     required init() {
         self.name = ""
-        self.id = UUID()
         self.children = []
     }
-    init(_ name: String = "", children: [SubCategory] = [], id: UUID = UUID()) {
+    init(_ name: String = "", children: [SubCategory] = []) {
         self.name = name
-        self.id = id
         self.children = children;
     }
     
@@ -29,7 +27,7 @@ final class Category : Identifiable, Hashable, BoundPairParent {
         hasher.combine(name)
     }
     
-    var id: UUID;
+    var id: String { name }
     @Attribute(.unique) var name: String;
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) var children: [SubCategory];
 
@@ -79,11 +77,13 @@ class SubCategory : BoundPair, Equatable {
         self.parent = nil
         self.name = ""
         self.id = UUID()
+        self.transactions = []
     }
-    init(_ name: String, parent: Category? = nil, id: UUID = UUID()) {
+    init(_ name: String, parent: Category? = nil, id: UUID = UUID(), transactions: [LedgerEntry] = []) {
         self.parent = parent
         self.name = name
         self.id = id
+        self.transactions = transactions
     }
     
     static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
@@ -97,6 +97,7 @@ class SubCategory : BoundPair, Equatable {
     @Attribute(.unique) var id: UUID;
     @Relationship var parent: Category?;
     var name: String;
+    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) var transactions: [LedgerEntry];
 
     
     var isEmpty: Bool {

@@ -10,15 +10,16 @@ import SwiftUI
 struct NamedPairParentEditor<P> : View where P : BoundPairParent {
     @Bindable var target: P;
     @Environment(\.dismiss) private var dismiss;
+    @Environment(\.modelContext) private var modelContext;
     @State private var show_red = false;
     @State private var show_alert = false;
     
     var body : some View {
         VStack {
-            HStack {
-                Text("Name")
-                TextField("Name", text: $target.name).labelsHidden().border(show_red ? Color.red : Color.clear)
-                
+            Form {
+                Section {
+                    TextField("Name", text: $target.name).foregroundStyle(show_red ? Color.red : Color.primary)
+                }
             }
             
             HStack {
@@ -40,7 +41,11 @@ struct NamedPairParentEditor<P> : View where P : BoundPairParent {
             })
         }, message: {
             Text("Please provide a name for the \(P.kind.rawValue).")
-        })
+        }).onDisappear {
+            if target.name.isEmpty {
+                modelContext.delete(target)
+            }
+        }
     }
 }
 

@@ -16,11 +16,14 @@ struct BalanceResolver {
         var result: Dictionary<SubAccount, (Decimal, Decimal)> = [:];
         
         for entry in on {
-            var temp = result[entry.account, default: (0, 0)];
-            temp.0 += entry.credit;
-            temp.1 += entry.debit;
+            if let account = entry.account {
+                var temp = result[account, default: (0, 0)];
+                temp.0 += entry.credit;
+                temp.1 += entry.debit;
+                
+                result[account] = temp;
+            }
             
-            result[entry.account] = temp;
         }
         
         return result;
@@ -29,7 +32,7 @@ struct BalanceResolver {
         var result: Dictionary<Account, (Decimal, Decimal)> = [:];
         
         for entry in on {
-            if let parent = entry.account.parent {
+            if let parent = entry.account?.parent {
                 var temp = result[parent, default: (0, 0)];
                 temp.0 += entry.credit;
                 temp.1 += entry.debit;

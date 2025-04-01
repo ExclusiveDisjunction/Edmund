@@ -18,6 +18,10 @@ class AllPairsHelper<T> : Identifiable where T: BoundPairParent {
     var target: T
     var id: UUID
     var childrenShown: Bool = false
+    
+    var children: [T.C] {
+        target.children.sorted(by: { $0.name < $1.name } )
+    }
 }
 
 struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel, T.C.P == T {
@@ -27,7 +31,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     @State private var collapseAll: Bool = false;
     
     private var helpers: [AllPairsHelper<T>] {
-        parents.map { AllPairsHelper( $0 ) }
+        parents.sorted(by: { $0.name < $1.name } ).map { AllPairsHelper( $0 ) }
     }
     
     @State private var selected: T?;
@@ -115,26 +119,6 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
         .navigationTitle(T.kind.pluralized)
         .toolbar {
             ToolbarItemGroup {
-                Button(action: {
-                    withAnimation {
-                        for helper in helpers {
-                            helper.childrenShown = true
-                        }
-                    }
-                }) {
-                    Label("Expand All", systemImage: "arrow.down.to.line")
-                }
-                
-                Button(action: {
-                    withAnimation {
-                        for helper in helpers {
-                            helper.childrenShown = false
-                        }
-                    }
-                }) {
-                    Label("Collapse All", systemImage: "arrow.up.to.line")
-                }
-                
                 Button(action: add_parent) {
                     Label("Add \(T.kind.rawValue)", systemImage: "plus")
                 }.help("Add a \(T.kind.rawValue)")
@@ -149,10 +133,12 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             NamedPairParentEditor(target: item)
         }
         .sheet(item: $selectedChild, onDismiss: {
+            /*
             let empty = children.filter { $0.name.isEmpty || $0.parent == nil };
             for item in empty {
                 modelContext.delete(item)
             }
+             */
         }) { item in
             NamedPairChildEditor(target: item)
         }

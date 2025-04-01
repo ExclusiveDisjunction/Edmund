@@ -30,8 +30,8 @@ class LedgerEntry : ObservableObject, Identifiable
     var date: Date;
     var added_on: Date;
     var location: String;
-    @Relationship(deleteRule: .cascade, inverse: nil) var category: SubCategory;
-    @Relationship(deleteRule: .cascade, inverse: nil) var account: SubAccount;
+    @Relationship var category: SubCategory?;
+    @Relationship var account: SubAccount?;
     
     var balance: Decimal {
         credit - debit 

@@ -248,24 +248,22 @@ final class Utility: Identifiable { //, Queryable {
     
     static var exampleUtilities: [Utility] {
         [
-            /*
-            Utility(name: "Gas", amounts: [.init(, 25),
-                                           .init(Month.feb, 2025, 23),
-                                           .init(Month.mar, 2024, 28),
-                                           .init(Month.apr, 2024, 27)]),
-            Utility(name: "Electric", amounts: [.init(Month.jan, 2025, 30),
-                                                .init(Month.feb, 2025, 31),
-                                                .init(Month.mar, 2024, 38),
-                                                .init(Month.apr, 2024, 36)]),
-            Utility(name: "Internet", amounts: [.init(Month.jan, 2025, 34),
-                                                .init(Month.feb, 2025, 25),
-                                                .init(Month.mar, 2024, 35),
-                                                .init(Month.apr, 2024, 35)]),
-            Utility(name: "Water", amounts: [.init(Month.jan, 2025, 10),
-                                             .init(Month.feb, 2025, 12),
-                                             .init(Month.mar, 2024, 14),
-                                             .init(Month.apr, 2024, 15)])
-             */
+            Utility(name: "Gas", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 25))!, 25),
+                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 25))!, 23),
+                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 25))!, 28),
+                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 25))!, 27)]),
+            Utility(name: "Electric", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 17))!, 30),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 17))!, 31),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 17))!, 38),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 17))!, 36)]),
+            Utility(name: "Internet", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 14))!, 34),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 14))!, 25),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 14))!, 35),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 14))!, 35)]),
+            Utility(name: "Water", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 2))!, 10),
+                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 2))!, 12),
+                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 2))!, 14),
+                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 2))!, 15)])
         ]
     }
 }

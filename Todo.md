@@ -1,22 +1,14 @@
-# To do
+# To do & Left Off
 
-## Views
+Work will be intermittent on this project, due to school work. Here is a note where I left off & what to improve/work on.
 
-1. Finish `TransViewBase` memebers for the following views:
-    1. CreditCardTrans
-2. Update standards to use manual columns instead of a grid
-    1. ManualTransactions
-    2. By Proxy, CreditCardTrans
-    3. Payday
-3. Make it so the following views allow for specific sub-tenders
-    1. Payment
-        1. Bill mode
-        2. Repayment mode
-        3. Loan mode
-4. Fix the AllUtilitiesViewEdit so that the information points actually sort properly
-5. Fix the UtilitiesEditor sheet so that the scrolling does not immediatley collapse
-6. SFix UtilitiesEditor so that on iPadOS, the add button is visible (idk why it isnt)
-7. Figure out how I can combine bills and utilities together into one thing without causing duplicate buttons
-8. Figure out why the pickers are always returning nil, dispite givien values for Account and category picker
-9. Figure out why the namedPairChildEditor always has a value of nil in the parent. 
+1. Transform Transaction editors to be in sheets, use forms, and implement functionality for CreditCardTrans.
+2. Bind the SubCategory and SubAccount to LedgerEntry with a One (LE) to many (SC/SA). (DONE) 
+3. Possibly fix the bug where the panels will be collapsed by default on AllNamedPairViewEdit.
+4. Determine if you can combine the Utilities and Bills pages together with tabs, if needed.
+5. Put the settings for the iOS/iPadOS version on the homepage
+6. Redesign the homepage, include links/figures/notes
+7. By default, the AllNamedPairsViewEdit, AllBillsViewEdit, and AllUtilitiesViewEdit will delete the bound entry on edit if they have no name/parent. THis should probably be avoided.
+8. Figure out undo/redo, add them to the appropriate menus for iPadOS/iOS, command shortcuts for macOS
+9. Determine methods for fixing UI on small screen sizes. For example, on budget, ensure that the required data is shown in small resolutions. 
 

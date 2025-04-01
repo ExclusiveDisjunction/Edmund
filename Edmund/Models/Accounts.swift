@@ -13,13 +13,11 @@ final class Account : Identifiable, Hashable, BoundPairParent {
     required init() {
         self.name = ""
         self.creditLimit = nil
-        self.id = UUID()
         self.children = [];
     }
     init(_ name: String, creditLimit: Decimal? = nil, children: [SubAccount] = []) {
         self.name = name;
         self.creditLimit = creditLimit;
-        self.id = UUID()
         self.children = children
     }
     
@@ -30,7 +28,7 @@ final class Account : Identifiable, Hashable, BoundPairParent {
         hasher.combine(name)
     }
     
-    var id: UUID;
+    var id: String { name }
     @Attribute(.unique) var name: String;
     @Attribute var creditLimit: Decimal?;
     @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) var children: [SubAccount];
@@ -69,11 +67,13 @@ final class SubAccount : BoundPair, Equatable {
         self.name = ""
         self.parent = Account();
         self.id = UUID();
+        self.transactions = [];
     }
-    init(_ name: String, parent: Account? = nil, id: UUID = UUID()) {
+    init(_ name: String, parent: Account? = nil, id: UUID = UUID(), transactions: [LedgerEntry] = []) {
         self.name = name
         self.parent = parent
         self.id = id
+        self.transactions = transactions
     }
     
     static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
@@ -87,6 +87,7 @@ final class SubAccount : BoundPair, Equatable {
     @Attribute(.unique) var id: UUID;
     var name: String;
     @Relationship var parent: Account?;
+    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account) var transactions: [LedgerEntry];
     
     static var kind: NamedPairKind {
         get { .account }

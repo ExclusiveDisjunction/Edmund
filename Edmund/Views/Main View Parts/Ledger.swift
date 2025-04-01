@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData;
 
 struct LedgerTable: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @AppStorage("showAsBalances") private var showAsBalances: Bool?;
     @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
     @State private var selected = Set<LedgerEntry.ID>();
@@ -16,6 +17,12 @@ struct LedgerTable: View {
     @State private var editAlert = false;
     
     @Environment(\.modelContext) private var modelContext;
+    
+#if os(macOS)
+    private let showAsBalancesDefault = false
+#else
+    private let showAsBalancesDefault = true
+#endif
     
     private func remove_spec(_ id: Set<LedgerEntry.ID>) {
         let targets = data.filter { id.contains($0.id ) }
@@ -41,7 +48,7 @@ struct LedgerTable: View {
     var body: some View {
         Table(data, selection: $selected) {
             TableColumn("Memo", value: \.memo)
-            if showAsBalances ?? false {
+            if showAsBalances ?? showAsBalancesDefault || horizontalSizeClass == .compact {
                 TableColumn("Balance") { item in
                     Text(item.balance, format: .currency(code: "USD"))
                 }
@@ -55,16 +62,27 @@ struct LedgerTable: View {
                 }
             }
             
-            
-            TableColumn("Date") { item in
-                Text(item.date, style: .date)
-            }
-            TableColumn("Location", value: \.location)
-            TableColumn("Category") { item in
-                NamedPairViewer(pair: item.category)
+            if horizontalSizeClass != .compact {
+                TableColumn("Date") { item in
+                    Text(item.date, style: .date)
+                }
+                TableColumn("Location", value: \.location)
+                TableColumn("Category") { item in
+                    if let category = item.category {
+                        NamedPairViewer(pair: category)
+                    }
+                    else {
+                        Text("No Category")
+                    }
+                }
             }
             TableColumn("Account") { item in
-                NamedPairViewer(pair: item.account)
+                if let account = item.account {
+                    NamedPairViewer(pair: account)
+                }
+                else {
+                    Text("No Account")
+                }
             }
         }.padding()
         .contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
