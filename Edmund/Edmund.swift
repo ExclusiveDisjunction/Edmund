@@ -27,10 +27,14 @@ struct ui_demoApp: App {
         }
         
         WindowGroup(id: "Balance Sheet") {
-            BalanceSheet(vm: .init())
+            NavigationStack {
+                BalanceSheet(vm: .init())
+            }
         }.modelContainer(sharedModelContainer)
         WindowGroup(id: "Ledger") {
-            LedgerTable()
+            NavigationStack {
+                LedgerTable()
+            }
         }.modelContainer(sharedModelContainer)
         
         #if os(macOS)

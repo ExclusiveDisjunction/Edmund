@@ -18,6 +18,16 @@ struct NamedPairChildEditor<C> : View where C: BoundPair, C.P: PersistentModel {
 
     @Query private var parents: [C.P];
     
+    private func submit() {
+        show_red_parent = target.parent == nil
+        show_red = target.name.isEmpty
+        
+        show_alert = show_red_parent || show_red
+        if !show_alert {
+            dismiss()
+        }
+    }
+    
     var body: some View {
         VStack {
             Form {
@@ -29,21 +39,13 @@ struct NamedPairChildEditor<C> : View where C: BoundPair, C.P: PersistentModel {
                         }
                     }.foregroundStyle(show_red_parent ? Color.red : Color.primary)
                     
-                    TextField("Name", text: $target.name).foregroundStyle(show_red ? Color.red : Color.primary)
+                    TextField("Name", text: $target.name).foregroundStyle(show_red ? Color.red : Color.primary).onSubmit(submit)
                 }
             }
             
             HStack {
                 Spacer()
-                Button("Ok", action: {
-                    show_red_parent = target.parent == nil
-                    show_red = target.name.isEmpty
-                    
-                    show_alert = show_red_parent || show_red
-                    if !show_alert {
-                        dismiss()
-                    }
-                }).buttonStyle(.borderedProminent)
+                Button("Ok", action: submit).buttonStyle(.borderedProminent)
             }
         }.padding().alert("Error", isPresented: $show_alert, actions: {
             Button("Ok", action: {

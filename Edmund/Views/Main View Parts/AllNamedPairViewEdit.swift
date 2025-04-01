@@ -25,6 +25,8 @@ class AllPairsHelper<T> : Identifiable where T: BoundPairParent {
 }
 
 struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel, T.C.P == T {
+    
+    
     @Query private var parents: [T];
     @Query private var children: [T.C];
     @State private var expandAll: Bool = false;
@@ -115,6 +117,8 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                     }
                 }
             }
+        }.contextMenu {
+            Button("Add \(T.kind.rawValue)", action: add_parent)
         }.padding()
         .navigationTitle(T.kind.pluralized)
         .toolbar {

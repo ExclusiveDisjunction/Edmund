@@ -14,26 +14,28 @@ struct NamedPairParentEditor<P> : View where P : BoundPairParent {
     @State private var show_red = false;
     @State private var show_alert = false;
     
+    private func submit() {
+        if target.name.isEmpty {
+            show_red = true;
+            show_alert = true;
+        }
+        else {
+            dismiss()
+        }
+    }
+    
     var body : some View {
         VStack {
             Form {
                 Section {
-                    TextField("Name", text: $target.name).foregroundStyle(show_red ? Color.red : Color.primary)
+                    TextField("Name", text: $target.name).foregroundStyle(show_red ? Color.red : Color.primary).onSubmit(submit)
                 }
             }
             
             HStack {
                 Spacer()
                 
-                Button("Ok", action: {
-                    if target.name.isEmpty {
-                        show_red = true;
-                        show_alert = true;
-                    }
-                    else {
-                        dismiss()
-                    }
-                }).buttonStyle(.borderedProminent)
+                Button("Ok", action: submit).buttonStyle(.borderedProminent)
             }
         }.padding().alert("Error", isPresented: $show_alert, actions: {
             Button("Ok", action: {

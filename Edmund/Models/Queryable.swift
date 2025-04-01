@@ -84,7 +84,7 @@ struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAcces
         Button(action: {
             handle = .init(provider: provider)
         }) {
-            Label("Sort & Filter", systemImage: "line.horizontal.3")
+            Label("Sort & Filter", systemImage: "line.3.horizontal.decrease.circle")
         }.popover(item: $handle) { item in
             QueryPopout(provider: item.provider)
         }
@@ -112,6 +112,9 @@ struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAcce
                 }
             }
         }.padding()
+        #if os(iOS)
+            .frame(minWidth: 400, minHeight: 300)
+        #endif
     }
 }
 

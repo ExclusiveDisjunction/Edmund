@@ -120,14 +120,29 @@ class BalanceSheetVM {
 struct BalanceSheet: View {
     @Query var transactions: [LedgerEntry];
     @Bindable var vm: BalanceSheetVM;
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.openWindow) private var openWindow;
+    
+    private var shouldShowPopoutButton: Bool {
+#if os(macOS)
+        return true
+#else
+        if #available(iOS 16.0, *) {
+            return UIDevice.current.userInterfaceIdiom == .pad
+        }
+        return false
+#endif
+    }
     
     private func update_balances() {
         vm.computeBalances(trans: transactions);
     }
+    private func popout() {
+        openWindow(id: "Balance Sheet")
+    }
     
     var body: some View {
         VStack {
-            
             if vm.computed.isEmpty {
                 Text("There are no transactions, or this page needs to be refreshed").italic().padding()
                 Spacer()
@@ -147,8 +162,10 @@ struct BalanceSheet: View {
                                     Grid {
                                         GridRow {
                                             Text("Sub Account").frame(maxWidth: .infinity).font(.headline)
-                                            Text("Credit").frame(maxWidth: .infinity).font(.headline)
-                                            Text("Debit").frame(maxWidth: .infinity).font(.headline)
+                                            if horizontalSizeClass != .compact {
+                                                Text("Credit").frame(maxWidth: .infinity).font(.headline)
+                                                Text("Debit").frame(maxWidth: .infinity).font(.headline)
+                                            }
                                             Text("Balance").frame(maxWidth: .infinity).font(.headline)
                                         }
                                         Divider()
@@ -156,8 +173,10 @@ struct BalanceSheet: View {
                                         ForEach(item.subs) { sub in
                                             GridRow {
                                                 Text(sub.name)
-                                                Text("\(sub.credits, format: .currency(code: "USD"))")
-                                                Text("\(sub.debits, format: .currency(code: "USD"))")
+                                                if horizontalSizeClass != .compact {
+                                                    Text("\(sub.credits, format: .currency(code: "USD"))")
+                                                    Text("\(sub.debits, format: .currency(code: "USD"))")
+                                                }
                                                 Text("\(sub.balance, format: .currency(code: "USD"))").foregroundStyle(sub.balance < 0 ? .red : .primary )
                                             }
                                         }
@@ -172,6 +191,12 @@ struct BalanceSheet: View {
             }
         }.onAppear(perform: update_balances)
         .toolbar {
+            if shouldShowPopoutButton {
+                Button(action: popout) {
+                    Label("Open in another Window", systemImage: "square.on.square.dashed")
+                }
+            }
+            
             Button(action: update_balances) {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
             }
