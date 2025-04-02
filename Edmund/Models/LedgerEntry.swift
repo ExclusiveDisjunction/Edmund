@@ -81,4 +81,8 @@ class LedgerEntry : ObservableObject, Identifiable
             .init(memo: "Audit", credit: 0, debit: 10, date: Date.now, location: "Bank", category: auditCat, account: payAcc)
         ]
     }
+    
+    static let exampleEntry = {
+        LedgerEntry(memo: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Sub Category", parent: .init("Example Category")), account: .init("Example Sub Account", parent: .init("Example Account")))
+    }()
 }

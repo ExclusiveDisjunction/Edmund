@@ -87,7 +87,7 @@ class SubCategory : BoundPair, Equatable {
     }
     
     static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
-        lhs.parent == rhs.parent && lhs.name == rhs.name
+        lhs.id == rhs.id
     }
     func hash(into hasher: inout Hasher) {
         hasher.combine(parent)

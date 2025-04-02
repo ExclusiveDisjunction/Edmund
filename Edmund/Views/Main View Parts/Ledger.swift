@@ -23,96 +23,7 @@ struct LedgerEntryInspector: View {
         VStack {
             Text(target.memo).font(.title2)
             
-            Grid {
-                GridRow {
-                    Text("Credit:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.credit, format: .currency(code: "USD"))
-                        Spacer()
-                    }
-                }
-                GridRow {
-                    Text("Debit:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.debit, format: .currency(code: "USD"))
-                        Spacer()
-                    }
-                }
-                GridRow {
-                    Text("Balance:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.balance, format: .currency(code: "USD"))
-                        Spacer()
-                    }
-                }
-                Divider()
-                GridRow {
-                    Text("Date:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.date.formatted(date: .abbreviated, time: .omitted))
-                        Spacer()
-                    }
-                }
-                GridRow {
-                    Text("Added On:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.added_on.formatted(date: .abbreviated, time: .shortened))
-                        Spacer()
-                    }
-                }
-                Divider()
-                GridRow {
-                    Text("Location:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.location)
-                        Spacer()
-                    }
-                }
-                Divider()
-                GridRow {
-                    Text("Category:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        
-                        if let cat = target.category {
-                            NamedPairViewer(pair: cat)
-                        }
-                        else {
-                            Text("No Category")
-                        }
-                        Spacer()
-                    }
-                }
-                Divider()
-                GridRow {
-                    Text("Account:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        if let acc = target.account {
-                            NamedPairViewer(pair: acc)
-                        }
-                        else {
-                            Text("No Account")
-                        }
-                        Spacer()
-                    }
-                }
-                Divider()
-            }
+            
         
             Spacer()
         }
@@ -126,7 +37,6 @@ struct LedgerTable: View {
     @State private var editing: LedgerEntry?;
     @State private var inspecting: LedgerEntry?;
     @State private var editAlert = false;
-    @State private var showInspect = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.openWindow) private var openWindow;
@@ -174,6 +84,22 @@ struct LedgerTable: View {
     private func popout() {
         openWindow(id: "Ledger")
     }
+    private func inspect_selected() {
+        let resolved = data.filter { selected.contains($0.id ) }
+        
+        if resolved.count == 1 {
+            //inspecting = resolved.first!
+        }
+        else {
+#if os(macOS)
+            for item in resolved {
+                
+            }
+#else
+            editAlert = true
+#endif
+        }
+    }
     
     var body: some View {
         VStack {
@@ -200,7 +126,7 @@ struct LedgerTable: View {
                                 inspecting = entry
                                 showInspect = true
                             }) {
-                                Label("Inspect", systemImage: "magnifyingglass")
+                                Label("Inspect", systemImage: "info.circle")
                             }.tint(.green)
                         }
                     }
@@ -275,9 +201,9 @@ struct LedgerTable: View {
                 
                 if horizontalSizeClass != .compact {
                     Button(action: {
-                        showInspect.toggle()
+                        inspect_selected()
                     }) {
-                        Label(showInspect ? "Hide Inspector" : "Show Inspector", systemImage: "magnifyingglass")
+                        Label(showInspect ? "Hide Inspector" : "Show Inspector", systemImage: "info.circle")
                     }
                 }
                 
@@ -348,20 +274,8 @@ struct LedgerTable: View {
                     }.help("Remove selected transactions")
                 }
             }
-        }.inspector(isPresented: $showInspect) {
-            VStack {
-                if let entry = inspecting {
-                    LedgerEntryInspector(target: entry)
-                }
-                else if let selectedID = self.selected.first, let entry = data.first(where: {$0.id == selectedID}) {
-                    LedgerEntryInspector(target: entry)
-                }
-                else {
-                    Spacer()
-                    Text("Please select a transaction to inspect it").font(.caption).italic()
-                    Spacer()
-                }
-            }.padding().inspectorColumnWidth(min: 250, ideal: 300, max: 450)
+        }.sheet(item: $inspecting) { entry in
+            LedgerEntryInspector(target: entry)
         }
     }
 }

@@ -53,43 +53,70 @@ struct PairEditor : View {
     }
 }
 
-struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel {
-    init(target: Binding<C.ID?>, parent_default: String = "", child_default: String = "") {
-        self._target = target;
-        //self.working = .init(parent_default, child_default)
-    }
-    
-    @Binding var target: C.ID?;
-    @Query private var parents: [C.P];
-    //@Query var children: [C];
-    
-    @State private var selectedParentID: C.P.ID?;
-    @State private var selectedChildID: C.ID?;
-    
-    var body: some View {
-        HStack {
-            Picker(C.kind.rawValue, selection: $selectedParentID) {
-                Text("None").tag(nil as C.P.ID?)
+struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C == C {
+    struct ParentPicker : View {
+        @Binding var target: C.P?;
+        
+        @Query private var parents: [C.P];
+        
+        var body: some View {
+            Picker(C.kind.rawValue, selection: $target) {
+                Text("None").tag(nil as C.P?)
                 ForEach(parents) { parent in
                     Text(parent.name).tag(parent.id)
                 }
             }.labelsHidden()
-            
-            Picker(C.kind.subName, selection: $selectedChildID) {
-                Text("None").tag(nil as C.ID?)
-                if let parentID = selectedParentID, let parent = parents.first(where: {$0.id == parentID } ) {
-                    ForEach(parent.children) { child in
-                        Text(child.name).tag(child.id)
+        }
+    }
+    
+    struct ChildPicker : View  {
+        @Binding var target: C?;
+        @Binding var parent: C.P?;
+        
+        var body: some View {
+            Picker(C.kind.subName, selection: $target) {
+                Text("None").tag(nil as C?)
+                if let parent = parent {
+                    ForEach(parent.children, id: \.self) { child in
+                        Text(child.name).tag(child as C?)
                     }
                 }
             }.labelsHidden()
         }
     }
+    
+    init(target: Binding<C?>) {
+        self._target = target;
+        //self.working = .init(parent_default, child_default)
+    }
+    
+    @Binding var target: C?;
+    @Query private var parents: [C.P];
+    //@Query var children: [C];
+    
+    @State private var selectedParent: C.P?;
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    
+    var body: some View {
+        if horizontalSizeClass == .compact {
+            VStack {
+                ParentPicker(target: $selectedParent)
+                ChildPicker(target: $target, parent: $selectedParent)
+            }
+        }
+        else {
+            HStack {
+                ParentPicker(target: $selectedParent)
+                ChildPicker(target: $target, parent: $selectedParent)
+            }
+        }
+    }
 }
 
 #Preview {
-    var pair: SubCategory.ID? = nil;
-    let bind = Binding<SubCategory.ID?>(
+    var pair: SubCategory? = nil;
+    let bind = Binding<SubCategory?>(
         get: {
             pair
         },
@@ -98,5 +125,5 @@ struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel {
         }
     );
     
-    NamedPairPicker<SubCategory>(target: bind).padding().modelContainer(ModelController.previewContainer)
+    NamedPairPicker(target: bind).padding().modelContainer(ModelController.previewContainer)
 }

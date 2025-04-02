@@ -38,7 +38,7 @@ protocol BoundPairParent : Identifiable, PersistentModel {
     var children: [C] { get set }
     static var kind: NamedPairKind { get}
 }
-protocol BoundPair : Identifiable, PersistentModel, Hashable {
+protocol BoundPair : Identifiable, PersistentModel, Hashable, Equatable {
     associatedtype P: BoundPairParent;
     
     init();

@@ -77,7 +77,7 @@ final class SubAccount : BoundPair, Equatable {
     }
     
     static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
-        lhs.name == rhs.name && lhs.parent == rhs.parent
+        lhs.id == rhs.id
     }
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
