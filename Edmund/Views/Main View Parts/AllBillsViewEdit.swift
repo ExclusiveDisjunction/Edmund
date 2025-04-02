@@ -45,9 +45,11 @@ struct AllBillsViewEdit : View {
     @State private var warning: WarningKind = .noneSelected;
     @State private var deletingAction: DeletingAction?;
     @State private var isDeleting: Bool = false;
-    @State private var showing_inspector: Bool = false;
+    @State private var showingChart: Bool = false;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    
+    @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
     
 #if os(macOS)
     private var popoverMinWidth = CGFloat(300)
@@ -64,7 +66,7 @@ struct AllBillsViewEdit : View {
     
     private func add_bill() {
         withAnimation {
-            let new_bill = Bill(name: "", amount: 0, kind: .subscription)
+            let new_bill = Bill(bill: "", amount: 0)
             modelContext.insert(new_bill)
             selectedBill = new_bill
         }
@@ -102,11 +104,11 @@ struct AllBillsViewEdit : View {
         }
     }
     private func toggle_inspector() {
-        showing_inspector.toggle()
+        showingChart.toggle()
     }
     
-    private var totalPPW: Decimal {
-        bills.reduce(0, {$0 + $1.pricePerWeek})
+    private var totalPPP: Decimal {
+        bills.reduce(0, {$0 + $1.pricePer(showcasePeriod)})
     }
 
     var body: some View {
@@ -114,19 +116,29 @@ struct AllBillsViewEdit : View {
             if horizontalSizeClass == .compact {
                 List {
                     ForEach(self.sortedBills) { bill in
-                        Text("\(bill.name), \(bill.pricePerWeek, format: .currency(code: "USD"))/week").swipeActions(edge: .trailing) {
+                        HStack {
+                            Text(bill.name)
+                            Spacer()
+                            Text("\(bill.pricePer(showcasePeriod), format: .currency(code: "USD"))/\(showcasePeriod.perName)")
+                        }.swipeActions(edge: .trailing) {
                             Button(action: {
-                                deletingAction = .init(data: [bill])
-                                isDeleting = true
+                                selectedBill = bill
                             }) {
-                                Label("Delete", systemImage: "trash")
-                            }.tint(.red)
+                                Label("Inspect", systemImage: "info.circle")
+                            }.tint(.green)
                             
                             Button(action: {
                                 selectedBill = bill
                             }) {
                                 Label("Edit", systemImage: "pencil")
                             }.tint(.blue)
+                            
+                            Button(action: {
+                                deletingAction = .init(data: [bill])
+                                isDeleting = true
+                            }) {
+                                Label("Delete", systemImage: "trash")
+                            }.tint(.red)
                         }
                     }
                 }
@@ -141,8 +153,8 @@ struct AllBillsViewEdit : View {
                     TableColumn("Frequency") { bill in
                         Text(bill.period.rawValue)
                     }
-                    TableColumn("Price per Week") { bill in
-                        Text(bill.pricePerWeek, format: .currency(code: "USD"))
+                    TableColumn("Price per \(showcasePeriod.perName)") { bill in
+                        Text(bill.pricePer(showcasePeriod), format: .currency(code: "USD"))
                     }
                 }.contextMenu(forSelectionType: Bill.ID.self) { selection in
                     if selection.count == 1 {
@@ -168,8 +180,8 @@ struct AllBillsViewEdit : View {
             
             HStack {
                 Spacer()
-                Text("Total Price Per Week:")
-                Text(self.totalPPW, format: .currency(code: "USD"))
+                Text("Total Price Per \(showcasePeriod.perName):")
+                Text(self.totalPPP, format: .currency(code: "USD"))
             }
         }.padding().sheet(item: $selectedBill) { bill in
             BillEditor(bill: bill)
@@ -177,7 +189,11 @@ struct AllBillsViewEdit : View {
             QueryButton(provider: query)
             
             Button(action: toggle_inspector) {
-                Label(showing_inspector ? "Hide Graph" : "Show Graph", systemImage: "chart.pie")
+                Label(showingChart ? "Hide Graph" : "Show Graph", systemImage: "chart.pie")
+            }
+            
+            Button(action: {} ) {
+                Label("Inspect", systemImage: "info.circle")
             }
             
             Button(action: add_bill) {
@@ -214,12 +230,12 @@ struct AllBillsViewEdit : View {
             Button("Cancel", role: .cancel) {
                 deletingAction = nil
             }
-        }.inspector(isPresented: $showing_inspector) {
+        }.sheet(isPresented: $showingChart) {
             Chart(bills) { bill in
                 SectorMark(
                     angle: .value(
                         Text(verbatim: bill.name),
-                        bill.pricePerWeek
+                        bill.pricePer(showcasePeriod)
                     )
                 ).foregroundStyle(by: .value(
                         Text(verbatim: bill.name),

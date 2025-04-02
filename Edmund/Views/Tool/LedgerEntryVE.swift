@@ -26,9 +26,6 @@ struct LedgerEntryVE : View {
         self.isEdit = isEdit
     }
     
-    private func popout() {
-        
-    }
     private func toggleEdit() {
         isEdit.toggle()
     }
@@ -37,31 +34,28 @@ struct LedgerEntryVE : View {
     var body: some View {
         VStack {
             Text(target.memo).font(.title2)
-            HStack {
-                Button(action: toggleEdit) {
-                    Image(systemName: isEdit ? "info.circle" : "pencil").resizable()
-                }.buttonStyle(.borderless)
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(.accent)
-                #if os(iOS)
-                    .padding(.trailing)
-                #endif
-                
-                Button(action: popout) {
-                    Image(systemName: "square.on.square.dashed").foregroundStyle(.accent).font(.headline)
-                }.buttonStyle(.borderless)
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(.accent)
-                #if os(iOS)
-                    .padding(.leading)
-                #endif
-            }
+            Button(action: toggleEdit) {
+                Image(systemName: isEdit ? "info.circle" : "pencil").resizable()
+            }.buttonStyle(.borderless)
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(.accent)
+#if os(iOS)
+                .padding(.trailing)
+#endif
             
             Divider().padding([.top, .bottom])
-        
+            
             Grid {
+                if isEdit {
+                    GridRow {
+                        Text("Memo:")
+                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                        TextField("Name", text: $target.memo).textFieldStyle(.roundedBorder)
+                    }
+                    
+                }
+                
                 GridRow {
                     Text("Credit:")
                         .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
@@ -145,7 +139,7 @@ struct LedgerEntryVE : View {
                     
                     HStack {
                         if isEdit {
-                            NamedPairPicker<SubCategory>(target: $target.category)
+                            NamedPairPicker<SubCategory>($target.category)
                         }
                         else {
                             if let cat = target.category {
@@ -166,7 +160,7 @@ struct LedgerEntryVE : View {
                     
                     HStack {
                         if isEdit {
-                            NamedPairPicker(target: $target.account)
+                            NamedPairPicker($target.account)
                         }
                         else {
                             if let acc = target.account {
@@ -189,5 +183,5 @@ struct LedgerEntryVE : View {
 }
 
 #Preview {
-    LedgerEntryVE(LedgerEntry.exampleEntry, isEdit: true)
+    LedgerEntryVE(LedgerEntry.exampleEntry, isEdit: true).modelContainer(ModelController.previewContainer)
 }

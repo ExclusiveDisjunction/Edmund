@@ -58,7 +58,7 @@ struct BillEditor : View {
 }
 
 #Preview {
-    let bill = Bill(name: "Test", amount: 40, kind: .subscription, period: .monthly)
+    let bill = Bill.exampleBills[0]
     
     BillEditor(bill: bill).modelContainer(ModelController.previewContainer)
 }

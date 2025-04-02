@@ -13,6 +13,7 @@ enum BillsKind : String, Filterable {
     
     case subscription = "Subscription"
     case bill = "Bill"
+    case utility = "Utility"
     
     var id: Self { self }
     
@@ -20,7 +21,11 @@ enum BillsKind : String, Filterable {
         self.rawValue
     }
     var toStringPlural: String {
-        self.rawValue + "s"
+        switch self {
+            case .subscription: "Subscriptions"
+            case .bill: "Bills"
+            case .utility: "Utilities"
+        }
     }
     
     func accepts(_ val: Bill) -> Bool {
@@ -30,7 +35,7 @@ enum BillsKind : String, Filterable {
 enum BillsSort : String, Sortable {
     typealias On = Bill;
     
-    case name = "Name", amount = "Amount", pricePerWeek = "Price Per Week"
+    case name = "Name", amount = "Amount"
     
     var id: Self { self }
     var toString: String {
@@ -38,9 +43,8 @@ enum BillsSort : String, Sortable {
     }
     var ascendingQuestion: String {
         switch self {
-            case .name: "Alphabetical?"
-            case .amount: "Cheapest First?"
-            case .pricePerWeek: "Cheapest First?"
+            case .name: "Alphabetical"
+            case .amount: "Low to High"
         }
     }
     
@@ -48,35 +52,59 @@ enum BillsSort : String, Sortable {
         switch self {
             case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
             case .amount: ascending ? lhs.amount < rhs.amount : lhs.amount > rhs.amount
-            case .pricePerWeek: ascending ? lhs.pricePerWeek < rhs.pricePerWeek : lhs.pricePerWeek > rhs.pricePerWeek
         }
     }
 }
 
 enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
     case weekly = "Weekly"
+    case biWeekly = "Bi-Weekly"
     case monthly = "Monthly"
+    case biMonthly = "Bi-Monthly"
     case quarterly = "Quarterly"
     case semiAnually = "Semi-Anually"
     case anually = "Anually"
     
-    var timesPerYear: Int {
+    var index: Int {
         switch self {
-        case .weekly: 52
-        case .monthly: 12
-        case .quarterly: 4
-        case .semiAnually: 2
-        case .anually: 1
+            case .weekly: 0
+            case .biWeekly: 1
+            case .monthly: 2
+            case .biMonthly: 3
+            case .quarterly: 4
+            case .semiAnually: 5
+            case .anually: 6
         }
     }
-    static func fromTimesPerYear(_ val: Int) -> BillsPeriod {
-        switch val {
-        case 52: return .weekly
-        case 12: return .monthly
-        case 4: return .quarterly
-        case 2: return .semiAnually
-        default: return .anually
+    private static var compTable: [[Decimal]] = {
+        return [
+        //   Week      Bi-Week   Month     Bi-Month  Quarter  HYear    Year
+            [1.0     , 2.0     , 4.0     , 8.0     , 12.0   , 26.0   , 52.0].map { Decimal($0) },
+            [1.0/2.0 , 1.0     , 2.0     , 4.0     , 6.0    , 12.0   , 26.0].map { Decimal($0) },
+            [1.0/4.0 , 1.0/2.0 , 1.0     , 2.0     , 4.0    , 6.0    , 12.0].map { Decimal($0) },
+            [1.0/8.0 , 1.0/4.0 , 1.0/2.0 , 1.0     , 2.0    , 4.0    , 6.0 ].map { Decimal($0) },
+            [1.0/12.0, 1.0/6.0 , 1.0/4.0 , 1.0/2.0 , 1.0    , 2.0    , 4.0 ].map { Decimal($0) },
+            [1.0/26.0, 1.0/12.0, 1.0/6.0 , 1.0/4.0 , 1.0/2.0, 1.0    , 2.0 ].map { Decimal($0) },
+            [1.0/52.0, 1.0/26.0, 1.0/12.0, 1.0/16.0, 1.0/4.0, 1.0/2.0, 1.0 ].map { Decimal($0) }
+        ]
+    }()
+    
+    var perName: String {
+        switch self {
+            case .weekly: "Week"
+            case .biWeekly: "Two Weeks"
+            case .monthly: "Month"
+            case .biMonthly: "Two Months"
+            case .quarterly: "Quarter"
+            case .semiAnually: "Half Year"
+            case .anually: "Year"
         }
+    }
+    
+    func conversionFactor(_ to: BillsPeriod) -> Decimal {
+        let i = self.index, j = to.index
+        
+        return BillsPeriod.compTable[i][j]
     }
     
     var id: Self { self }
@@ -87,128 +115,92 @@ final class Bill : Identifiable, Queryable {
     typealias SortType = BillsSort
     typealias FilterType = BillsKind
     
-    init(name: String, amount: Decimal, kind: BillsKind, period: BillsPeriod = .monthly) {
-        self.id = UUID()
+    convenience init(sub: String, amount: Decimal, period: BillsPeriod = .monthly) {
+        self.init(name: sub, kind: .subscription, amount: amount, child: nil, period: period)
+    }
+    convenience init(bill: String, amount: Decimal, period: BillsPeriod = .monthly) {
+        self.init(name: bill, kind: .bill, amount: amount, child: nil, period: period)
+    }
+    convenience init(utility: String, amounts: [UtilityEntry], period: BillsPeriod = .monthly) {
+        self.init(name: utility, kind: .utility, amount: 0, child: .init(nil, amounts: amounts), period: period)
+        self.child?.parent = self
+    }
+    init(name: String, kind: BillsKind, amount: Decimal, child: UtilityBridge?, period: BillsPeriod) {
         self.name = name
-        self.amount = amount
-        self.isSubscription = kind == .subscription
-        self.timesPerYear = period.timesPerYear
+        self.rawKind = kind.rawValue
+        self.rawAmount = amount
+        self.child = child
+        self.rawPeriod = period.rawValue
+        self.id = UUID()
     }
     
     var id: UUID
     @Attribute(.unique) var name: String
-    var amount: Decimal;
-    var isSubscription: Bool;
+    private var rawAmount: Decimal;
+    private var rawKind: String;
+    private var rawPeriod: String;
+    @Relationship(deleteRule: .cascade, inverse: \UtilityBridge.parent) var child: UtilityBridge?
     
-    var kind: BillsKind {
+    var amount: Decimal {
         get {
-            self.isSubscription ? .subscription : .bill
-        }
-        set(v) {
-            self.isSubscription = v == .subscription
-        }
-    }
-    func kindMatches(_ kind: BillsKind) -> Bool {
-        self.kind == kind
-    }
-    
-    private var timesPerYear: Int;
-    var period: BillsPeriod {
-        get {
-            BillsPeriod.fromTimesPerYear(self.timesPerYear)
-        }
-        set(v) {
-            self.timesPerYear = v.timesPerYear
-        }
-    }
-    
-    var pricePerWeek: Decimal {
-        get {
-            switch self.period {
-            case .weekly: self.amount
-            case .monthly: self.amount / 4
-            case .quarterly: self.amount / 12
-            case .semiAnually: self.amount / 24
-            case .anually: self.amount / 52
+            if let child = child {
+                child.averagePrice
+            }
+            else {
+                self.rawAmount
             }
         }
+        set {
+            self.rawAmount = newValue
+        }
+    }
+    var kind: BillsKind {
+        if child != nil {
+            .utility
+        }
+        else {
+            BillsKind(rawValue: rawKind)!
+        }
     }
     
-    static var exampleBills: [Bill] {
-        [
-            .init(name: "Apple Music", amount: 5.99, kind: .subscription),
-            .init(name: "iCloud", amount: 2.99, kind: .subscription),
-            .init(name: "YouTube Premium", amount: 9.99, kind: .subscription),
-            .init(name: "Student Loan", amount: 56, kind: .bill),
-            .init(name: "Car Insurance", amount: 899, kind: .bill, period: .semiAnually)
-        ]
+    var period: BillsPeriod {
+        get {
+            BillsPeriod(rawValue: self.rawPeriod)!
+        }
+        set {
+            self.rawPeriod = newValue.rawValue
+        }
     }
-}
 
-enum Month: Int, Equatable {
-    case jan = 1
-    case feb = 2
-    case mar = 3
-    case apr = 4
-    case may = 5
-    case jun = 6
-    case jul = 7
-    case aug = 8
-    case sept = 9
-    case oct = 10
-    case nov = 11
-    case dec = 12
-    
-    static func fromString(_ val: String) -> Month {
-        switch val {
-        case "January": .jan
-        case "February": .feb
-        case "March": .mar
-        case "April": .apr
-        case "May": .may
-        case "June": .jun
-        case "July": .jul
-        case "August": .aug
-        case "September": .sept
-        case "October": .oct
-        case "November": .nov
-        case "December": .dec
-        default: .dec
-        }
+    func pricePer(_ period: BillsPeriod) -> Decimal {
+        self.amount * self.period.conversionFactor(period)
     }
     
-    var asString: String {
-        switch self {
-            case .jan: "January"
-            case .feb: "February"
-            case .mar: "March"
-            case .apr: "April"
-            case .may : "May"
-            case .jun: "June"
-            case .jul: "July"
-            case .aug: "August"
-            case .sept: "September"
-            case .oct: "October"
-            case .nov: "November"
-            case .dec: "December"
-        }
-    }
-    var asShortString: String {
-        switch self {
-            case .jan: "Jan"
-            case .feb: "Feb"
-            case .mar: "Mar"
-            case .apr: "Apr"
-            case .may : "May"
-            case .jun: "Jun"
-            case .jul: "Jul"
-            case .aug: "Aug"
-            case .sept: "Sept"
-            case .oct: "Oct"
-            case .nov: "Nov"
-            case .dec: "Dec"
-        }
-    }
+    static let exampleBills: [Bill] = {
+        [
+            .init(sub: "Apple Music", amount: 5.99),
+            .init(sub: "iCloud", amount: 2.99),
+            .init(sub: "YouTube Premium", amount: 9.99),
+            .init(bill: "Student Loan", amount: 56),
+            .init(bill: "Car Insurance", amount: 899, period: .semiAnually),
+            .init(utility: "Gas", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 25))!, 25),
+                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 25))!, 23),
+                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 25))!, 28),
+                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 25))!, 27)]),
+            .init(utility: "Electric", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 17))!, 30),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 17))!, 31),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 17))!, 38),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 17))!, 36)]),
+            .init(utility: "Internet", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 14))!, 34),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 14))!, 25),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 14))!, 35),
+                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 14))!, 35)]),
+            .init(utility: "Water", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 2))!, 10),
+                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 2))!, 12),
+                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 2))!, 14),
+                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 2))!, 15)])
+        ]
+    }()
 }
 
 @Model
@@ -221,49 +213,22 @@ class UtilityEntry: Identifiable {
     var id = UUID()
     var date: Date;
     var amount: Decimal;
-    @Relationship var parent: Utility?;
+    @Relationship var parent: UtilityBridge?;
 }
 
 @Model
-final class Utility: Identifiable { //, Queryable {
-    init(name: String, amounts: [UtilityEntry]) {
-        self.id = UUID()
-        self.name = name
+final class UtilityBridge : Identifiable {
+    init(_ parent: Bill?, amounts: [UtilityEntry] = [], id: UUID = UUID()) {
+        self.id = id
+        self.parent = parent
         self.amounts = amounts
     }
     
-    //typealias SortType = UtilitySort;
-    //typealias FilterType = UtilityFilter;
-    
     var id: UUID;
-    @Attribute(.unique) var name: String
+    @Relationship var parent: Bill?
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) var amounts: [UtilityEntry]
     
-    var pricePerWeek: Decimal {
-        get {
-            let avg = self.amounts.reduce(Decimal(0.0), { $0 + $1.amount }) / Decimal(self.amounts.count)
-            return avg / 4.0;
-        }
-    }
-    
-    static var exampleUtilities: [Utility] {
-        [
-            Utility(name: "Gas", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 25))!, 25),
-                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 25))!, 23),
-                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 25))!, 28),
-                                           .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 25))!, 27)]),
-            Utility(name: "Electric", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 17))!, 30),
-                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 17))!, 31),
-                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 17))!, 38),
-                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 17))!, 36)]),
-            Utility(name: "Internet", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 14))!, 34),
-                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 14))!, 25),
-                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 14))!, 35),
-                                                .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 14))!, 35)]),
-            Utility(name: "Water", amounts: [.init(Calendar.current.date(from: DateComponents(year: 2025, month: 1, day: 2))!, 10),
-                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 2, day: 2))!, 12),
-                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 3, day: 2))!, 14),
-                                             .init(Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 2))!, 15)])
-        ]
+    var averagePrice: Decimal {
+        amounts.reduce(Decimal(0), { $0 + $1.amount} ) / Decimal(amounts.count)
     }
 }

@@ -21,7 +21,6 @@ struct ui_demoApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
-            
         }.modelContainer(sharedModelContainer).commands {
             GeneralCommands()
         }

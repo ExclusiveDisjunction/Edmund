@@ -56,12 +56,6 @@ struct MainView: View {
                 }
                 
                 NavigationLink {
-                    AllUtilitiesViewEdit()
-                } label: {
-                    Text("Utilities")
-                }
-                
-                NavigationLink {
                     
                 } label: {
                     Text("Budget")

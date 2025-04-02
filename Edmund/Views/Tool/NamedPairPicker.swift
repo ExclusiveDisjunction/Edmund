@@ -54,68 +54,38 @@ struct PairEditor : View {
 }
 
 struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C == C {
-    struct ParentPicker : View {
-        @Binding var target: C.P?;
-        
-        @Query private var parents: [C.P];
-        
-        var body: some View {
-            Picker(C.kind.rawValue, selection: $target) {
-                Text("None").tag(nil as C.P?)
-                ForEach(parents) { parent in
-                    Text(parent.name).tag(parent.id)
-                }
-            }.labelsHidden()
-        }
+    init(_ target: Binding<C?>) {
+        selectedParent = target.wrappedValue?.parent
+        _target = target
     }
     
-    struct ChildPicker : View  {
-        @Binding var target: C?;
-        @Binding var parent: C.P?;
-        
-        var body: some View {
+    @Binding var target: C?;
+    @State private var selectedParent: C.P?;
+    @Query private var parents: [C.P];
+    
+    var body: some View {
+        HStack {
+            Picker(C.kind.rawValue, selection: $selectedParent) {
+                Text("None").tag(nil as C.P?)
+                ForEach(parents, id: \.id) { parent in
+                    Text(parent.name).tag(parent as C.P?)
+                }
+            }.labelsHidden()
+            
             Picker(C.kind.subName, selection: $target) {
                 Text("None").tag(nil as C?)
-                if let parent = parent {
-                    ForEach(parent.children, id: \.self) { child in
+                if let parent = selectedParent {
+                    ForEach(parent.children, id: \.id) { child in
                         Text(child.name).tag(child as C?)
                     }
                 }
             }.labelsHidden()
         }
     }
-    
-    init(target: Binding<C?>) {
-        self._target = target;
-        //self.working = .init(parent_default, child_default)
-    }
-    
-    @Binding var target: C?;
-    @Query private var parents: [C.P];
-    //@Query var children: [C];
-    
-    @State private var selectedParent: C.P?;
-    
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    
-    var body: some View {
-        if horizontalSizeClass == .compact {
-            VStack {
-                ParentPicker(target: $selectedParent)
-                ChildPicker(target: $target, parent: $selectedParent)
-            }
-        }
-        else {
-            HStack {
-                ParentPicker(target: $selectedParent)
-                ChildPicker(target: $target, parent: $selectedParent)
-            }
-        }
-    }
 }
 
 #Preview {
-    var pair: SubCategory? = nil;
+    var pair: SubCategory? = SubCategory.exampleSubCategory;
     let bind = Binding<SubCategory?>(
         get: {
             pair
@@ -125,5 +95,5 @@ struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C =
         }
     );
     
-    NamedPairPicker(target: bind).padding().modelContainer(ModelController.previewContainer)
+    NamedPairPicker(bind).padding().modelContainer(ModelController.previewContainer)
 }

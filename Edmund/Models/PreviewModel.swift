@@ -19,7 +19,8 @@ class ModelController {
                 Category.self,
                 SubCategory.self,
                 Bill.self,
-                Utility.self
+                UtilityEntry.self,
+                UtilityBridge.self
             ]
         )
     }()
@@ -50,10 +51,6 @@ class ModelController {
             let bills = Bill.exampleBills;
             for bill in bills {
                 result.mainContext.insert(bill)
-            }
-            let utilities = Utility.exampleUtilities;
-            for utility in utilities {
-                result.mainContext.insert(utility)
             }
             
             return result

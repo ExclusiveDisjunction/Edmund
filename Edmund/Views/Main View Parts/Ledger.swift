@@ -8,34 +8,12 @@
 import SwiftUI
 import SwiftData;
 
-struct LedgerEntryInspector: View {
-    var target: LedgerEntry;
-    
-    #if os(macOS)
-    var labelMinWidth: CGFloat = 60;
-    var labelMaxWidth: CGFloat = 70;
-    #else
-    var labelMinWidth: CGFloat = 80;
-    var labelMaxWidth: CGFloat = 85;
-    #endif
-
-    var body: some View {
-        VStack {
-            Text(target.memo).font(.title2)
-            
-            
-        
-            Spacer()
-        }
-    }
-}
-
 struct LedgerTable: View {
     @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
     
     @State private var selected = Set<LedgerEntry.ID>();
-    @State private var editing: LedgerEntry?;
     @State private var inspecting: LedgerEntry?;
+    @State private var inspectingMode: InspectionMode?;
     @State private var editAlert = false;
     
     @Environment(\.modelContext) private var modelContext;
@@ -55,12 +33,6 @@ struct LedgerTable: View {
 #endif
     }
     
-#if os(macOS)
-    private let showAsBalancesDefault = false
-#else
-    private let showAsBalancesDefault = true
-#endif
-    
     private func remove_spec(_ id: Set<LedgerEntry.ID>) {
         let targets = data.filter { id.contains($0.id ) }
         for target in targets {
@@ -74,31 +46,37 @@ struct LedgerTable: View {
         if selected.count == 1 {
             let first = self.selected.first!;
             
-            editing = self.data.first( where: {$0.id == first } )
+            launchInspector(self.data.first( where: {$0.id == first } ), .edit)
         }
         else {
             editAlert = true
         }
         
-    }
-    private func popout() {
-        openWindow(id: "Ledger")
     }
     private func inspect_selected() {
         let resolved = data.filter { selected.contains($0.id ) }
         
         if resolved.count == 1 {
-            //inspecting = resolved.first!
+            let first = self.selected.first!;
+            launchInspector(self.data.first( where: {$0.id == first } ), .view)
         }
         else {
-#if os(macOS)
-            for item in resolved {
-                
-            }
-#else
             editAlert = true
-#endif
         }
+    }
+    private func launchInspector(_ target: LedgerEntry?, _ mode: InspectionMode) {
+        if let target = target {
+            inspectingMode = mode
+            inspecting = target
+        }
+        else {
+            inspectingMode = nil
+            inspecting = nil
+        }
+    }
+    
+    private func popout() {
+        openWindow(id: "Ledger")
     }
     
     var body: some View {
@@ -107,27 +85,29 @@ struct LedgerTable: View {
                 List {
                     ForEach(data) { entry in
                         HStack {
-                            Text("\"\(entry.memo)\" ")
+                            Text(entry.memo)
+                            Spacer()
                             Text(entry.balance, format: .currency(code: "USD"))
                         }.swipeActions(edge: .trailing) {
+                            Button(action: {
+                                launchInspector(entry, .view)
+                            }) {
+                                Label("Inspect", systemImage: "info.circle")
+                            }.tint(.green)
+                            
+                            Button(action: {
+                                launchInspector(entry, .edit)
+                            }) {
+                                Label("Edit", systemImage: "pencil")
+                            }.tint(.blue)
+                            
                             Button(action: {
                                 modelContext.delete(entry)
                             }) {
                                 Label("Delete", systemImage: "trash")
                             }.tint(.red)
                             
-                            Button(action: {
-                                editing = entry
-                            }) {
-                                Label("Edit", systemImage: "pencil")
-                            }.tint(.blue)
                             
-                            Button(action: {
-                                inspecting = entry
-                                showInspect = true
-                            }) {
-                                Label("Inspect", systemImage: "info.circle")
-                            }.tint(.green)
                         }
                     }
                 }
@@ -135,7 +115,7 @@ struct LedgerTable: View {
             else {
                 Table(data, selection: $selected) {
                     TableColumn("Memo", value: \.memo)
-                    if showAsBalances ?? showAsBalancesDefault  {
+                    if showAsBalances ?? true  {
                         TableColumn("Balance") { item in
                             Text(item.balance, format: .currency(code: "USD"))
                         }
@@ -172,7 +152,7 @@ struct LedgerTable: View {
                     if selection.count == 1 {
                         let first = selection.first!
                         Button(action: {
-                            editing = data.first(where: {$0.id == first})
+                            launchInspector(data.first(where: {$0.id == first}), .edit)
                         }) {
                             Label("Edit", systemImage: "pencil")
                         }
@@ -200,10 +180,8 @@ struct LedgerTable: View {
                 }
                 
                 if horizontalSizeClass != .compact {
-                    Button(action: {
-                        inspect_selected()
-                    }) {
-                        Label(showInspect ? "Hide Inspector" : "Show Inspector", systemImage: "info.circle")
+                    Button(action: inspect_selected) {
+                        Label("Inspect", systemImage: "info.circle")
                     }
                 }
                 
@@ -275,7 +253,15 @@ struct LedgerTable: View {
                 }
             }
         }.sheet(item: $inspecting) { entry in
-            LedgerEntryInspector(target: entry)
+            VStack {
+                LedgerEntryVE(entry, isEdit: inspectingMode ?? .view == .edit)
+                HStack {
+                    Spacer()
+                    Button("Ok") {
+                        inspecting = nil
+                    }.buttonStyle(.borderedProminent)
+                }.padding([.trailing, .bottom])
+            }
         }
     }
 }
