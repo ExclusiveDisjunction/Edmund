@@ -95,5 +95,5 @@ struct BalanceVerification: View {
 }
 
 #Preview {
-    BalanceVerification().modelContainer(ModelController.previewContainer)
+    BalanceVerification().modelContainer(Containers.previewContainer)
 }

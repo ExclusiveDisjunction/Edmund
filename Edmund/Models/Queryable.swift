@@ -120,5 +120,5 @@ struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAcce
 
 #Preview {
     let provider = QueryProvider<Bill>(.name);
-    QueryPopout(provider: provider).modelContainer(ModelController.previewContainer)
+    QueryPopout(provider: provider).modelContainer(Containers.previewContainer)
 }

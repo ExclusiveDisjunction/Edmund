@@ -60,5 +60,5 @@ struct BillEditor : View {
 #Preview {
     let bill = Bill.exampleBills[0]
     
-    BillEditor(bill: bill).modelContainer(ModelController.previewContainer)
+    BillEditor(bill: bill).modelContainer(Containers.previewContainer)
 }

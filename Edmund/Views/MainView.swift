@@ -76,5 +76,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView().frame(width: 800, height: 600).modelContainer(ModelController.previewContainer)
+    MainView().frame(width: 800, height: 600).modelContainer(Containers.previewContainer)
 }

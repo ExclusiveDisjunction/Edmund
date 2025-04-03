@@ -150,5 +150,5 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
 }
 
 #Preview {
-    AllNamedPairViewEdit<Category>().modelContainer(ModelController.previewContainer)
+    AllNamedPairViewEdit<Category>().modelContainer(Containers.previewContainer)
 }

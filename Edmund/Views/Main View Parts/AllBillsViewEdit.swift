@@ -248,5 +248,5 @@ struct AllBillsViewEdit : View {
 }
 
 #Preview {
-    AllBillsViewEdit().modelContainer(ModelController.previewContainer)
+    AllBillsViewEdit().modelContainer(Containers.previewContainer)
 }

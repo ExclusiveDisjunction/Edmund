@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @MainActor
-class ModelController {
+class Containers {
     static let schema: Schema = {
         return Schema(
             [

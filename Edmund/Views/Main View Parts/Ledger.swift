@@ -267,5 +267,5 @@ struct LedgerTable: View {
 }
 
 #Preview {
-    LedgerTable().modelContainer(ModelController.previewContainer)
+    LedgerTable().modelContainer(Containers.previewContainer)
 }

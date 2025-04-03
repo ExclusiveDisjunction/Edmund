@@ -183,5 +183,5 @@ struct LedgerEntryVE : View {
 }
 
 #Preview {
-    LedgerEntryVE(LedgerEntry.exampleEntry, isEdit: true).modelContainer(ModelController.previewContainer)
+    LedgerEntryVE(LedgerEntry.exampleEntry, isEdit: true).modelContainer(Containers.previewContainer)
 }

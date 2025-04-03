@@ -208,5 +208,5 @@ struct BalanceSheet: View {
 }
 
 #Preview {
-    BalanceSheet(vm: BalanceSheetVM()).modelContainer(ModelController.previewContainer)
+    BalanceSheet(vm: BalanceSheetVM()).modelContainer(Containers.previewContainer)
 }
