@@ -30,7 +30,7 @@ class AllNamedPairsVE_MV<T> where T: BoundPairParent{
     }
     
     func refresh(_ new: [T]) {
-        self.data = new.map { .init($0) }
+        self.data = new.sorted(by: { $0.name < $1.name } ).map { .init($0) }
     }
     func set_expansion(_ val: Bool) {
         for inner in data {
@@ -65,7 +65,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     }
     
     var body: some View {
-        List(vm.data.sorted(by: { $0.target.name < $1.target.name })) { helper in
+        List(vm.data) { helper in
             Button(action: {
                 withAnimation(.spring()) {
                     helper.childrenShown.toggle()
@@ -129,8 +129,6 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
         }
         .sheet(item: $selectedChild) { item in
             NamedPairChildVE(item, isEdit: inspectionMode == .edit)
-        }.onAppear {
-            vm.refresh(parents)
         }
     }
 }

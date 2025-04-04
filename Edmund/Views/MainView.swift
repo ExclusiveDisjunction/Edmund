@@ -65,6 +65,7 @@ struct AddProfileView : View {
 struct MainView: View {
     @AppStorage("enableTransactions") var enableTransactions: Bool?;
     @State private var balance_vm: BalanceSheetVM = .init();
+    @State private var accCatvm: AccountsCategoriesVM = .init();
     
     init(current: (ModelContainer, ContainerNames), global: ModelContainer, profiles: Binding<[Profile]>) {
         self.currentContainer = current.0
@@ -110,7 +111,7 @@ struct MainView: View {
                         }
                         
                         NavigationLink {
-                            AccountsCategories()
+                            AccountsCategories(vm: accCatvm)
                         } label: {
                             Text("Organization")
                         }

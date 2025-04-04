@@ -6,6 +6,24 @@
 //
 
 import SwiftUI
+import SwiftData
+
+@Observable
+class AccountsCategoriesVM {
+    init() {
+        accVM = .init()
+        catVM = .init()
+    }
+    
+    var accVM: AllNamedPairsVE_MV<Account>;
+    var catVM: AllNamedPairsVE_MV<Category>;
+    
+    func refresh(acc: [Account], cat: [Category]) {
+        accVM.refresh(acc)
+        catVM.refresh(cat)
+    }
+}
+
 
 struct AccountsCategories : View {
     @Environment(\.modelContext) private var modelContext;
@@ -14,40 +32,65 @@ struct AccountsCategories : View {
     @State private var addingCat: Category?;
     @State private var addingSubCat: SubCategory?
     
-    private var accVM: AllNamedPairsVE_MV<Account> = .init()
-    private var catVM: AllNamedPairsVE_MV<Category> = .init()
+    @Query private var accounts: [Account];
+    @Query private var categories: [Category];
+    
+    var vm: AccountsCategoriesVM;
     
     private func expand_all() {
-        accVM.set_expansion(true)
-        catVM.set_expansion(true)
+        vm.accVM.set_expansion(true)
+        vm.catVM.set_expansion(true)
     }
     private func collapse_all() {
-        accVM.set_expansion(false)
-        catVM.set_expansion(false)
+        vm.accVM.set_expansion(false)
+        vm.catVM.set_expansion(false)
+    }
+    private func refresh() {
+        vm.refresh(acc: accounts, cat: categories)
     }
     
     var body: some View {
         TabView {
-            AllNamedPairViewEdit<Account>(vm: accVM).tabItem {
+            AllNamedPairViewEdit<Account>(vm: vm.accVM).tabItem {
                 Text("Accounts")
             }
-            AllNamedPairViewEdit<Category>(vm: catVM).tabItem {
+            AllNamedPairViewEdit<Category>(vm: vm.catVM).tabItem {
                 Text("Categories")
             }
         }.toolbar(id: "accountsCategoriesToolbar") {
             ToolbarItem(id: "add", placement: .primaryAction) {
                 Menu {
                     Text("Accounts")
-                    Button("Add Account", action: { addingAcc = .init(); modelContext.insert(addingAcc!) })
-                    Button("Add Sub Account", action: { addingSubAcc = .init("", parent: nil); modelContext.insert(addingSubAcc!) })
+                    Button("Add Account", action: {
+                        addingAcc = .init();
+                        vm.accVM.data.append(.init(addingAcc!))
+                        modelContext.insert(addingAcc!)
+                        
+                    } )
+                    Button("Add Sub Account", action: {
+                        addingSubAcc = .init("", parent: nil);
+                        modelContext.insert(addingSubAcc!)
+                    })
                     
                     Divider()
                     
                     Text("Categories")
-                    Button("Add Category", action: { addingCat = .init(); modelContext.insert(addingCat!) })
-                    Button("Add Sub Category", action: { addingSubAcc = .init("", parent: nil); modelContext.insert(addingSubCat!) })
+                    Button("Add Category", action: {
+                        addingCat = .init();
+                        modelContext.insert(addingCat!)
+                    })
+                    Button("Add Sub Category", action: {
+                        addingSubAcc = .init("", parent: nil);
+                        vm.catVM.data.append(.init(addingCat!))
+                        modelContext.insert(addingSubCat!)
+                    })
                 } label: {
                     Label("Add", systemImage: "plus")
+                }
+            }
+            ToolbarItem(id: "refresh", placement: .primaryAction) {
+                Button(action: self.refresh) {
+                    Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
                 }
             }
             
@@ -71,9 +114,10 @@ struct AccountsCategories : View {
             NamedPairChildVE(sub_category, isEdit: true)
         }.navigationTitle("Transaction Organization")
             .toolbarRole(.editor)
+            .onAppear(perform: self.refresh)
     }
 }
 
 #Preview {
-    AccountsCategories().modelContainer(Containers.debugContainer)
+    AccountsCategories(vm: .init()).modelContainer(Containers.debugContainer)
 }
