@@ -84,9 +84,11 @@ struct MainView: View {
     var body: some View {
         NavigationSplitView {
             VStack {
-                Text("Edmund").font(.title)
-                Text("Personal Finances").font(.subheadline).italic()
-                Text("Viewing profile '\(selectedProfile)'").font(.subheadline)
+                VStack {
+                    Text("Edmund").font(.title)
+                    Text("Personal Finances").font(.subheadline).italic()
+                    Text("Viewing profile '\(selectedProfile)'").font(.subheadline)
+                }.padding(.bottom).backgroundStyle(.background.secondary)
                 List {
                     NavigationLink {
                         Homepage()
@@ -96,27 +98,21 @@ struct MainView: View {
                     
                     if enableTransactions ?? true {
                         NavigationLink {
-                            LedgerTable()
+                            LedgerTable(profile: $selectedProfile)
                         } label: {
                             Text("Ledger")
                         }
                         
                         NavigationLink {
-                            BalanceSheet(vm: balance_vm)
+                            BalanceSheet(profile: $selectedProfile, vm: balance_vm)
                         } label: {
                             Text("Balance Sheet")
                         }
                         
                         NavigationLink {
-                            AllNamedPairViewEdit<Account>()
+                            AccountsCategories()
                         } label: {
-                            Text("Accounts")
-                        }
-                        
-                        NavigationLink {
-                            AllNamedPairViewEdit<Category>()
-                        } label: {
-                            Text("Categories")
+                            Text("Organization")
                         }
                     }
                     
@@ -155,7 +151,7 @@ struct MainView: View {
                     }) {
                         Image(systemName: "plus")
                     }
-                }.padding()
+                }.padding().backgroundStyle(.background.secondary)
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             Homepage()

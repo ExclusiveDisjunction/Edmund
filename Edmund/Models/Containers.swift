@@ -76,7 +76,6 @@ class Containers {
             fatalError("Could not create Debug ModelContainer: \(error)")
         }
     }()
-    
     static let personalContainer: ModelContainer = {
         do {
             return try getNamedContainer("personal")
@@ -84,7 +83,6 @@ class Containers {
             fatalError("Could not create Personal ModelContainer: \(error)")
         }
     }()
-    
     static let globalContainer: ModelContainer = {
         let schema = Schema([ Profile.self ])
         let configuration = ModelConfiguration("global", schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
@@ -95,6 +93,8 @@ class Containers {
             fatalError("Could not create Global ModelContainer: \(error)")
         }
     }()
+    
+    static var openContainers: [Profile.ID: ModelContainer] = [:]
     
     static var defaultContainer: (ModelContainer, ContainerNames) {
         #if DEBUG
@@ -112,9 +112,29 @@ class Containers {
     }
     
     static func getNamedContainer(_ name: String) throws -> ModelContainer {
-        let configuration = ModelConfiguration(name, schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
-        
-        return try ModelContainer(for: schema, configurations: [configuration ] )
+        if name == ContainerNames.debug.name {
+#if DEBUG
+            return debugContainer
+#else
+            throw NSError(domain: "Attemted to get debug container in non debug build", code: 0, userInfo: nil)
+#endif
+        }
+        else if name == ContainerNames.personal.name {
+            return personalContainer
+        }
+        else {
+            if let result = openContainers[name]{
+                return result
+            }
+            else {
+                let configuration = ModelConfiguration(name, schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
+                
+                let result = try ModelContainer(for: schema, configurations: [configuration ] )
+                openContainers[name] = result
+                
+                return result
+            }
+        }
     }
     static func getContainer(_ target: ContainerNames) throws -> ModelContainer {
         switch target {
@@ -127,7 +147,6 @@ class Containers {
             case .global: return globalContainer
             case .personal: return personalContainer
             case .named(let name): return try getNamedContainer(name)
-            case _: throw NSError(domain: "Unknown container", code: 0, userInfo: nil)
         }
     }
 }

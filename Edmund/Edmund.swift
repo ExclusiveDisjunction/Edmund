@@ -50,6 +50,40 @@ struct EdmundApp: App {
             GeneralCommands()
         }
         
+        WindowGroup("Ledger", id: "ledger", for: Profile.ID.self ) { profile in
+            if let r_profile = profile.wrappedValue {
+                if let resolvedProfile = profiles.first(where: {$0.name == r_profile } ), let container = try? Containers.getNamedContainer(resolvedProfile.name) {
+                    NavigationStack {
+                        LedgerWindow(profile: profile).modelContainer(container)
+                    }
+                } else {
+                    Text("Was not able to resolve profile").italic().font(.title2)
+                }
+            }
+            else {
+                NavigationStack {
+                    LedgerWindow(profile: profile).modelContainer(Containers.defaultContainer.0)
+                }
+            }
+        }
+        
+        WindowGroup("Balance Sheet", id: "balanceSheet", for: Profile.ID.self ) { profile in
+            if let r_profile = profile.wrappedValue {
+                if let resolvedProfile = profiles.first(where: {$0.name == r_profile } ), let container = try? Containers.getNamedContainer(resolvedProfile.name) {
+                    NavigationStack {
+                        BalanceSheetWindow(profile: profile).modelContainer(container)
+                    }
+                } else {
+                    Text("Was not able to resolve profile").italic().font(.title2)
+                }
+            }
+            else {
+                NavigationStack {
+                    BalanceSheetWindow(profile: profile).modelContainer(Containers.defaultContainer.0)
+                }
+            }
+        }
+        
         #if os(macOS)
         Settings {
             SettingsView().preferredColorScheme(colorScheme)

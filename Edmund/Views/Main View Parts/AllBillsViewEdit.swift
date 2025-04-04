@@ -188,43 +188,57 @@ struct AllBillsViewEdit : View {
             }
         }.padding().sheet(item: $selectedBill) { bill in
             BillEditor(bill: bill)
-        }.toolbar {
-            QueryButton(provider: query)
-            
-            Button(action: toggle_inspector) {
-                Label(showingChart ? "Hide Graph" : "Show Graph", systemImage: "chart.pie")
+        }.toolbar(id: "billsToolbar") {
+            ToolbarItem(id: "query", placement: .secondaryAction) {
+                QueryButton(provider: query)
             }
             
-            Button(action: {} ) {
-                Label("Inspect", systemImage: "info.circle")
-            }
-            
-            Menu {
-                Button("Bill", action: {
-                    add_bill(.bill)
-                })
-                
-                Button("Subscription", action: {
-                    add_bill(.subscription)
-                })
-                
-                Button("Utility", action: {
-                    add_bill(.utility)
-                })
-            } label: {
-                Label("Add", systemImage: "plus")
-            }
-    
-            if horizontalSizeClass != .compact {
-                Button(action: edit_selected) {
-                    Label("Edit", systemImage: "pencil")
-                }
-                
-                Button(action: remove_selected) {
-                    Label("Remove", systemImage: "trash").foregroundStyle(.red)
+            ToolbarItem(id: "graph", placement: .secondaryAction) {
+                Button(action: toggle_inspector) {
+                    Label(showingChart ? "Hide Graph" : "Show Graph", systemImage: "chart.pie")
                 }
             }
-        }.navigationTitle("Bills").alert("Warning", isPresented: $showWarning, actions: {
+            
+            ToolbarItem(id: "inspect", placement: .secondaryAction) {
+                Button(action: {} ) {
+                    Label("Inspect", systemImage: "info.circle")
+                }
+            }
+            
+            ToolbarItem(id: "general", placement: .primaryAction) {
+                ControlGroup {
+                    Menu {
+                        Button("Bill", action: {
+                            add_bill(.bill)
+                        })
+                        
+                        Button("Subscription", action: {
+                            add_bill(.subscription)
+                        })
+                        
+                        Button("Utility", action: {
+                            add_bill(.utility)
+                        })
+                    } label: {
+                        Label("Add", systemImage: "plus")
+                    }
+                    
+                    
+                    if horizontalSizeClass != .compact {
+                        Button(action: edit_selected) {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        
+                        Button(action: remove_selected) {
+                            Label("Remove", systemImage: "trash").foregroundStyle(.red)
+                        }
+                    }
+                }
+            }
+            
+            
+        }.toolbarRole(.editor)
+            .navigationTitle("Bills").alert("Warning", isPresented: $showWarning, actions: {
             Button("Ok", action: {
                 showWarning = false
             })

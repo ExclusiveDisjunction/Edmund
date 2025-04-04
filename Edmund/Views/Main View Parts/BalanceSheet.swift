@@ -8,6 +8,22 @@
 import SwiftUI
 import SwiftData
 
+struct BalanceSheetWindow : View {
+    init(profile: Binding<String?>, vm: BalanceSheetVM = .init()) {
+        self._profileName = profile
+        self.vm = vm
+    }
+    @Binding var profileName: String?;
+    @Bindable var vm: BalanceSheetVM;
+    
+    var body: some View {
+        BalanceSheet(profile: Binding(
+            get: { profileName ?? Containers.defaultContainerName.name },
+            set: { profileName = $0 }
+        ), isPopout: true, vm: vm)
+    }
+}
+
 struct BalanceResolver {
     static func compileBalances(_ on: [LedgerEntry]) -> Dictionary<UUID, (Decimal, Decimal)> {
         return BalanceResolver.compileBalancesSubAccounts(on).reduce(into: [:]) { $0[$1.key.id] = $1.value }
@@ -66,6 +82,7 @@ struct BalanceResolver {
     }
 }
 
+@Observable
 class BalanceSheetAccount : Identifiable {
     init(name: String, subs: [BalanceSheetBalance]) {
         self.name = name;
@@ -81,6 +98,7 @@ class BalanceSheetAccount : Identifiable {
     }
     var expanded = true;
 }
+@Observable
 class BalanceSheetBalance : Identifiable {
     init(_ name: String, credits: Decimal, debits: Decimal) {
         self.name = name
@@ -118,12 +136,36 @@ class BalanceSheetVM {
 }
 
 struct BalanceSheet: View {
-    @Query var transactions: [LedgerEntry];
-    @Bindable var vm: BalanceSheetVM;
+    @Binding var profile: String;
+    @State var isPopout = false;
+    var vm: BalanceSheetVM;
+    
+    @Query private var transactions: [LedgerEntry];
+    
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.openWindow) private var openWindow;
+    
+    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     
     private func update_balances() {
         vm.computeBalances(trans: transactions);
+    }
+    private func expand_all() {
+        withAnimation(.spring()) {
+            for element in vm.computed {
+                element.expanded = true
+            }
+        }
+    }
+    private func collapse_all() {
+        withAnimation(.spring()) {
+            for element in vm.computed {
+                element.expanded = false
+            }
+        }
+    }
+    private func popout() {
+        openWindow(id: "balanceSheet", value: profile)
     }
     
     var body: some View {
@@ -137,11 +179,17 @@ struct BalanceSheet: View {
                     VStack {
                         ForEach(vm.computed) { (item: BalanceSheetAccount) in
                             VStack {
-                                HStack {
-                                    Text(item.name).font(.title2)
-                                    Text("\(item.balance, format: .currency(code: "USD"))").foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
-                                    Spacer()
-                                }.padding()
+                                Button(action: {
+                                    withAnimation(.spring()) {
+                                        item.expanded.toggle()
+                                    }
+                                }) {
+                                    HStack {
+                                        Label(item.name, systemImage: item.expanded ? "chevron.down" : "chevron.right").font(.title2)
+                                        Text("\(item.balance, format: .currency(code: "USD"))").foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
+                                        Spacer()
+                                    }.contentShape(Rectangle())
+                                }.padding().buttonStyle(.borderless)
                                 
                                 if item.expanded {
                                     Grid {
@@ -175,17 +223,43 @@ struct BalanceSheet: View {
                 }
             }
         }.onAppear(perform: update_balances)
-        .toolbar {
-            Button(action: update_balances) {
-                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            .toolbar(id: "balanceSheetToolbar") {
+                ToolbarItem(id: "refresh", placement: .primaryAction) {
+                    Button(action: update_balances) {
+                        Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+                    }
+                }
+                
+                ToolbarItem(id: "view", placement: .secondaryAction) {
+                    ControlGroup {
+                        Button(action: collapse_all) {
+                            Label("Collapse All", systemImage: "arrow.up.to.line")
+                        }
+                        Button(action: expand_all) {
+                            Label("Expand All", systemImage: "arrow.down.to.line")
+                        }
+                    }
+                }
+                
+                ToolbarItem(id: "popout", placement: .secondaryAction) {
+                    Button(action: popout) {
+                        Label("Open in a new Window", systemImage: "rectangle.badge.plus")
+                    }
+                }
             }
-        }
-        .navigationTitle("Balance Sheet")
-        .padding()
+            .navigationTitle("Balance Sheet \(isPopout ? "for \(profile)" : "")")
+            .padding()
+            .toolbarRole(.editor)
         
     }
 }
 
 #Preview {
-    BalanceSheet(vm: BalanceSheetVM()).modelContainer(Containers.debugContainer)
+    var profile: String = ContainerNames.debug.name
+    let bind = Binding(
+        get: { profile },
+        set: { profile = $0 }
+    )
+    
+    BalanceSheet(profile: bind, vm: BalanceSheetVM()).modelContainer(Containers.debugContainer)
 }
