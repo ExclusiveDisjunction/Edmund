@@ -49,7 +49,10 @@ struct AllBillsViewEdit : View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
-    @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
+    @AppStorage("showcasePeriod") private var rawShowcasePeriod: BillsPeriod?;
+    private var showcasePeriod: BillsPeriod {
+        rawShowcasePeriod ?? .weekly
+    }
     
 #if os(macOS)
     private var popoverMinWidth = CGFloat(300)
@@ -64,9 +67,9 @@ struct AllBillsViewEdit : View {
         query.apply(bills)
     }
     
-    private func add_bill() {
+    private func add_bill(_ kind: BillsKind = .bill) {
         withAnimation {
-            let new_bill = Bill(bill: "", amount: 0)
+            let new_bill = Bill(name: "", kind: kind, amount: 0, child: kind == .utility ? UtilityBridge(nil) : nil, period: .monthly)
             modelContext.insert(new_bill)
             selectedBill = new_bill
         }
@@ -196,7 +199,19 @@ struct AllBillsViewEdit : View {
                 Label("Inspect", systemImage: "info.circle")
             }
             
-            Button(action: add_bill) {
+            Menu {
+                Button("Bill", action: {
+                    add_bill(.bill)
+                })
+                
+                Button("Subscription", action: {
+                    add_bill(.subscription)
+                })
+                
+                Button("Utility", action: {
+                    add_bill(.utility)
+                })
+            } label: {
                 Label("Add", systemImage: "plus")
             }
     
@@ -231,7 +246,7 @@ struct AllBillsViewEdit : View {
                 deletingAction = nil
             }
         }.sheet(isPresented: $showingChart) {
-            Chart(bills) { bill in
+            Chart(bills.sorted(by: { $0.amount < $1.amount } )) { bill in
                 SectorMark(
                     angle: .value(
                         Text(verbatim: bill.name),
@@ -243,10 +258,13 @@ struct AllBillsViewEdit : View {
                     )
                 )
             }.padding()
+            #if os(macOS)
+                .frame(minHeight: 350)
+            #endif
         }
     }
 }
 
 #Preview {
-    AllBillsViewEdit().modelContainer(Containers.previewContainer)
+    AllBillsViewEdit().modelContainer(Containers.debugContainer)
 }

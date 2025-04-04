@@ -17,21 +17,9 @@ struct LedgerTable: View {
     @State private var editAlert = false;
     
     @Environment(\.modelContext) private var modelContext;
-    @Environment(\.openWindow) private var openWindow;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
-    @AppStorage("showAsBalances") private var showAsBalances: Bool?;
-    
-    private var shouldShowPopoutButton: Bool {
-#if os(macOS)
-        return true
-#else
-        if #available(iOS 16.0, *) {
-            return UIDevice.current.userInterfaceIdiom == .pad
-        }
-        return false
-#endif
-    }
+    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     
     private func remove_spec(_ id: Set<LedgerEntry.ID>) {
         let targets = data.filter { id.contains($0.id ) }
@@ -75,10 +63,6 @@ struct LedgerTable: View {
         }
     }
     
-    private func popout() {
-        openWindow(id: "Ledger")
-    }
-    
     var body: some View {
         VStack {
             if horizontalSizeClass == .compact {
@@ -115,16 +99,16 @@ struct LedgerTable: View {
             else {
                 Table(data, selection: $selected) {
                     TableColumn("Memo", value: \.memo)
-                    if showAsBalances ?? true  {
+                    if ledgerStyle == .none {
                         TableColumn("Balance") { item in
                             Text(item.balance, format: .currency(code: "USD"))
                         }
                     }
                     else {
-                        TableColumn("Credits") { item in
+                        TableColumn(ledgerStyle == .standard ? "Debit" : "Credits") { item in
                             Text(item.credit, format: .currency(code: "USD"))
                         }
-                        TableColumn("Debits") { item in
+                        TableColumn(ledgerStyle == .standard ? "Credit" : "Debits") { item in
                             Text(item.debit, format: .currency(code: "USD"))
                         }
                     }
@@ -173,12 +157,6 @@ struct LedgerTable: View {
         .navigationTitle("Ledger")
         .toolbar {
             ToolbarItemGroup {
-                if shouldShowPopoutButton {
-                    Button(action: popout) {
-                        Label("Open in another Window", systemImage: "square.on.square.dashed")
-                    }
-                }
-                
                 if horizontalSizeClass != .compact {
                     Button(action: inspect_selected) {
                         Label("Inspect", systemImage: "info.circle")
@@ -267,5 +245,5 @@ struct LedgerTable: View {
 }
 
 #Preview {
-    LedgerTable().modelContainer(Containers.previewContainer)
+    LedgerTable().modelContainer(Containers.debugContainer)
 }

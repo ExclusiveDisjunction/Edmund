@@ -64,5 +64,5 @@ struct NamedPairChildEditor<C> : View where C: BoundPair, C.P: PersistentModel {
 #Preview {
     let child = Account.exampleAccounts[0].children[0]
     
-    NamedPairChildEditor(target: child).modelContainer(Containers.previewContainer)
+    NamedPairChildEditor(target: child).modelContainer(Containers.debugContainer)
 }

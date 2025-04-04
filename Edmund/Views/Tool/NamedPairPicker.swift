@@ -95,5 +95,5 @@ struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C =
         }
     );
     
-    NamedPairPicker(bind).padding().modelContainer(Containers.previewContainer)
+    NamedPairPicker(bind).padding().modelContainer(Containers.debugContainer)
 }

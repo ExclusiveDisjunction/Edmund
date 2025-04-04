@@ -121,24 +121,9 @@ struct BalanceSheet: View {
     @Query var transactions: [LedgerEntry];
     @Bindable var vm: BalanceSheetVM;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    @Environment(\.openWindow) private var openWindow;
-    
-    private var shouldShowPopoutButton: Bool {
-#if os(macOS)
-        return true
-#else
-        if #available(iOS 16.0, *) {
-            return UIDevice.current.userInterfaceIdiom == .pad
-        }
-        return false
-#endif
-    }
     
     private func update_balances() {
         vm.computeBalances(trans: transactions);
-    }
-    private func popout() {
-        openWindow(id: "Balance Sheet")
     }
     
     var body: some View {
@@ -191,12 +176,6 @@ struct BalanceSheet: View {
             }
         }.onAppear(perform: update_balances)
         .toolbar {
-            if shouldShowPopoutButton {
-                Button(action: popout) {
-                    Label("Open in another Window", systemImage: "square.on.square.dashed")
-                }
-            }
-            
             Button(action: update_balances) {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
             }
@@ -208,5 +187,5 @@ struct BalanceSheet: View {
 }
 
 #Preview {
-    BalanceSheet(vm: BalanceSheetVM()).modelContainer(Containers.previewContainer)
+    BalanceSheet(vm: BalanceSheetVM()).modelContainer(Containers.debugContainer)
 }

@@ -12,6 +12,7 @@ struct LedgerEntryVE : View {
     
     @Bindable var target: LedgerEntry;
     @State private var isEdit: Bool;
+    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     
 #if os(macOS)
     let labelMinWidth: CGFloat = 60;
@@ -56,32 +57,34 @@ struct LedgerEntryVE : View {
                     
                 }
                 
-                GridRow {
-                    Text("Credit:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        if isEdit {
-                            TextField("Credit", value: $target.credit, format: .currency(code: "USD")).textFieldStyle(.roundedBorder)
+                if ledgerStyle != .none || isEdit {
+                    GridRow {
+                        Text(ledgerStyle == .none ? "Money In:" : ledgerStyle == .standard ? "Debit:" : "Credit:")
+                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                        
+                        HStack {
+                            if isEdit {
+                                TextField("Credit", value: $target.credit, format: .currency(code: "USD")).textFieldStyle(.roundedBorder)
+                            }
+                            else {
+                                Text(target.credit, format: .currency(code: "USD"))
+                            }
+                            Spacer()
                         }
-                        else {
-                            Text(target.credit, format: .currency(code: "USD"))
-                        }
-                        Spacer()
                     }
-                }
-                GridRow {
-                    Text("Debit:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        if isEdit {
-                            TextField("Debit", value: $target.debit, format: .currency(code: "USD")).textFieldStyle(.roundedBorder)
+                    GridRow {
+                        Text(ledgerStyle == .none ? "Money Out:" : ledgerStyle == .standard ? "Credit:" : "Debit:")
+                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                        
+                        HStack {
+                            if isEdit {
+                                TextField("Debit", value: $target.debit, format: .currency(code: "USD")).textFieldStyle(.roundedBorder)
+                            }
+                            else {
+                                Text(target.debit, format: .currency(code: "USD"))
+                            }
+                            Spacer()
                         }
-                        else {
-                            Text(target.debit, format: .currency(code: "USD"))
-                        }
-                        Spacer()
                     }
                 }
                 GridRow {
@@ -183,5 +186,5 @@ struct LedgerEntryVE : View {
 }
 
 #Preview {
-    LedgerEntryVE(LedgerEntry.exampleEntry, isEdit: true).modelContainer(Containers.previewContainer)
+    LedgerEntryVE(LedgerEntry.exampleEntry, isEdit: true).modelContainer(Containers.debugContainer)
 }

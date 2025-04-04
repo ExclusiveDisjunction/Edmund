@@ -7,11 +7,23 @@
 
 import SwiftUI
 
-struct SettingsView : View {
+enum ThemeMode : String, Identifiable, CaseIterable {
+    case light = "Light", dark = "Dark", system = "System"
+    
+    var id: Self { self }
+}
 
-    @AppStorage("accountingStyle") private var accountingStyle: Bool = true;
+enum LedgerStyle: String, Identifiable, CaseIterable {
+    case none = "Do not show as Accounting Style", standard = "Standard Accounting Style", reversed = "Reversed Accounting Style"
+    
+    var id: Self { self }
+}
+
+struct SettingsView : View {
+    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("enableTransactions") private var enableTransactions: Bool = true
     @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
+    @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     
     var body: some View {
         Form {
@@ -24,9 +36,13 @@ struct SettingsView : View {
             }
             
             Section() {
-                Toggle("Accounting Style Ledger", isOn: $accountingStyle)
+                Picker("Accounting Style", selection: $ledgerStyle) {
+                    ForEach(LedgerStyle.allCases, id: \.id) { style in
+                        Text(style.rawValue).tag(style)
+                    }
+                }
             } header: {
-                Text("Accounting Style")
+                Text("Styles")
             }
                 footer: {
                 Text("When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently.")
@@ -36,6 +52,14 @@ struct SettingsView : View {
                 Picker("Budgeting Period", selection: $showcasePeriod) {
                     ForEach(BillsPeriod.allCases, id: \.self) { bill in
                         Text(bill.rawValue).tag(bill)
+                    }
+                }
+            }
+            
+            Section(header: Text("Appearance")) {
+                Picker("App Theme", selection: $themeMode) {
+                    ForEach(ThemeMode.allCases, id: \.id) { theme in
+                        Text(theme.rawValue).tag(theme)
                     }
                 }
             }

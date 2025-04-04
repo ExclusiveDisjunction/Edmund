@@ -9,41 +9,55 @@ import SwiftUI
 import SwiftData
 
 @main
-struct ui_demoApp: App {
-    @Environment(\.openWindow) var openWindow;
+struct EdmundApp: App {
+    init() {
+        let globalContainer = Containers.globalContainer
+        self.globalContainer = globalContainer
+        
+        self.defaultContainer = Containers.defaultContainer
+        
+        var startingProfiles: [Profile];
+        #if DEBUG
+        startingProfiles = [Profile("Debug"), Profile("Personal")]
+        #else
+        startingProfiles = [Profile("Personal")]
+        #endif
     
-    /*
-#if DEBUG
-    var sharedModelContainer = Containers.previewContainer
-#else
-    var sharedModelContainer = Containers.sharedModelContainer
-#endif
-    */
+        let foundProfiles = (try? globalContainer.mainContext.fetch(FetchDescriptor<Profile>())) ?? [];
+        startingProfiles.append(contentsOf: foundProfiles)
+        
+        self.profiles = startingProfiles
+    }
     
-    var sharedModelContainer = Containers.sharedModelContainer
+    var defaultContainer: (ModelContainer, ContainerNames);
+    var globalContainer: ModelContainer;
+    @State private var profiles: [Profile];
+    
+    @AppStorage("themeMode") private var themeMode: ThemeMode?;
+    
+    var colorScheme: ColorScheme? {
+        switch themeMode {
+            case .light: return .light
+            case .dark: return .dark
+            default: return nil
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
-            MainView()
-        }.modelContainer(sharedModelContainer).commands {
+            MainView(current: defaultContainer, global: globalContainer, profiles: $profiles).preferredColorScheme(colorScheme)
+        }.commands {
             GeneralCommands()
         }
         
-        WindowGroup(id: "Balance Sheet") {
-            NavigationStack {
-                BalanceSheet(vm: .init())
-            }
-        }.modelContainer(sharedModelContainer)
-        WindowGroup(id: "Ledger") {
-            NavigationStack {
-                LedgerTable()
-            }
-        }.modelContainer(sharedModelContainer)
-        
         #if os(macOS)
         Settings {
-            SettingsView()
+            SettingsView().preferredColorScheme(colorScheme)
         }
         #endif
+        
+        WindowGroup(id: "help") {
+            HelpView()
+        }
     }
 }
