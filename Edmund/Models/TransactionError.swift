@@ -5,23 +5,23 @@
 //  Created by Hollan on 12/24/24.
 //
 
-class TransactionError : Error {
-    init(kind: Kind, on: String, message: String? = nil) {
+public class TransactionError : Error {
+    public init(kind: Kind, on: String, message: String? = nil) {
         self.kind = kind
         self.on = on;
         self.message = message ??  "";
     }
     
-    enum Kind {
+    public enum Kind {
         case empty_argument
         case invalid_value
     }
     
-    let kind: Kind;
-    let on: String;
-    let message: String;
+    public let kind: Kind;
+    public let on: String;
+    public let message: String;
     
-    var localizedDescription: String {
+    public var localizedDescription: String {
         get {
             switch kind {
             case .empty_argument: on + " was empty"

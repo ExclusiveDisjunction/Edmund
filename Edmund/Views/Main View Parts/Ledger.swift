@@ -97,33 +97,29 @@ struct LedgerTable: View {
     var body: some View {
         VStack {
             if horizontalSizeClass == .compact {
-                List {
-                    ForEach(data) { entry in
-                        HStack {
-                            Text(entry.memo)
-                            Spacer()
-                            Text(entry.balance, format: .currency(code: "USD"))
-                        }.swipeActions(edge: .trailing) {
-                            Button(action: {
-                                launchInspector(entry, .view)
-                            }) {
-                                Label("Inspect", systemImage: "info.circle")
-                            }.tint(.green)
-                            
-                            Button(action: {
-                                launchInspector(entry, .edit)
-                            }) {
-                                Label("Edit", systemImage: "pencil")
-                            }.tint(.blue)
-                            
-                            Button(action: {
-                                modelContext.delete(entry)
-                            }) {
-                                Label("Delete", systemImage: "trash")
-                            }.tint(.red)
-                            
-                            
-                        }
+                List(data, selection: $selected) { entry in
+                    HStack {
+                        Text(entry.memo)
+                        Spacer()
+                        Text(entry.balance, format: .currency(code: "USD"))
+                    }.swipeActions(edge: .trailing) {
+                        Button(action: {
+                            launchInspector(entry, .view)
+                        }) {
+                            Label("Inspect", systemImage: "info.circle")
+                        }.tint(.green)
+                        
+                        Button(action: {
+                            launchInspector(entry, .edit)
+                        }) {
+                            Label("Edit", systemImage: "pencil")
+                        }.tint(.blue)
+                        
+                        Button(action: {
+                            modelContext.delete(entry)
+                        }) {
+                            Label("Delete", systemImage: "trash")
+                        }.tint(.red)
                     }
                 }
             }
@@ -264,7 +260,7 @@ struct LedgerTable: View {
                     
                     if horizontalSizeClass != .compact {
                         Button(action: edit_selected) {
-                            Label("Enact", systemImage: "pencil")
+                            Label("Edit", systemImage: "pencil")
                         }.help("Edit the selected transaction")
                         
                         Button(action: remove_selected) {
@@ -273,6 +269,12 @@ struct LedgerTable: View {
                     }
                 }
             }
+                
+#if os(iOS)
+            ToolbarItem(id: "edit", placement: .primaryAction) {
+                EditButton()
+            }
+#endif
         }.sheet(item: $inspecting) { entry in
             VStack {
                 LedgerEntryVE(entry, isEdit: inspectingMode ?? .view == .edit)

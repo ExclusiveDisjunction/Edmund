@@ -13,10 +13,10 @@ struct GeneralCommands : Commands {
     var body: some Commands {
         CommandMenu("Ledger") {
             Button("Show Balance Sheet") {
-                openWindow(id: "Balance Sheet")
+                openWindow(id: "balanceSheet")
             }.keyboardShortcut("b", modifiers: [.command, .shift])
             Button("Show Ledger") {
-                openWindow(id: "Ledger")
+                openWindow(id: "ledger")
             }.keyboardShortcut("l", modifiers: [.command, .shift])
         }
     }

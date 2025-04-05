@@ -8,15 +8,15 @@
 import Foundation
 import SwiftData
 
-enum ContainerNames: Equatable, Identifiable, Hashable, Codable {
+public enum ContainerNames: Equatable, Identifiable, Hashable, Codable {
     case debug
     case personal
     case global
     case named(String)
     
-    var id: Self { self }
+    public var id: Self { self }
     
-    var name: String {
+    public var name: String {
         switch self {
             case .debug : "Debug"
             case .personal: "Personal"
@@ -27,8 +27,8 @@ enum ContainerNames: Equatable, Identifiable, Hashable, Codable {
 }
 
 @MainActor
-class Containers {
-    static let schema: Schema = {
+public class Containers {
+    public static let schema: Schema = {
         return Schema(
             [
                 LedgerEntry.self,
@@ -43,7 +43,7 @@ class Containers {
         )
     }()
     
-    static let debugContainer: ModelContainer = {
+    public static let debugContainer: ModelContainer = {
         let configuration = ModelConfiguration("debug", schema: schema, isStoredInMemoryOnly: true)
         
         do {
@@ -76,14 +76,14 @@ class Containers {
             fatalError("Could not create Debug ModelContainer: \(error)")
         }
     }()
-    static let personalContainer: ModelContainer = {
+    public static let personalContainer: ModelContainer = {
         do {
             return try getNamedContainer("personal")
         } catch {
             fatalError("Could not create Personal ModelContainer: \(error)")
         }
     }()
-    static let globalContainer: ModelContainer = {
+    public static let globalContainer: ModelContainer = {
         let schema = Schema([ Profile.self ])
         let configuration = ModelConfiguration("global", schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
         
@@ -94,16 +94,16 @@ class Containers {
         }
     }()
     
-    static var openContainers: [Profile.ID: ModelContainer] = [:]
+    public static var openContainers: [Profile.ID: ModelContainer] = [:]
     
-    static var defaultContainer: (ModelContainer, ContainerNames) {
+    public static var defaultContainer: (ModelContainer, ContainerNames) {
         #if DEBUG
         (debugContainer, .debug)
         #else
         (personalContainer, .personal)
         #endif
     }
-    static var defaultContainerName: ContainerNames {
+    public static var defaultContainerName: ContainerNames {
 #if DEBUG
         .debug
 #else
@@ -111,7 +111,7 @@ class Containers {
 #endif
     }
     
-    static func getNamedContainer(_ name: String) throws -> ModelContainer {
+    public static func getNamedContainer(_ name: String) throws -> ModelContainer {
         if name == ContainerNames.debug.name {
 #if DEBUG
             return debugContainer
@@ -136,7 +136,7 @@ class Containers {
             }
         }
     }
-    static func getContainer(_ target: ContainerNames) throws -> ModelContainer {
+    public static func getContainer(_ target: ContainerNames) throws -> ModelContainer {
         switch target {
             case .debug:
                 #if DEBUG

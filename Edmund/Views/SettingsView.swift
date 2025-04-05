@@ -25,14 +25,23 @@ struct SettingsView : View {
     @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     
-    var body: some View {
+    @ViewBuilder
+    var generalTab: some View {
         Form {
+            Section(header: Text("Appearance").font(.headline)) {
+                Picker("App Theme", selection: $themeMode) {
+                    ForEach(ThemeMode.allCases, id: \.id) { theme in
+                        Text(theme.rawValue).tag(theme)
+                    }
+                }
+            }
+            
             Section() {
                 Toggle("Enable Transactions", isOn: $enableTransactions)
             } header: {
-                Text("Transactions")
+                Text("Transactions").font(.headline)
             } footer: {
-                Text("If transactions are enabled, all ledger & transaction data/forms can be accessed. If this is off, then these features will be hidden and non-accessible. Disable this feature if you want to use the budgeting and bill tracking features only.")
+                Text("If transactions are enabled, all ledger & transaction data/forms can be accessed. If this is off, then these features will be hidden and non-accessible. Disable this feature if you want to use the budgeting and bill tracking features only.").font(.subheadline)
             }
             
             Section() {
@@ -42,10 +51,10 @@ struct SettingsView : View {
                     }
                 }
             } header: {
-                Text("Styles")
+                Text("Styles").font(.headline)
             }
-                footer: {
-                Text("When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently.")
+            footer: {
+                Text("When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently.").font(.subheadline)
             }
             
             Section() {
@@ -55,14 +64,27 @@ struct SettingsView : View {
                     }
                 }
             }
+        }.padding()
+    }
+    
+    @ViewBuilder
+    private var profilesTab: some View {
+        HStack {
             
-            Section(header: Text("Appearance")) {
-                Picker("App Theme", selection: $themeMode) {
-                    ForEach(ThemeMode.allCases, id: \.id) { theme in
-                        Text(theme.rawValue).tag(theme)
-                    }
+        }
+    }
+    
+    var body: some View {
+        TabView {
+            generalTab
+                .tabItem {
+                    Label("General", systemImage: "gear")
                 }
-            }
+            
+            profilesTab
+                .tabItem {
+                    Label("Profiles", systemImage: "person.circle")
+                }
         }.padding()
     }
 }

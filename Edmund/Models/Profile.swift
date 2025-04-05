@@ -9,18 +9,20 @@ import Foundation
 import SwiftData
 
 @Model
-class Profile: Identifiable, Hashable, Equatable {
-    init(_ name: String) {
+public class Profile: Identifiable, Hashable, Equatable {
+    public init(_ name: String) {
         self.name = name
     }
     
-    var id: String { name }
-    @Attribute(.unique) var name: String;
+    public var id: String { name }
+    @Attribute(.unique) public var name: String;
     
+    #if DEBUG
     static let debugProfiles: [Profile] = {
        [
         .init("Debug"),
         .init("Personal")
        ]
     }()
+    #endif
 }

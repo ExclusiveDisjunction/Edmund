@@ -115,10 +115,10 @@ struct NamedPairChildVE<C> : View where C: BoundPair, C.P: PersistentModel {
 
             Grid {
                 GridRow {
-                    Text(C.kind.rawValue).frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                    Text(C.kind.name).frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                     
                     if let edit = editManifest {
-                        Picker(C.kind.rawValue, selection: Binding(get: { edit.parent }, set: { edit.parent = $0 })) {
+                        Picker(C.kind.name, selection: Binding(get: { edit.parent }, set: { edit.parent = $0 })) {
                             Text("None").tag(nil as C.P?)
                             ForEach(parents, id: \.id) { parent in
                                 Text(parent.name).tag(parent as C.P?)

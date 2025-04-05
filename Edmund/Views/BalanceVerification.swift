@@ -30,6 +30,7 @@ struct BalanceVerification: View {
     @State private var rows: [BalanceVerifyRow] = [];
     
     private func refresh() {
+        /*
         let bals = BalanceResolver.compileBalancesAccounts(transactions).filter { $0.key.creditLimit != nil };
         
         rows = bals.reduce(into: []) {
@@ -42,6 +43,7 @@ struct BalanceVerification: View {
                  )
             )
         }
+         */
     }
     
     var body: some View {

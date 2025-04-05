@@ -69,7 +69,7 @@ struct AllBillsViewEdit : View {
     
     private func add_bill(_ kind: BillsKind = .bill) {
         withAnimation {
-            let new_bill = Bill(name: "", kind: kind, amount: 0, child: kind == .utility ? UtilityBridge(nil) : nil, period: .monthly)
+            let new_bill = Bill(name: "", kind: kind, amount: 0, child: kind == .utility ? UtilityBridge(nil) : nil, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(new_bill)
             selectedBill = new_bill
         }
@@ -149,7 +149,7 @@ struct AllBillsViewEdit : View {
             else {
                 Table(self.sortedBills, selection: $tableSelected) {
                     TableColumn("Name", value: \Bill.name)
-                    TableColumn("Kind", value: \.kind.rawValue)
+                    TableColumn("Kind", value: \.kind.toString)
                     TableColumn("Amount") { bill in
                         Text(bill.amount, format: .currency(code: "USD"))
                     }

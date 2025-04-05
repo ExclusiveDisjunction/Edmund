@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-protocol Sortable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
+public protocol Sortable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
     associatedtype On
     
     var toString: String { get }
@@ -16,7 +16,7 @@ protocol Sortable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID
     
     func compare(_ lhs: On, _ rhs: On, _ ascending: Bool) -> Bool;
 }
-protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
+public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
     associatedtype On
     
     var toString: String { get }
@@ -25,21 +25,21 @@ protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable where Self.
     func accepts(_ val: On) -> Bool;
 }
 
-protocol Queryable {
+public protocol Queryable {
     associatedtype SortType: Sortable where SortType.On == Self
     associatedtype FilterType: Filterable where FilterType.On == Self
 
 }
 
 @Observable
-class QueryFilter<T>: Identifiable where T: Queryable {
+public class QueryFilter<T>: Identifiable where T: Queryable {
     init(_ filter: T.FilterType) {
         self.id = UUID();
         self.filter = filter
         self.isIncluded = true
     }
     
-    var id: UUID;
+    public var id: UUID;
     var filter: T.FilterType;
     var isIncluded: Bool;
     
@@ -49,7 +49,7 @@ class QueryFilter<T>: Identifiable where T: Queryable {
 }
 
 @Observable
-class QueryProvider<T> where T: Queryable {
+public class QueryProvider<T> where T: Queryable {
     init(_ sorting: T.SortType) {
         self.sorting = sorting
         self.ascending = true
@@ -71,16 +71,16 @@ class QueryProvider<T> where T: Queryable {
     }
 }
 
-struct QueryHandle<T>: Identifiable where T: Queryable {
+public struct QueryHandle<T>: Identifiable where T: Queryable {
     @Bindable var provider: QueryProvider<T>
-    var id = UUID();
+    public var id = UUID();
 }
 
-struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
+public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
     @Bindable var provider: QueryProvider<T>;
     @State private var handle: QueryHandle<T>?;
     
-    var body: some View {
+    public var body: some View {
         Button(action: {
             handle = .init(provider: provider)
         }) {
@@ -91,10 +91,10 @@ struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAcces
     }
 }
 
-struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
+public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
     @Bindable var provider: QueryProvider<T>;
     
-    var body: some View {
+    public var body: some View {
         Form {
             Section(header: Text("Sorting").font(.headline)) {
                 Picker("Sort By", selection: $provider.sorting) {

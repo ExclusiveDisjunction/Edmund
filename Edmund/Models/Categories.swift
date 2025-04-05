@@ -9,31 +9,32 @@ import Foundation
 import SwiftData
 
 @Model
-final class Category : Identifiable, Hashable, BoundPairParent {
-    required init() {
+public final class Category : Identifiable, Hashable, BoundPairParent {
+    public required init() {
         self.name = ""
         self.children = []
     }
-    init(_ name: String = "", children: [SubCategory] = []) {
+    public init(_ name: String = "", children: [SubCategory] = []) {
         self.name = name
         self.children = children;
     }
     
-    static func ==(lhs: Category, rhs: Category) -> Bool {
+    public static func ==(lhs: Category, rhs: Category) -> Bool {
         lhs.name == rhs.name
     }
     
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
     }
     
-    var id: String { name }
-    @Attribute(.unique) var name: String;
-    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) var children: [SubCategory];
+    public var id: String { name }
+    @Attribute(.unique) public var name: String;
+    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) public var children: [SubCategory];
 
-    static var kind: NamedPairKind { .category }
+    public static var kind: NamedPairKind { .category }
     
-    static let exampleCategories: [Category] = {
+    #if DEBUG
+    public static let exampleCategories: [Category] = {
         [
             exampleCategory,
             .init("Account Control", children: [
@@ -59,66 +60,75 @@ final class Category : Identifiable, Hashable, BoundPairParent {
             ])
         ]
     }()
-    static let exampleCategory: Category = {
+    public static let exampleCategory: Category = {
         .init("Bills", children: [
             .init("Utilities"),
             .init("Subscriptions"),
             .init("Bills")
         ])
     }()
+    #endif
     
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         name.isEmpty
     }
 }
 @Model
-class SubCategory : BoundPair, Equatable {
-    required init() {
+public class SubCategory : BoundPair, Equatable {
+    public required init() {
         self.parent = nil
         self.name = ""
         self.id = UUID()
         self.transactions = []
     }
-    init(_ name: String, parent: Category? = nil, id: UUID = UUID(), transactions: [LedgerEntry] = []) {
+    public required init(parent: Category?) {
+        self.parent = parent
+        self.name = ""
+        self.id = UUID()
+        self.transactions = []
+    }
+    public init(_ name: String, parent: Category? = nil, id: UUID = UUID(), transactions: [LedgerEntry] = []) {
         self.parent = parent
         self.name = name
         self.id = id
         self.transactions = transactions
     }
     
-    static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
+    public static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
         lhs.id == rhs.id
     }
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(parent)
         hasher.combine(name)
     }
     
-    @Attribute(.unique) var id: UUID;
-    @Relationship var parent: Category?;
-    var name: String;
-    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) var transactions: [LedgerEntry];
+    @Attribute(.unique) public var id: UUID;
+    @Relationship public var parent: Category?;
+    public var name: String;
+    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) public var transactions: [LedgerEntry];
 
     
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         parent?.isEmpty ?? false || name.isEmpty
     }
     
-    static var kind: NamedPairKind {
+    public static var kind: NamedPairKind {
         get { .category }
     }
     
+    #if DEBUG
     static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills"))
+    #endif
 }
 
-struct AcctCtlContext {
+public struct AcctCtlContext {
     let pay: SubCategory;
     let transfer: SubCategory;
     let audit: SubCategory;
     let gift: SubCategory;
     let interest: SubCategory;
 }
-struct PaymentsTransContext {
+public struct PaymentsTransContext {
     let refund: SubCategory;
     let loan: SubCategory;
     let repayment: SubCategory;
@@ -127,7 +137,7 @@ struct PaymentsTransContext {
 
 
 /// Provides a lookup for the basic SubCategories that are used by the program.
-class CategoriesContext {
+public class CategoriesContext {
     private static func insert(into: ModelContext, parent: String, child: String) -> SubCategory {
         let result = SubCategory(child, parent: Category(parent))
         
@@ -136,7 +146,7 @@ class CategoriesContext {
         return result;
     }
     
-    init(from: [SubCategory], context: ModelContext) {
+    public init(from: [SubCategory], context: ModelContext) {
         /*
          The context must contain:
          
@@ -184,6 +194,6 @@ class CategoriesContext {
         self.payments = .init(refund: refund, loan: loan, repayment: repayment, bill: bill)
     }
     
-    var account_control: AcctCtlContext;
-    var payments: PaymentsTransContext;
+    public var account_control: AcctCtlContext;
+    public var payments: PaymentsTransContext;
 }

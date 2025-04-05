@@ -47,7 +47,7 @@ struct PairEditor : View {
     
     var body: some View {
         HStack {
-            TextField(kind.rawValue, text: $pair.parent)
+            TextField(kind.name, text: $pair.parent)
             TextField(kind.subNamePlural, text: $pair.child)
         }
     }
@@ -65,7 +65,7 @@ struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C =
     
     var body: some View {
         HStack {
-            Picker(C.kind.rawValue, selection: $selectedParent) {
+            Picker(C.kind.name, selection: $selectedParent) {
                 Text("None").tag(nil as C.P?)
                 ForEach(parents, id: \.id) { parent in
                     Text(parent.name).tag(parent as C.P?)

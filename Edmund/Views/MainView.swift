@@ -80,7 +80,121 @@ struct MainView: View {
     @State private var selectedProfile: Profile.ID;
     
     @State private var showProfileFailure: Bool = false;
-    @State private var showingAddProfile = false;
+    @State private var showProfileSettings = false;
+    
+    @State private var showingSettings = false;
+    @State private var showingHelp = false;
+    
+    @Environment(\.openWindow) private var openWindow;
+#if os(macOS)
+    @Environment(\.openSettings) private var openSettings;
+#endif
+    
+    private var canPopoutWindow: Bool {
+#if os(macOS)
+        return true
+#else
+        if #available(iOS 16.0, *) {
+            return UIDevice.current.userInterfaceIdiom == .pad
+        }
+        return false
+#endif
+    }
+    
+    @ViewBuilder
+    private var navLinks: some View {
+        List {
+            NavigationLink {
+                Homepage()
+            } label: {
+                Text("Home")
+            }
+            
+            if enableTransactions ?? true {
+                NavigationLink {
+                    LedgerTable(profile: $selectedProfile)
+                } label: {
+                    Text("Ledger")
+                }
+                
+                NavigationLink {
+                    BalanceSheet(profile: $selectedProfile, vm: balance_vm)
+                } label: {
+                    Text("Balance Sheet")
+                }
+            }
+            
+            NavigationLink {
+                AllBillsViewEdit()
+            } label: {
+                Text("Bills")
+            }
+            
+            NavigationLink {
+                
+            } label: {
+                Text("Budget")
+            }
+            
+            NavigationLink {
+                AccountsCategories(vm: accCatvm)
+            } label: {
+                Text("Organization")
+            }
+        }
+    }
+    
+    private func showSettings() {
+        if canPopoutWindow {
+#if os(macOS)
+            openSettings()
+#else
+            openWindow(id: "settings")
+#endif
+        }
+        else {
+            showingSettings = true
+        }
+    }
+    private func showHelp() {
+        if canPopoutWindow {
+            openWindow(id: "help")
+        }
+        else {
+            showingHelp = true
+        }
+    }
+    
+    private func profileChanged(oldProfile: String, newProfile: String) {
+        do {
+            let containerID: ContainerNames;
+            
+            if newProfile == ContainerNames.debug.name {
+                containerID = .debug
+            }
+            else if newProfile == ContainerNames.personal.name {
+                containerID = .personal
+            }
+            else {
+                containerID = .named(newProfile)
+            }
+            
+            do {
+                try currentContainer.mainContext.save()
+            }
+            catch {
+                fatalError("Unable to save model to disk \(error)")
+            }
+            currentContainer = try Containers.getContainer(containerID)
+            
+        }
+        catch {
+            showProfileFailure = true
+            profiles.removeAll(where: {$0.name == newProfile })
+            
+            print(error.localizedDescription)
+        }
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -90,109 +204,37 @@ struct MainView: View {
                     Text("Personal Finances").font(.subheadline).italic()
                     Text("Viewing profile '\(selectedProfile)'").font(.subheadline)
                 }.padding(.bottom).backgroundStyle(.background.secondary)
-                List {
-                    NavigationLink {
-                        Homepage()
-                    } label: {
-                        Text("Home")
-                    }
-                    
-                    if enableTransactions ?? true {
-                        NavigationLink {
-                            LedgerTable(profile: $selectedProfile)
-                        } label: {
-                            Text("Ledger")
-                        }
-                        
-                        NavigationLink {
-                            BalanceSheet(profile: $selectedProfile, vm: balance_vm)
-                        } label: {
-                            Text("Balance Sheet")
-                        }
-                        
-                        NavigationLink {
-                            AccountsCategories(vm: accCatvm)
-                        } label: {
-                            Text("Organization")
-                        }
-                    }
-                    
-                    NavigationLink {
-                        AllBillsViewEdit()
-                    } label: {
-                        Text("Bills")
-                    }
-                    
-                    NavigationLink {
-                        
-                    } label: {
-                        Text("Budget")
-                    }
-                    
-#if os(iOS)
-                    NavigationLink {
-                        SettingsView().navigationTitle("Settings")
-                    } label: {
-                        Text("Settings")
-                    }
-#endif
-                }
+                
+                navLinks
                 
                 Spacer()
                 
                 HStack {
-                    Picker("Profile", selection: $selectedProfile) {
-                        ForEach(profiles, id: \.id) { profile in
-                            Text(profile.name).tag(profile.id)
-                        }
-                    }.labelsHidden()
-                    
-                    Button(action: {
-                        showingAddProfile = true
-                    }) {
-                        Image(systemName: "plus")
+                    Button(action: showSettings) {
+                        Label("Settings", systemImage: "gear")
                     }
-                }.padding().backgroundStyle(.background.secondary)
+                    Button(action: showHelp) {
+                        Label("Help", systemImage: "questionmark.circle")
+                    }
+                }
+                Picker("Profile", selection: $selectedProfile) {
+                    ForEach(profiles, id: \.id) { profile in
+                        Text(profile.name).tag(profile.id)
+                    }
+                }.labelsHidden().padding()
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             Homepage()
-        }.modelContainer(currentContainer).onChange(of: selectedProfile) { oldProfile, newProfile in
-            do {
-                let containerID: ContainerNames;
-                
-                if newProfile == ContainerNames.debug.name {
-                    containerID = .debug
-                }
-                else if newProfile == ContainerNames.personal.name {
-                    containerID = .personal
-                }
-                else {
-                    containerID = .named(newProfile)
-                }
-                
-                do {
-                    try currentContainer.mainContext.save()
-                }
-                catch {
-                    fatalError("Unable to save model to disk \(error)")
-                }
-                currentContainer = try Containers.getContainer(containerID)
-                
-            }
-            catch {
-                showProfileFailure = true
-                profiles.removeAll(where: {$0.name == newProfile })
-                
-                print(error.localizedDescription)
-            }
-        }.alert("Unable to switch profile", isPresented: $showProfileFailure, actions: {
+        }.modelContainer(currentContainer).onChange(of: selectedProfile, profileChanged).alert("Unable to switch profile", isPresented: $showProfileFailure, actions: {
             Button("Ok", action: {
                 showProfileFailure = false
             })
         }, message: {
             Text("The profile you selected could not be opened.")
-        }).sheet(isPresented: $showingAddProfile) {
-            AddProfileView(profiles: $profiles, selectedProfile: $selectedProfile, globalContext: globalContainer.mainContext)
+        }).sheet(isPresented: $showingHelp) {
+            HelpView()
+        }.sheet(isPresented: $showingSettings) {
+            SettingsView().modelContainer(globalContainer)
         }
     }
 }

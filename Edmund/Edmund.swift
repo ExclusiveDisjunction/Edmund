@@ -86,7 +86,11 @@ struct EdmundApp: App {
         
         #if os(macOS)
         Settings {
-            SettingsView().preferredColorScheme(colorScheme)
+            SettingsView().preferredColorScheme(colorScheme).modelContainer(globalContainer)
+        }
+        #else
+        WindowGroup(id: "settings") {
+            SettingsView().preferredColorScheme(colorScheme).modelContainer(globalContainer)
         }
         #endif
         

@@ -8,28 +8,32 @@
 import Foundation
 import SwiftData
 
-enum NamedPairKind : String, Equatable {
-    case account = "Account"
-    case category = "Category"
-    case nondetermined = "Non-Determined"
+public enum NamedPairKind : Int, Equatable {
+    case account = 0
+    case category = 1
     
-    var pluralized:  String {
+    public var name: String {
+        switch self {
+            case .account: "Account"
+            case .category: "Category"
+        }
+    }
+    public var pluralized:  String {
         switch self {
         case .account: "Accounts"
         case .category: "Categories"
-            case .nondetermined: "Non-Determined Pairs"
         }
     }
-    var subName: String {
+    public var subName: String {
         "Sub \(self.rawValue)"
     }
-    var subNamePlural: String {
+    public var subNamePlural: String {
         "Sub \(self.pluralized)"
     }
     
 }
 
-protocol BoundPairParent : Identifiable, PersistentModel {
+public protocol BoundPairParent : Identifiable, PersistentModel {
     associatedtype C: BoundPair;
     
     init();
@@ -38,16 +42,17 @@ protocol BoundPairParent : Identifiable, PersistentModel {
     var children: [C] { get set }
     static var kind: NamedPairKind { get}
 }
-protocol BoundPair : Identifiable, PersistentModel, Hashable, Equatable {
+public protocol BoundPair : Identifiable, PersistentModel, Hashable, Equatable {
     associatedtype P: BoundPairParent;
     
     init();
+    init(parent: P?);
     
     var parent: P? { get set }
     var name: String { get set }
     static var kind: NamedPairKind { get }
 }
-extension BoundPair {
+public extension BoundPair {
     func eqByName(_ rhs: any BoundPair) -> Bool {
         self.parent_name == rhs.parent_name && self.name == rhs.name
     }
@@ -62,12 +67,12 @@ extension BoundPair {
     }
 }
 
-extension Array where Element: BoundPair {
+public extension Array where Element: BoundPair {
     func findPair(_ parent: String, _ child: String) -> Element? {
         self.first(where: {$0.name == child && $0.parent_name == parent } )
     }
 }
-extension Array where Element: BoundPairParent {
+public extension Array where Element: BoundPairParent {
     func findPair(_ parent: String, _ child: String) -> Element.C? {
         guard let foundParent = self.first(where: {$0.name == parent } ) else { return nil }
         

@@ -9,7 +9,7 @@ import SwiftData;
 import Foundation;
 
 @Model
-class LedgerEntry : ObservableObject, Identifiable
+public class LedgerEntry : ObservableObject, Identifiable
 {
     init(memo: String, credit: Decimal, debit: Decimal, date: Date, added_on: Date = Date.now, location: String, category: SubCategory, account: SubAccount) {
         self.id = UUID()
@@ -23,20 +23,21 @@ class LedgerEntry : ObservableObject, Identifiable
         self.account = account
     }
     
-    var id: UUID;
-    var memo: String;
-    var credit: Decimal;
-    var debit: Decimal;
-    var date: Date;
-    var added_on: Date;
-    var location: String;
-    @Relationship var category: SubCategory?;
-    @Relationship var account: SubAccount?;
+    public var id: UUID;
+    public var memo: String;
+    public var credit: Decimal;
+    public var debit: Decimal;
+    public var date: Date;
+    public var added_on: Date;
+    public var location: String;
+    @Relationship public var category: SubCategory?;
+    @Relationship public var account: SubAccount?;
     
-    var balance: Decimal {
-        credit - debit 
+    public var balance: Decimal {
+        credit - debit
     }
     
+    #if DEBUG
     static func exampleEntries(acc: [Account], cat: [Category]) -> [LedgerEntry] {
         /*
          I would like to have at least one of:
@@ -85,4 +86,5 @@ class LedgerEntry : ObservableObject, Identifiable
     static let exampleEntry = {
         LedgerEntry(memo: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Sub Category", parent: .init("Example Category")), account: .init("Example Sub Account", parent: .init("Example Account")))
     }()
+    #endif
 }
