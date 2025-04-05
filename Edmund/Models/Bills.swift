@@ -57,13 +57,13 @@ enum BillsSort : String, Sortable {
 }
 
 enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
-    case weekly = "Weekly"
-    case biWeekly = "Bi-Weekly"
-    case monthly = "Monthly"
-    case biMonthly = "Bi-Monthly"
-    case quarterly = "Quarterly"
+    case weekly =      "Weekly"
+    case biWeekly =    "Bi-Weekly"
+    case monthly =     "Monthly"
+    case biMonthly =   "Bi-Monthly"
+    case quarterly =   "Quarterly"
     case semiAnually = "Semi-Anually"
-    case anually = "Anually"
+    case anually =     "Anually"
     
     var index: Int {
         switch self {
@@ -91,13 +91,13 @@ enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
     
     var perName: String {
         switch self {
-            case .weekly: "Week"
-            case .biWeekly: "Two Weeks"
-            case .monthly: "Month"
-            case .biMonthly: "Two Months"
-            case .quarterly: "Quarter"
-            case .semiAnually: "Half Year"
-            case .anually: "Year"
+            case .weekly: String(localized: "Week")
+            case .biWeekly: String(localized: "Two Weeks")
+            case .monthly: String(localized: "Month")
+            case .biMonthly: String(localized: "Two Months")
+            case .quarterly: String(localized: "Quarter")
+            case .semiAnually: String(localized: "Half Year")
+            case .anually: String(localized: "Year")
         }
     }
     
