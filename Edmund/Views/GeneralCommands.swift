@@ -19,5 +19,7 @@ struct GeneralCommands : Commands {
                 openWindow(id: "ledger")
             }.keyboardShortcut("l", modifiers: [.command, .shift])
         }
+        
+        
     }
 }

@@ -30,14 +30,13 @@ struct GeneralActionsPanel: View {
 }
 
 struct AllBillsViewEdit : View {
-    @State private var selectedBill: Bill?;
     @State private var query: QueryProvider<Bill> = .init(.name);
     @State private var tableSelected = Set<Bill.ID>();
-    @State private var showWarning = false;
-    @State private var warning: WarningKind = .noneSelected;
-    @State private var deletingAction: DeletingAction<Bill>?;
-    @State private var isDeleting: Bool = false;
     @State private var showingChart: Bool = false;
+    
+    @Bindable private var inspecting = InspectionManifest<Bill>();
+    @Bindable private var warning = WarningManifest()
+    @Bindable private var deleting = DeletingManifest<Bill>();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
@@ -56,39 +55,34 @@ struct AllBillsViewEdit : View {
         withAnimation {
             let new_bill = Bill(name: "", kind: kind, amount: 0, child: kind == .utility ? UtilityBridge(nil) : nil, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(new_bill)
-            selectedBill = new_bill
+            inspecting.open(new_bill, mode: .edit)
         }
     }
     private func remove_selected() {
         let resolved = bills.filter { tableSelected.contains($0.id) }
         if resolved.count == 0 {
-            warning = .noneSelected
-            showWarning = true
+            warning.warning = .noneSelected
         }
         else {
-            deletingAction = .init(data: resolved)
-            isDeleting = true
+            deleting.action = resolved
         }
     }
     private func edit_selected() {
         let resolved = bills.filter { tableSelected.contains($0.id) }
         if resolved.count == 0 {
-            warning = .noneSelected
-            showWarning = true
+            warning.warning = .noneSelected
         }
-        else if resolved.count == 1 {
-            selectedBill = resolved.first!
+        else if let first = resolved.first {
+            inspecting.open(first, mode: .edit)
         }
         else {
-            warning = .tooMany
-            showWarning = true
+            warning.warning = .tooMany
         }
     }
     private func remove_specifics(_ id: Set<Bill.ID>) {
         let resolved = bills.filter { id.contains($0.id) }
         if !resolved.isEmpty {
-            deletingAction = .init(data: resolved)
-            isDeleting = true
+            deleting.action = resolved
         }
     }
     private func toggle_inspector() {
@@ -110,24 +104,7 @@ struct AllBillsViewEdit : View {
                     Text("/")
                     Text(showcasePeriod.perName)
                 }.swipeActions(edge: .trailing) {
-                    Button(action: {
-                        selectedBill = bill
-                    }) {
-                        Label("Inspect", systemImage: "info.circle")
-                    }.tint(.green)
-                    
-                    Button(action: {
-                        selectedBill = bill
-                    }) {
-                        Label("Edit", systemImage: "pencil")
-                    }.tint(.blue)
-                    
-                    Button(action: {
-                        deletingAction = .init(data: [bill])
-                        isDeleting = true
-                    }) {
-                        Label("Delete", systemImage: "trash")
-                    }.tint(.red)
+                    GeneralContextMenu(bill, inspect: inspecting, remove: deleting, asSlide: true)
                 }
             }
         }
@@ -150,21 +127,7 @@ struct AllBillsViewEdit : View {
                 Text(bill.pricePer(showcasePeriod), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            if selection.count == 1 {
-                let first = selection.first!
-                
-                Button(action: {
-                    selectedBill = bills.first(where: {$0.id == first} )
-                }) {
-                    Label("Edit", systemImage: "pencil")
-                }
-            }
-            
-            Button(action: {
-                remove_specifics(selection)
-            }) {
-                Label("Delete", systemImage: "trash").foregroundStyle(.red)
-            }
+            SelectionsContextMenu(selection, inspect: inspecting, delete: deleting)
         }
         #if os(macOS)
         .frame(minWidth: 270)
@@ -240,19 +203,18 @@ struct AllBillsViewEdit : View {
                 Text(showcasePeriod.perName)
                 
             }
-        }.padding().sheet(item: $selectedBill) { bill in
+        }.sheet(item: $inspecting.value) { bill in
             BillEditor(bill: bill)
         }.toolbar(id: "billsToolbar") {
             toolbar
-        }.toolbarRole(.editor)
-            .navigationTitle("Bills").alert("Warning", isPresented: $showWarning, actions: {
+        }.alert("Warning", isPresented: $warning.isPresented, actions: {
             Button("Ok", action: {
-                showWarning = false
+                warning.isPresented = false
             })
         }, message: {
-            Text(warning.message)
-        }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $isDeleting) {
-            DeletingActionConfirm(isPresented: $isDeleting, action: $deletingAction)
+            Text((warning.warning ?? .noneSelected).message )
+        }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
+            DeletingActionConfirm(deleting: deleting)
         }.sheet(isPresented: $showingChart) {
             Chart(bills.sorted(by: { $0.amount < $1.amount } )) { bill in
                 SectorMark(
@@ -261,15 +223,12 @@ struct AllBillsViewEdit : View {
                         bill.pricePer(showcasePeriod)
                     )
                 ).foregroundStyle(by: .value(
-                        Text(verbatim: bill.name),
-                        bill.name
-                    )
+                    Text(verbatim: bill.name),
+                    bill.name
                 )
-            }.padding()
-            #if os(macOS)
-                .frame(minHeight: 350)
-            #endif
-        }
+                )
+            }.padding().frame(minHeight: 350)
+        }.padding().toolbarRole(.editor).navigationTitle("Bills")
     }
 }
 

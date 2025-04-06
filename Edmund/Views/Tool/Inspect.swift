@@ -12,12 +12,13 @@ enum InspectionMode {
     case edit, view
 }
 
-struct InspectionManifest<T> : Identifiable where T: Identifiable {
-    let mode: InspectionMode
-    let value: T
-    var id: T.ID { value.id }
-}
-
-extension FocusedValues {
-
+@Observable
+class InspectionManifest<T> where T: Identifiable {
+    var mode: InspectionMode = .view
+    var value: T?
+    
+    func open(_ value: T, mode: InspectionMode) {
+        self.value = value
+        self.mode = mode
+    }
 }

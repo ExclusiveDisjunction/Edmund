@@ -28,8 +28,8 @@ struct LedgerTable: View {
     @Binding var profile: String;
     @State var isPopout = false;
     @State private var selected = Set<LedgerEntry.ID>();
-    @State private var inspecting: LedgerEntry?;
-    @State private var inspectingMode: InspectionMode?;
+    @State private var inspect: InspectionManifest<LedgerEntry>?;
+    @Bindable private var deleting: DeletingManifest<LedgerEntry> = .init();
     @State private var editAlert = false;
     
     @Environment(\.modelContext) private var modelContext;
@@ -37,6 +37,7 @@ struct LedgerTable: View {
     @Environment(\.openWindow) private var openWindow;
     
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -49,20 +50,20 @@ struct LedgerTable: View {
 #endif
     }
     
-    private func remove_spec(_ id: Set<LedgerEntry.ID>) {
-        let targets = data.filter { id.contains($0.id ) }
-        for target in targets {
-            modelContext.delete(target)
+    private func remove_selected() {
+        let resolved = data.filter { selected.contains($0.id ) }
+        if !resolved.isEmpty {
+            deleting.action = resolved
         }
     }
-    private func remove_selected() {
-        remove_spec(self.selected)
-    }
     private func edit_selected() {
-        if selected.count == 1 {
+        let resolved = data.filter { selected.contains($0.id ) }
+        
+        if resolved.count == 1 {
             let first = self.selected.first!;
+            guard let element = self.data.first( where: {$0.id == first } ) else { return }
             
-            launchInspector(self.data.first( where: {$0.id == first } ), .edit)
+            inspect = .init(mode: .edit, value: element)
         }
         else {
             editAlert = true
@@ -74,20 +75,12 @@ struct LedgerTable: View {
         
         if resolved.count == 1 {
             let first = self.selected.first!;
-            launchInspector(self.data.first( where: {$0.id == first } ), .view)
+            guard let element = self.data.first( where: {$0.id == first } ) else { return }
+            
+            inspect = .init(mode: .view, value: element)
         }
         else {
             editAlert = true
-        }
-    }
-    private func launchInspector(_ target: LedgerEntry?, _ mode: InspectionMode) {
-        if let target = target {
-            inspectingMode = mode
-            inspecting = target
-        }
-        else {
-            inspectingMode = nil
-            inspecting = nil
         }
     }
     private func popout() {
@@ -100,25 +93,9 @@ struct LedgerTable: View {
             HStack {
                 Text(entry.memo)
                 Spacer()
-                Text(entry.balance, format: .currency(code: "USD"))
+                Text(entry.balance, format: .currency(code: currencyCode))
             }.swipeActions(edge: .trailing) {
-                Button(action: {
-                    launchInspector(entry, .view)
-                }) {
-                    Label("Inspect", systemImage: "info.circle")
-                }.tint(.green)
-                
-                Button(action: {
-                    launchInspector(entry, .edit)
-                }) {
-                    Label("Edit", systemImage: "pencil")
-                }.tint(.blue)
-                
-                Button(action: {
-                    modelContext.delete(entry)
-                }) {
-                    Label("Delete", systemImage: "trash")
-                }.tint(.red)
+                GeneralContextMenu(entry, inspect: $inspect, remove: $deleting, asSlide: true)
             }
         }
     }
@@ -128,15 +105,15 @@ struct LedgerTable: View {
             TableColumn("Memo", value: \.memo)
             if ledgerStyle == .none {
                 TableColumn("Balance") { item in
-                    Text(item.balance, format: .currency(code: "USD"))
+                    Text(item.balance, format: .currency(code: currencyCode))
                 }
             }
             else {
                 TableColumn(ledgerStyle == .standard ? "Debit" : "Credit") { item in
-                    Text(item.credit, format: .currency(code: "USD"))
+                    Text(item.credit, format: .currency(code: currencyCode))
                 }
                 TableColumn(ledgerStyle == .standard ? "Credit" : "Debit") { item in
-                    Text(item.debit, format: .currency(code: "USD"))
+                    Text(item.debit, format: .currency(code: currencyCode))
                 }
             }
             TableColumn("Date") { item in
@@ -160,21 +137,7 @@ struct LedgerTable: View {
                 }
             }
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
-            if selection.count == 1 {
-                let first = selection.first!
-                Button(action: {
-                    launchInspector(data.first(where: {$0.id == first}), .edit)
-                }) {
-                    Label("Edit", systemImage: "pencil")
-                }
-            }
-            
-            Button(role: .destructive) {
-                remove_spec(selection)
-            } label: {
-                Label("Delete", systemImage: "trash").foregroundStyle(.red)
-            }
-            
+            SelectionsContextMenu(selection, inspect: $inspect, delete: $deleting)
         }
         #if os(macOS)
         .frame(minWidth: 300)
@@ -291,13 +254,13 @@ struct LedgerTable: View {
                 toolbar
             }
             .toolbarRole(.editor)
-            .sheet(item: $inspecting) { entry in
+            .sheet(item: $inspect) { inspect in
                 VStack {
-                    LedgerEntryVE(entry, isEdit: inspectingMode ?? .view == .edit)
+                    LedgerEntryVE(inspect.value, isEdit: inspect.mode  == .edit)
                     HStack {
                         Spacer()
                         Button("Ok") {
-                            inspecting = nil
+                            self.inspect = nil
                         }.buttonStyle(.borderedProminent)
                     }.padding([.trailing, .bottom])
                 }

@@ -50,7 +50,7 @@ struct SettingsView : View {
                     }
                 }
                 
-                Picker("Currency Code", selection: $currencyCode) {
+                Picker("Currency", selection: $currencyCode) {
                     ForEach(Self.currencyCodes, id: \.id) { code in
                         Text(code.code).tag(code.id)
                     }

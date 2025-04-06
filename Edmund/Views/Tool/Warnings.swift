@@ -19,27 +19,63 @@ enum WarningKind: Int, Identifiable {
         }
     }
 }
+@Observable
+class WarningManifest {
+    var warning: WarningKind?;
+    var isPresented: Bool {
+        get { warning != nil }
+        set {
+            if self.isPresented == newValue { return }
+            
+            if newValue {
+                warning = .noneSelected
+            }
+            else {
+                warning = nil
+            }
+        }
+    }
+}
 
-struct DeletingAction<T>{
-    let data: [T];
+@Observable
+class DeletingManifest<T> where T: PersistentModel {
+    var action: [T]?;
+    var isDeleting: Bool {
+        get { action != nil }
+        set {
+            if self.isDeleting == newValue {
+                return
+            }
+            else {
+                if newValue {
+                    #if DEBUG
+                    print("warning: isDeleting set to true")
+                    #endif
+                    
+                    action = []
+                }
+                else {
+                    action = nil
+                }
+            }
+        }
+    }
 }
 
 struct DeletingActionConfirm<T>: View where T: PersistentModel {
-    @Binding var isPresented: Bool;
-    @Binding var action: DeletingAction<T>?;
+    var deleting: DeletingManifest<T>;
     let postAction: (() -> Void)? = nil;
     
     @Environment(\.modelContext) private var modelContext;
     
     var body: some View {
-        if let deleting = action {
+        if let deleting = deleting.action {
             Button("Delete") {
-                for data in deleting.data {
+                for data in deleting {
                     modelContext.delete(data)
                 }
                 
-                self.action = nil
-                isPresented = false
+                self.deleting.isDeleting  = false
                 if let post = postAction {
                     post()
                 }
@@ -47,30 +83,36 @@ struct DeletingActionConfirm<T>: View where T: PersistentModel {
         }
         
         Button("Cancel", role: .cancel) {
-            self.action = nil
-            isPresented = false
+            deleting.isDeleting = false
         }
     }
 }
 
 
-struct GeneralContextMenu<T> : View where T: Identifiable {
+struct GeneralContextMenu<T> : View where T: Identifiable, T: PersistentModel {
+    /// The object that the menu is for.
     var target: T;
-    @Binding var inspection: InspectionManifest<T>?;
-    @Binding var delete: DeletingAction<T>?;
-    @Binding var isDeleting: Bool;
+    /// A manifest showing the view/edit mode of the selected object.
+    var inspection: InspectionManifest<T>;
+    /// The deleting action used to store the information that can be deleted.
+    var delete: DeletingManifest<T>;
+    /// Signifies that the context menu allows for view inspection
     let canInspect: Bool;
+    /// An optional function called that signals the add operation.
     let add: (() -> Void)?;
+    /// A label that is shown for the add functionality, if the `add` member exists.
     let addLabel: LocalizedStringKey;
+    /// Signals that the view uses the Slide style.
+    let asSlide: Bool;
     
-    init(_ target: T, inspect: Binding<InspectionManifest<T>?>, remove: Binding<DeletingAction<T>?>, isDeleting: Binding<Bool>, addLabel: LocalizedStringKey = "Add", add: (() -> Void)? = nil, canInspect: Bool = true) {
+    init(_ target: T, inspect: InspectionManifest<T>, remove: DeletingManifest<T>, addLabel: LocalizedStringKey = "Add", add: (() -> Void)? = nil, canInspect: Bool = true, asSlide: Bool = false) {
         self.target = target
-        self._inspection = inspect
+        self.inspection = inspect
         self.canInspect = canInspect
-        self._delete = remove
-        self._isDeleting = isDeleting
+        self.delete = remove
         self.add = add
         self.addLabel = addLabel
+        self.asSlide = asSlide
     }
     
     var body: some View {
@@ -82,22 +124,73 @@ struct GeneralContextMenu<T> : View where T: Identifiable {
         
         if canInspect {
             Button(action: {
-                inspection = .init(mode: .view, value: target)
+                inspection.open(target, mode: .view)
             }) {
                 Label("Inspect", systemImage: "info.circle")
+            }.tint(asSlide ? .green : .clear)
+        }
+        
+        Button(action: {
+            inspection.open(target, mode: .edit)
+        }) {
+            Label("Edit", systemImage: "pencil")
+        }.tint(asSlide ? .blue : .clear)
+        
+        Button(action: {
+            delete.action = [target]
+        }) {
+            Label("Delete", systemImage: "trash").foregroundStyle(.red)
+        }.tint(asSlide ? .red : .clear)
+    }
+}
+
+struct SelectionsContextMenu<T> : View where T: Identifiable, T: PersistentModel {
+    var inspect: InspectionManifest<T>;
+    var delete: DeletingManifest<T>;
+    let selection: Set<T.ID>;
+    let canView: Bool;
+    
+    @Query private var data: [T];
+    
+    init(_ sel: Set<T.ID>, inspect: InspectionManifest<T>, delete: DeletingManifest<T>, canView: Bool = true) {
+        self.selection = sel
+        self.inspect = inspect
+        self.delete = delete
+        self.canView = canView
+    }
+    
+    private func handleEdit() {
+        guard let id = selection.first, let target = data.first(where: { $0.id == id }) else { return }
+        
+        inspect.open(target, mode: .edit)
+    }
+    private func handleView() {
+        guard canView else { return }
+        guard let id = selection.first, let target = data.first(where: { $0.id == id }) else { return }
+        
+        inspect.open(target, mode: .view)
+    }
+    private func handleDelete() {
+        let resolved = data.filter { selection.contains( $0.id ) };
+        if !resolved.isEmpty {
+            delete.action = resolved
+        }
+    }
+    
+    var body: some View {
+        if selection.count == 1 {
+            if canView {
+                Button(action: handleView ) {
+                    Label("Inspect", systemImage: "info.circle")
+                }
+            }
+            
+            Button(action: handleEdit  ) {
+                Label("Edit", systemImage: "pencil")
             }
         }
         
-        Button(action: {
-            inspection = .init(mode: .edit, value: target)
-        }) {
-            Label("Edit", systemImage: "pencil")
-        }
-        
-        Button(action: {
-            delete = .init(data: [target])
-            isDeleting = true
-        }) {
+        Button(action: handleDelete) {
             Label("Delete", systemImage: "trash").foregroundStyle(.red)
         }
     }
