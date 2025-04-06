@@ -139,6 +139,7 @@ struct BalanceSheet: View {
     @Environment(\.openWindow) private var openWindow;
     
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func update_balances() {
         vm.computeBalances(acc: accounts)
@@ -161,6 +162,33 @@ struct BalanceSheet: View {
         openWindow(id: "balanceSheet", value: profile)
     }
     
+    @ViewBuilder
+    private func childSection(_ item: BalanceSheetAccount) -> some View {
+        Grid {
+            GridRow {
+                Text("Sub Account").frame(maxWidth: .infinity).font(.headline)
+                if horizontalSizeClass != .compact && ledgerStyle != .none {
+                    Text(ledgerStyle == .standard ? "Debit" : "Credit").frame(maxWidth: .infinity).font(.headline)
+                    Text(ledgerStyle == .standard ? "Credit" : "Debit").frame(maxWidth: .infinity).font(.headline)
+                }
+                
+                Text("Balance").frame(maxWidth: .infinity).font(.headline)
+            }
+            Divider()
+            
+            ForEach(item.subs) { sub in
+                GridRow {
+                    Text(sub.name)
+                    if horizontalSizeClass != .compact && ledgerStyle != .none {
+                        Text(sub.credits, format: .currency(code: currencyCode))
+                        Text(sub.debits, format: .currency(code: currencyCode))
+                    }
+                    Text(sub.balance, format: .currency(code: currencyCode)).foregroundStyle(sub.balance < 0 ? .red : .primary )
+                }
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
             if vm.computed.isEmpty {
@@ -179,34 +207,13 @@ struct BalanceSheet: View {
                                 }) {
                                     HStack {
                                         Label(item.name, systemImage: item.expanded ? "chevron.down" : "chevron.right").font(.title2)
-                                        Text("\(item.balance, format: .currency(code: "USD"))").foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
+                                        Text(item.balance, format: .currency(code: currencyCode)).foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
                                         Spacer()
                                     }.contentShape(Rectangle())
                                 }.padding().buttonStyle(.borderless)
                                 
                                 if item.expanded {
-                                    Grid {
-                                        GridRow {
-                                            Text("Sub Account").frame(maxWidth: .infinity).font(.headline)
-                                            if horizontalSizeClass != .compact {
-                                                Text("Credit").frame(maxWidth: .infinity).font(.headline)
-                                                Text("Debit").frame(maxWidth: .infinity).font(.headline)
-                                            }
-                                            Text("Balance").frame(maxWidth: .infinity).font(.headline)
-                                        }
-                                        Divider()
-                                        
-                                        ForEach(item.subs) { sub in
-                                            GridRow {
-                                                Text(sub.name)
-                                                if horizontalSizeClass != .compact {
-                                                    Text("\(sub.credits, format: .currency(code: "USD"))")
-                                                    Text("\(sub.debits, format: .currency(code: "USD"))")
-                                                }
-                                                Text("\(sub.balance, format: .currency(code: "USD"))").foregroundStyle(sub.balance < 0 ? .red : .primary )
-                                            }
-                                        }
-                                    }
+                                    childSection(item)
                                 }
                                 
                                 Divider()
@@ -237,12 +244,12 @@ struct BalanceSheet: View {
                 if shouldShowPopoutButton {
                     ToolbarItem(id: "popout", placement: .secondaryAction) {
                         Button(action: popout) {
-                            Label("Open in a new Window", systemImage: "rectangle.badge.plus")
+                            Label("Open in new Window", systemImage: "rectangle.badge.plus")
                         }
                     }
                 }
             }
-            .navigationTitle("Balance Sheet \(isPopout ? "for \(profile)" : "")")
+            .navigationTitle(isPopout ? "Balance Sheet for \(profile)" : "Balance Sheet")
             .padding()
             .toolbarRole(.editor)
         

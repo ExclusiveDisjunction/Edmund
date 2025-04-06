@@ -8,51 +8,6 @@
 import SwiftUI
 import SwiftData
 
-@Observable
-class PairHelper: Identifiable, Hashable, Equatable {
-    init(_ parent: String, _ child: String) {
-        self.parent = parent
-        self.child = child
-    }
-    init<T>(_ target: T) where T: BoundPair {
-        self.parent = target.parent_name ?? ""
-        self.child = target.name
-    }
-    
-    var parent: String;
-    var child: String;
-    var id: UUID = UUID();
-    
-    func clear() {
-        self.parent = ""
-        self.child = ""
-    }
-    
-    static func == (lhs: PairHelper, rhs: PairHelper) -> Bool {
-        lhs.parent == rhs.parent && lhs.child == rhs.child
-    }
-    static func ==<T>(lhs: PairHelper, rhs: T) -> Bool where T: BoundPair {
-        lhs.parent == rhs.parent_name && lhs.child == rhs.name
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(parent)
-        hasher.combine(child)
-    }
-}
-
-struct PairEditor : View {
-    @Bindable var pair: PairHelper;
-    var kind: NamedPairKind;
-    
-    var body: some View {
-        HStack {
-            TextField(kind.name, text: $pair.parent)
-            TextField(kind.subNamePlural, text: $pair.child)
-        }
-    }
-}
-
 struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C == C {
     init(_ target: Binding<C?>) {
         selectedParent = target.wrappedValue?.parent

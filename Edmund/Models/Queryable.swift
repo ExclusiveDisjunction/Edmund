@@ -19,8 +19,8 @@ public protocol Sortable: CaseIterable, Identifiable, Hashable, Equatable where 
 public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
     associatedtype On
     
-    var toString: String { get }
-    var toStringPlural: String { get }
+    var name: LocalizedStringKey { get }
+    var pluralName: LocalizedStringKey { get }
     
     func accepts(_ val: On) -> Bool;
 }
@@ -108,7 +108,7 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
             
             Section(header: Text("Filters").font(.headline)) {
                 ForEach($provider.filter) { $filter in
-                    Toggle(filter.filter.toStringPlural, isOn: $filter.isIncluded)
+                    Toggle(filter.filter.pluralName, isOn: $filter.isIncluded)
                 }
             }
         }.padding()

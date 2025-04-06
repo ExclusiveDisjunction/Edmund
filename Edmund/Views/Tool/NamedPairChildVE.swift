@@ -158,13 +158,13 @@ struct NamedPairChildVE<C> : View where C: BoundPair, C.P: PersistentModel {
                 show_alert = false
             })
         }, message: {
-            Text("Please ensure that there is a \(C.kind.rawValue), and a name.")
+            Text("Please fill in all fields")
         }).onDisappear {
             if target.name.isEmpty || target.parent == nil {
                 modelContext.delete(target)
             }
         }.confirmationDialog("There are unsaved changes.", isPresented: $askSwitch) {
-            Button("Save Changes", action: {
+            Button("Save", action: {
                 if saveChanges() {
                     editManifest = nil
                     editHash = 0

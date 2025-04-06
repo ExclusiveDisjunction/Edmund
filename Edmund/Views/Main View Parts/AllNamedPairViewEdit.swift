@@ -61,18 +61,13 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     
     @Environment(\.modelContext) private var modelContext;
     
-    private func remove_parent(_ id: T.ID) {
-        guard let target = parents.first(where: {$0.id == id }) else { return }
+    private func add_parent() {
         
-        deleting = .init(data: [target])
-        isDeleting = true
     }
-    private func remove_child(_ id: T.C.ID) {
-        guard let element = children.first(where: { $0.id == id }) else { return }
+    private func add_child() {
         
-        deletingChild = .init(data: [element])
-        isDeletingChild = true
     }
+    
     private func parents_remove_from(_ offsets: IndexSet) {
         let targets = offsets.map { vm.data[$0].target }
         if !targets.isEmpty {
@@ -90,91 +85,8 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             HStack {
                 Text(child.name).padding(.leading, 30)
             }.contentShape(Rectangle()).contextMenu {
-                Button(action: {
-                    childInspect = .init(mode: .view, value: child)
-                }) {
-                    Label("Inspect", systemImage: "info.circle")
-                }
-                Button(action: {
-                    childInspect = .init(mode: .edit, value: child)
-                }) {
-                    Label("Edit", systemImage: "pencil")
-                }
-                Button(action: {
-                    remove_child(child.id)
-                }) {
-                    Label("Delete", systemImage: "trash").foregroundStyle(.red)
-                }
+                GeneralContextMenu(child, inspect: $childInspect, remove: $deletingChild, isDeleting: $isDeletingChild)
             }
-        }
-    }
-    
-    @ViewBuilder
-    func parentContextMenu(target: T) -> some View {
-        Button(action: {
-            let newChild = T.C(parent: target)
-            modelContext.insert(newChild)
-            childInspect = .init(mode: .edit, value: newChild)
-        }) {
-            Label("Add \(T.kind.subName)", systemImage: "plus")
-        }
-        
-        Button(action: {
-            parentInspect = .init(mode: .view, value: target)
-        }) {
-            Label("Inspect", systemImage: "info.circle")
-        }
-        
-        Button(action: {
-            parentInspect = .init(mode: .edit, value: target)
-        }) {
-            Label("Edit", systemImage: "pencil")
-        }
-        Button(action: {
-            remove_parent(target.id)
-        }) {
-            Label("Delete", systemImage: "trash").foregroundStyle(.red)
-        }
-    }
-    
-    @ViewBuilder
-    var parentDeleteConfirm: some View {
-        if let deleting = deleting {
-            Text("Deleting any \(T.kind.name) will remove all associated transactions. Do you wish to continue?")
-            
-            Button("Delete") {
-                for data in deleting.data {
-                    modelContext.delete(data)
-                }
-                
-                self.deleting = nil
-                isDeleting = false
-                self.vm.refresh(context: modelContext)
-            }
-        }
-        
-        Button("Cancel", role: .cancel) {
-            self.deleting = nil
-            isDeleting = false
-        }
-    }
-    @ViewBuilder
-    var childDeleteConfirm: some View {
-        if let deleting = deletingChild {
-            Button("Delete") {
-                for data in deleting.data {
-                    modelContext.delete(data)
-                }
-                
-                deletingChild = nil
-                isDeletingChild = false
-                
-            }
-        }
-        
-        Button("Cancel", role: .cancel) {
-            deletingChild = nil
-            isDeletingChild = false
         }
     }
     
@@ -191,7 +103,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                     Spacer()
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain).contextMenu {
-                parentContextMenu(target: helper.target)
+                GeneralContextMenu(helper.target, inspect: $parentInspect, remove: $deleting, isDeleting: $isDeleting, addLabel: T.kind.addSubName, add: add_parent)
             }
             
             if helper.childrenShown {

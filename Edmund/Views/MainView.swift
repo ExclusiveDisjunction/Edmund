@@ -61,6 +61,17 @@ struct AddProfileView : View {
         }.padding()
     }
 }
+@Observable
+class ActiveProfile : Identifiable {
+    init(name: String, container: ModelContainer) {
+        self.name = name
+        self.container = container
+    }
+    
+    var id: String { self.name }
+    var name: String;
+    var container: ModelContainer;
+}
 
 struct MainView: View {
     @AppStorage("enableTransactions") var enableTransactions: Bool?;
@@ -68,16 +79,14 @@ struct MainView: View {
     @State private var accCatvm: AccountsCategoriesVM = .init();
     
     init(current: (ModelContainer, ContainerNames), global: ModelContainer, profiles: Binding<[Profile]>) {
-        self.currentContainer = current.0
+        self.activeProfile = .init(name: current.1.name, container: current.0)
         self.globalContainer = global
         self._profiles = profiles
-        self.selectedProfile = current.1.name
     }
     
-    @State private var currentContainer: ModelContainer;
+    @Bindable private var activeProfile: ActiveProfile;
     private var globalContainer: ModelContainer;
     @Binding private var profiles: [Profile];
-    @State private var selectedProfile: Profile.ID;
     
     @State private var showProfileFailure: Bool = false;
     @State private var showProfileSettings = false;
@@ -112,13 +121,13 @@ struct MainView: View {
             
             if enableTransactions ?? true {
                 NavigationLink {
-                    LedgerTable(profile: $selectedProfile)
+                    LedgerTable(profile: $activeProfile.name)
                 } label: {
                     Text("Ledger")
                 }
                 
                 NavigationLink {
-                    BalanceSheet(profile: $selectedProfile, vm: balance_vm)
+                    BalanceSheet(profile: $activeProfile.name, vm: balance_vm)
                 } label: {
                     Text("Balance Sheet")
                 }
@@ -145,16 +154,11 @@ struct MainView: View {
     }
     
     private func showSettings() {
-        if canPopoutWindow {
-#if os(macOS)
-            openSettings()
-#else
-            openWindow(id: "settings")
-#endif
-        }
-        else {
-            showingSettings = true
-        }
+        #if os(macOS)
+        openSettings()
+        #else
+        showingSettings = true
+        #endif
     }
     private func showHelp() {
         if canPopoutWindow {
@@ -180,13 +184,12 @@ struct MainView: View {
             }
             
             do {
-                try currentContainer.mainContext.save()
+                try activeProfile.container.mainContext.save()
             }
             catch {
                 fatalError("Unable to save model to disk \(error)")
             }
-            currentContainer = try Containers.getContainer(containerID)
-            
+            activeProfile.container = try Containers.getContainer(containerID)
         }
         catch {
             showProfileFailure = true
@@ -199,11 +202,7 @@ struct MainView: View {
     var body: some View {
         NavigationSplitView {
             VStack {
-                VStack {
-                    Text("Edmund").font(.title)
-                    Text("Personal Finances").font(.subheadline).italic()
-                    Text("Viewing profile '\(selectedProfile)'").font(.subheadline)
-                }.padding(.bottom).backgroundStyle(.background.secondary)
+                Text("Edmund").font(.title).padding(.bottom).backgroundStyle(.background.secondary)
                 
                 navLinks
                 
@@ -211,13 +210,13 @@ struct MainView: View {
                 
                 HStack {
                     Button(action: showSettings) {
-                        Label("Settings", systemImage: "gear")
-                    }
+                        Image(systemName: "gear")
+                    }.buttonStyle(.borderedProminent)
                     Button(action: showHelp) {
-                        Label("Help", systemImage: "questionmark.circle")
-                    }
+                        Image(systemName: "questionmark.circle")
+                    }.buttonStyle(.borderedProminent)
                 }
-                Picker("Profile", selection: $selectedProfile) {
+                Picker("Profile", selection: $activeProfile.name) {
                     ForEach(profiles, id: \.id) { profile in
                         Text(profile.name).tag(profile.id)
                     }
@@ -225,7 +224,7 @@ struct MainView: View {
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             Homepage()
-        }.modelContainer(currentContainer).onChange(of: selectedProfile, profileChanged).alert("Unable to switch profile", isPresented: $showProfileFailure, actions: {
+        }.modelContainer(activeProfile.container).onChange(of: activeProfile.name, profileChanged).alert("Unable to switch profile", isPresented: $showProfileFailure, actions: {
             Button("Ok", action: {
                 showProfileFailure = false
             })

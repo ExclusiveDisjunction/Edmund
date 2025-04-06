@@ -8,8 +8,16 @@
 import SwiftUI
 import SwiftData
 
-enum WarningKind {
-    case noneSelected, editMultipleSelected
+enum WarningKind: Int, Identifiable {
+    case noneSelected = 0, tooMany = 1
+    
+    var id: Self { self }
+    var message: LocalizedStringKey {
+        switch self {
+            case .noneSelected: "noItems"
+            case .tooMany: "tooManyItems"
+        }
+    }
 }
 
 struct DeletingAction<T>{
@@ -46,19 +54,21 @@ struct DeletingActionConfirm<T>: View where T: PersistentModel {
 }
 
 
-struct GeneralContextMenu<T> : View where T: Identifiable{
+struct GeneralContextMenu<T> : View where T: Identifiable {
     var target: T;
     @Binding var inspection: InspectionManifest<T>?;
+    @Binding var delete: DeletingAction<T>?;
+    @Binding var isDeleting: Bool;
     let canInspect: Bool;
-    let remove: (T) -> Void;
     let add: (() -> Void)?;
     let addLabel: LocalizedStringKey;
     
-    init(_ target: T, inspect: Binding<InspectionManifest<T>?>, remove: @escaping (T) -> Void, addLabel: LocalizedStringKey = "Add", add: (() -> Void)? = nil, canInspect: Bool = true) {
+    init(_ target: T, inspect: Binding<InspectionManifest<T>?>, remove: Binding<DeletingAction<T>?>, isDeleting: Binding<Bool>, addLabel: LocalizedStringKey = "Add", add: (() -> Void)? = nil, canInspect: Bool = true) {
         self.target = target
         self._inspection = inspect
         self.canInspect = canInspect
-        self.remove = remove
+        self._delete = remove
+        self._isDeleting = isDeleting
         self.add = add
         self.addLabel = addLabel
     }
@@ -85,7 +95,8 @@ struct GeneralContextMenu<T> : View where T: Identifiable{
         }
         
         Button(action: {
-            remove(target)
+            delete = .init(data: [target])
+            isDeleting = true
         }) {
             Label("Delete", systemImage: "trash").foregroundStyle(.red)
         }

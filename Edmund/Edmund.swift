@@ -57,7 +57,7 @@ struct EdmundApp: App {
                         LedgerWindow(profile: profile).modelContainer(container)
                     }
                 } else {
-                    Text("Was not able to resolve profile").italic().font(.title2)
+                    Text("Unable to switch profile").italic().font(.title2)
                 }
             }
             else {
@@ -74,7 +74,7 @@ struct EdmundApp: App {
                         BalanceSheetWindow(profile: profile).modelContainer(container)
                     }
                 } else {
-                    Text("Was not able to resolve profile").italic().font(.title2)
+                    Text("Unable to switch profile").italic().font(.title2)
                 }
             }
             else {
@@ -86,10 +86,6 @@ struct EdmundApp: App {
         
         #if os(macOS)
         Settings {
-            SettingsView().preferredColorScheme(colorScheme).modelContainer(globalContainer)
-        }
-        #else
-        WindowGroup(id: "settings") {
             SettingsView().preferredColorScheme(colorScheme).modelContainer(globalContainer)
         }
         #endif

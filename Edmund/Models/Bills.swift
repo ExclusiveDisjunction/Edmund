@@ -6,6 +6,7 @@
 //
 
 import SwiftData
+import SwiftUI
 import Foundation
 
 public enum BillsKind : Int, Filterable, Equatable {
@@ -17,14 +18,14 @@ public enum BillsKind : Int, Filterable, Equatable {
     
     public var id: Self { self }
     
-    public var toString: String {
+    public var name: LocalizedStringKey {
         switch self {
-            case .subscription: String("Subscription")
-            case .bill: String("Bill")
-            case .utility: String("Utility")
+            case .subscription: "Subscription"
+            case .bill: "Bill"
+            case .utility: "Utility"
         }
     }
-    public var toStringPlural: String {
+    public var pluralName: LocalizedStringKey {
         switch self {
             case .subscription: "Subscriptions"
             case .bill: "Bills"
@@ -59,7 +60,7 @@ public enum BillsSort : Sortable {
     public var ascendingQuestion: String {
         switch self {
             case .name: String("Alphabetical")
-            case .amount: String("Low to High")
+            case .amount: String("High to Low")
             case .kind: String("Subscription to Utility")
         }
     }
@@ -67,7 +68,7 @@ public enum BillsSort : Sortable {
     public func compare(_ lhs: Bill, _ rhs: Bill, _ ascending: Bool) -> Bool {
         switch self {
             case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
-            case .amount: ascending ? lhs.amount < rhs.amount : lhs.amount > rhs.amount
+            case .amount: ascending ? lhs.amount > rhs.amount : lhs.amount < rhs.amount
             case .kind: ascending ? lhs.kind < rhs.kind : lhs.kind > rhs.kind
         }
     }
@@ -97,14 +98,14 @@ public enum LongDuration : Equatable, Hashable {
     }
 }
 
-public enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
-    case weekly = "Weekly"
-    case biWeekly = "Bi-Weekly"
-    case monthly = "Monthly"
-    case biMonthly = "Bi-Monthly"
-    case quarterly = "Quarterly"
-    case semiAnually = "Semi-Anually"
-    case anually =     "Anually"
+public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
+    case weekly = 0
+    case biWeekly = 1
+    case monthly = 2
+    case biMonthly = 3
+    case quarterly = 4
+    case semiAnually = 5
+    case anually = 6
     
     private var index: Int {
         switch self {
@@ -136,18 +137,29 @@ public enum BillsPeriod: String, CaseIterable, Identifiable, Equatable {
         60.83,
         91.25,
         182.5,
-        
+
     ]
     
-    public var perName: String {
+    public var perName: LocalizedStringKey {
         switch self {
-            case .weekly:      String("Week")
-            case .biWeekly:    String("Two Weeks")
-            case .monthly:     String("Month")
-            case .biMonthly:   String("Two Months")
-            case .quarterly:   String("Quarter")
-            case .semiAnually: String("Half Year")
-            case .anually:     String("Year")
+            case .weekly:      "Week"
+            case .biWeekly:    "Two Weeks"
+            case .monthly:     "Month"
+            case .biMonthly:   "Two Months"
+            case .quarterly:   "Quarter"
+            case .semiAnually: "Half Year"
+            case .anually:     "Year"
+        }
+    }
+    public var name: LocalizedStringKey {
+        switch self{
+            case .weekly:       "Weekly"
+            case .biWeekly:     "Bi-Weekly"
+            case .monthly:      "Monthly"
+            case .biMonthly:    "Bi-Monthly"
+            case .quarterly:    "Quarterly"
+            case .semiAnually:  "Semi-Anually"
+            case .anually:      "Anually"
         }
     }
     
@@ -206,7 +218,7 @@ public final class Bill : Identifiable, Queryable {
     public var endDate: Date?
     private var rawAmount: Decimal;
     private var rawKind: Int;
-    private var rawPeriod: String;
+    private var rawPeriod: Int;
     @Relationship(deleteRule: .cascade, inverse: \UtilityBridge.parent) public var child: UtilityBridge?
     
     public var amount: Decimal {
@@ -263,6 +275,14 @@ public final class Bill : Identifiable, Queryable {
         }
         else {
             return nextDate
+        }
+    }
+    public var isExpired: Bool {
+        if let endDate = endDate {
+            Date.now > endDate
+        }
+        else {
+            false
         }
     }
 

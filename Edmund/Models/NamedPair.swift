@@ -7,30 +7,36 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 public enum NamedPairKind : Int, Equatable {
     case account = 0
     case category = 1
     
-    public var name: String {
+    public var name: LocalizedStringKey {
         switch self {
             case .account: "Account"
             case .category: "Category"
         }
     }
-    public var pluralized:  String {
+    public var subName: LocalizedStringKey {
         switch self {
-        case .account: "Accounts"
-        case .category: "Categories"
+            case .account: "Sub Account"
+            case .category: "Sub Category"
         }
     }
-    public var subName: String {
-        "Sub \(self.rawValue)"
+    public var addName: LocalizedStringKey {
+        switch self {
+            case .account: "Add Account"
+            case .category: "Add Category"
+        }
     }
-    public var subNamePlural: String {
-        "Sub \(self.pluralized)"
+    public var addSubName: LocalizedStringKey {
+        switch self {
+            case .account: "Add Sub Account"
+            case .category: "Add Sub Category"
+        }
     }
-    
 }
 
 public protocol BoundPairParent : Identifiable, PersistentModel {

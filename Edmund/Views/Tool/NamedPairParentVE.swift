@@ -120,13 +120,13 @@ struct NamedPairParentVE<P> : View where P : BoundPairParent {
                 show_alert = false;
             })
         }, message: {
-            Text("Please provide a name for the \(P.kind.rawValue).")
+            Text("Please provide a name.")
         }).onDisappear {
             if target.name.isEmpty {
                 modelContext.delete(target)
             }
         }.confirmationDialog("There are unsaved changes.", isPresented: $askSwitch) {
-            Button("Save Changes", action: {
+            Button("Save", action: {
                 target.name = editManifest?.name ?? target.name
                 editManifest = nil
                 editHash = 0
