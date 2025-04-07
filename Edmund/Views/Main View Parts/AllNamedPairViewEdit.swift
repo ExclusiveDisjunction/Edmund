@@ -53,7 +53,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     var vm: AllNamedPairsVE_MV<T>;
     @State private var selectedParents: Set<T.ID> = [];
     
-    @Bindable private var parentInspect: InspectionManifest<T> = .init();
+    @Bindable private var parentEdit: InspectionManifest<T> = .init();
     @Bindable private var childInspect: InspectionManifest<T.C> = .init();
     @Bindable private var warning: WarningManifest = .init();
     @Bindable private var parentDelete: DeletingManifest<T> = .init();
@@ -62,10 +62,10 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     @Environment(\.modelContext) private var modelContext;
     
     private func add_parent() {
-        
+        parentEdit.open(.init(), mode: .edit)
     }
     private func add_child() {
-        
+        childInspect.open(.init(), mode: .edit)
     }
     
     private func parents_remove_from(_ offsets: IndexSet) {
@@ -84,7 +84,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             HStack {
                 Text(child.name).padding(.leading, 30)
             }.contentShape(Rectangle()).contextMenu {
-                GeneralContextMenu(child, inspect: childInspect, remove: childDelete)
+                GeneralContextMenu(child, inspect: childInspect, remove: childDelete, canInspect: false)
             }
         }
     }
@@ -102,23 +102,23 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                     Spacer()
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain).contextMenu {
-                GeneralContextMenu(helper.target, inspect: parentInspect, remove: parentDelete, addLabel: T.kind.addSubName, add: add_parent)
+                GeneralContextMenu(helper.target, inspect: parentEdit, remove: parentDelete, addLabel: T.kind.addSubName, add: add_parent, canInspect: false)
             }
             
             if helper.childrenShown {
                 childrenList(parent: helper.target)
             }
         }.padding()
-            .sheet(item: $parentInspect.value) { target in
-            NamedPairParentVE(target, isEdit: parentInspect.mode == .edit)
-        }
+            .sheet(item: $parentEdit.value) { target in
+                NamedPairParentEdit(target)
+            }
             .sheet(item: $childInspect.value) { target in
-            NamedPairChildVE(target, isEdit: childInspect.mode == .edit)
-        }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $parentDelete.isDeleting, titleVisibility: .visible) {
-            DeletingActionConfirm(parentDelete)
-        }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $childDelete.isDeleting, titleVisibility: .visible) {
-            DeletingActionConfirm(childDelete)
-        }
+                NamedPairChildEdit(target)
+            }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $parentDelete.isDeleting, titleVisibility: .visible) {
+                DeletingActionConfirm(parentDelete)
+            }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $childDelete.isDeleting, titleVisibility: .visible) {
+                DeletingActionConfirm(childDelete)
+            }
     }
 }
 

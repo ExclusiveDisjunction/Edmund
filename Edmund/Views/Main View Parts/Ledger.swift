@@ -223,7 +223,11 @@ struct LedgerTable: View {
                         }.buttonStyle(.borderedProminent)
                     }.padding([.trailing, .bottom])
                 }
-            }
+            }.alert("Warning", isPresented: $warning.isPresented, actions: {
+                Button("Ok", action: { warning.isPresented = false } )
+            }, message: {
+                Text((warning.warning ?? .noneSelected).message)
+            })
     }
 }
 

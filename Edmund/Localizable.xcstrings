@@ -763,6 +763,7 @@
       }
     },
     "Discard Changes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -794,17 +795,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edytuj "
-          }
-        }
-      }
-    },
-    "Edit the selected transaction" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zmodyfikuj wybraną transakcje "
           }
         }
       }
@@ -1261,8 +1251,14 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Bitte wählen Sie etwas aus, um fortzufahren "
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select an item and try again."
           }
         }
       }
@@ -1537,17 +1533,6 @@
         }
       }
     },
-    "Remove selected transactions" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń wybrane transakcje "
-          }
-        }
-      }
-    },
     "Removing this information will remove all associated transactions. Do you wish to continue?" : {
       "localizations" : {
         "de" : {
@@ -1778,6 +1763,7 @@
       }
     },
     "There are unsaved changes." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1813,8 +1799,14 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Bitte wählen Sie nur einen Artikel aus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select one item and try again."
           }
         }
       }

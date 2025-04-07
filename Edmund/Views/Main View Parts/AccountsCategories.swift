@@ -105,13 +105,13 @@ struct AccountsCategories : View {
                 }
             }
         }.sheet(item: $addingAcc) { account in
-            NamedPairParentVE(account, isEdit: true)
+            NamedPairParentEdit(account)
         }.sheet(item: $addingCat) { category in
-            NamedPairParentVE(category, isEdit: true)
+            NamedPairParentEdit(category)
         }.sheet(item: $addingSubAcc) { sub_account in
-            NamedPairChildVE(sub_account, isEdit: true)
+            NamedPairChildEdit(sub_account)
         }.sheet(item: $addingSubCat) { sub_category in
-            NamedPairChildVE(sub_category, isEdit: true)
+            NamedPairChildEdit(sub_category)
         }.navigationTitle("Transaction Organization")
             .toolbarRole(.editor)
             .onAppear(perform: self.refresh)

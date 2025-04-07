@@ -10,10 +10,10 @@ import SwiftData
 import Charts
 
 struct AllBillsViewEdit : View {
-    private var query: QueryManifest<Bill> = .init(.name);
     @State private var tableSelected = Set<Bill.ID>();
     @State private var showingChart: Bool = false;
     
+    @Bindable private var query: QueryManifest<Bill> = .init(.name);
     @Bindable private var inspecting = InspectionManifest<Bill>();
     @Bindable private var warning = WarningManifest()
     @Bindable private var deleting = DeletingManifest<Bill>();
@@ -172,7 +172,7 @@ struct AllBillsViewEdit : View {
                 )
                 )
             }.padding().frame(minHeight: 350)
-        }.padding().toolbarRole(.editor).navigationTitle("Bills").onChange(of: query, refresh)
+        }.padding().toolbarRole(.editor).navigationTitle("Bills").onChange(of: query.hashValue, refresh).onAppear(perform: refresh)
     }
 }
 

@@ -107,9 +107,11 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
             filter.first(where: { $0.accepts(item) } ) != nil
         }
         
-        self.cached = filtered.sorted { lhs, rhs in
+        let sorted = filtered.sorted { lhs, rhs in
             sorting.compare(lhs, rhs, ascending)
         }
+        
+        self.cached = sorted 
     }
 }
 
