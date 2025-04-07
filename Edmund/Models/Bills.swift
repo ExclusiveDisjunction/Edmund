@@ -50,18 +50,18 @@ public enum BillsSort : Sortable {
     case name, amount, kind
     
     public var id: Self { self }
-    public var toString: String {
+    public var toString: LocalizedStringKey {
         switch self {
-            case .name: String("Name")
-            case .amount: String("Amount")
-            case .kind: String("Kind")
+            case .name: "Name"
+            case .amount: "Amount"
+            case .kind: "Kind"
         }
     }
-    public var ascendingQuestion: String {
+    public var ascendingQuestion: LocalizedStringKey {
         switch self {
-            case .name: String("Alphabetical")
-            case .amount: String("High to Low")
-            case .kind: String("Subscription to Utility")
+            case .name: "Alphabetical"
+            case .amount: "High to Low"
+            case .kind: "Subscription to Utility"
         }
     }
     

@@ -26,11 +26,13 @@ struct LedgerTable: View {
     @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
     
     @Binding var profile: String;
+    
     @State var isPopout = false;
     @State private var selected = Set<LedgerEntry.ID>();
-    @State private var inspect: InspectionManifest<LedgerEntry>?;
+    
+    @Bindable private var warning: WarningManifest = .init();
+    @Bindable private var inspect: InspectionManifest<LedgerEntry> = .init();
     @Bindable private var deleting: DeletingManifest<LedgerEntry> = .init();
-    @State private var editAlert = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -50,39 +52,6 @@ struct LedgerTable: View {
 #endif
     }
     
-    private func remove_selected() {
-        let resolved = data.filter { selected.contains($0.id ) }
-        if !resolved.isEmpty {
-            deleting.action = resolved
-        }
-    }
-    private func edit_selected() {
-        let resolved = data.filter { selected.contains($0.id ) }
-        
-        if resolved.count == 1 {
-            let first = self.selected.first!;
-            guard let element = self.data.first( where: {$0.id == first } ) else { return }
-            
-            inspect = .init(mode: .edit, value: element)
-        }
-        else {
-            editAlert = true
-        }
-        
-    }
-    private func inspect_selected() {
-        let resolved = data.filter { selected.contains($0.id ) }
-        
-        if resolved.count == 1 {
-            let first = self.selected.first!;
-            guard let element = self.data.first( where: {$0.id == first } ) else { return }
-            
-            inspect = .init(mode: .view, value: element)
-        }
-        else {
-            editAlert = true
-        }
-    }
     private func popout() {
         openWindow(id: "ledger", value: profile)
     }
@@ -95,7 +64,7 @@ struct LedgerTable: View {
                 Spacer()
                 Text(entry.balance, format: .currency(code: currencyCode))
             }.swipeActions(edge: .trailing) {
-                GeneralContextMenu(entry, inspect: $inspect, remove: $deleting, asSlide: true)
+                GeneralContextMenu(entry, inspect: inspect, remove: deleting, asSlide: true)
             }
         }
     }
@@ -137,7 +106,7 @@ struct LedgerTable: View {
                 }
             }
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
-            SelectionsContextMenu(selection, inspect: $inspect, delete: $deleting)
+            SelectionsContextMenu(selection, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 300)
@@ -147,11 +116,7 @@ struct LedgerTable: View {
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
         if horizontalSizeClass != .compact {
-            ToolbarItem(id: "inspect", placement: .secondaryAction) {
-                Button(action: inspect_selected) {
-                    Label("Inspect", systemImage: "info.circle")
-                }
-            }
+            GeneralInspectToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
         }
         
         if shouldShowPopoutButton {
@@ -162,75 +127,69 @@ struct LedgerTable: View {
             }
         }
         
-        ToolbarItem(id: "general", placement: .primaryAction) {
-            ControlGroup {
-                Menu {
-                    Text("Basic")
-                    Button("Manual Transactions", action: {
-                        //vm.sub_trans.append(.init(.manual()))
-                    } )
-                    Button("Composite Transaction", action: {
-                        //vm.sub_trans.append( .init( .composite() ) )
-                    })
-                    Button("Bill Payment", action: {
-                        //vm.sub_trans.append(.init(.bill_pay()))
-                    })
-                    Button("Personal Loan", action: {
-                        //vm.sub_trans.append(.init(.personal_loan()))
-                    })
-                    
-                    Divider()
-                    
-                    Text("Account Control")
-                    Button("General Income", action: {
-                        //vm.sub_trans.append(.init(.generalIncome()))
-                    }).help("Gift or Interest")
-                    Button("Payday", action: {
-                        //vm.sub_trans.append( .init( .payday() ) )
-                    }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
-                    Button(action: {
-                        //vm.sub_trans.append(.init(.audit()))
-                    }) {
-                        Text("Audit").foregroundStyle(Color.red)
-                    }
-                    
-                    Divider()
-                    
-                    Text("Grouped")
-                    Button("Credit Card Transactions", action: {
-                        //vm.sub_trans.append( .init( .creditCardTrans() ) )
-                    }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
-                    
-                    Divider()
-                    
-                    Text("Transfer")
-                    Button("One-to-One", action: {
-                        //vm.sub_trans.append( .init( .one_one_transfer() ) )
-                    })
-                    Button("One-to-Many", action: {
-                        //vm.sub_trans.append( .init( .one_many_transfer() ) )
-                    })
-                    Button("Many-to-One", action: {
-                        //vm.sub_trans.append( .init( .many_one_transfer() ) )
-                    })
-                    Button("Many-to-Many", action: {
-                        //vm.sub_trans.append( .init( .many_many_transfer() ) )
-                    })
-                    
-                } label: {
-                    Label("Add", systemImage: "plus")
-                }.help("Add a specific kind of transaction to the editor")
+        ToolbarItem(id: "add", placement: .primaryAction) {
+            Menu {
+                Text("Basic")
+                Button("Manual Transactions", action: {
+                    //vm.sub_trans.append(.init(.manual()))
+                } )
+                Button("Composite Transaction", action: {
+                    //vm.sub_trans.append( .init( .composite() ) )
+                })
+                Button("Bill Payment", action: {
+                    //vm.sub_trans.append(.init(.bill_pay()))
+                })
+                Button("Personal Loan", action: {
+                    //vm.sub_trans.append(.init(.personal_loan()))
+                })
                 
-                if horizontalSizeClass != .compact {
-                    Button(action: edit_selected) {
-                        Label("Edit", systemImage: "pencil")
-                    }.help("Edit the selected transaction")
-                    
-                    Button(action: remove_selected) {
-                        Label("Delete", systemImage: "trash").foregroundStyle(.red)
-                    }.help("Remove selected transactions")
+                Divider()
+                
+                Text("Account Control")
+                Button("General Income", action: {
+                    //vm.sub_trans.append(.init(.generalIncome()))
+                }).help("Gift or Interest")
+                Button("Payday", action: {
+                    //vm.sub_trans.append( .init( .payday() ) )
+                }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
+                Button(action: {
+                    //vm.sub_trans.append(.init(.audit()))
+                }) {
+                    Text("Audit").foregroundStyle(Color.red)
                 }
-            }
+                
+                Divider()
+                
+                Text("Grouped")
+                Button("Credit Card Transactions", action: {
+                    //vm.sub_trans.append( .init( .creditCardTrans() ) )
+                }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
+                
+                Divider()
+                
+                Text("Transfer")
+                Button("One-to-One", action: {
+                    //vm.sub_trans.append( .init( .one_one_transfer() ) )
+                })
+                Button("One-to-Many", action: {
+                    //vm.sub_trans.append( .init( .one_many_transfer() ) )
+                })
+                Button("Many-to-One", action: {
+                    //vm.sub_trans.append( .init( .many_one_transfer() ) )
+                })
+                Button("Many-to-Many", action: {
+                    //vm.sub_trans.append( .init( .many_many_transfer() ) )
+                })
+                
+            } label: {
+                Label("Add", systemImage: "plus")
+            }.help("Add a specific kind of transaction to the editor")
+        }
+    
+        if horizontalSizeClass != .compact {
+            GeneralInspectToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+            
+            GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)
         }
         
 #if os(iOS)
@@ -254,13 +213,13 @@ struct LedgerTable: View {
                 toolbar
             }
             .toolbarRole(.editor)
-            .sheet(item: $inspect) { inspect in
+            .sheet(item: $inspect.value) { target in
                 VStack {
-                    LedgerEntryVE(inspect.value, isEdit: inspect.mode  == .edit)
+                    LedgerEntryVE(target, isEdit: inspect.mode  == .edit)
                     HStack {
                         Spacer()
                         Button("Ok") {
-                            self.inspect = nil
+                            self.inspect.value = nil
                         }.buttonStyle(.borderedProminent)
                     }.padding([.trailing, .bottom])
                 }

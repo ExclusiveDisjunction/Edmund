@@ -51,13 +51,13 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     @Query private var children: [T.C];
     
     var vm: AllNamedPairsVE_MV<T>;
-    @State private var parentInspect: InspectionManifest<T>?;
-    @State private var childInspect: InspectionManifest<T.C>?;
     @State private var selectedParents: Set<T.ID> = [];
-    @State private var deleting: DeletingAction<T>? = nil
-    @State private var deletingChild: DeletingAction<T.C>? = nil;
-    @State private var isDeleting: Bool = false;
-    @State private var isDeletingChild: Bool = false;
+    
+    @Bindable private var parentInspect: InspectionManifest<T> = .init();
+    @Bindable private var childInspect: InspectionManifest<T.C> = .init();
+    @Bindable private var warning: WarningManifest = .init();
+    @Bindable private var parentDelete: DeletingManifest<T> = .init();
+    @Bindable private var childDelete: DeletingManifest<T.C> = .init();
     
     @Environment(\.modelContext) private var modelContext;
     
@@ -71,8 +71,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     private func parents_remove_from(_ offsets: IndexSet) {
         let targets = offsets.map { vm.data[$0].target }
         if !targets.isEmpty {
-            deleting = .init(data: targets)
-            isDeleting = true
+            parentDelete.action = targets
         }
     }
     private func refresh() {
@@ -85,7 +84,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             HStack {
                 Text(child.name).padding(.leading, 30)
             }.contentShape(Rectangle()).contextMenu {
-                GeneralContextMenu(child, inspect: $childInspect, remove: $deletingChild, isDeleting: $isDeletingChild)
+                GeneralContextMenu(child, inspect: childInspect, remove: childDelete)
             }
         }
     }
@@ -103,22 +102,22 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                     Spacer()
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain).contextMenu {
-                GeneralContextMenu(helper.target, inspect: $parentInspect, remove: $deleting, isDeleting: $isDeleting, addLabel: T.kind.addSubName, add: add_parent)
+                GeneralContextMenu(helper.target, inspect: parentInspect, remove: parentDelete, addLabel: T.kind.addSubName, add: add_parent)
             }
             
             if helper.childrenShown {
                 childrenList(parent: helper.target)
             }
         }.padding()
-        .sheet(item: $parentInspect) { inspect in
-            NamedPairParentVE(inspect.value, isEdit: inspect.mode == .edit)
+            .sheet(item: $parentInspect.value) { target in
+            NamedPairParentVE(target, isEdit: parentInspect.mode == .edit)
         }
-        .sheet(item: $childInspect) { inspect in
-            NamedPairChildVE(inspect.value, isEdit: inspect.mode == .edit)
-        }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $isDeleting, titleVisibility: .visible) {
-            DeletingActionConfirm(isPresented: $isDeleting, action: $deleting)
-        }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $isDeletingChild, titleVisibility: .visible) {
-            DeletingActionConfirm(isPresented: $isDeleting, action: $deleting)
+            .sheet(item: $childInspect.value) { target in
+            NamedPairChildVE(target, isEdit: childInspect.mode == .edit)
+        }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $parentDelete.isDeleting, titleVisibility: .visible) {
+            DeletingActionConfirm(parentDelete)
+        }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $childDelete.isDeleting, titleVisibility: .visible) {
+            DeletingActionConfirm(childDelete)
         }
     }
 }

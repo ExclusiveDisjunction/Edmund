@@ -9,28 +9,8 @@ import SwiftUI
 import SwiftData
 import Charts
 
-struct GeneralActionsPanel: View {
-    var on_add: () -> Void;
-    var on_edit: () -> Void;
-    var on_delete: () -> Void;
-    
-    var body: some View {
-        HStack {
-            Button(action: on_add) {
-                Image(systemName: "plus")
-            }
-            Button(action: on_edit) {
-                Image(systemName: "pencil")
-            }
-            Button(action: on_delete) {
-                Image(systemName: "trash").foregroundStyle(.red)
-            }
-        }
-    }
-}
-
 struct AllBillsViewEdit : View {
-    @State private var query: QueryProvider<Bill> = .init(.name);
+    private var query: QueryManifest<Bill> = .init(.name);
     @State private var tableSelected = Set<Bill.ID>();
     @State private var showingChart: Bool = false;
     
@@ -48,41 +28,18 @@ struct AllBillsViewEdit : View {
         
     @Query private var bills: [Bill]
     private var sortedBills: [Bill] {
-        query.apply(bills.filter { showExpiredBills || !$0.isExpired } )
+        query.cached
     }
     
+    private func refresh() {
+        query.apply(bills.filter { showExpiredBills || !$0.isExpired } )
+    }
     private func add_bill(_ kind: BillsKind = .bill) {
         withAnimation {
             let new_bill = Bill(name: "", kind: kind, amount: 0, child: kind == .utility ? UtilityBridge(nil) : nil, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(new_bill)
+            refresh()
             inspecting.open(new_bill, mode: .edit)
-        }
-    }
-    private func remove_selected() {
-        let resolved = bills.filter { tableSelected.contains($0.id) }
-        if resolved.count == 0 {
-            warning.warning = .noneSelected
-        }
-        else {
-            deleting.action = resolved
-        }
-    }
-    private func edit_selected() {
-        let resolved = bills.filter { tableSelected.contains($0.id) }
-        if resolved.count == 0 {
-            warning.warning = .noneSelected
-        }
-        else if let first = resolved.first {
-            inspecting.open(first, mode: .edit)
-        }
-        else {
-            warning.warning = .tooMany
-        }
-    }
-    private func remove_specifics(_ id: Set<Bill.ID>) {
-        let resolved = bills.filter { id.contains($0.id) }
-        if !resolved.isEmpty {
-            deleting.action = resolved
         }
     }
     private func toggle_inspector() {
@@ -127,7 +84,7 @@ struct AllBillsViewEdit : View {
                 Text(bill.pricePer(showcasePeriod), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            SelectionsContextMenu(selection, inspect: inspecting, delete: deleting)
+            SelectionsContextMenu(selection, inspect: inspecting, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 270)
@@ -146,44 +103,31 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        ToolbarItem(id: "inspect", placement: .secondaryAction) {
-            Button(action: {} ) {
-                Label("Inspect", systemImage: "info.circle")
+        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspecting, warning: warning, role: .view)
+        
+        ToolbarItem(id: "add", placement: .primaryAction) {
+            Menu {
+                Button("Bill", action: {
+                    add_bill(.bill)
+                })
+                
+                Button("Subscription", action: {
+                    add_bill(.subscription)
+                })
+                
+                Button("Utility", action: {
+                    add_bill(.utility)
+                })
+            } label: {
+                Label("Add", systemImage: "plus")
             }
         }
         
-        ToolbarItem(id: "general", placement: .primaryAction) {
-            ControlGroup {
-                Menu {
-                    Button("Bill", action: {
-                        add_bill(.bill)
-                    })
-                    
-                    Button("Subscription", action: {
-                        add_bill(.subscription)
-                    })
-                    
-                    Button("Utility", action: {
-                        add_bill(.utility)
-                    })
-                } label: {
-                    Label("Add", systemImage: "plus")
-                }
-                
-                
-                if horizontalSizeClass != .compact {
-                    Button(action: edit_selected) {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    
-                    Button(action: remove_selected) {
-                        Label("Delete", systemImage: "trash").foregroundStyle(.red)
-                    }
-                }
-            }
+        if horizontalSizeClass != .compact {
+            GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+            
+            GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
         }
-        
-        
     }
 
     var body: some View {
@@ -214,9 +158,9 @@ struct AllBillsViewEdit : View {
         }, message: {
             Text((warning.warning ?? .noneSelected).message )
         }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
-            DeletingActionConfirm(deleting: deleting)
+            DeletingActionConfirm(deleting, post: refresh)
         }.sheet(isPresented: $showingChart) {
-            Chart(bills.sorted(by: { $0.amount < $1.amount } )) { bill in
+            Chart(query.cached.sorted(by: { $0.amount < $1.amount } )) { bill in
                 SectorMark(
                     angle: .value(
                         Text(verbatim: bill.name),
@@ -228,7 +172,7 @@ struct AllBillsViewEdit : View {
                 )
                 )
             }.padding().frame(minHeight: 350)
-        }.padding().toolbarRole(.editor).navigationTitle("Bills")
+        }.padding().toolbarRole(.editor).navigationTitle("Bills").onChange(of: query, refresh)
     }
 }
 

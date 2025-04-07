@@ -261,6 +261,9 @@
         }
       }
     },
+    "Alphabetical" : {
+
+    },
     "Amount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -665,7 +668,7 @@
         }
       }
     },
-    "Currency Code" : {
+    "Currency" : {
 
     },
     "Current Balance" : {
@@ -796,6 +799,7 @@
       }
     },
     "Edit the selected transaction" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -955,6 +959,9 @@
           }
         }
       }
+    },
+    "High to Low" : {
+
     },
     "Home" : {
       "extractionState" : "manual",
@@ -1531,6 +1538,7 @@
       }
     },
     "Remove selected transactions" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1732,6 +1740,9 @@
           }
         }
       }
+    },
+    "Subscription to Utility" : {
+
     },
     "Subscriptions" : {
       "localizations" : {
