@@ -7,8 +7,3 @@
 
 import SwiftUI;
 import Foundation;
-
-protocol TransactionEditor : Identifiable {
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]?;
-    func validate() -> Bool;
-}

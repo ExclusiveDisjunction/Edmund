@@ -27,8 +27,9 @@ struct LedgerTable: View {
     
     @Binding var profile: String;
     
-    @State var isPopout = false;
+    @State var isPopout: Bool = false;
     @State private var selected = Set<LedgerEntry.ID>();
+    @State private var transMode: TransactionKind?;
     
     @Bindable private var warning: WarningManifest = .init();
     @Bindable private var inspect: InspectionManifest<LedgerEntry> = .init();
@@ -129,61 +130,75 @@ struct LedgerTable: View {
         
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
-                Text("Basic")
-                Button("Manual Transactions", action: {
-                    //vm.sub_trans.append(.init(.manual()))
-                } )
-                Button("Composite Transaction", action: {
-                    //vm.sub_trans.append( .init( .composite() ) )
-                })
-                Button("Bill Payment", action: {
-                    //vm.sub_trans.append(.init(.bill_pay()))
-                })
-                Button("Personal Loan", action: {
-                    //vm.sub_trans.append(.init(.personal_loan()))
-                })
-                
-                Divider()
-                
-                Text("Account Control")
-                Button("General Income", action: {
-                    //vm.sub_trans.append(.init(.generalIncome()))
-                }).help("Gift or Interest")
-                Button("Payday", action: {
-                    //vm.sub_trans.append( .init( .payday() ) )
-                }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
-                Button(action: {
-                    //vm.sub_trans.append(.init(.audit()))
-                }) {
-                    Text("Audit").foregroundStyle(Color.red)
+                Menu {
+                    Button(TransactionKind.simple.name, action: {
+                        transMode = .simple
+                    })
+                    Button(TransactionKind.composite.name, action: {
+                        transMode = .composite
+                    })
+                    Button(TransactionKind.grouped.name, action: {
+                        transMode = .grouped
+                    })
+                    Button(TransactionKind.creditCard.name, action: {
+                        transMode = .creditCard
+                    })
+                } label: {
+                    Text("Basic")
                 }
                 
-                Divider()
+                Menu {
+                    Button(BillsKind.bill.name, action: {
+                        transMode = .billPay(.bill)
+                    })
+                    Button(BillsKind.subscription.name, action: {
+                        transMode = .billPay(.subscription)
+                    })
+                    Button(BillsKind.utility.name, action: {
+                        transMode = .billPay(.utility)
+                    })
+                } label: {
+                    Text("Bill Payment")
+                }
                 
-                Text("Grouped")
-                Button("Credit Card Transactions", action: {
-                    //vm.sub_trans.append( .init( .creditCardTrans() ) )
-                }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
-                
-                Divider()
-                
-                Text("Transfer")
-                Button("One-to-One", action: {
-                    //vm.sub_trans.append( .init( .one_one_transfer() ) )
-                })
-                Button("One-to-Many", action: {
-                    //vm.sub_trans.append( .init( .one_many_transfer() ) )
-                })
-                Button("Many-to-One", action: {
-                    //vm.sub_trans.append( .init( .many_one_transfer() ) )
-                })
-                Button("Many-to-Many", action: {
-                    //vm.sub_trans.append( .init( .many_many_transfer() ) )
+                Button(TransactionKind.income.name, action: {
+                    transMode = .income
                 })
                 
+                Menu {
+                    Button(TransferKind.oneOne.name, action: {
+                        transMode = .transfer(.oneOne)
+                    })
+                    
+                    Button(TransferKind.oneMany.name, action: {
+                        transMode = .transfer(.oneMany)
+                    })
+                    
+                    Button(TransferKind.manyOne.name, action: {
+                        transMode = .transfer(.manyOne)
+                    })
+                    
+                    Button(TransferKind.manyMany.name, action: {
+                        transMode = .transfer(.manyMany)
+                    })
+                } label: {
+                    Text("Transfer")
+                }
+                
+                Menu {
+                    Button(TransactionKind.personalLoan.name, action: {
+                        transMode = .personalLoan
+                    })
+                    
+                    Button(TransactionKind.refund.name, action: {
+                        transMode = .refund
+                    })
+                } label: {
+                    Text("Miscellaneous")
+                }
             } label: {
                 Label("Add", systemImage: "plus")
-            }.help("Add a specific kind of transaction to the editor")
+            }
         }
     
         if horizontalSizeClass != .compact {
@@ -193,7 +208,7 @@ struct LedgerTable: View {
         }
         
 #if os(iOS)
-        ToolbarItem(id: "edit", placement: .primaryAction) {
+        ToolbarItem(id: "editIOS", placement: .primaryAction) {
             EditButton()
         }
 #endif
@@ -227,7 +242,11 @@ struct LedgerTable: View {
                 Button("Ok", action: { warning.isPresented = false } )
             }, message: {
                 Text((warning.warning ?? .noneSelected).message)
-            })
+            }).sheet(item: $transMode, onDismiss: { transMode = nil }) { mode in
+                TransactionEditor(kind: mode).environment(\.categoriesContext, CategoriesContext(modelContext))
+            }.confirmationDialog("Are you sure you want to delete these items?", isPresented: $deleting.isDeleting) {
+                DeletingActionConfirm(deleting)
+            }
     }
 }
 

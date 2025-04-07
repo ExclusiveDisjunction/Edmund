@@ -10,6 +10,7 @@ import SwiftData
 
 /// The warning message to be presented.
 enum WarningKind: Int, Identifiable {
+    
     /// The warning that no elements are selected, when at least one was expected.
     case noneSelected = 0
     /// The warning that too many elements are selected, as only one was expected.
@@ -25,24 +26,29 @@ enum WarningKind: Int, Identifiable {
     }
 }
 
+struct WarningMessage: Identifiable {
+    let message: LocalizedStringKey
+    let title: LocalizedStringKey
+    
+    var id: UUID { UUID() }
+}
+
 /// An observable class that provides warning funcntionality. It includes a memeber, `isPresented`, which can be bound. This value will become `true` when the internal `warning` is not `nil`.
 @Observable
-class WarningManifest {
-    var warning: WarningKind?;
+class BaseWarningManifest<T> {
+    var warning: T?;
     var isPresented: Bool {
         get { warning != nil }
         set {
             if self.isPresented == newValue { return }
             
-            if newValue {
-                warning = .noneSelected
-            }
-            else {
-                warning = nil
-            }
+            warning = nil
         }
     }
 }
+
+typealias WarningManifest = BaseWarningManifest<WarningKind>;
+typealias StringWarningManifest = BaseWarningManifest<WarningMessage>
 
 enum InspectionMode {
     case edit, view
@@ -76,7 +82,11 @@ class DeletingManifest<T> where T: PersistentModel {
     var action: [T]?;
     /// A bindable value that returns true when the `action` is not `nil` and the list is not empty.
     var isDeleting: Bool {
-        get { action?.isEmpty ?? false }
+        get {
+            guard let action = action else { return false }
+            
+            return !action.isEmpty
+        }
         set {
             if self.isDeleting == newValue {
                 return

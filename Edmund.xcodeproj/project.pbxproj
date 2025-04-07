@@ -47,7 +47,6 @@
 				Views/Transactions/Transfers/ManyOneTransfer.swift,
 				Views/Transactions/Transfers/ManyTransferFoundation.swift,
 				Views/Transactions/Transfers/OneManyTransfer.swift,
-				Views/Transactions/Transfers/OneOneTransfer.swift,
 			);
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 		};

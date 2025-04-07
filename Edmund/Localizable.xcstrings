@@ -178,9 +178,6 @@
         }
       }
     },
-    "Add a specific kind of transaction to the editor" : {
-
-    },
     "Add Account" : {
       "localizations" : {
         "de" : {
@@ -340,6 +337,9 @@
         }
       }
     },
+    "Are you sure you want to delete these items?" : {
+
+    },
     "Audit" : {
       "localizations" : {
         "de" : {
@@ -428,6 +428,9 @@
       }
     },
     "Basic" : {
+
+    },
+    "Batch Transactions" : {
 
     },
     "Bi-Monthly" : {
@@ -762,23 +765,6 @@
         }
       }
     },
-    "Discard Changes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ablegen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Porzuć zmiany"
-          }
-        }
-      }
-    },
     "Do not show as Accounting Style" : {
 
     },
@@ -814,6 +800,9 @@
           }
         }
       }
+    },
+    "emptyFields" : {
+
     },
     "Error" : {
       "extractionState" : "manual",
@@ -888,16 +877,10 @@
         }
       }
     },
+    "From" : {
+
+    },
     "General" : {
-
-    },
-    "General Income" : {
-
-    },
-    "Gift or Interest" : {
-
-    },
-    "Grouped" : {
 
     },
     "Half Year" : {
@@ -976,6 +959,9 @@
     "If transactions are enabled, all ledger & transaction data/forms can be accessed. If this is off, then these features will be hidden and non-accessible. Disable this feature if you want to use the budgeting and bill tracking features only." : {
 
     },
+    "Income" : {
+
+    },
     "Inspect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -992,6 +978,9 @@
           }
         }
       }
+    },
+    "Into" : {
+
     },
     "Kind" : {
       "extractionState" : "manual",
@@ -1072,9 +1061,6 @@
     "Manual" : {
 
     },
-    "Manual Transactions" : {
-
-    },
     "Many-to-Many" : {
       "localizations" : {
         "de" : {
@@ -1138,6 +1124,9 @@
           }
         }
       }
+    },
+    "Miscellaneous" : {
+
     },
     "Money In:" : {
       "localizations" : {
@@ -1247,6 +1236,20 @@
         }
       }
     },
+    "noCategories" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The information about categories could not be retrieved. Please submit a report about this error."
+          }
+        }
+      }
+    },
+    "noInformationToSave" : {
+
+    },
     "noItems" : {
       "localizations" : {
         "de" : {
@@ -1294,6 +1297,9 @@
           }
         }
       }
+    },
+    "one One" : {
+
     },
     "One-to-Many" : {
       "localizations" : {
@@ -1360,9 +1366,6 @@
           }
         }
       }
-    },
-    "Payday" : {
-
     },
     "Personal" : {
       "extractionState" : "manual",
@@ -1513,9 +1516,6 @@
         }
       }
     },
-    "Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account" : {
-
-    },
     "Refresh" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1532,6 +1532,9 @@
           }
         }
       }
+    },
+    "Refund" : {
+
     },
     "Removing this information will remove all associated transactions. Do you wish to continue?" : {
       "localizations" : {
@@ -1739,7 +1742,7 @@
         }
       }
     },
-    "Takes in a paycheck, and allows for easy control of moving money to specific accounts" : {
+    "TBD" : {
 
     },
     "The profile you selected could not be opened." : {
@@ -1758,23 +1761,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brak transakcji, lub odśwież stronę."
-          }
-        }
-      }
-    },
-    "There are unsaved changes." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achtung! Es gibt nicht gespeicherte Änderungen. "
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uwaga: niezapisane zmiany."
           }
         }
       }
@@ -1820,6 +1806,9 @@
           }
         }
       }
+    },
+    "Transaction" : {
+
     },
     "Transaction Organization" : {
       "localizations" : {
@@ -1896,6 +1885,12 @@
           }
         }
       }
+    },
+    "unexpected" : {
+
+    },
+    "Unexpected Error" : {
+
     },
     "Use Ledger" : {
 

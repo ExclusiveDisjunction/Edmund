@@ -7,115 +7,87 @@
 
 import SwiftUI;
 
-@Observable
-class OneOneTransferVM : TransactionEditor {
-    init() {
-        err_msg = nil;
-        amount = 0;
-        src = nil
-        dest = nil
+struct OneOneTransfer : View, TransactionEditorProtocol {
+    init(_ signal: TransactionEditorSignal) {
+        self.signal = signal
+        self.signal.action = apply
     }
     
-    func compile_deltas() -> Dictionary<UUID, Decimal>? {
-        if !validate() { return nil; }
-        guard let src = self.src, let dest = self.dest else { return nil}
+    var signal: TransactionEditorSignal;
+    @Environment(\.categoriesContext) private var categories: CategoriesContext?;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @Environment(\.modelContext) private var modelContext;
+    
+    @State private var src: SubAccount?;
+    @State private var dest: SubAccount?
+    @State private var amount: Decimal = 0.0;
+    @State private var date = Date.now;
+    
+    func apply(_ warning: StringWarningManifest) -> Bool {
+        guard let categories = categories else {
+            warning.warning = .init(message: "noCategories", title: "Error")
+            return false
+        }
+        guard src?.parent != nil &&  dest?.parent != nil && amount != 0.0 else {
+            warning.warning = .init(message: "emptyFields", title: "Warning")
+            return false
+        }
         
-        return [
-            src.id: -amount,
-            dest.id: amount
-        ];
-    }
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
-        if !validate() { return nil; }
-        
-        guard let src = self.src, let dest = self.dest else { return nil }
-        
-        return [
+        let trans: [LedgerEntry] = [
             .init(
-                memo: src.name + " to " + dest.name,
+                memo: src!.name + " to " + dest!.name,
                 credit: 0,
                 debit: amount,
-                date: Date.now,
+                date: date,
                 location: "Bank",
-                category: cats.account_control.transfer,
-                account: src
+                category: categories.accountControl.transfer,
+                account: src!
             ),
             .init(
-                memo: src.name + " to " + dest.name,
+                memo: src!.name + " to " + dest!.name,
                 credit: amount,
                 debit: 0,
-                date: Date.now,
+                date: date,
                 location: "Bank",
-                category: cats.account_control.transfer,
-                account: dest
+                category: categories.accountControl.transfer,
+                account: dest!
             )
-        ];
-    }
-    func validate() -> Bool {
-        if src == nil && dest == nil{
-            err_msg = "Source and Destination accounts are empty";
-        }
-        else if src == nil {
-            err_msg = "Source account is empty";
-        }
-        else if dest == nil{
-            err_msg = "Destination account is empty";
-        }
-        else {
-            err_msg = nil;
-            return true;
-        }
+        ]
         
-        return false;
+        for item in trans { modelContext.insert(item) }
+        return true
     }
-    func clear() {
-        err_msg = nil;
-        amount = 0;
-        src = nil
-        dest = nil
-    }
-    
-    
-    var err_msg: String?;
-    var amount: Decimal;
-    var src: SubAccount?;
-    var dest: SubAccount?;
-}
-
-struct OneOneTransfer : View {
-    @Bindable var vm: OneOneTransferVM;
     
     var body: some View {
         VStack {
-            HStack {
-                Text("One-to-One Transfer").font(.headline)
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
-                }
-                Spacer()
-            }.padding(.top, 5)
-
+        
             Grid() {
                 GridRow {
-                    Text("Take")
-                    TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
+                    Text("Amount")
+                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                 }
-                   
+                
                 GridRow {
                     Text("From")
-                    NamedPairPicker(target: $vm.src)
+                    NamedPairPicker($src)
                 }
                 
                 GridRow {
                     Text("Into")
-                    NamedPairPicker(target: $vm.dest)
+                    NamedPairPicker($dest)
                 }
                 
-            }.padding(.bottom, 10).frame(minWidth: 300, maxWidth: .infinity)
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+                GridRow {
+                    Text("Date")
+                    DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
+                }
+                
+            }.frame(minWidth: 300, maxWidth: .infinity)
+        }
     }
 }
 
 #Preview {
-    OneOneTransfer(vm: OneOneTransferVM())
+    OneOneTransfer(.init()).modelContainer(Containers.debugContainer).padding()
 }

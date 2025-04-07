@@ -8,261 +8,115 @@
 import SwiftUI
 import SwiftData;
 
-/*
-enum TransactionEnum {
-    case manual(sub: ManualTransactionsVM = .init())
-    case generalIncome(sub: GeneralIncomeViewModel = .init())
-    case bill_pay(sub: BillPaymentVM = .init())
-    case personal_loan(sub: PersonalLoanTransVM = .init())
-    case audit(sub: AuditViewModel = .init())
-    case payday(sub: PaydayViewModel = .init())
-    case creditCardTrans(sub: CreditCardTransViewModel = .init())
-    case one_one_transfer(sub: OneOneTransferVM = .init())
-    case one_many_transfer(sub: OneManyTransferVM = .init())
-    case many_one_transfer(sub: ManyOneTransferVM = .init())
-    case many_many_transfer(sub: ManyManyTransferVM = .init())
-    case composite(sub: CompositeTransactionVM = .init())
+enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable{
+    case oneOne, oneMany, manyOne, manyMany
     
-    func as_trans_view_base() -> any TransactionEditor {
+    var name: LocalizedStringKey {
         switch self {
-        case .manual(let sub): return sub
-        case .generalIncome(let sub): return sub
-        case .bill_pay(let sub): return sub
-        case .personal_loan(let sub): return sub
-        case .audit(let sub): return sub
-        case .payday(let sub): return sub
-        case .creditCardTrans(let sub): return sub
-        case .one_one_transfer(let sub): return sub
-        case .one_many_transfer(let sub): return sub
-        case .many_one_transfer(let sub): return sub
-        case .many_many_transfer(let sub): return sub
-        case .composite(let sub): return sub
+            case.oneOne: return "One-to-One"
+            case .oneMany: return "One-to-Many"
+            case .manyOne: return "Many-to-One"
+            case .manyMany: return "Many-to-Many"
         }
     }
     
-    func create_transactions(_ cat: CategoriesContext) -> [LedgerEntry]? {
-        return self.as_trans_view_base().create_transactions(cat)
+    var id: Self { self }
+}
+
+enum TransactionKind : Identifiable, Equatable, Hashable {
+    case simple, composite, grouped, creditCard
+    case personalLoan, refund
+    case income
+    case billPay(BillsKind)
+    case audit
+    case transfer(TransferKind)
+    
+    var name: LocalizedStringKey {
+        switch self {
+            case .simple: "Transaction"
+            case .composite: "Composite Transaction"
+            case .grouped: "Batch Transactions"
+            case .creditCard: "Credit Card Transactions"
+            case .personalLoan: "Personal Loan"
+            case .refund: "Refund"
+            case .income: "Income"
+            case .billPay(let v): v.name
+            case .audit: "Audit"
+            case .transfer(let v): v.name
+        }
     }
-    func validate() -> Bool {
-        return self.as_trans_view_base().validate()
-    }
+    
+    var id: Self { self }
+}
+
+protocol TransactionEditorProtocol : View {
+    var signal: TransactionEditorSignal { get set }
+    func apply(_ warning: StringWarningManifest) -> Bool;
 }
 
 @Observable
-class TransactionWrapperVM : Identifiable, TransactionEditor {
-    init(_ inner: TransactionEnum) {
-        self.inner = inner;
+class TransactionEditorSignal {
+    init() {
+        self.action = nil
     }
     
-    var id: UUID = UUID()
-    
-    var inner: TransactionEnum;
-    
-    func validate() -> Bool {
-        inner.validate()
-    }
-    func create_transactions(_ cat: CategoriesContext) -> [LedgerEntry]? {
-        inner.create_transactions(cat)
+    var action: ((StringWarningManifest) -> Bool)?;
+    func submit(_ warning: StringWarningManifest) -> Bool? {
+        guard let action = action else { return nil }
+        
+        return action(warning)
     }
 }
-struct TransactionWrapper : View {
-    @Bindable var vm: TransactionWrapperVM;
+
+private struct CategoriesContextKey: EnvironmentKey {
+    static let defaultValue: CategoriesContext? = nil
+}
+
+extension EnvironmentValues {
+    public var categoriesContext: CategoriesContext? {
+        get { self[CategoriesContextKey.self] }
+        set { self[CategoriesContextKey.self] = newValue }
+    }
+}
+
+struct TransactionEditor : View {
+    let kind: TransactionKind
+    @Bindable private var warning: StringWarningManifest = .init()
+    @Bindable private var signal: TransactionEditorSignal = .init()
+    @Environment(\.dismiss) private var dismiss;
+    
+    private func submit() {
+        guard let result = signal.submit(warning) else {
+            warning.warning = .init(message: "noInformationToSave", title: "Unexpected Error")
+            return
+        }
+        
+        if result {
+            dismiss()
+        }
+    }
+    private func cancel() {
+        dismiss()
+    }
+    
+    @ViewBuilder
+    private var transactionBody: some View {
+        Text("TBD")
+    }
     
     var body: some View {
-        HStack {
-            switch vm.inner {
-            case .manual(let sub): ManualTransactions(vm: sub)
-            case .generalIncome(let sub): GeneralIncome(vm: sub)
-            case .bill_pay(let sub): BillPayment(vm: sub)
-            case .personal_loan(let sub): PersonalLoanTrans(vm: sub)
-            case .audit(let sub): Audit(vm: sub)
-            case .payday(let sub): Payday(vm: sub)
-            case .creditCardTrans(let sub): CreditCardTrans(vm: sub)
-            case .one_one_transfer(let sub): OneOneTransfer(vm: sub)
-            case .one_many_transfer(let sub): OneManyTransfer(vm: sub)
-            case .many_one_transfer(let sub): ManyOneTransfer(vm: sub)
-            case .many_many_transfer(let sub): ManyManyTransfer(vm: sub)
-            case .composite(let sub): CompositeTransaction(vm: sub)
+        VStack {
+            Text(kind.name).font(.title2)
+            
+            transactionBody
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                Button("Cancel", action: cancel).buttonStyle(.bordered)
+                Button("Save", action: submit).buttonStyle(.borderedProminent)
             }
-        }.padding(.bottom, 5)
+        }.padding()
     }
 }
-
-
- @Observable
- class TransactionsViewModel {
- var sub_trans: [TransactionWrapperVM] = [];
- 
- func clear_all() {
- sub_trans = [];
- }
- func reset_all() {
- sub_trans.forEach( { $0.clear() })
- }
- func remove_specific(_ id: TransactionWrapperVM.ID) {
- self.sub_trans.removeAll(where: {$0.id == id} )
- }
- 
- func validate(alert: inout AlertContext, okShowAlert: Bool = true) -> Bool {
- var result: Bool = true;
- for transaction in sub_trans {
- if !transaction.validate() {
- result = false
- }
- }
- 
- if result {
- if okShowAlert {
- alert = .init("All cells validated", is_error: false)
- }
- return true
- }
- else {
- alert = .init("One or more cells did not validate. Please correct errors & try again.", is_error: true)
- return true
- }
- }
- 
- }
- 
- struct TransactionsView : View {
- @Bindable var vm: TransactionsViewModel;
- 
- @Environment(\.modelContext) private var context;
- @Query var categories: [SubCategory];
- @State var alert_context: AlertContext = .init();
- 
- private func enact() {
- if !vm.validate(alert: &alert_context, okShowAlert: false) {
- return;
- }
- 
- let cats = CategoriesContext(from: categories, context: self.context)
- 
- for (i, item) in vm.sub_trans.enumerated() {
- if let list = item.create_transactions(cats) {
- for transaction in list {
- context.insert(transaction);
- }
- }
- else {
- alert_context = .init("Unexpected null result from cell \(i)")
- return;
- }
- }
- 
- vm.clear_all();
- alert_context = .init("Enacted successfully", is_error: false)
- }
- 
- var body : some View {
- VStack {
- ScrollView {
- VStack {
- ForEach(vm.sub_trans) { s_vm in
- TransactionWrapper(vm: s_vm)
- .contextMenu {
- Button(role: .destructive) {
- withAnimation {
- vm.remove_specific(s_vm.id)
- }
- } label: {
- Label("Delete", systemImage: "trash")
- }
- }
- }
- }
- }.padding()
- }.alert(alert_context.is_error ? "Validation Errors" : "Notice", isPresented: $alert_context.show_alert, actions: {
- Button("Ok", action: {
- alert_context.show_alert = false;
- })
- }, message: {
- Text(alert_context.message)
- })
- .toolbar {
- HStack {
- Menu {
- Text("Basic")
- Button("Manual Transactions", action: {
- vm.sub_trans.append(.init(.manual()))
- } )
- Button("Composite Transaction", action: {
- vm.sub_trans.append( .init( .composite() ) )
- })
- Button("Bill Payment", action: {
- vm.sub_trans.append(.init(.bill_pay()))
- })
- Button("Personal Loan", action: {
- vm.sub_trans.append(.init(.personal_loan()))
- })
- 
- Divider()
- 
- Text("Account Control")
- Button("General Income", action: {
- vm.sub_trans.append(.init(.generalIncome()))
- }).help("Gift or Interest")
- Button("Payday", action: {
- vm.sub_trans.append( .init( .payday() ) )
- }).help("Takes in a paycheck, and allows for easy control of moving money to specific accounts")
- Button(action: {
- vm.sub_trans.append(.init(.audit()))
- }) {
- Text("Audit").foregroundStyle(Color.red)
- }
- 
- Divider()
- 
- Text("Grouped")
- Button("Credit Card Transactions", action: {
- vm.sub_trans.append( .init( .creditCardTrans() ) )
- }).help("Records transactions for a specific credit card, and automatically moves money in a specified account to a designated sub-account")
- 
- Divider()
- 
- Text("Transfer")
- Button("One-to-One", action: {
- vm.sub_trans.append( .init( .one_one_transfer() ) )
- })
- Button("One-to-Many", action: {
- vm.sub_trans.append( .init( .one_many_transfer() ) )
- })
- Button("Many-to-One", action: {
- vm.sub_trans.append( .init( .many_one_transfer() ) )
- })
- Button("Many-to-Many", action: {
- vm.sub_trans.append( .init( .many_many_transfer() ) )
- })
- 
- } label: {
- Label("Add", systemImage: "plus")
- }.help("Add a specific kind of transaction to the editor")
- 
- Button(action: {
- let _ = vm.validate(alert: &alert_context)
- }) {
- Label("Validate", systemImage: "slider.horizontal.2.square")
- }.help("Determine if there are errors in any transaction")
- 
- Button(action: enact) {
- Label("Enact", systemImage: "pencil")
- }.help("Attempt to apply the transactions to the system")
- 
- Button(action: {
- withAnimation {
- vm.clear_all()
- }
- }) {
- Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(.red)
- }.help("Remove all cells")
- }
- }.frame(minWidth: 700)
- .navigationTitle("Transactions Editor")
- }
- }
- 
- #Preview {
- TransactionsView(vm: TransactionsViewModel()).frame(width: 700)
- }
- */

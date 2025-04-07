@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
 public final class Category : Identifiable, Hashable, BoundPairParent {
@@ -121,79 +122,164 @@ public class SubCategory : BoundPair, Equatable {
     #endif
 }
 
-public struct AcctCtlContext {
+protocol CategoriesHolderBasis {
+    init?(context: ModelContext, from: Category?)
+    static var name: String { get }
+}
+extension CategoriesHolderBasis {
+    static func getOrInsert(from: Category, name: String, context: ModelContext) -> SubCategory {
+        if let target = from.children.first(where: {$0.name == name } ) {
+            return target
+        }
+        else {
+            let result = SubCategory(name, parent: from)
+            context.insert(result)
+            
+            return result
+        }
+    }
+}
+
+@Observable
+public class AccountControlCategories : CategoriesHolderBasis {
+    init(pay: SubCategory, transfer: SubCategory, audit: SubCategory) {
+        self.pay = pay
+        self.transfer = transfer
+        self.audit = audit
+    }
+    required convenience init?(context: ModelContext, from: Category?) {
+        if let from = from {
+            self.init(
+                pay: Self.getOrInsert(from: from, name: "Pay", context: context),
+                transfer: Self.getOrInsert(from: from, name: "Transfer", context: context),
+                audit: Self.getOrInsert(from: from, name: "Audit", context: context)
+            )
+        }
+        else {
+            let parent = Category(Self.name)
+            self.init(
+                pay: .init("Pay", parent: parent),
+                transfer: .init("Transfer", parent: parent),
+                audit: .init("Audit", parent: parent)
+            )
+            context.insert(parent)
+        }
+    }
+    
+    static var name: String { "Account Control" }
+    
     let pay: SubCategory;
     let transfer: SubCategory;
     let audit: SubCategory;
+}
+
+@Observable
+public class PaymentsCategories : CategoriesHolderBasis {
+    init(loan: SubCategory, repayment: SubCategory, refund: SubCategory, gift: SubCategory, interest: SubCategory) {
+        self.loan = loan
+        self.repayment = repayment
+        self.refund = refund
+        self.gift = gift
+        self.interest = interest
+    }
+    required convenience init?(context: ModelContext, from: Category?) {
+        if let from = from {
+            self.init(
+                loan: Self.getOrInsert(from: from, name: "Loan", context: context),
+                repayment: Self.getOrInsert(from: from, name: "Repayment", context: context),
+                refund: Self.getOrInsert(from: from, name: "Refund", context: context),
+                gift: Self.getOrInsert(from: from, name: "Gift", context: context),
+                interest: Self.getOrInsert(from: from, name: "Interest", context: context)
+            )
+        }
+        else {
+            let parent = Category(Self.name)
+            self.init(
+                loan: .init("Loan"),
+                repayment: .init("Repayment"),
+                refund: .init("Refund"),
+                gift: .init("Gift"),
+                interest: .init("Interest")
+            )
+            
+            parent.children = [
+                loan,
+                repayment,
+                refund,
+                gift,
+                interest
+            ]
+            context.insert(parent)
+        }
+    }
+    
+    static var name: String { "Payments" }
+    
+    let loan: SubCategory;
+    let repayment: SubCategory;
+    let refund: SubCategory;
+    
     let gift: SubCategory;
     let interest: SubCategory;
 }
-public struct PaymentsTransContext {
-    let refund: SubCategory;
-    let loan: SubCategory;
-    let repayment: SubCategory;
+
+@Observable
+public class BillPaymentsCategories : CategoriesHolderBasis{
+    init(bill: SubCategory, sub: SubCategory, utility: SubCategory) {
+        self.bill = bill
+        self.subscription = sub
+        self.utility = utility
+    }
+    required convenience init?(context: ModelContext, from: Category?) {
+        if let from = from {
+            self.init(
+                bill: Self.getOrInsert(from: from, name: "Bill", context: context),
+                sub: Self.getOrInsert(from: from, name: "Subscription", context: context),
+                utility: Self.getOrInsert(from: from, name: "Utility", context: context)
+            )
+        }
+        else {
+            let parent = Category(Self.name)
+            self.init(
+                bill: .init("Bill"),
+                sub: .init("Subscription"),
+                utility: .init("Utility")
+            )
+            
+            parent.children = [
+                bill,
+                subscription,
+                utility,
+            ]
+            context.insert(parent)
+        }
+    }
+    
+    static let name: String = "Bills"
+    
     let bill: SubCategory;
+    let subscription: SubCategory;
+    let utility: SubCategory;
 }
 
-
 /// Provides a lookup for the basic SubCategories that are used by the program.
+@Observable
 public class CategoriesContext {
-    private static func insert(into: ModelContext, parent: String, child: String) -> SubCategory {
-        let result = SubCategory(child, parent: Category(parent))
+    init?(_ context: ModelContext) {
+        guard let categories = try? context.fetch(FetchDescriptor<Category>()) else { return nil }
         
-        into.insert(result)
+        guard let acc = AccountControlCategories(context: context, from: categories.first(where: {$0.name == AccountControlCategories.name } ) ) else { return nil }
+        guard let payment = PaymentsCategories(context: context, from: categories.first(where: {$0.name == PaymentsCategories.name } ) ) else { return nil }
+        guard let bills = BillPaymentsCategories(context: context, from: categories.first(where: {$0.name == BillPaymentsCategories.name } ) ) else { return nil }
         
-        return result;
+        self.context = context
+        self.accountControl = acc
+        self.payments = payment
+        self.bills = bills
     }
     
-    public init(from: [SubCategory], context: ModelContext) {
-        /*
-         The context must contain:
-         
-         Account Control
-            Pay
-            Transfer
-            Audit
-            Gift
-            Interest
-         Payment
-            Refund
-            Loan
-            Repayment
-            Bill
-         
-         */
-        var account_control: Dictionary<String, SubCategory> = [:];
-        var payment: Dictionary<String, SubCategory> = [:];
-        
-        for sub_cat in from {
-            switch sub_cat.parent?.name ?? "" {
-            case "Account Control":
-                account_control[sub_cat.name] = sub_cat;
-            case "Payment":
-                payment[sub_cat.name] = sub_cat;
-            default: continue;
-            }
-        }
-        
-        //First I will do accounts
-        let pay: SubCategory = account_control["Pay"] ?? CategoriesContext.insert(into: context, parent: "Account Control", child: "Pay")
-        let transfer: SubCategory = account_control["Transfer"] ?? CategoriesContext.insert(into: context, parent: "Account Control", child: "Transfer")
-        let audit: SubCategory = account_control["Audit"] ?? CategoriesContext.insert(into: context, parent: "Account Control", child: "Audit")
-        let gift: SubCategory = account_control["Gift"] ?? CategoriesContext.insert(into: context, parent: "Account Control", child: "Gift")
-        let interest: SubCategory = account_control["Interest"] ?? CategoriesContext.insert(into: context, parent: "Account Control", child: "Interest")
-        
-        self.account_control = .init(pay: pay, transfer: transfer, audit: audit, gift: gift, interest: interest)
-        
-        //Then payments
-        let refund: SubCategory = account_control["Refund"] ?? CategoriesContext.insert(into: context, parent: "Payment", child: "Refund")
-        let loan: SubCategory = account_control["Loan"] ?? CategoriesContext.insert(into: context, parent: "Payment", child: "Loan")
-        let repayment: SubCategory = account_control["Repayment"] ?? CategoriesContext.insert(into: context, parent: "Payment", child: "Repayment")
-        let bill: SubCategory = account_control["Bill"] ?? CategoriesContext.insert(into: context, parent: "Payment", child: "Bill")
-        
-        self.payments = .init(refund: refund, loan: loan, repayment: repayment, bill: bill)
-    }
-    
-    public var account_control: AcctCtlContext;
-    public var payments: PaymentsTransContext;
+    private var context: ModelContext;
+    public var accountControl: AccountControlCategories;
+    public var payments: PaymentsCategories;
+    public var bills: BillPaymentsCategories;
 }
