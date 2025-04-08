@@ -186,27 +186,43 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
     public var id: Self { self }
 }
 
-public protocol BillBase : Identifiable, PersistentModel, Queryable {
-    var name: String { get set }
-    var startDate: Date { get set }
-    var endDate: Date? { get set }
-    var kind: BillsKind { get set }
+protocol BillProtocol {
     var period: BillsPeriod { get set }
+    var kind: BillsKind { get set }
     var amount: Decimal { get set }
 }
-extension BillBase {
-    public var daysSinceStart: Int {
+extension BillProtocol {
+    func pricePer(_ period: BillsPeriod) -> Decimal {
+        self.amount * self.period.conversionFactor(period)
+    }
+}
+class BillBase : BillProtocol {
+    init(name: String, start: Date, end: Date? = nil, period: BillsPeriod) {
+        self.id = UUID()
+        self.name = name
+        self.startDate = start
+        self.endDate = end
+        self.period = period
+    }
+    
+    var id: UUID;
+    var name: String;
+    var startDate: Date;
+    var endDate: Date?;
+    var period: BillsPeriod;
+
+    var daysSinceStart: Int {
         let components = Calendar.current.dateComponents([.day], from: self.startDate, to: Date.now)
         return components.day ?? 0
     }
-    public var periodsSinceStart: Int {
+    var periodsSinceStart: Int {
         let days = Float(daysSinceStart);
         let periodDays = self.period.daysInPeriod;
         
         let rawPeriods = days / periodDays
         return Int(rawPeriods.rounded(.towardZero))
     }
-    public var nextBillDate: Date? {
+    var nextBillDate: Date? {
         let duration = self.period.asDuration * periodsSinceStart;
         let nextDate = Calendar.current.date(byAdding: duration.asDateComponents, to: self.startDate);
         if let nextDate = nextDate, let endDate = self.endDate {
@@ -221,17 +237,13 @@ extension BillBase {
             return nextDate
         }
     }
-    public var isExpired: Bool {
+    var isExpired: Bool {
         if let endDate = endDate {
             Date.now > endDate
         }
         else {
             false
         }
-    }
-    
-    public func pricePer(_ period: BillsPeriod) -> Decimal {
-        self.amount * self.period.conversionFactor(period)
     }
 }
 

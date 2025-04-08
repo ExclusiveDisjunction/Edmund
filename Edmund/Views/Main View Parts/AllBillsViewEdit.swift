@@ -27,16 +27,21 @@ struct AllBillsViewEdit : View {
     @Environment(\.modelContext) var modelContext;
         
     @Query private var bills: [Bill]
-    private var sortedBills: [Bill] {
+    @Query private var utilities: [Utility]
+    
+    private var sortedBills: [any BillBase] {
         query.cached
     }
     
     private func refresh() {
-        query.apply(bills.filter { showExpiredBills || !$0.isExpired } )
+        var combined: [any BillBase] = bills.filter { showExpiredBills || !$0.isExpired }
+        combined.append(contentsOf: utilities.filter { showExpiredBills || $0.isExpired } )
+        
+        query.apply(combined)
     }
     private func add_bill(_ kind: BillsKind = .bill) {
         withAnimation {
-            let new_bill = Bill(name: "", kind: kind, amount: 0, child: kind == .utility ? UtilityBridge(nil) : nil, start: Date.now, end: nil, period: .monthly)
+            let new_bill = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(new_bill)
             refresh()
             inspecting.open(new_bill, mode: .edit)
@@ -69,7 +74,7 @@ struct AllBillsViewEdit : View {
     @ViewBuilder
     private var wide: some View {
         Table(self.sortedBills, selection: $tableSelected) {
-            TableColumn("Name", value: \Bill.name)
+            TableColumn("Name", value: \.name)
             TableColumn("Kind") { bill in
                 Text(bill.kind.name)
             }
@@ -148,7 +153,7 @@ struct AllBillsViewEdit : View {
                 
             }
         }.sheet(item: $inspecting.value) { bill in
-            BillVE(bill, isEdit: inspecting.mode == .edit)
+            //BillVE(bill, isEdit: inspecting.mode == .edit)
         }.toolbar(id: "billsToolbar") {
             toolbar
         }.alert("Warning", isPresented: $warning.isPresented, actions: {

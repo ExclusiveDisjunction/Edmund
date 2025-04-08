@@ -68,7 +68,7 @@ public class QueryFilter<T>: Identifiable, Equatable, Hashable where T: Queryabl
     }
     
     /// Determines if the object should be included (not filtered out)
-    func accepts(_ item: T) -> Bool {
+    func accepts(_ item: T.To) -> Bool {
         isIncluded && filter.accepts(item)
     }
 }
@@ -91,7 +91,7 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
     /// All possible filters.
     var filter: [QueryFilter<T>];
     /// The last result from `apply`.
-    var cached: [T];
+    var cached: [T.To];
     
     public static func == (lhs: QueryManifest<T>, rhs: QueryManifest<T>) -> Bool {
         lhs.sorting == rhs.sorting && lhs.ascending == rhs.ascending && lhs.filter == rhs.filter
@@ -103,7 +103,7 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
     }
     
     /// Uses the sorting and filtering criteria to determine which objects from `on` should be inclued. The result is sotred in `cached`, so that the
-    func apply(_ on: [T]) {
+    func apply(_ on: [T.To]) {
         let filtered = on.filter { item in
             filter.first(where: { $0.accepts(item) } ) != nil
         }
