@@ -13,10 +13,15 @@ struct AllBillsViewEdit : View {
     @State private var tableSelected = Set<Bill.ID>();
     @State private var showingChart: Bool = false;
     
-    @Bindable private var query: QueryManifest<Bill> = .init(.name);
-    @Bindable private var inspecting = InspectionManifest<Bill>();
+    @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name);
+    
+    @Bindable private var billInspect = InspectionManifest<Bill>();
+    @Bindable private var billDelete = DeletingManifest<Bill>();
+    
+    @Bindable private var utilInspect = InspectionManifest<Utility>();
+    @Bindable private var utilDelete = DeletingManifest<Utility>();
+    
     @Bindable private var warning = WarningManifest()
-    @Bindable private var deleting = DeletingManifest<Bill>();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
@@ -29,7 +34,7 @@ struct AllBillsViewEdit : View {
     @Query private var bills: [Bill]
     @Query private var utilities: [Utility]
     
-    private var sortedBills: [any BillBase] {
+    private var sortedBills: [BillBaseWrapper] {
         query.cached
     }
     
@@ -37,14 +42,24 @@ struct AllBillsViewEdit : View {
         var combined: [any BillBase] = bills.filter { showExpiredBills || !$0.isExpired }
         combined.append(contentsOf: utilities.filter { showExpiredBills || $0.isExpired } )
         
-        query.apply(combined)
+        query.apply(combined.map { BillBaseWrapper($0) } )
     }
     private func add_bill(_ kind: BillsKind = .bill) {
+        guard kind != .utility else { return }
+        
         withAnimation {
-            let new_bill = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
-            modelContext.insert(new_bill)
+            let raw = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
+            modelContext.insert(raw)
             refresh()
-            inspecting.open(new_bill, mode: .edit)
+            billInspect.open(raw, mode: .edit)
+        }
+    }
+    private func add_utility() {
+        withAnimation {
+            let raw = Utility("", amounts: [], start: Date.now)
+            modelContext.insert(raw)
+            refresh()
+            utilInspect.open(raw, mode: .edit)
         }
     }
     private func toggle_inspector() {
@@ -58,15 +73,15 @@ struct AllBillsViewEdit : View {
     @ViewBuilder
     private var compact: some View {
         List {
-            ForEach(self.sortedBills) { bill in
+            ForEach(self.sortedBills) { wrapper in
                 HStack {
-                    Text(bill.name)
+                    Text(wrapper.data.name)
                     Spacer()
-                    Text(bill.pricePer(showcasePeriod), format: .currency(code: currencyCode))
+                    Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
                     Text("/")
                     Text(showcasePeriod.perName)
                 }.swipeActions(edge: .trailing) {
-                    GeneralContextMenu(bill, inspect: inspecting, remove: deleting, asSlide: true)
+                    //GeneralContextMenu(bill, inspect: inspecting, remove: deleting, asSlide: true)
                 }
             }
         }
@@ -74,22 +89,22 @@ struct AllBillsViewEdit : View {
     @ViewBuilder
     private var wide: some View {
         Table(self.sortedBills, selection: $tableSelected) {
-            TableColumn("Name", value: \.name)
-            TableColumn("Kind") { bill in
-                Text(bill.kind.name)
+            TableColumn("Name", value: \.data.name)
+            TableColumn("Kind") { wrapper in
+                Text(wrapper.data.kind.name)
             }
-            TableColumn("Amount") { bill in
+            TableColumn("Amount") { wrapper in
                 HStack {
-                    Text(bill.amount, format: .currency(code: currencyCode))
+                    Text(wrapper.data.amount, format: .currency(code: currencyCode))
                     Text("/")
-                    Text(bill.period.perName)
+                    Text(wrapper.data.period.perName)
                 }
             }
-            TableColumn("Reserved Cost") { bill in
-                Text(bill.pricePer(showcasePeriod), format: .currency(code: currencyCode))
+            TableColumn("Reserved Cost") { wrapper in
+                Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            SelectionsContextMenu(selection, inspect: inspecting, delete: deleting, warning: warning)
+            //SelectionsContextMenu(selection, inspect: inspecting, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 270)
@@ -131,7 +146,7 @@ struct AllBillsViewEdit : View {
         if horizontalSizeClass != .compact {
             GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
             
-            GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
+            //GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
         }
     }
 
@@ -163,17 +178,19 @@ struct AllBillsViewEdit : View {
         }, message: {
             Text((warning.warning ?? .noneSelected).message )
         }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
-            DeletingActionConfirm(deleting, post: refresh)
+            IndirectDeletingActionConfirm(deleting, action: { list in
+                
+            }, post: refresh)
         }.sheet(isPresented: $showingChart) {
-            Chart(query.cached.sorted(by: { $0.amount < $1.amount } )) { bill in
+            Chart(query.cached.sorted(by: { $0.data.amount < $1.data.amount } )) { wrapper in
                 SectorMark(
                     angle: .value(
-                        Text(verbatim: bill.name),
-                        bill.pricePer(showcasePeriod)
+                        Text(verbatim: wrapper.data.name),
+                        wrapper.data.pricePer(showcasePeriod)
                     )
                 ).foregroundStyle(by: .value(
-                    Text(verbatim: bill.name),
-                    bill.name
+                    Text(verbatim: wrapper.data.name),
+                    wrapper.data.name
                 )
                 )
             }.padding().frame(minHeight: 350)

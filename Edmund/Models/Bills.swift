@@ -9,8 +9,8 @@ import SwiftData
 import SwiftUI
 import Foundation
 
-public enum BillsKind : Int, Filterable, Equatable {
-    public typealias On = any BillBase
+enum BillsKind : Int, Filterable, Equatable {
+    typealias On = BillBaseWrapper
     
     case subscription = 0
     case bill = 1
@@ -33,8 +33,8 @@ public enum BillsKind : Int, Filterable, Equatable {
         }
     }
     
-    public func accepts(_ val: any BillBase) -> Bool {
-        val.kind == self
+    public func accepts(_ val: BillBaseWrapper) -> Bool {
+        val.data.kind == self
     }
     
     public static func <(lhs: BillsKind, rhs: BillsKind) -> Bool {
@@ -44,20 +44,20 @@ public enum BillsKind : Int, Filterable, Equatable {
         lhs.rawValue > rhs.rawValue
     }
 }
-public enum BillsSort : Sortable {
-    public typealias On = any BillBase;
+enum BillsSort : Sortable {
+    typealias On = BillBaseWrapper;
     
     case name, amount, kind
     
-    public var id: Self { self }
-    public var toString: LocalizedStringKey {
+    var id: Self { self }
+    var toString: LocalizedStringKey {
         switch self {
             case .name: "Name"
             case .amount: "Amount"
             case .kind: "Kind"
         }
     }
-    public var ascendingQuestion: LocalizedStringKey {
+    var ascendingQuestion: LocalizedStringKey {
         switch self {
             case .name: "Alphabetical"
             case .amount: "High to Low"
@@ -65,19 +65,24 @@ public enum BillsSort : Sortable {
         }
     }
     
-    public func compare(_ lhs: any BillBase, _ rhs: any BillBase, _ ascending: Bool) -> Bool {
+    func compare(_ lhs: BillBaseWrapper, _ rhs: BillBaseWrapper, _ ascending: Bool) -> Bool {
         switch self {
-            case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
-            case .amount: ascending ? lhs.amount > rhs.amount : lhs.amount < rhs.amount
-            case .kind: ascending ? lhs.kind < rhs.kind : lhs.kind > rhs.kind
+            case .name: ascending ? lhs.data.name < rhs.data.name : lhs.data.name > rhs.data.name
+            case .amount: ascending ? lhs.data.amount > rhs.data.amount : lhs.data.amount < rhs.data.amount
+            case .kind: ascending ? lhs.data.kind < rhs.data.kind : lhs.data.kind > rhs.data.kind
         }
     }
 }
 
-public enum LongDuration : Equatable, Hashable {
+extension Date {
+    static func fromParts(_ year: Int, _ month: Int, _ day: Int) -> Date? {
+        Calendar.current.date(from: DateComponents(year: year, month: month, day: day))
+    }
+}
+enum LongDuration : Equatable, Hashable {
     case years(Int), months(Int), weeks(Int)
     
-    public var asDateComponents: DateComponents {
+    var asDateComponents: DateComponents {
         switch self {
             case .years(let year): DateComponents(year: year)
             case .months(let month): DateComponents(month: month)
@@ -85,7 +90,7 @@ public enum LongDuration : Equatable, Hashable {
         }
     }
     
-    public static func *(lhs: LongDuration, rhs: Int) -> LongDuration {
+    static func *(lhs: LongDuration, rhs: Int) -> LongDuration {
         switch lhs {
             case .years(let years): .years(years * rhs)
             case .months(let months): .months(months * rhs)
@@ -93,12 +98,12 @@ public enum LongDuration : Equatable, Hashable {
         }
     }
     
-    public func adding(to date: Date, calendar: Calendar = .current) -> Date? {
+    func adding(to date: Date, calendar: Calendar = .current) -> Date? {
         return calendar.date(byAdding: asDateComponents, to: date)
     }
 }
 
-public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
+enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -120,7 +125,7 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
     }
     private static var compTable: [[Decimal]] = {
         return [
-        //   Week      Bi-Week   Month     Bi-Month  Quarter  HYear    Year
+            //   Week      Bi-Week   Month     Bi-Month  Quarter  HYear    Year
             [1.0     , 2.0     , 4.0     , 8.0     , 12.0   , 26.0   , 52.0].map { Decimal($0) },
             [1.0/2.0 , 1.0     , 2.0     , 4.0     , 6.0    , 12.0   , 26.0].map { Decimal($0) },
             [1.0/4.0 , 1.0/2.0 , 1.0     , 2.0     , 4.0    , 6.0    , 12.0].map { Decimal($0) },
@@ -137,10 +142,10 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
         60.83,
         91.25,
         182.5,
-
+        
     ]
     
-    public var perName: LocalizedStringKey {
+    var perName: LocalizedStringKey {
         switch self {
             case .weekly:      "Week"
             case .biWeekly:    "Two Weeks"
@@ -151,7 +156,7 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
             case .anually:     "Year"
         }
     }
-    public var name: LocalizedStringKey {
+    var name: LocalizedStringKey {
         switch self{
             case .weekly:       "Weekly"
             case .biWeekly:     "Bi-Weekly"
@@ -163,12 +168,12 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
         }
     }
     
-    public func conversionFactor(_ to: BillsPeriod) -> Decimal {
+    func conversionFactor(_ to: BillsPeriod) -> Decimal {
         let i = self.index, j = to.index
         
         return BillsPeriod.compTable[i][j]
     }
-    public var asDuration: LongDuration {
+    var asDuration: LongDuration {
         switch self {
             case .weekly: .weeks(1)
             case .biWeekly: .weeks(2)
@@ -179,38 +184,22 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
             case .anually: .years(1)
         }
     }
-    public var daysInPeriod: Float {
+    var daysInPeriod: Float {
         Self.daysTable[self.index]
     }
     
-    public var id: Self { self }
+    var id: Self { self }
 }
 
-protocol BillProtocol {
+protocol BillBase : Identifiable {
+    var name: String { get set }
+    var startDate: Date { get set }
+    var endDate: Date? { get set }
     var period: BillsPeriod { get set }
-    var kind: BillsKind { get set }
-    var amount: Decimal { get set }
+    var kind: BillsKind { get }
+    var amount: Decimal { get }
 }
-extension BillProtocol {
-    func pricePer(_ period: BillsPeriod) -> Decimal {
-        self.amount * self.period.conversionFactor(period)
-    }
-}
-class BillBase : BillProtocol {
-    init(name: String, start: Date, end: Date? = nil, period: BillsPeriod) {
-        self.id = UUID()
-        self.name = name
-        self.startDate = start
-        self.endDate = end
-        self.period = period
-    }
-    
-    var id: UUID;
-    var name: String;
-    var startDate: Date;
-    var endDate: Date?;
-    var period: BillsPeriod;
-
+extension BillBase {
     var daysSinceStart: Int {
         let components = Calendar.current.dateComponents([.day], from: self.startDate, to: Date.now)
         return components.day ?? 0
@@ -245,39 +234,65 @@ class BillBase : BillProtocol {
             false
         }
     }
+    func pricePer(_ period: BillsPeriod) -> Decimal {
+        self.amount * self.period.conversionFactor(period)
+    }
+    
+    mutating func update(_ from: any BillBase) {
+        self.name = from.name
+        self.startDate = from.startDate
+        self.endDate = from.endDate
+        self.period = from.period
+    }
+    mutating func update(_ from: BillBaseManifest) {
+        self.name = from.name
+        self.startDate = from.startDate
+        self.endDate = from.endDate
+        self.period = from.period
+    }
+}
+
+struct BillBaseWrapper : Identifiable, Queryable {
+    typealias SortType = BillsSort
+    typealias FilterType = BillsKind
+    
+    init(_ data: any BillBase, id: UUID = UUID()) {
+        self.data = data
+        self.id = id 
+    }
+    
+    var data: any BillBase;
+    var id: UUID;
 }
 
 @Model
-public final class Bill : BillBase {
-    public typealias SortType = BillsSort
-    public typealias FilterType = BillsKind
-    public typealias To = any BillBase;
-    
-    public convenience init(sub: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
-        self.init(name: sub, kind: .subscription, amount: amount, start: start, end: end, period: period)
+final class Bill : BillBase {
+    convenience init(sub: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+        self.init(name: sub, kind: .subscription, amount: amount, start: start, end: end, period: period, id: id)
     }
-    public convenience init(bill: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
-        self.init(name: bill, kind: .bill, amount: amount, start: start, end: end, period: period)
+    convenience init(bill: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+        self.init(name: bill, kind: .bill, amount: amount, start: start, end: end, period: period, id: id)
     }
-    public init(name: String, kind: BillsKind, amount: Decimal, start: Date, end: Date?, period: BillsPeriod) {
+    init(name: String, kind: BillsKind, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+        self.id = id
         self.name = name
-        self.rawKind = (kind == .utility ? .bill : kind).rawValue
         self.amount = amount
         self.startDate = start
         self.endDate = end
+        self.rawKind = kind.rawValue
         self.rawPeriod = period.rawValue
-        self.id = UUID()
     }
     
-    public var id: UUID
-    @Attribute(.unique) public var name: String
-    public var startDate: Date;
-    public var endDate: Date?
-    public var amount: Decimal;
+    var id: UUID
+    @Attribute(.unique) var name: String;
+    var amount: Decimal;
+    var startDate: Date;
+    var endDate: Date?;
+    
     private var rawKind: Int;
     private var rawPeriod: Int;
-
-    public var kind: BillsKind {
+    
+    var kind: BillsKind {
         get {
             BillsKind(rawValue: rawKind)!
         }
@@ -287,27 +302,25 @@ public final class Bill : BillBase {
             self.rawKind = newValue.rawValue
         }
     }
-    public var period: BillsPeriod {
+    var period: BillsPeriod {
         get {
-            BillsPeriod(rawValue: self.rawPeriod)!
+            BillsPeriod(rawValue: rawPeriod)!
         }
         set {
             self.rawPeriod = newValue.rawValue
         }
     }
-
-    
     
 #if DEBUG
     static let exampleExpiredBills: [Bill] = {
         [
-            .init(sub: "Bitwarden", amount: 9.99, start: Date.fromParts(2024, 6, 6)!, end: Date.fromParts(2025, 3, 1)!, period: .anually),
-            .init(sub: "Spotify", amount: 16.99, start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
-          ]
+            .init(sub: "Bitwarden", amount: 9.99,  start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
+            .init(sub: "Spotify",   amount: 16.99, start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
+        ]
     }()
     static let exampleSubscriptions: [Bill] = {
         [
-            .init(sub: "Apple Music",     amount: 5.99, start: Date.fromParts(2025, 3, 2)!, end: nil),
+            .init(sub: "Apple Music",     amount: 5.99, start: Date.fromParts(2025, 3, 2)!,  end: nil),
             .init(sub: "iCloud",          amount: 2.99, start: Date.fromParts(2025, 5, 15)!, end: nil),
             .init(sub: "YouTube Premium", amount: 9.99, start: Date.fromParts(2024, 11, 7)!, end: nil)
         ]
@@ -320,12 +333,11 @@ public final class Bill : BillBase {
         ]
     }()
     
-    static let exampleBills: [any BillBase] = {
-        var result: [any BillBase] = [];
+    static let exampleBills: [Bill] = {
+        var result: [Bill] = [];
         result.append(contentsOf: exampleExpiredBills)
         result.append(contentsOf: exampleSubscriptions)
         result.append(contentsOf: exampleActualBills)
-        result.append(contentsOf: Utility.exampleUtility)
         
         return result
     }()
@@ -334,12 +346,8 @@ public final class Bill : BillBase {
 
 @Model
 final class Utility: BillBase {
-    public typealias SortType = BillsSort
-    public typealias FilterType = BillsKind
-    public typealias To = any BillBase;
-    
-    init(_ name: String, amounts: [UtilityEntry], start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
-        self.id = UUID()
+    init(_ name: String, amounts: [UtilityEntry], start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+        self.id = id
         self.name = name
         self.startDate = start
         self.endDate = end
@@ -355,14 +363,10 @@ final class Utility: BillBase {
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) var children: [UtilityEntry];
     
     var amount: Decimal {
-        get {
-            children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
-        }
-        set { }
+        children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
     }
     var kind: BillsKind {
-        get { .utility }
-        set { }
+        .utility
     }
     var period: BillsPeriod {
         get { BillsPeriod(rawValue: rawPeriod)! }
@@ -407,38 +411,24 @@ final class Utility: BillBase {
     #endif
 }
 
-extension Date {
-    static func fromParts(_ year: Int, _ month: Int, _ day: Int) -> Date? {
-        Calendar.current.date(from: DateComponents(year: year, month: month, day: day))
-    }
-}
-
 @Model
-public class UtilityEntry: Identifiable {
-    public init(_ date: Date, _ amount: Decimal) {
+class UtilityEntry: Identifiable, Hashable, Equatable {
+    init(_ date: Date, _ amount: Decimal, id: UUID = UUID()) {
         self.date = date
         self.amount = amount
-    }
-    
-    public var id = UUID()
-    public var date: Date;
-    public var amount: Decimal;
-    @Relationship public var parent: UtilityBridge?;
-}
-
-@Model
-public final class UtilityBridge : Identifiable {
-    public init(_ parent: Bill?, amounts: [UtilityEntry] = [], id: UUID = UUID()) {
         self.id = id
-        self.parent = parent
-        self.amounts = amounts
     }
     
-    public var id: UUID;
-    @Relationship public var parent: Bill?
-    @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) public var amounts: [UtilityEntry]
-    
-    public var averagePrice: Decimal {
-        amounts.reduce(Decimal(0), { $0 + $1.amount} ) / Decimal(amounts.count)
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(date)
+        hasher.combine(amount)
     }
+    static func ==(lhs: UtilityEntry, rhs: UtilityEntry) -> Bool {
+        lhs.date == rhs.date && lhs.amount == rhs.amount
+    }
+    
+    var id: UUID;
+    var date: Date;
+    var amount: Decimal;
+    @Relationship var parent: Utility?;
 }

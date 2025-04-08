@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
 @Observable
 class UtilityEntryManifest: Identifiable, Hashable, Equatable {
@@ -53,9 +54,19 @@ class UtilityManifest : Identifiable, Hashable, Equatable {
         lhs.base == rhs.base && lhs.children == rhs.children
     }
     
-    func apply(_ to: Utility) {
-        base.apply(to)
-        to.children = children.map { UtilityEntry($0.date, $0.amount) }
+    func apply(_ to: inout Utility, context: ModelContext) {
+        base.apply(&to)
+        if to.children.hashValue != children.hashValue {
+            let oldChildren = to.children;
+            for child in oldChildren {
+                context.delete(child)
+            }
+            
+            let children = children.map { UtilityEntry($0.date, $0.amount) }
+            for child in children {
+                context.insert(child)
+            }
+        }
     }
 }
 
@@ -65,6 +76,9 @@ struct UtilityVE : View {
     @State private var editHash: Int;
     @State private var showAlert: Bool = false;
     
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.dismiss) private var dismiss;
+    
     var isEdit: Bool {
         get { editing != nil }
     }
@@ -73,7 +87,7 @@ struct UtilityVE : View {
         
     }
     func cancel() {
-        
+        dismiss()
     }
     func toggleMode() {
         

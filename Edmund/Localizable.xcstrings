@@ -278,9 +278,6 @@
         }
       }
     },
-    "Amount:" : {
-
-    },
     "Anually" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -687,9 +684,6 @@
         }
       }
     },
-    "Datapoints:" : {
-
-    },
     "Date" : {
       "localizations" : {
         "de" : {
@@ -1020,9 +1014,6 @@
         }
       }
     },
-    "Kind:" : {
-
-    },
     "Ledger" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1263,6 +1254,9 @@
         }
       }
     },
+    "No end date" : {
+
+    },
     "noCategories" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1324,9 +1318,6 @@
           }
         }
       }
-    },
-    "on" : {
-
     },
     "one One" : {
 

@@ -22,8 +22,8 @@ class BillManifest : Identifiable, Hashable, Equatable {
     var amount: Decimal;
     var kind: BillsKind;
     
-    func apply(_ to: Bill) {
-        base.apply(to)
+    func apply(_ to: inout Bill) {
+        base.apply(&to)
         to.amount = amount
         to.kind = kind
     }

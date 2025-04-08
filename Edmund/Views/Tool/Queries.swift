@@ -37,11 +37,10 @@ public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable wher
 
 /// Represents a data type that supports querying, using the `QueryManifest` object.
 public protocol Queryable{
-    associatedtype To;
     /// The type used for sorting
-    associatedtype SortType: Sortable where SortType.On == To
+    associatedtype SortType: Sortable where FilterType.On == Self
     /// The type used for filtering
-    associatedtype FilterType: Filterable where FilterType.On == To
+    associatedtype FilterType: Filterable where FilterType.On == Self
 }
 
 /// A specific filter for a query type. One is made per case of a `Filterable` type, and this stores if that filter is active or not.
@@ -68,7 +67,7 @@ public class QueryFilter<T>: Identifiable, Equatable, Hashable where T: Queryabl
     }
     
     /// Determines if the object should be included (not filtered out)
-    func accepts(_ item: T.To) -> Bool {
+    func accepts(_ item: T) -> Bool {
         isIncluded && filter.accepts(item)
     }
 }
@@ -76,7 +75,7 @@ public class QueryFilter<T>: Identifiable, Equatable, Hashable where T: Queryabl
 /// An observable class used to handle filtering & sorting.
 /// This class can be tracked. This is on purpose. The design goal is to have this class, with an inital sorting. Whenever the sorting changes (use `.onChange`), you can call `.apply`. The user interface should use `.cached` to display the sorted and filtered data. This saves on expensive calls.
 @Observable
-public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
+public class QueryManifest<T> : Hashable, Equatable where T: Queryable, T.FilterType.On == T, T.FilterType.On == T {
     init(_ sorting: T.SortType) {
         self.sorting = sorting
         self.ascending = true
@@ -91,7 +90,7 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
     /// All possible filters.
     var filter: [QueryFilter<T>];
     /// The last result from `apply`.
-    var cached: [T.To];
+    var cached: [T];
     
     public static func == (lhs: QueryManifest<T>, rhs: QueryManifest<T>) -> Bool {
         lhs.sorting == rhs.sorting && lhs.ascending == rhs.ascending && lhs.filter == rhs.filter
@@ -103,7 +102,7 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
     }
     
     /// Uses the sorting and filtering criteria to determine which objects from `on` should be inclued. The result is sotred in `cached`, so that the
-    func apply(_ on: [T.To]) {
+    func apply(_ on: [T]) {
         let filtered = on.filter { item in
             filter.first(where: { $0.accepts(item) } ) != nil
         }
@@ -112,7 +111,7 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
             sorting.compare(lhs, rhs, ascending)
         }
         
-        self.cached = sorted 
+        self.cached = sorted
     }
 }
 
@@ -123,7 +122,7 @@ public struct QueryHandle<T>: Identifiable where T: Queryable {
 }
 
 /// A UI element that uses a specific `QueryManifest<T>` to allow the user to change sorting & filtering criteria.
-public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
+public struct QueryButton<T, S>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
     @Bindable var provider: QueryManifest<T>;
     @State private var handle: QueryHandle<T>?;
     
@@ -167,6 +166,6 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
 }
 
 #Preview {
-    let provider = QueryManifest<Bill>(.name);
+    let provider = QueryManifest<BillBaseWrapper>(.name);
     QueryPopout(provider: provider).modelContainer(Containers.debugContainer)
 }

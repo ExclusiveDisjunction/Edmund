@@ -77,7 +77,7 @@ class InspectionManifest<T> where T: Identifiable {
 
 /// An observable class that provides deleting confrimation dialog abstraction. It includes a member, `isDeleting`, which can be bound. This value will become `true` when the internal list is not `nil` and not empty.
 @Observable
-class DeletingManifest<T> where T: PersistentModel {
+class DeletingManifest<T> where T: Identifiable{
     /// The objects to delete.
     var action: [T]?;
     /// A bindable value that returns true when the `action` is not `nil` and the list is not empty.
@@ -139,6 +139,39 @@ struct DeletingActionConfirm<T>: View where T: PersistentModel{
                 for data in deleting {
                     modelContext.delete(data)
                 }
+                
+                self.deleting.isDeleting  = false
+                if let post = postAction {
+                    post()
+                }
+            }
+        }
+        
+        Button("Cancel", role: .cancel) {
+            deleting.isDeleting = false
+        }
+    }
+}
+/// An abstraction to show in the `.confirmationDialog` of a view. This will handle the deleting of the data inside of a `DeletingManifest<T>`.
+struct IndirectDeletingActionConfirm<T>: View where T: Identifiable{
+    /// The data that can be deleted.
+    var deleting: DeletingManifest<T>;
+    /// Runs after the deleting occurs.
+    let postAction: (() -> Void)?;
+    let delete: ([T]) -> Void;
+    
+    init(_ deleting: DeletingManifest<T>, action: @escaping ([T]) -> Void, post: (() -> Void)? = nil) {
+        self.deleting = deleting
+        self.postAction = post
+        self.delete = action
+    }
+    
+    @Environment(\.modelContext) private var modelContext;
+    
+    var body: some View {
+        if let deleting = deleting.action {
+            Button("Delete") {
+                delete(deleting)
                 
                 self.deleting.isDeleting  = false
                 if let post = postAction {

@@ -10,7 +10,7 @@ import SwiftUI
 
 @Observable
 class BillBaseManifest: Identifiable, Hashable, Equatable {
-    init(_ from: any BillBase) {
+    init<T>(_ from: T) where T: BillBase {
         self.name = from.name
         self.startDate = from.startDate
         self.endDate = from.endDate
@@ -34,11 +34,8 @@ class BillBaseManifest: Identifiable, Hashable, Equatable {
         lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.endDate == rhs.endDate && lhs.period == rhs.period
     }
     
-    func apply(_ to: any BillBase) {
-        to.name = name
-        to.startDate = startDate
-        to.endDate = endDate
-        to.period = period
+    func apply<T>(_ to: inout T) where T: BillBase {
+        to.update(self)
     }
 }
 

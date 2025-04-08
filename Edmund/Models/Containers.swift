@@ -37,8 +37,8 @@ public class Containers {
                 Category.self,
                 SubCategory.self,
                 Bill.self,
+                Utility.self,
                 UtilityEntry.self,
-                UtilityBridge.self
             ]
         )
     }()
@@ -69,6 +69,10 @@ public class Containers {
             let bills = Bill.exampleBills;
             for bill in bills {
                 result.mainContext.insert(bill)
+            }
+            let utilities = Utility.exampleUtility;
+            for utility in utilities {
+                result.mainContext.insert(utility)
             }
             
             return result
