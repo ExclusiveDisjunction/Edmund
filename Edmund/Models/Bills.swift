@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 public enum BillsKind : Int, Filterable, Equatable {
-    public typealias On = Bill
+    public typealias On = any BillBase
     
     case subscription = 0
     case bill = 1
@@ -33,7 +33,7 @@ public enum BillsKind : Int, Filterable, Equatable {
         }
     }
     
-    public func accepts(_ val: Bill) -> Bool {
+    public func accepts(_ val: any BillBase) -> Bool {
         val.kind == self
     }
     
@@ -45,7 +45,7 @@ public enum BillsKind : Int, Filterable, Equatable {
     }
 }
 public enum BillsSort : Sortable {
-    public typealias On = Bill;
+    public typealias On = any BillBase;
     
     case name, amount, kind
     
@@ -65,7 +65,7 @@ public enum BillsSort : Sortable {
         }
     }
     
-    public func compare(_ lhs: Bill, _ rhs: Bill, _ ascending: Bool) -> Bool {
+    public func compare(_ lhs: any BillBase, _ rhs: any BillBase, _ ascending: Bool) -> Bool {
         switch self {
             case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
             case .amount: ascending ? lhs.amount > rhs.amount : lhs.amount < rhs.amount
@@ -186,71 +186,15 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
     public var id: Self { self }
 }
 
-@Model
-public final class Bill : Identifiable, Queryable {
-    public typealias SortType = BillsSort
-    public typealias FilterType = BillsKind
-    
-    public convenience init(sub: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
-        self.init(name: sub, kind: .subscription, amount: amount, child: nil, start: start, end: end, period: period)
-    }
-    public convenience init(bill: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
-        self.init(name: bill, kind: .bill, amount: amount, child: nil, start: start, end: end, period: period)
-    }
-    public convenience init(utility: String, amounts: [UtilityEntry], start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
-        self.init(name: utility, kind: .utility, amount: 0, child: .init(nil, amounts: amounts), start: start, end: end, period: period)
-        self.child?.parent = self
-    }
-    public init(name: String, kind: BillsKind, amount: Decimal, child: UtilityBridge?, start: Date, end: Date?, period: BillsPeriod) {
-        self.name = name
-        self.rawKind = kind.rawValue
-        self.rawAmount = amount
-        self.child = child
-        self.startDate = start
-        self.endDate = end
-        self.rawPeriod = period.rawValue
-        self.id = UUID()
-    }
-    
-    public var id: UUID
-    @Attribute(.unique) public var name: String
-    public var startDate: Date;
-    public var endDate: Date?
-    private var rawAmount: Decimal;
-    private var rawKind: Int;
-    private var rawPeriod: Int;
-    @Relationship(deleteRule: .cascade, inverse: \UtilityBridge.parent) public var child: UtilityBridge?
-    
-    public var amount: Decimal {
-        get {
-            if let child = child {
-                child.averagePrice
-            }
-            else {
-                self.rawAmount
-            }
-        }
-        set {
-            self.rawAmount = newValue
-        }
-    }
-    public var kind: BillsKind {
-        if child != nil {
-            .utility
-        }
-        else {
-            BillsKind(rawValue: rawKind)!
-        }
-    }
-    
-    public var period: BillsPeriod {
-        get {
-            BillsPeriod(rawValue: self.rawPeriod)!
-        }
-        set {
-            self.rawPeriod = newValue.rawValue
-        }
-    }
+public protocol BillBase : Identifiable, PersistentModel, Queryable {
+    var name: String { get set }
+    var startDate: Date { get set }
+    var endDate: Date? { get set }
+    var kind: BillsKind { get set }
+    var period: BillsPeriod { get set }
+    var amount: Decimal { get set }
+}
+extension BillBase {
     public var daysSinceStart: Int {
         let components = Calendar.current.dateComponents([.day], from: self.startDate, to: Date.now)
         return components.day ?? 0
@@ -285,10 +229,62 @@ public final class Bill : Identifiable, Queryable {
             false
         }
     }
-
+    
     public func pricePer(_ period: BillsPeriod) -> Decimal {
         self.amount * self.period.conversionFactor(period)
     }
+}
+
+@Model
+public final class Bill : BillBase {
+    public typealias SortType = BillsSort
+    public typealias FilterType = BillsKind
+    public typealias To = any BillBase;
+    
+    public convenience init(sub: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
+        self.init(name: sub, kind: .subscription, amount: amount, start: start, end: end, period: period)
+    }
+    public convenience init(bill: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
+        self.init(name: bill, kind: .bill, amount: amount, start: start, end: end, period: period)
+    }
+    public init(name: String, kind: BillsKind, amount: Decimal, start: Date, end: Date?, period: BillsPeriod) {
+        self.name = name
+        self.rawKind = (kind == .utility ? .bill : kind).rawValue
+        self.amount = amount
+        self.startDate = start
+        self.endDate = end
+        self.rawPeriod = period.rawValue
+        self.id = UUID()
+    }
+    
+    public var id: UUID
+    @Attribute(.unique) public var name: String
+    public var startDate: Date;
+    public var endDate: Date?
+    public var amount: Decimal;
+    private var rawKind: Int;
+    private var rawPeriod: Int;
+
+    public var kind: BillsKind {
+        get {
+            BillsKind(rawValue: rawKind)!
+        }
+        set {
+            guard newValue != .utility else { return }
+            
+            self.rawKind = newValue.rawValue
+        }
+    }
+    public var period: BillsPeriod {
+        get {
+            BillsPeriod(rawValue: self.rawPeriod)!
+        }
+        set {
+            self.rawPeriod = newValue.rawValue
+        }
+    }
+
+    
     
 #if DEBUG
     static let exampleExpiredBills: [Bill] = {
@@ -311,10 +307,61 @@ public final class Bill : Identifiable, Queryable {
             .init(bill: "Internet",      amount: 60,  start: Date.fromParts(2024, 7, 25)!, end: nil)
         ]
     }()
-    static let exampleUtility: [Bill] = {
+    
+    static let exampleBills: [any BillBase] = {
+        var result: [any BillBase] = [];
+        result.append(contentsOf: exampleExpiredBills)
+        result.append(contentsOf: exampleSubscriptions)
+        result.append(contentsOf: exampleActualBills)
+        result.append(contentsOf: Utility.exampleUtility)
+        
+        return result
+    }()
+#endif
+}
+
+@Model
+final class Utility: BillBase {
+    public typealias SortType = BillsSort
+    public typealias FilterType = BillsKind
+    public typealias To = any BillBase;
+    
+    init(_ name: String, amounts: [UtilityEntry], start: Date, end: Date? = nil, period: BillsPeriod = .monthly) {
+        self.id = UUID()
+        self.name = name
+        self.startDate = start
+        self.endDate = end
+        self.rawPeriod = period.rawValue
+        self.children = amounts
+    }
+    
+    var id: UUID
+    @Attribute(.unique) public var name: String
+    var startDate: Date;
+    var endDate: Date?
+    var rawPeriod: Int;
+    @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) var children: [UtilityEntry];
+    
+    var amount: Decimal {
+        get {
+            children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
+        }
+        set { }
+    }
+    var kind: BillsKind {
+        get { .utility }
+        set { }
+    }
+    var period: BillsPeriod {
+        get { BillsPeriod(rawValue: rawPeriod)! }
+        set { rawPeriod = newValue.rawValue }
+    }
+    
+    #if DEBUG
+    static let exampleUtility: [Utility] = {
         [
             .init(
-                utility: "Gas",
+                "Gas",
                 amounts: [
                     .init(Date.fromParts(2025, 1, 25)!, 25),
                     .init(Date.fromParts(2025, 2, 25)!, 23),
@@ -324,7 +371,7 @@ public final class Bill : Identifiable, Queryable {
                 end: nil
             ),
             .init(
-                utility: "Electric",
+                "Electric",
                 amounts: [
                     .init(Date.fromParts(2025, 1, 17)!, 30),
                     .init(Date.fromParts(2025, 2, 17)!, 31),
@@ -334,7 +381,7 @@ public final class Bill : Identifiable, Queryable {
                 end: nil
             ),
             .init(
-                utility: "Water",
+                "Water",
                 amounts: [
                     .init(Date.fromParts(2025, 1, 2)!, 10),
                     .init(Date.fromParts(2025, 2, 2)!, 12),
@@ -345,17 +392,7 @@ public final class Bill : Identifiable, Queryable {
             )
         ]
     }()
-    
-    static let exampleBills: [Bill] = {
-        var result: [Bill] = [];
-        result.append(contentsOf: exampleExpiredBills)
-        result.append(contentsOf: exampleSubscriptions)
-        result.append(contentsOf: exampleActualBills)
-        result.append(contentsOf: exampleUtility)
-        
-        return result
-    }()
-#endif
+    #endif
 }
 
 extension Date {

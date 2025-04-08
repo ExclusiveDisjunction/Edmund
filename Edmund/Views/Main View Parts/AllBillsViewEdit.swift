@@ -148,7 +148,7 @@ struct AllBillsViewEdit : View {
                 
             }
         }.sheet(item: $inspecting.value) { bill in
-            BillEditor(bill: bill)
+            BillVE(bill, isEdit: inspecting.mode == .edit)
         }.toolbar(id: "billsToolbar") {
             toolbar
         }.alert("Warning", isPresented: $warning.isPresented, actions: {

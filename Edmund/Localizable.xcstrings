@@ -278,6 +278,9 @@
         }
       }
     },
+    "Amount:" : {
+
+    },
     "Anually" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -684,6 +687,9 @@
         }
       }
     },
+    "Datapoints:" : {
+
+    },
     "Date" : {
       "localizations" : {
         "de" : {
@@ -804,6 +810,12 @@
     "emptyFields" : {
 
     },
+    "End" : {
+
+    },
+    "End Date:" : {
+
+    },
     "Error" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -877,6 +889,9 @@
         }
       }
     },
+    "Frequency:" : {
+
+    },
     "From" : {
 
     },
@@ -899,6 +914,12 @@
           }
         }
       }
+    },
+    "Has End Date" : {
+
+    },
+    "Has End Date:" : {
+
     },
     "Help" : {
       "extractionState" : "manual",
@@ -998,6 +1019,9 @@
           }
         }
       }
+    },
+    "Kind:" : {
+
     },
     "Ledger" : {
       "extractionState" : "manual",
@@ -1204,6 +1228,9 @@
         }
       }
     },
+    "Name:" : {
+
+    },
     "No Account" : {
       "localizations" : {
         "de" : {
@@ -1298,6 +1325,9 @@
         }
       }
     },
+    "on" : {
+
+    },
     "one One" : {
 
     },
@@ -1391,6 +1421,7 @@
 
     },
     "Please ensure that the name is not empty." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1662,6 +1693,12 @@
     "Standard Accounting Style" : {
 
     },
+    "Start" : {
+
+    },
+    "Start Date:" : {
+
+    },
     "Styles" : {
       "localizations" : {
         "de" : {
@@ -1885,9 +1922,6 @@
           }
         }
       }
-    },
-    "unexpected" : {
-
     },
     "Unexpected Error" : {
 

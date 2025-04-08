@@ -36,11 +36,12 @@ public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable wher
 }
 
 /// Represents a data type that supports querying, using the `QueryManifest` object.
-public protocol Queryable {
+public protocol Queryable{
+    associatedtype To;
     /// The type used for sorting
-    associatedtype SortType: Sortable where SortType.On == Self
+    associatedtype SortType: Sortable where SortType.On == To
     /// The type used for filtering
-    associatedtype FilterType: Filterable where FilterType.On == Self
+    associatedtype FilterType: Filterable where FilterType.On == To
 }
 
 /// A specific filter for a query type. One is made per case of a `Filterable` type, and this stores if that filter is active or not.

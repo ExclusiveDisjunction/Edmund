@@ -13,6 +13,7 @@ struct LedgerEntryVE : View {
     @Bindable var target: LedgerEntry;
     @State private var isEdit: Bool;
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
     let labelMinWidth: CGFloat = 60;
@@ -64,10 +65,10 @@ struct LedgerEntryVE : View {
                         
                         HStack {
                             if isEdit {
-                                TextField("Credit", value: $target.credit, format: .currency(code: "USD")).textFieldStyle(.roundedBorder)
+                                TextField("Credit", value: $target.credit, format: .currency(code: currencyCode)).textFieldStyle(.roundedBorder)
                             }
                             else {
-                                Text(target.credit, format: .currency(code: "USD"))
+                                Text(target.credit, format: .currency(code: currencyCode))
                             }
                             Spacer()
                         }
@@ -78,10 +79,10 @@ struct LedgerEntryVE : View {
                         
                         HStack {
                             if isEdit {
-                                TextField("Debit", value: $target.debit, format: .currency(code: "USD")).textFieldStyle(.roundedBorder)
+                                TextField("Debit", value: $target.debit, format: .currency(code: currencyCode)).textFieldStyle(.roundedBorder)
                             }
                             else {
-                                Text(target.debit, format: .currency(code: "USD"))
+                                Text(target.debit, format: .currency(code: currencyCode))
                             }
                             Spacer()
                         }
@@ -92,7 +93,7 @@ struct LedgerEntryVE : View {
                         .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                     
                     HStack {
-                        Text(target.balance, format: .currency(code: "USD"))
+                        Text(target.balance, format: .currency(code: currencyCode))
                         Spacer()
                     }
                 }
