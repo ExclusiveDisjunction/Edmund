@@ -1319,9 +1319,6 @@
         }
       }
     },
-    "one One" : {
-
-    },
     "One-to-Many" : {
       "localizations" : {
         "de" : {
@@ -1410,23 +1407,6 @@
     },
     "Please add at least one account with a credit limit" : {
 
-    },
-    "Please ensure that the name is not empty." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte stellen Sie sicher, dass der Name nicht leer ist"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Proszę wpisać nazwę."
-          }
-        }
-      }
     },
     "Please fill in all fields" : {
       "localizations" : {
@@ -1915,7 +1895,14 @@
       }
     },
     "Unexpected Error" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An unexpected error has occurred. Please submit a bug report description the process leading up to this moment."
+          }
+        }
+      }
     },
     "Use Ledger" : {
 
@@ -2042,6 +2029,9 @@
       }
     },
     "When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently." : {
+
+    },
+    "WIP" : {
 
     },
     "Year" : {

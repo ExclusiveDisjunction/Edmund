@@ -26,23 +26,6 @@ struct Transfer: View, TransactionEditorProtocol {
         false
     }
     
-    @ViewBuilder
-    private var oneOne: some View {
-        Text("one One")
-    }
-    @ViewBuilder
-    private var oneMany: some View {
-        Text("one One")
-    }
-    @ViewBuilder
-    private var manyOne: some View {
-        Text("one One")
-    }
-    @ViewBuilder
-    private var manyMany: some View {
-        Text("one One")
-    }
-    
     var body: some View {
         VStack {
             Picker("Kind", selection: $kind) {
@@ -53,9 +36,9 @@ struct Transfer: View, TransactionEditorProtocol {
             
             switch self.kind {
                 case .oneOne: OneOneTransfer(signal)
-                case .oneMany: oneMany
-                case .manyOne: manyOne
-                case .manyMany: manyMany
+                case .oneMany: EmptyView()
+                case .manyOne: EmptyView()
+                case .manyMany: EmptyView()
             }
         }
     }

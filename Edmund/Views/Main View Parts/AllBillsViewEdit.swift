@@ -14,13 +14,8 @@ struct AllBillsViewEdit : View {
     @State private var showingChart: Bool = false;
     
     @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name);
-    
-    @Bindable private var billInspect = InspectionManifest<Bill>();
-    @Bindable private var billDelete = DeletingManifest<Bill>();
-    
-    @Bindable private var utilInspect = InspectionManifest<Utility>();
-    @Bindable private var utilDelete = DeletingManifest<Utility>();
-    
+    @Bindable private var inspect: InspectionManifest<BillBaseWrapper> = .init();
+    @Bindable private var deleting: DeletingManifest<BillBaseWrapper> = .init();
     @Bindable private var warning = WarningManifest()
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -39,8 +34,12 @@ struct AllBillsViewEdit : View {
     }
     
     private func refresh() {
-        var combined: [any BillBase] = bills.filter { showExpiredBills || !$0.isExpired }
-        combined.append(contentsOf: utilities.filter { showExpiredBills || $0.isExpired } )
+        let filteredBills = bills.filter { showExpiredBills || !$0.isExpired }
+        let filteredUtilities = utilities.filter { showExpiredBills || !$0.isExpired }
+        
+        var combined: [any BillBase] = [];
+        combined.append(contentsOf: filteredBills)
+        combined.append(contentsOf: filteredUtilities)
         
         query.apply(combined.map { BillBaseWrapper($0) } )
     }
@@ -51,7 +50,7 @@ struct AllBillsViewEdit : View {
             let raw = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(raw)
             refresh()
-            billInspect.open(raw, mode: .edit)
+            inspect.open(BillBaseWrapper(raw), mode: .edit)
         }
     }
     private func add_utility() {
@@ -59,11 +58,19 @@ struct AllBillsViewEdit : View {
             let raw = Utility("", amounts: [], start: Date.now)
             modelContext.insert(raw)
             refresh()
-            utilInspect.open(raw, mode: .edit)
+            inspect.open(BillBaseWrapper(raw), mode: .edit)
         }
     }
     private func toggle_inspector() {
         showingChart.toggle()
+    }
+    private func deleteFromModel(data: BillBaseWrapper, context: ModelContext) {
+        if let bill = data.data as? Bill {
+            context.delete(bill)
+        }
+        else if let utility = data.data as? Utility {
+            context.delete(utility)
+        }
     }
     
     private var totalPPP: Decimal {
@@ -81,7 +88,7 @@ struct AllBillsViewEdit : View {
                     Text("/")
                     Text(showcasePeriod.perName)
                 }.swipeActions(edge: .trailing) {
-                    //GeneralContextMenu(bill, inspect: inspecting, remove: deleting, asSlide: true)
+                    GeneralContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
                 }
             }
         }
@@ -104,7 +111,7 @@ struct AllBillsViewEdit : View {
                 Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            //SelectionsContextMenu(selection, inspect: inspecting, delete: deleting, warning: warning)
+            SelectionsContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 270)
@@ -123,7 +130,7 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspecting, warning: warning, role: .view)
+        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view)
         
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
@@ -136,7 +143,7 @@ struct AllBillsViewEdit : View {
                 })
                 
                 Button("Utility", action: {
-                    add_bill(.utility)
+                    add_utility()
                 })
             } label: {
                 Label("Add", systemImage: "plus")
@@ -144,9 +151,9 @@ struct AllBillsViewEdit : View {
         }
         
         if horizontalSizeClass != .compact {
-            GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+            GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
             
-            //GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
+            GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
         }
     }
 
@@ -167,8 +174,21 @@ struct AllBillsViewEdit : View {
                 Text(showcasePeriod.perName)
                 
             }
-        }.sheet(item: $inspecting.value) { bill in
-            //BillVE(bill, isEdit: inspecting.mode == .edit)
+        }.sheet(item: $inspect.value) { wrapper in
+            if let asBill = wrapper.data as? Bill {
+                BillVE(asBill, isEdit: inspect.mode == .edit)
+            }
+            else if let asUtility = wrapper.data as? Utility {
+                UtilityVE(asUtility, isEdit: inspect.mode == .edit)
+            }
+            else {
+                VStack {
+                    Text("Unexpected Error").italic()
+                    Button("Ok", action: {
+                        inspect.value = nil
+                    }).buttonStyle(.borderedProminent)
+                }
+            }
         }.toolbar(id: "billsToolbar") {
             toolbar
         }.alert("Warning", isPresented: $warning.isPresented, actions: {
@@ -178,9 +198,7 @@ struct AllBillsViewEdit : View {
         }, message: {
             Text((warning.warning ?? .noneSelected).message )
         }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
-            IndirectDeletingActionConfirm(deleting, action: { list in
-                
-            }, post: refresh)
+            AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
         }.sheet(isPresented: $showingChart) {
             Chart(query.cached.sorted(by: { $0.data.amount < $1.data.amount } )) { wrapper in
                 SectorMark(

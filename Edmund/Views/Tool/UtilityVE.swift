@@ -79,6 +79,19 @@ struct UtilityVE : View {
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
     
+    init(_ bill: Utility, isEdit: Bool) {
+        self.bill = bill
+        if isEdit {
+            let tmp = UtilityManifest(bill)
+            self.editing = tmp
+            self.editHash = tmp.hashValue
+        }
+        else {
+            self.editing = nil
+            self.editHash = 0
+        }
+    }
+    
     var isEdit: Bool {
         get { editing != nil }
     }

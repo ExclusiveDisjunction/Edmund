@@ -70,6 +70,7 @@ public class Containers {
             for bill in bills {
                 result.mainContext.insert(bill)
             }
+            
             let utilities = Utility.exampleUtility;
             for utility in utilities {
                 result.mainContext.insert(utility)

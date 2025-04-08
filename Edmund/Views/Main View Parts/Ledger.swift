@@ -107,7 +107,7 @@ struct LedgerTable: View {
                 }
             }
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
-            SelectionsContextMenu(selection, inspect: inspect, delete: deleting, warning: warning)
+            SelectionsContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 300)

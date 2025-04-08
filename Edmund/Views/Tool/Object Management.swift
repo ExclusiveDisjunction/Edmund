@@ -55,7 +55,7 @@ enum InspectionMode {
 }
 
 @Observable
-class InspectionManifest<T> where T: Identifiable {
+class InspectionManifest<T> {
     var mode: InspectionMode = .view
     var value: T?
     
@@ -77,7 +77,7 @@ class InspectionManifest<T> where T: Identifiable {
 
 /// An observable class that provides deleting confrimation dialog abstraction. It includes a member, `isDeleting`, which can be bound. This value will become `true` when the internal list is not `nil` and not empty.
 @Observable
-class DeletingManifest<T> where T: Identifiable{
+class DeletingManifest<T> where T: Identifiable {
     /// The objects to delete.
     var action: [T]?;
     /// A bindable value that returns true when the `action` is not `nil` and the list is not empty.
@@ -119,59 +119,24 @@ class DeletingManifest<T> where T: Identifiable{
     }
 }
 
-/// An abstraction to show in the `.confirmationDialog` of a view. This will handle the deleting of the data inside of a `DeletingManifest<T>`.
-struct DeletingActionConfirm<T>: View where T: PersistentModel{
-    /// The data that can be deleted.
+struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
     var deleting: DeletingManifest<T>;
-    /// Runs after the deleting occurs.
+    let delete: (T, ModelContext) -> Void;
     let postAction: (() -> Void)?;
+    @Environment(\.modelContext) private var modelContext;
     
-    init(_ deleting: DeletingManifest<T>, post: (() -> Void)? = nil) {
+    init(_ deleting: DeletingManifest<T>, delete: @escaping (T, ModelContext) -> Void, post: (() -> Void)? = nil) {
         self.deleting = deleting
+        self.delete = delete
         self.postAction = post
     }
-    
-    @Environment(\.modelContext) private var modelContext;
     
     var body: some View {
         if let deleting = deleting.action {
             Button("Delete") {
                 for data in deleting {
-                    modelContext.delete(data)
+                    delete(data, self.modelContext)
                 }
-                
-                self.deleting.isDeleting  = false
-                if let post = postAction {
-                    post()
-                }
-            }
-        }
-        
-        Button("Cancel", role: .cancel) {
-            deleting.isDeleting = false
-        }
-    }
-}
-/// An abstraction to show in the `.confirmationDialog` of a view. This will handle the deleting of the data inside of a `DeletingManifest<T>`.
-struct IndirectDeletingActionConfirm<T>: View where T: Identifiable{
-    /// The data that can be deleted.
-    var deleting: DeletingManifest<T>;
-    /// Runs after the deleting occurs.
-    let postAction: (() -> Void)?;
-    let delete: ([T]) -> Void;
-    
-    init(_ deleting: DeletingManifest<T>, action: @escaping ([T]) -> Void, post: (() -> Void)? = nil) {
-        self.deleting = deleting
-        self.postAction = post
-        self.delete = action
-    }
-    
-    @Environment(\.modelContext) private var modelContext;
-    
-    var body: some View {
-        if let deleting = deleting.action {
-            Button("Delete") {
-                delete(deleting)
                 
                 self.deleting.isDeleting  = false
                 if let post = postAction {
@@ -186,8 +151,27 @@ struct IndirectDeletingActionConfirm<T>: View where T: Identifiable{
     }
 }
 
+/// An abstraction to show in the `.confirmationDialog` of a view. This will handle the deleting of the data inside of a `DeletingManifest<T>`.
+struct DeletingActionConfirm<T>: View where T: PersistentModel{
+    /// The data that can be deleted.
+    var deleting: DeletingManifest<T>;
+    /// Runs after the deleting occurs.
+    let postAction: (() -> Void)?;
+    
+    init(_ deleting: DeletingManifest<T>, post: (() -> Void)? = nil) {
+        self.deleting = deleting
+        self.postAction = post
+    }
+    
+    var body: some View {
+        AbstractDeletingActionConfirm(deleting, delete: { model, context in
+            context.delete(model)
+        }, post: postAction)
+    }
+}
+
 /// A simplified, general view to place inside of a `ContextMenu`. it provides shortcuts to view (if allowed), edit, and delete objects. Optionally, it provides a shortcut for adding objects.
-struct GeneralContextMenu<T> : View where T: Identifiable, T: PersistentModel {
+struct GeneralContextMenu<T> : View where T: Identifiable {
     /// The object that the menu is for.
     var target: T;
     /// A manifest showing the view/edit mode of the selected object.
@@ -243,7 +227,7 @@ struct GeneralContextMenu<T> : View where T: Identifiable, T: PersistentModel {
 }
 
 /// A generalized context menu that runs for `.contextMenu(forSelectionType: T.ID)`.
-struct SelectionsContextMenu<T> : View where T: Identifiable, T: PersistentModel {
+struct SelectionsContextMenu<T> : View where T: Identifiable {
     /// A handle for viewing/editing
     let inspect: InspectionManifest<T>;
     /// A handle for deleting objects.
@@ -253,11 +237,11 @@ struct SelectionsContextMenu<T> : View where T: Identifiable, T: PersistentModel
     let selection: Set<T.ID>;
     /// When true, the  "Inspect" menu option is provided. 
     let canView: Bool;
+    let data: [T];
     
-    @Query private var data: [T];
-    
-    init(_ sel: Set<T.ID>, inspect: InspectionManifest<T>, delete: DeletingManifest<T>, warning: WarningManifest, canView: Bool = true) {
+    init(_ sel: Set<T.ID>, data: [T], inspect: InspectionManifest<T>, delete: DeletingManifest<T>, warning: WarningManifest, canView: Bool = true) {
         self.selection = sel
+        self.data = data
         self.inspect = inspect
         self.delete = delete
         self.warning = warning
@@ -312,7 +296,7 @@ struct GeneralInspectToolbarButton<T> : CustomizableToolbarContent where T: Iden
         }
     }
 }
-struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T: PersistentModel, T: Identifiable {
+struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T: Identifiable {
     let on: [T];
     @Binding var selection: Set<T.ID>;
     let delete: DeletingManifest<T>;

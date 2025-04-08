@@ -36,9 +36,9 @@ public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable wher
 }
 
 /// Represents a data type that supports querying, using the `QueryManifest` object.
-public protocol Queryable{
+public protocol Queryable {
     /// The type used for sorting
-    associatedtype SortType: Sortable where FilterType.On == Self
+    associatedtype SortType: Sortable where SortType.On == Self
     /// The type used for filtering
     associatedtype FilterType: Filterable where FilterType.On == Self
 }
@@ -75,7 +75,7 @@ public class QueryFilter<T>: Identifiable, Equatable, Hashable where T: Queryabl
 /// An observable class used to handle filtering & sorting.
 /// This class can be tracked. This is on purpose. The design goal is to have this class, with an inital sorting. Whenever the sorting changes (use `.onChange`), you can call `.apply`. The user interface should use `.cached` to display the sorted and filtered data. This saves on expensive calls.
 @Observable
-public class QueryManifest<T> : Hashable, Equatable where T: Queryable, T.FilterType.On == T, T.FilterType.On == T {
+public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
     init(_ sorting: T.SortType) {
         self.sorting = sorting
         self.ascending = true
@@ -101,15 +101,17 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable, T.Filter
         hasher.combine(filter)
     }
     
+    private func sortRank(lhs: T, rhs: T) -> Bool {
+        sorting.compare(lhs, rhs, ascending)
+    }
+    
     /// Uses the sorting and filtering criteria to determine which objects from `on` should be inclued. The result is sotred in `cached`, so that the
     func apply(_ on: [T]) {
-        let filtered = on.filter { item in
+        let filtered: [T] = on.filter { item in
             filter.first(where: { $0.accepts(item) } ) != nil
         }
         
-        let sorted = filtered.sorted { lhs, rhs in
-            sorting.compare(lhs, rhs, ascending)
-        }
+        let sorted: [T] = filtered.sorted(by: sortRank)
         
         self.cached = sorted
     }
@@ -122,7 +124,7 @@ public struct QueryHandle<T>: Identifiable where T: Queryable {
 }
 
 /// A UI element that uses a specific `QueryManifest<T>` to allow the user to change sorting & filtering criteria.
-public struct QueryButton<T, S>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
+public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
     @Bindable var provider: QueryManifest<T>;
     @State private var handle: QueryHandle<T>?;
     

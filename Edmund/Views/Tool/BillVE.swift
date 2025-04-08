@@ -38,3 +38,15 @@ class BillManifest : Identifiable, Hashable, Equatable {
         lhs.base == rhs.base && lhs.amount == rhs.amount && lhs.kind == rhs.kind
     }
 }
+
+struct BillVE : View {
+    var data: Bill;
+    
+    init(_ bill: Bill, isEdit: Bool) {
+        self.data = bill
+    }
+    
+    var body: some View {
+        Text("WIP")
+    }
+}
