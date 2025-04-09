@@ -810,6 +810,9 @@
     "End Date:" : {
 
     },
+    "Ended On" : {
+
+    },
     "Error" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -845,6 +848,9 @@
       }
     },
     "Expected Balance" : {
+
+    },
+    "Expired Bill" : {
 
     },
     "Expired Bills" : {
@@ -1222,6 +1228,9 @@
     "Name:" : {
 
     },
+    "Next Due Date" : {
+
+    },
     "No Account" : {
       "localizations" : {
         "de" : {
@@ -1255,6 +1264,9 @@
       }
     },
     "No end date" : {
+
+    },
+    "No Information" : {
 
     },
     "noCategories" : {
@@ -1597,6 +1609,9 @@
         }
       }
     },
+    "Show Expired Bills" : {
+
+    },
     "Show Graph" : {
       "localizations" : {
         "de" : {
@@ -1612,6 +1627,9 @@
           }
         }
       }
+    },
+    "showExpiredBillsDesc" : {
+
     },
     "Sort & Filter" : {
       "localizations" : {
@@ -1668,6 +1686,9 @@
 
     },
     "Start Date:" : {
+
+    },
+    "Started On" : {
 
     },
     "Styles" : {
@@ -1762,6 +1783,9 @@
           }
         }
       }
+    },
+    "There are no expired bills" : {
+
     },
     "There are no transactions, or this page needs to be refreshed" : {
       "localizations" : {

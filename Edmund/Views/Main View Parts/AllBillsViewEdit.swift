@@ -12,6 +12,7 @@ import Charts
 struct AllBillsViewEdit : View {
     @State private var tableSelected = Set<Bill.ID>();
     @State private var showingChart: Bool = false;
+    @State private var expiredBillsSheet = false;
     
     @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name);
     @Bindable private var inspect: InspectionManifest<BillBaseWrapper> = .init();
@@ -49,7 +50,6 @@ struct AllBillsViewEdit : View {
         withAnimation {
             let raw = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(raw)
-            refresh()
             inspect.open(BillBaseWrapper(raw), mode: .edit)
         }
     }
@@ -57,7 +57,6 @@ struct AllBillsViewEdit : View {
         withAnimation {
             let raw = Utility("", amounts: [], start: Date.now)
             modelContext.insert(raw)
-            refresh()
             inspect.open(BillBaseWrapper(raw), mode: .edit)
         }
     }
@@ -74,22 +73,20 @@ struct AllBillsViewEdit : View {
     }
     
     private var totalPPP: Decimal {
-        bills.reduce(0, {$0 + $1.pricePer(showcasePeriod)})
+        query.cached.reduce(0) { $0 + ($1.data.isExpired ? 0 : $1.data.pricePer(showcasePeriod)) }
     }
     
     @ViewBuilder
     private var compact: some View {
-        List {
-            ForEach(self.sortedBills) { wrapper in
-                HStack {
-                    Text(wrapper.data.name)
-                    Spacer()
-                    Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
-                    Text("/")
-                    Text(showcasePeriod.perName)
-                }.swipeActions(edge: .trailing) {
-                    GeneralContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-                }
+        List(self.sortedBills, selection: $tableSelected) { wrapper in
+            HStack {
+                Text(wrapper.data.name)
+                Spacer()
+                Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
+                Text("/")
+                Text(showcasePeriod.perName)
+            }.swipeActions(edge: .trailing) {
+                GeneralContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
             }
         }
     }
@@ -107,8 +104,17 @@ struct AllBillsViewEdit : View {
                     Text(wrapper.data.period.perName)
                 }
             }
+            TableColumn("Next Due Date") { wrapper in
+                if wrapper.data.isExpired {
+                    Text("Expired Bill").italic()
+                }
+                else {
+                    Text((wrapper.data.nextBillDate?.formatted(date: .abbreviated, time: .omitted) ?? "-"))
+                }
+            }
+            
             TableColumn("Reserved Cost") { wrapper in
-                Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
+                Text((wrapper.data.isExpired ? Decimal() : wrapper.data.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
             SelectionsContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
@@ -130,7 +136,22 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view)
+        if !showExpiredBills {
+            ToolbarItem(id: "showExpired", placement: .secondaryAction) {
+                Button(action: {
+                    expiredBillsSheet = true;
+                }) {
+                    Label("Expired Bills", systemImage: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
+                }
+            }
+        }
+        ToolbarItem(id: "refresh", placement: .secondaryAction) {
+            Button(action: refresh) {
+                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            }
+        }
+        
+        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
         
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
@@ -150,11 +171,15 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        if horizontalSizeClass != .compact {
-            GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
-            
-            GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
+        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+        
+        GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
+        
+        #if os(iOS)
+        ToolbarItem(id: "iosEdit", placement: .primaryAction) {
+            EditButton()
         }
+        #endif
     }
 
     var body: some View {
@@ -199,6 +224,21 @@ struct AllBillsViewEdit : View {
             Text((warning.warning ?? .noneSelected).message )
         }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
             AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
+        }.sheet(isPresented: $expiredBillsSheet) {
+            NavigationStack {
+                AllExpiredBillsVE()
+                
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    Button("Ok", action: { expiredBillsSheet = false } ).buttonStyle(.borderedProminent)
+                }
+            }.padding()
+            #if os(macOS)
+                .frame(minWidth: 700, minHeight: 400)
+            #endif
+            
         }.sheet(isPresented: $showingChart) {
             Chart(query.cached.sorted(by: { $0.data.amount < $1.data.amount } )) { wrapper in
                 SectorMark(
@@ -212,10 +252,12 @@ struct AllBillsViewEdit : View {
                 )
                 )
             }.padding().frame(minHeight: 350)
-        }.padding().toolbarRole(.editor).navigationTitle("Bills").onChange(of: query.hashValue, refresh).onAppear(perform: refresh)
+        }.padding().toolbarRole(.editor).navigationTitle("Bills").onChange(of: query.hashValue, refresh).onChange(of: showExpiredBills, refresh).onAppear(perform: refresh)
     }
 }
 
 #Preview {
-    AllBillsViewEdit().modelContainer(Containers.debugContainer)
+    NavigationStack {
+        AllBillsViewEdit().modelContainer(Containers.debugContainer)
+    }
 }

@@ -37,6 +37,7 @@ struct SettingsView : View {
     @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
     
     static let currencyCodes: [LocaleCurrencyCode] = Locale.commonISOCurrencyCodes.map { LocaleCurrencyCode(code: $0) }
     
@@ -84,6 +85,12 @@ struct SettingsView : View {
                         Text(bill.name).tag(bill)
                     }
                 }
+            }
+            
+            Section() {
+                Toggle("Show Expired Bills", isOn: $showExpiredBills)
+            } footer: {
+                Text("showExpiredBillsDesc")
             }
         }.padding()
     }

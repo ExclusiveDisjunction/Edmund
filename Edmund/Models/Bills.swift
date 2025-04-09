@@ -212,7 +212,7 @@ extension BillBase {
         return Int(rawPeriods.rounded(.towardZero))
     }
     var nextBillDate: Date? {
-        let duration = self.period.asDuration * periodsSinceStart;
+        let duration = self.period.asDuration * (periodsSinceStart + 1);
         let nextDate = Calendar.current.date(byAdding: duration.asDateComponents, to: self.startDate);
         if let nextDate = nextDate, let endDate = self.endDate {
             if nextDate > endDate {
