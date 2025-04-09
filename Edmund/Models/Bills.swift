@@ -363,7 +363,7 @@ final class Utility: BillBase {
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) var children: [UtilityEntry];
     
     var amount: Decimal {
-        children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
+        children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
     }
     var kind: BillsKind {
         .utility

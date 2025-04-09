@@ -50,6 +50,7 @@ struct AllBillsViewEdit : View {
         withAnimation {
             let raw = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
             modelContext.insert(raw)
+            refresh()
             inspect.open(BillBaseWrapper(raw), mode: .edit)
         }
     }
@@ -57,6 +58,7 @@ struct AllBillsViewEdit : View {
         withAnimation {
             let raw = Utility("", amounts: [], start: Date.now)
             modelContext.insert(raw)
+            refresh()
             inspect.open(BillBaseWrapper(raw), mode: .edit)
         }
     }
