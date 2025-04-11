@@ -31,6 +31,7 @@ public class Containers {
     public static let schema: Schema = {
         return Schema(
             [
+                Profile.self, 
                 LedgerEntry.self,
                 Account.self,
                 SubAccount.self,

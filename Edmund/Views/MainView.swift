@@ -224,7 +224,7 @@ struct MainView: View {
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             Homepage()
-        }.modelContainer(activeProfile.container).onChange(of: activeProfile.name, profileChanged).alert("Unable to switch profile", isPresented: $showProfileFailure, actions: {
+        }.onChange(of: activeProfile.name, profileChanged).alert("Unable to switch profile", isPresented: $showProfileFailure, actions: {
             Button("Ok", action: {
                 showProfileFailure = false
             })
@@ -234,7 +234,7 @@ struct MainView: View {
             HelpView()
         }.sheet(isPresented: $showingSettings) {
             SettingsView().modelContainer(globalContainer)
-        }
+        }.modelContainer(activeProfile.container)
     }
 }
 
