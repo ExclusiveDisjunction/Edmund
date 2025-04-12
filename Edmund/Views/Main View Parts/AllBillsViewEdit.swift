@@ -48,7 +48,7 @@ struct AllBillsViewEdit : View {
         guard kind != .utility else { return }
         
         withAnimation {
-            let raw = Bill(name: "", kind: kind, amount: 0, start: Date.now, end: nil, period: .monthly)
+            let raw = Bill(name: "", kind: kind, amount: 0, company: "",start: Date.now, end: nil, period: .monthly)
             modelContext.insert(raw)
             refresh()
             inspect.open(BillBaseWrapper(raw), mode: .edit)
@@ -56,7 +56,7 @@ struct AllBillsViewEdit : View {
     }
     private func add_utility() {
         withAnimation {
-            let raw = Utility("", amounts: [], start: Date.now)
+            let raw = Utility("", amounts: [], company: "", start: Date.now)
             modelContext.insert(raw)
             refresh()
             inspect.open(BillBaseWrapper(raw), mode: .edit)

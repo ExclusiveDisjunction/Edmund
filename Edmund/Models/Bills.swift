@@ -191,13 +191,33 @@ enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
     var id: Self { self }
 }
 
-protocol BillBase : Identifiable {
+enum InvalidBillFields : LocalizedStringKey, CaseIterable, Identifiable {
+    case name = "Name", dates = "Start and End Dates", company = "Company", location = "Location", children = "Datapoins", amount = "Amount"
+    
+    var description: LocalizedStringKey {
+        switch self {
+            case .name: "nameEmptyError"
+            case .dates: "startDateError"
+            case .company: "companyEmptyError"
+            case .location: "locationEmptyError"
+            case .children: "childrenError"
+            case .amount: "negAmountError"
+        }
+    }
+    
+    var id: Self { self }
+}
+
+protocol BillBase : Identifiable, AnyObject {
     var name: String { get set }
     var startDate: Date { get set }
     var endDate: Date? { get set }
     var period: BillsPeriod { get set }
     var kind: BillsKind { get }
     var amount: Decimal { get }
+    var company: String { get set }
+    var location: String? { get set }
+    var notes: String { get set }
 }
 extension BillBase {
     var daysSinceStart: Int {
@@ -238,17 +258,37 @@ extension BillBase {
         self.amount * self.period.conversionFactor(period)
     }
     
-    mutating func update(_ from: any BillBase) {
+    var isValid: Bool {
+        var list = Set<InvalidBillFields>();
+        return Self.validate(name: name, startDate: startDate, endDate: endDate, company: company, location: location, invalid: &list)
+    }
+    static func validate(name: String, startDate: Date, endDate: Date?, company: String, location: String?, invalid: inout Set<InvalidBillFields>) -> Bool {
+        invalid.removeAll()
+        
+        if name.isEmpty { invalid.insert(.name) }
+        if company.isEmpty { invalid.insert(.company) }
+        if location?.isEmpty ?? false { invalid.insert(.location) }
+        if let endDate = endDate {
+            if startDate >= endDate { invalid.insert(.dates) }
+        }
+        
+        return invalid.isEmpty
+    }
+    
+    func update(_ from: any BillBase) {
         self.name = from.name
         self.startDate = from.startDate
         self.endDate = from.endDate
         self.period = from.period
     }
-    mutating func update(_ from: BillBaseManifest) {
+    func update(_ from: BillBaseSnapshot) {
         self.name = from.name
         self.startDate = from.startDate
-        self.endDate = from.endDate
+        self.endDate = from.hasEndDate ? from.endDate : nil
         self.period = from.period
+        self.company = from.company
+        self.location = from.hasLocation ? from.location : nil 
+        self.notes = from.notes
     }
 }
 
@@ -267,18 +307,20 @@ struct BillBaseWrapper : Identifiable, Queryable {
 
 @Model
 final class Bill : BillBase {
-    convenience init(sub: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
-        self.init(name: sub, kind: .subscription, amount: amount, start: start, end: end, period: period, id: id)
+    convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+        self.init(name: sub, kind: .subscription,  amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
     }
-    convenience init(bill: String, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
-        self.init(name: bill, kind: .bill, amount: amount, start: start, end: end, period: period, id: id)
+    convenience init(bill: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+        self.init(name: bill, kind: .bill, amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
     }
-    init(name: String, kind: BillsKind, amount: Decimal, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+    init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
         self.id = id
         self.name = name
         self.amount = amount
         self.startDate = start
         self.endDate = end
+        self.company = company
+        self.location = location
         self.rawKind = kind.rawValue
         self.rawPeriod = period.rawValue
     }
@@ -288,6 +330,9 @@ final class Bill : BillBase {
     var amount: Decimal;
     var startDate: Date;
     var endDate: Date?;
+    var company: String;
+    var location: String?;
+    var notes: String = String();
     
     private var rawKind: Int;
     private var rawPeriod: Int;
@@ -314,22 +359,22 @@ final class Bill : BillBase {
 #if DEBUG
     static let exampleExpiredBills: [Bill] = {
         [
-            .init(sub: "Bitwarden", amount: 9.99,  start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
-            .init(sub: "Spotify",   amount: 16.99, start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
+            .init(sub: "Bitwarden Premium",      amount: 9.99,  company: "Bitwarden", start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
+            .init(sub: "Spotify Premium Family", amount: 16.99, company: "Spotify",   start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
         ]
     }()
     static let exampleSubscriptions: [Bill] = {
         [
-            .init(sub: "Apple Music",     amount: 5.99, start: Date.fromParts(2025, 3, 2)!,  end: nil),
-            .init(sub: "iCloud",          amount: 2.99, start: Date.fromParts(2025, 5, 15)!, end: nil),
-            .init(sub: "YouTube Premium", amount: 9.99, start: Date.fromParts(2024, 11, 7)!, end: nil)
+            .init(sub: "Apple Music",     amount: 5.99, company: "Apple",   start: Date.fromParts(2025, 3, 2)!,  end: nil),
+            .init(sub: "iCloud+",         amount: 2.99, company: "Apple",   start: Date.fromParts(2025, 5, 15)!, end: nil),
+            .init(sub: "YouTube Premium", amount: 9.99, company: "YouTube", start: Date.fromParts(2024, 11, 7)!, end: nil)
         ]
     }()
     static let exampleActualBills: [Bill] = {
         [
-            .init(bill: "Student Loan",  amount: 56,  start: Date.fromParts(2025, 3, 2)!,  end: nil),
-            .init(bill: "Car Insurance", amount: 899, start: Date.fromParts(2024, 7, 25)!, end: nil, period: .semiAnually),
-            .init(bill: "Internet",      amount: 60,  start: Date.fromParts(2024, 7, 25)!, end: nil)
+            .init(bill: "Student Loan",  amount: 56,  company: "FAFSA",       start: Date.fromParts(2025, 3, 2)!,  end: nil),
+            .init(bill: "Car Insurance", amount: 899, company: "The General", start: Date.fromParts(2024, 7, 25)!, end: nil, period: .semiAnually),
+            .init(bill: "Internet",      amount: 60,  company: "Spectrum",    start: Date.fromParts(2024, 7, 25)!, end: nil)
         ]
     }()
     
@@ -346,20 +391,26 @@ final class Bill : BillBase {
 
 @Model
 final class Utility: BillBase {
-    init(_ name: String, amounts: [UtilityEntry], start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+    init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
         self.id = id
         self.name = name
         self.startDate = start
         self.endDate = end
         self.rawPeriod = period.rawValue
         self.children = amounts
+        self.company = company
+        self.location = location
     }
     
     var id: UUID
     @Attribute(.unique) public var name: String
     var startDate: Date;
     var endDate: Date?
-    var rawPeriod: Int;
+    var company: String;
+    var location: String?;
+    var notes: String = String();
+    
+    private var rawPeriod: Int;
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) var children: [UtilityEntry];
     
     var amount: Decimal {
@@ -383,6 +434,8 @@ final class Utility: BillBase {
                     .init(Date.fromParts(2025, 2, 25)!, 23),
                     .init(Date.fromParts(2025, 3, 25)!, 28),
                     .init(Date.fromParts(2025, 4, 25)!, 27)],
+                company: "TECO",
+                location: "The Retreat",
                 start: Date.fromParts(2025, 1, 25)!,
                 end: nil
             ),
@@ -393,6 +446,8 @@ final class Utility: BillBase {
                     .init(Date.fromParts(2025, 2, 17)!, 31),
                     .init(Date.fromParts(2025, 3, 17)!, 35),
                     .init(Date.fromParts(2025, 4, 17)!, 32)],
+                company: "Lakeland Eletric",
+                location: "The Retreat",
                 start: Date.fromParts(2025, 1, 17)!,
                 end: nil
             ),
@@ -403,6 +458,8 @@ final class Utility: BillBase {
                     .init(Date.fromParts(2025, 2, 2)!, 12),
                     .init(Date.fromParts(2025, 3, 2)!, 14),
                     .init(Date.fromParts(2025, 4, 2)!, 15)],
+                company: "The Retreat",
+                location: "The Retreat",
                 start: Date.fromParts(2025, 1, 25)!,
                 end: nil
             )

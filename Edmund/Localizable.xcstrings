@@ -606,6 +606,9 @@
         }
       }
     },
+    "childrenError" : {
+
+    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -622,6 +625,15 @@
           }
         }
       }
+    },
+    "Company" : {
+
+    },
+    "Company:" : {
+
+    },
+    "companyEmptyError" : {
+
     },
     "Composite Transaction" : {
 
@@ -683,6 +695,12 @@
           }
         }
       }
+    },
+    "Datapoins" : {
+
+    },
+    "Datapoints" : {
+
     },
     "Date" : {
       "localizations" : {
@@ -765,6 +783,9 @@
         }
       }
     },
+    "Discard" : {
+
+    },
     "Do not show as Accounting Style" : {
 
     },
@@ -784,6 +805,9 @@
           }
         }
       }
+    },
+    "Edit Datapoints..." : {
+
     },
     "Edmund" : {
       "localizations" : {
@@ -921,6 +945,12 @@
     "Has End Date:" : {
 
     },
+    "Has Location" : {
+
+    },
+    "Has Location:" : {
+
+    },
     "Help" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1000,6 +1030,9 @@
         }
       }
     },
+    "Inspect Datapoints..." : {
+
+    },
     "Into" : {
 
     },
@@ -1078,6 +1111,9 @@
           }
         }
       }
+    },
+    "locationEmptyError" : {
+
     },
     "Manual" : {
 
@@ -1228,6 +1264,12 @@
     "Name:" : {
 
     },
+    "nameEmptyError" : {
+
+    },
+    "negAmountError" : {
+
+    },
     "Next Due Date" : {
 
     },
@@ -1262,6 +1304,9 @@
           }
         }
       }
+    },
+    "No Company" : {
+
     },
     "No end date" : {
 
@@ -1315,6 +1360,9 @@
         }
       }
     },
+    "Notes:" : {
+
+    },
     "Ok" : {
       "localizations" : {
         "de" : {
@@ -1330,6 +1378,9 @@
           }
         }
       }
+    },
+    "On" : {
+      "comment" : "[Amount] on [Date]"
     },
     "One-to-Many" : {
       "localizations" : {
@@ -1420,6 +1471,9 @@
     "Please add at least one account with a credit limit" : {
 
     },
+    "Please correct fields outlined with red." : {
+
+    },
     "Please fill in all fields" : {
       "localizations" : {
         "de" : {
@@ -1449,6 +1503,9 @@
           }
         }
       }
+    },
+    "Price:" : {
+
     },
     "Profile" : {
       "extractionState" : "manual",
@@ -1582,6 +1639,9 @@
         }
       }
     },
+    "Select" : {
+
+    },
     "Semi-Anually" : {
       "localizations" : {
         "de" : {
@@ -1685,7 +1745,13 @@
     "Start" : {
 
     },
+    "Start and End Dates" : {
+
+    },
     "Start Date:" : {
+
+    },
+    "startDateError" : {
 
     },
     "Started On" : {
@@ -1796,6 +1862,9 @@
           }
         }
       }
+    },
+    "There are unsaved changes, do you wish to continue?" : {
+
     },
     "There is nothing to report" : {
       "localizations" : {
