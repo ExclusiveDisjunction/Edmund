@@ -152,7 +152,7 @@ struct UtilityEntriesEditRow : View {
     
     var body: some View {
         GridRow {
-            Toggle("Select", isOn: $child.isSelected).labelsHidden().toggleStyle(CheckboxToggleStyle())
+            Toggle("Select", isOn: $child.isSelected).labelsHidden()//.toggleStyle(CheckboxToggleStyle())
             TextField("Amount", value: $child.amount, format: .currency(code: currencyCode))
                 .labelsHidden()
                 .foregroundStyle(child.amount < 0 ? .red : .primary)
