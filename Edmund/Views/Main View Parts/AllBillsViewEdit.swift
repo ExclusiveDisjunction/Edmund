@@ -9,14 +9,76 @@ import SwiftUI
 import SwiftData
 import Charts
 
+struct SelectionSheet<T, Title, Columns> : View where T: Identifiable, Columns: TableColumnContent, Columns.TableRowValue == T, Title: View {
+    init(_ source: [T], selection: SelectionManifest<T>, @ViewBuilder title: @escaping () -> Title, @TableColumnBuilder<T, Never> cols: @escaping () -> Columns) {
+        self.source = source
+        self.manifest = selection
+        self.title = title
+        self.builder = cols
+    }
+    
+    let source: [T];
+    @Bindable private var manifest: SelectionManifest<T>;
+    @State private var selected = Set<T.ID>();
+    @State private var showWarning = false;
+    private let builder: () -> Columns;
+    private let title: () -> Title;
+    
+    @Environment(\.dismiss) private var dismiss;
+    
+    private func submit() {
+        let targets = source.filter { selected.contains( $0.id ) };
+        if targets.isEmpty {
+            showWarning = true
+        }
+        else {
+            dismiss()
+            manifest.data = .init(targets);
+        }
+    }
+    
+    var body: some View {
+        VStack {
+            HStack {
+                title()
+                Spacer()
+            }
+            
+            Table(source, selection: $selected, columns: builder)
+            #if os(macOS)
+                .frame(minHeight: 250)
+            #endif
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                Button("Cancel", action: {
+                    dismiss()
+                }).buttonStyle(.bordered)
+                Button("Ok", action: submit).buttonStyle(.borderedProminent)
+            }
+        }.padding()
+            .alert("Warning", isPresented: $showWarning, actions: {
+                Button("Ok", action: {
+                    showWarning = false
+                })
+            }, message: {
+                Text("Please select at least one item.")
+            })
+    }
+}
+
 struct AllBillsViewEdit : View {
-    @State private var tableSelected = Set<Bill.ID>();
+    @State private var tableSelected = Set<BillBaseWrapper.ID>();
     @State private var showingChart: Bool = false;
     @State private var expiredBillsSheet = false;
+    @State private var showingBarChart = false;
     
     @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name);
     @Bindable private var inspect: InspectionManifest<BillBaseWrapper> = .init();
     @Bindable private var deleting: DeletingManifest<BillBaseWrapper> = .init();
+    @Bindable private var selection: SelectionManifest<Utility> = .init();
     @Bindable private var warning = WarningManifest()
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -72,6 +134,9 @@ struct AllBillsViewEdit : View {
         else if let utility = data.data as? Utility {
             context.delete(utility)
         }
+    }
+    private func utilitiesPriceGraph() {
+        showingBarChart = true
     }
     
     private var totalPPP: Decimal {
@@ -153,6 +218,12 @@ struct AllBillsViewEdit : View {
             }
         }
         
+        ToolbarItem(id: "priceOverTime", placement: .secondaryAction) {
+            Button(action: utilitiesPriceGraph) {
+                Label("Price over Time", systemImage: "chart.bar")
+            }
+        }
+        
         GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
         
         ToolbarItem(id: "add", placement: .primaryAction) {
@@ -184,6 +255,83 @@ struct AllBillsViewEdit : View {
         #endif
     }
 
+    @ViewBuilder
+    private func inspectSheet(_ wrapper: BillBaseWrapper) -> some View {
+        if let asBill = wrapper.data as? Bill {
+            BillVE(asBill, isEdit: inspect.mode == .edit)
+        }
+        else if let asUtility = wrapper.data as? Utility {
+            UtilityVE(asUtility, isEdit: inspect.mode == .edit)
+        }
+        else {
+            VStack {
+                Text("Unexpected Error").italic()
+                Button("Ok", action: {
+                    inspect.value = nil
+                }).buttonStyle(.borderedProminent)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var billsExpiredSheet: some View {
+        NavigationStack {
+            AllExpiredBillsVE()
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                Button("Ok", action: { expiredBillsSheet = false } ).buttonStyle(.borderedProminent)
+            }
+        }.padding()
+#if os(macOS)
+            .frame(minWidth: 700, minHeight: 400)
+#endif
+    }
+    
+    @ViewBuilder
+    private var chartView: some View {
+        VStack {
+            Chart(query.cached.sorted(by: { $0.data.amount < $1.data.amount } )) { wrapper in
+                SectorMark(
+                    angle: .value(
+                        Text(verbatim: wrapper.data.name),
+                        wrapper.data.pricePer(showcasePeriod)
+                    )
+                ).foregroundStyle(by: .value(
+                    Text(verbatim: wrapper.data.name),
+                    wrapper.data.name
+                )
+                )
+            }.frame(minHeight: 350)
+            
+            HStack {
+                Spacer()
+                Button("Ok", action: { showingChart = false } ).buttonStyle(.borderedProminent)
+            }
+        }.padding()
+    }
+    
+    @ViewBuilder
+    private var utilitiesPicker: some View {
+        
+    }
+    
+    @ViewBuilder
+    private func barChartView(_ selected: [Utility]) -> some View {
+        VStack {
+            UtilityEntriesGraph(source: selected)
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                Button("Ok", action: self.selection.reset ).buttonStyle(.borderedProminent)
+            }
+        }.padding()
+    }
+    
     var body: some View {
         VStack {
             if horizontalSizeClass == .compact {
@@ -202,20 +350,7 @@ struct AllBillsViewEdit : View {
                 
             }
         }.sheet(item: $inspect.value) { wrapper in
-            if let asBill = wrapper.data as? Bill {
-                BillVE(asBill, isEdit: inspect.mode == .edit)
-            }
-            else if let asUtility = wrapper.data as? Utility {
-                UtilityVE(asUtility, isEdit: inspect.mode == .edit)
-            }
-            else {
-                VStack {
-                    Text("Unexpected Error").italic()
-                    Button("Ok", action: {
-                        inspect.value = nil
-                    }).buttonStyle(.borderedProminent)
-                }
-            }
+            inspectSheet(wrapper)
         }.toolbar(id: "billsToolbar") {
             toolbar
         }.alert("Warning", isPresented: $warning.isPresented, actions: {
@@ -227,34 +362,29 @@ struct AllBillsViewEdit : View {
         }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
             AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
         }.sheet(isPresented: $expiredBillsSheet) {
-            NavigationStack {
-                AllExpiredBillsVE()
-                
-                Spacer()
-                
-                HStack {
-                    Spacer()
-                    Button("Ok", action: { expiredBillsSheet = false } ).buttonStyle(.borderedProminent)
-                }
-            }.padding()
-            #if os(macOS)
-                .frame(minWidth: 700, minHeight: 400)
-            #endif
-            
+            billsExpiredSheet
         }.sheet(isPresented: $showingChart) {
-            Chart(query.cached.sorted(by: { $0.data.amount < $1.data.amount } )) { wrapper in
-                SectorMark(
-                    angle: .value(
-                        Text(verbatim: wrapper.data.name),
-                        wrapper.data.pricePer(showcasePeriod)
-                    )
-                ).foregroundStyle(by: .value(
-                    Text(verbatim: wrapper.data.name),
-                    wrapper.data.name
-                )
-                )
-            }.padding().frame(minHeight: 350)
-        }.padding().toolbarRole(.editor).navigationTitle("Bills").onChange(of: query.hashValue, refresh).onChange(of: showExpiredBills, refresh).onAppear(perform: refresh)
+            chartView
+        }.sheet(isPresented: $showingBarChart) {
+            SelectionSheet(utilities, selection: selection, title: {
+                Text("Utilities Comparison")
+            }, cols: {
+                TableColumn("Name", value: \.name)
+                TableColumn("Amount") { utility in
+                    Text(utility.amount, format: .currency(code: currencyCode))
+                }
+                TableColumn("Frequency") { utility in
+                    Text(utility.period.name)
+                }
+            })
+        }.sheet(item: $selection.data) { group in
+            barChartView(group.data)
+        }.padding()
+            .toolbarRole(.editor)
+            .navigationTitle("Bills")
+            .onChange(of: query.hashValue, refresh)
+            .onChange(of: showExpiredBills, refresh)
+            .onAppear(perform: refresh)
     }
 }
 

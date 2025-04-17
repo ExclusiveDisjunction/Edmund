@@ -75,6 +75,33 @@ class InspectionManifest<T> {
     }
 }
 
+struct SelectionValue<T> : Identifiable {
+    init(_ data: [T], id: UUID = UUID()) {
+        self.data = data
+        self.id = id
+    }
+    
+    var data: [T];
+    var id: UUID;
+}
+
+/// An observable class that provides selection implementation values.
+@Observable
+class SelectionManifest<T> {
+    init() {
+        self.data = nil;
+    }
+    
+    var data: SelectionValue<T>?;
+    var isActive: Bool {
+        self.data != nil
+    }
+    
+    func reset() {
+        self.data = nil
+    }
+}
+
 /// An observable class that provides deleting confrimation dialog abstraction. It includes a member, `isDeleting`, which can be bound. This value will become `true` when the internal list is not `nil` and not empty.
 @Observable
 class DeletingManifest<T> where T: Identifiable {

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import Charts
 
 @Observable
 class UtilityEntrySnapshot: Identifiable, Hashable, Equatable {
@@ -209,10 +210,44 @@ struct UtilityEntriesEdit : View {
         }.padding()
     }
 }
+struct UtilityEntriesGraph : View {
+    var source: [Utility];
+    
+    var body: some View {
+        VStack {
+            Text("Price Over Time").font(.title2)
+            
+            if source.isEmpty {
+                Text("There is no data to present. Please select at least one utility.").italic().font(.caption)
+            }
+            else {
+                HStack {
+                    Chart {
+                        ForEach(source, id: \.id) { utility in
+                            ForEach(utility.children.sorted(by: { $0.date < $1.date } ), id: \.id) { point in
+                                LineMark(
+                                    x: .value("Date", point.date),
+                                    y: .value("Amount", point.amount),
+                                    series: .value("Name", utility.name)
+                                )
+                            }
+                            
+                        }
+                    }.frame(minHeight: 250)
+                    
+                    Text("Price").rotationEffect(.degrees(90))
+                }
+                
+                Text("Month")
+            }
+        }
+    }
+}
 
 struct UtilityInspect : View {
     @Bindable var bill: Utility;
     @State private var showingSheet = false;
+    @State private var showingChart = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
@@ -242,6 +277,9 @@ struct UtilityInspect : View {
                         Button(action: { showingSheet = true } ) {
                             Label("Inspect Datapoints...", systemImage: "info.circle")
                         }
+                        Button(action: { showingChart = true } ) {
+                            Label("Price over Time", systemImage: "chart.bar")
+                        }
                         Spacer()
                     }
                 }
@@ -252,6 +290,17 @@ struct UtilityInspect : View {
             LongTextEditWithLabel(value: $bill.notes, minWidth: minWidth, maxWidth: maxWidth)
         }.sheet(isPresented: $showingSheet) {
             UtilityEntriesInspect(children: bill.children)
+        }.sheet(isPresented: $showingChart) {
+            VStack {
+                UtilityEntriesGraph(source: [bill])
+                
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    Button("Ok", action: { showingChart = false } ).buttonStyle(.borderedProminent)
+                }
+            }.padding()
         }
     }
 }

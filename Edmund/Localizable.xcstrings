@@ -1504,6 +1504,18 @@
         }
       }
     },
+    "Please select at least one item." : {
+
+    },
+    "Price" : {
+
+    },
+    "Price over Time" : {
+
+    },
+    "Price Over Time" : {
+
+    },
     "Price:" : {
 
     },
@@ -1866,6 +1878,9 @@
     "There are unsaved changes, do you wish to continue?" : {
 
     },
+    "There is no data to present. Please select at least one utility." : {
+
+    },
     "There is nothing to report" : {
       "localizations" : {
         "de" : {
@@ -2015,6 +2030,9 @@
           }
         }
       }
+    },
+    "Utilities Comparison" : {
+
     },
     "Utility" : {
       "extractionState" : "manual",
