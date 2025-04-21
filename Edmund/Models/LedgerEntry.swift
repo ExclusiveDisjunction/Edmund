@@ -8,12 +8,73 @@
 import SwiftData;
 import Foundation;
 
-@Model
-public class LedgerEntry : ObservableObject, Identifiable
+@Observable
+public final class LedgerEntrySnapshot : ElementSnapshot
 {
-    init(memo: String, credit: Decimal, debit: Decimal, date: Date, added_on: Date = Date.now, location: String, category: SubCategory, account: SubAccount) {
+    typealias Host = LedgerEntry;
+    
+    init(_ from: LedgerEntry) {
+        name     = from.name;
+        credit   = from.credit;
+        debit    = from.debit;
+        date     = from.date;
+        location = from.location;
+        category = from.category;
+        account  = from.account;
+    }
+    
+    public var name: String;
+    public var credit: Decimal;
+    public var debit: Decimal;
+    public var date: Date;
+    public var location: String;
+    @Relationship public var category: SubCategory?;
+    @Relationship public var account: SubAccount?;
+    
+    var balance: Decimal {
+        credit - debit
+    }
+    
+    func validate() -> Bool {
+        category != nil && account != nil;
+    }
+    func apply(_ to: LedgerEntry, context: ModelContext) {
+        to.name     = name;
+        to.credit   = credit;
+        to.debit    = debit;
+        to.date     = date;
+        to.location = location;
+        to.category = category;
+        to.account  = account;
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name);
+        hasher.combine(credit);
+        hasher.combine(debit);
+        hasher.combine(date);
+        hasher.combine(location);
+        hasher.combine(category);
+        hasher.combine(account);
+    }
+    
+    public static func == (lhs: LedgerEntrySnapshot, rhs: LedgerEntrySnapshot) -> Bool {
+        lhs.name == rhs.name  && lhs.credit == rhs.credit && lhs.debit == rhs.debit && lhs.date == rhs.date && lhs.location == rhs.location && lhs.category == rhs.category && lhs.account == rhs.account
+    }
+}
+
+@Model
+public final class LedgerEntry : ObservableObject, Identifiable, InspectableElement, EditableElement
+{
+    typealias InspectorView = LedgerEntryInspect;
+    typealias EditView = LedgerEntryEdit;
+    typealias Snapshot = LedgerEntrySnapshot;
+    
+    
+    
+    init(name: String, credit: Decimal, debit: Decimal, date: Date, added_on: Date = Date.now, location: String, category: SubCategory, account: SubAccount) {
         self.id = UUID()
-        self.memo = memo
+        self.name = name
         self.credit = credit
         self.debit = debit
         self.date = date
@@ -24,7 +85,7 @@ public class LedgerEntry : ObservableObject, Identifiable
     }
     
     public var id: UUID;
-    public var memo: String;
+    public var name: String;
     public var credit: Decimal;
     public var debit: Decimal;
     public var date: Date;
@@ -68,23 +129,23 @@ public class LedgerEntry : ObservableObject, Identifiable
         let creditGroceries = acc.findPair("Credit", "Groceries")!
         
         return [
-            .init(memo: "Initial Balance", credit: 10000, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: savingsMain),
-            .init(memo: "Initial Balance", credit: 170, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: payAcc),
-            .init(memo: "'Pay' to Various", credit: 0, debit: 100, date: Date.now, location: "Bank", category: transferCat, account: payAcc),
-            .init(memo: "'Pay' to 'DI'", credit: 35, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: diAcc),
-            .init(memo: "'Pay' to 'Groceries'", credit: 65, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: groceriesAcc),
-            .init(memo: "Lunch", credit: 0, debit: 20, date: Date.now, location: "Chick-Fil-A", category: diCat, account: creditDI),
-            .init(memo: "Groceries", credit: 0, debit: 40, date: Date.now, location: "Aldi", category: groceriesCat, account: creditGroceries),
-            .init(memo: "'Groceries' to 'Credit Card'", credit: 0, debit: 40, date: Date.now, location: "Bank", category: transferCat, account: groceriesAcc),
-            .init(memo: "'DI' to 'Credit Card'", credit: 0, debit: 20, date: Date.now, location: "Bank", category: transferCat, account: diAcc),
-            .init(memo: "Various to 'Credit Card'", credit: 60, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: creditCardAcc),
-            .init(memo: "Gas", credit: 0, debit: 45, date: Date.now, location: "7-Eleven", category: gasCat, account: gasAcc),
-            .init(memo: "Audit", credit: 0, debit: 10, date: Date.now, location: "Bank", category: auditCat, account: payAcc)
+            .init(name: "Initial Balance", credit: 10000, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: savingsMain),
+            .init(name: "Initial Balance", credit: 170, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: payAcc),
+            .init(name: "'Pay' to Various", credit: 0, debit: 100, date: Date.now, location: "Bank", category: transferCat, account: payAcc),
+            .init(name: "'Pay' to 'DI'", credit: 35, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: diAcc),
+            .init(name: "'Pay' to 'Groceries'", credit: 65, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: groceriesAcc),
+            .init(name: "Lunch", credit: 0, debit: 20, date: Date.now, location: "Chick-Fil-A", category: diCat, account: creditDI),
+            .init(name: "Groceries", credit: 0, debit: 40, date: Date.now, location: "Aldi", category: groceriesCat, account: creditGroceries),
+            .init(name: "'Groceries' to 'Credit Card'", credit: 0, debit: 40, date: Date.now, location: "Bank", category: transferCat, account: groceriesAcc),
+            .init(name: "'DI' to 'Credit Card'", credit: 0, debit: 20, date: Date.now, location: "Bank", category: transferCat, account: diAcc),
+            .init(name: "Various to 'Credit Card'", credit: 60, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: creditCardAcc),
+            .init(name: "Gas", credit: 0, debit: 45, date: Date.now, location: "7-Eleven", category: gasCat, account: gasAcc),
+            .init(name: "Audit", credit: 0, debit: 10, date: Date.now, location: "Bank", category: auditCat, account: payAcc)
         ]
     }
     
     static let exampleEntry = {
-        LedgerEntry(memo: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Sub Category", parent: .init("Example Category")), account: .init("Example Sub Account", parent: .init("Example Account")))
+        LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Sub Category", parent: .init("Example Category")), account: .init("Example Sub Account", parent: .init("Example Account")))
     }()
     #endif
 }

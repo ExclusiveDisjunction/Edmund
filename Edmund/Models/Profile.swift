@@ -9,7 +9,11 @@ import Foundation
 import SwiftData
 
 @Model
-public class Profile: Identifiable, Hashable, Equatable {
+public final class Profile: Identifiable, Hashable, Equatable, InspectableElement, EditableElement {
+    typealias InspectorView = SimpleElementInspect<Profile>
+    typealias EditView = SimpleElementEdit<Profile>
+    typealias Snapshot = SimpleElementSnapshot<Profile>
+    
     public init(_ name: String) {
         self.name = name
     }

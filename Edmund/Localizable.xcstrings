@@ -278,6 +278,9 @@
         }
       }
     },
+    "Amount:" : {
+
+    },
     "Anually" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1052,6 +1055,9 @@
           }
         }
       }
+    },
+    "Kind:" : {
+
     },
     "Ledger" : {
       "extractionState" : "manual",
@@ -1878,9 +1884,6 @@
     "There are unsaved changes, do you wish to continue?" : {
 
     },
-    "There is no data to present. Please select at least one utility." : {
-
-    },
     "There is nothing to report" : {
       "localizations" : {
         "de" : {
@@ -2031,9 +2034,6 @@
         }
       }
     },
-    "Utilities Comparison" : {
-
-    },
     "Utility" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2140,9 +2140,6 @@
       }
     },
     "When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently." : {
-
-    },
-    "WIP" : {
 
     },
     "Year" : {

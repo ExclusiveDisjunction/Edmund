@@ -1,0 +1,209 @@
+//
+//  BillsInfo.swift
+//  Edmund
+//
+//  Created by Hollan Sellars on 4/21/25.
+//
+
+import SwiftData
+import SwiftUI
+import Foundation
+
+enum BillsKind : Int, Filterable, Equatable {
+    typealias On = BillBaseWrapper
+    
+    case subscription = 0
+    case bill = 1
+    case utility = 2
+    
+    public var id: Self { self }
+    
+    public var name: LocalizedStringKey {
+        switch self {
+            case .subscription: "Subscription"
+            case .bill: "Bill"
+            case .utility: "Utility"
+        }
+    }
+    public var pluralName: LocalizedStringKey {
+        switch self {
+            case .subscription: "Subscriptions"
+            case .bill: "Bills"
+            case .utility: "Utilities"
+        }
+    }
+    
+    public func accepts(_ val: BillBaseWrapper) -> Bool {
+        val.data.kind == self
+    }
+    
+    public static func <(lhs: BillsKind, rhs: BillsKind) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+    public static func >(lhs: BillsKind, rhs: BillsKind) -> Bool {
+        lhs.rawValue > rhs.rawValue
+    }
+}
+enum BillsSort : Sortable {
+    typealias On = BillBaseWrapper;
+    
+    case name, amount, kind
+    
+    var id: Self { self }
+    var toString: LocalizedStringKey {
+        switch self {
+            case .name: "Name"
+            case .amount: "Amount"
+            case .kind: "Kind"
+        }
+    }
+    var ascendingQuestion: LocalizedStringKey {
+        switch self {
+            case .name: "Alphabetical"
+            case .amount: "High to Low"
+            case .kind: "Subscription to Utility"
+        }
+    }
+    
+    func compare(_ lhs: BillBaseWrapper, _ rhs: BillBaseWrapper, _ ascending: Bool) -> Bool {
+        switch self {
+            case .name: ascending ? lhs.data.name < rhs.data.name : lhs.data.name > rhs.data.name
+            case .amount: ascending ? lhs.data.amount > rhs.data.amount : lhs.data.amount < rhs.data.amount
+            case .kind: ascending ? lhs.data.kind < rhs.data.kind : lhs.data.kind > rhs.data.kind
+        }
+    }
+}
+
+extension Date {
+    static func fromParts(_ year: Int, _ month: Int, _ day: Int) -> Date? {
+        Calendar.current.date(from: DateComponents(year: year, month: month, day: day))
+    }
+}
+enum LongDuration : Equatable, Hashable {
+    case years(Int), months(Int), weeks(Int)
+    
+    var asDateComponents: DateComponents {
+        switch self {
+            case .years(let year): DateComponents(year: year)
+            case .months(let month): DateComponents(month: month)
+            case .weeks(let weeks): DateComponents(day: weeks * 7)
+        }
+    }
+    
+    static func *(lhs: LongDuration, rhs: Int) -> LongDuration {
+        switch lhs {
+            case .years(let years): .years(years * rhs)
+            case .months(let months): .months(months * rhs)
+            case .weeks(let weeks): .weeks(weeks * rhs)
+        }
+    }
+    
+    func adding(to date: Date, calendar: Calendar = .current) -> Date? {
+        return calendar.date(byAdding: asDateComponents, to: date)
+    }
+}
+
+enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
+    case weekly = 0
+    case biWeekly = 1
+    case monthly = 2
+    case biMonthly = 3
+    case quarterly = 4
+    case semiAnually = 5
+    case anually = 6
+    
+    private var index: Int {
+        switch self {
+            case .weekly: 0
+            case .biWeekly: 1
+            case .monthly: 2
+            case .biMonthly: 3
+            case .quarterly: 4
+            case .semiAnually: 5
+            case .anually: 6
+        }
+    }
+    private static var compTable: [[Decimal]] = {
+        return [
+            //   Week      Bi-Week   Month     Bi-Month  Quarter  HYear    Year
+            [1.0     , 2.0     , 4.0     , 8.0     , 12.0   , 26.0   , 52.0].map { Decimal($0) },
+            [1.0/2.0 , 1.0     , 2.0     , 4.0     , 6.0    , 12.0   , 26.0].map { Decimal($0) },
+            [1.0/4.0 , 1.0/2.0 , 1.0     , 2.0     , 4.0    , 6.0    , 12.0].map { Decimal($0) },
+            [1.0/8.0 , 1.0/4.0 , 1.0/2.0 , 1.0     , 2.0    , 4.0    , 6.0 ].map { Decimal($0) },
+            [1.0/12.0, 1.0/6.0 , 1.0/4.0 , 1.0/2.0 , 1.0    , 2.0    , 4.0 ].map { Decimal($0) },
+            [1.0/26.0, 1.0/12.0, 1.0/6.0 , 1.0/4.0 , 1.0/2.0, 1.0    , 2.0 ].map { Decimal($0) },
+            [1.0/52.0, 1.0/26.0, 1.0/12.0, 1.0/16.0, 1.0/4.0, 1.0/2.0, 1.0 ].map { Decimal($0) }
+        ]
+    }()
+    private static var daysTable: [Float] = [
+        7.0,
+        14.0,
+        30.42,
+        60.83,
+        91.25,
+        182.5,
+        
+    ]
+    
+    var perName: LocalizedStringKey {
+        switch self {
+            case .weekly:      "Week"
+            case .biWeekly:    "Two Weeks"
+            case .monthly:     "Month"
+            case .biMonthly:   "Two Months"
+            case .quarterly:   "Quarter"
+            case .semiAnually: "Half Year"
+            case .anually:     "Year"
+        }
+    }
+    var name: LocalizedStringKey {
+        switch self{
+            case .weekly:       "Weekly"
+            case .biWeekly:     "Bi-Weekly"
+            case .monthly:      "Monthly"
+            case .biMonthly:    "Bi-Monthly"
+            case .quarterly:    "Quarterly"
+            case .semiAnually:  "Semi-Anually"
+            case .anually:      "Anually"
+        }
+    }
+    
+    func conversionFactor(_ to: BillsPeriod) -> Decimal {
+        let i = self.index, j = to.index
+        
+        return BillsPeriod.compTable[i][j]
+    }
+    var asDuration: LongDuration {
+        switch self {
+            case .weekly: .weeks(1)
+            case .biWeekly: .weeks(2)
+            case .monthly: .months(1)
+            case .biMonthly: .months(2)
+            case .quarterly: .months(3)
+            case .semiAnually: .months(6)
+            case .anually: .years(1)
+        }
+    }
+    var daysInPeriod: Float {
+        Self.daysTable[self.index]
+    }
+    
+    var id: Self { self }
+}
+
+enum InvalidBillFields : LocalizedStringKey, CaseIterable, Identifiable {
+    case name = "Name", dates = "Start and End Dates", company = "Company", location = "Location", children = "Datapoins", amount = "Amount"
+    
+    var description: LocalizedStringKey {
+        switch self {
+            case .name: "nameEmptyError"
+            case .dates: "startDateError"
+            case .company: "companyEmptyError"
+            case .location: "locationEmptyError"
+            case .children: "childrenError"
+            case .amount: "negAmountError"
+        }
+    }
+    
+    var id: Self { self }
+}

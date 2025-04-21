@@ -10,7 +10,11 @@ import SwiftData
 import SwiftUI
 
 @Model
-public final class Category : Identifiable, Hashable, BoundPairParent {
+public final class Category : Identifiable, Hashable, BoundPairParent, InspectableElement, EditableElement {
+    typealias EditView = SimpleElementEdit<Category>
+    typealias Snapshot = SimpleElementSnapshot<Category>
+    typealias InspectorView = SimpleElementInspect<Category>
+    
     public required init() {
         self.name = ""
         self.children = []
@@ -75,7 +79,12 @@ public final class Category : Identifiable, Hashable, BoundPairParent {
     }
 }
 @Model
-public class SubCategory : BoundPair, Equatable {
+public final class SubCategory : BoundPair, Equatable, EditableElement, InspectableElement {
+    typealias EditView = NamedPairChildEdit<SubCategory>
+    typealias Snapshot = NamedPairChildSnapshot<SubCategory>;
+    typealias InspectorView = SimpleElementInspect<SubCategory>;
+    
+    
     public required init() {
         self.parent = nil
         self.name = ""

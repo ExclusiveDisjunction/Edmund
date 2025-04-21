@@ -9,7 +9,12 @@ import Foundation
 import SwiftData
 
 @Model
-public final class Account : Identifiable, Hashable, BoundPairParent {
+public final class Account : Identifiable, Hashable, BoundPairParent, EditableElement, InspectableElement {
+    typealias EditView = SimpleElementEdit<Account>
+    typealias Snapshot = SimpleElementSnapshot<Account>
+    typealias InspectorView = SimpleElementInspect<Account>
+    
+    
     public required init() {
         self.name = ""
         self.creditLimit = nil
@@ -62,7 +67,12 @@ public final class Account : Identifiable, Hashable, BoundPairParent {
     }()
 }
 @Model
-public final class SubAccount : BoundPair, Equatable {
+public final class SubAccount : BoundPair, Equatable, EditableElement, InspectableElement {
+    
+    typealias EditView = NamedPairChildEdit<SubAccount>
+    typealias Snapshot = NamedPairChildSnapshot<SubAccount>;
+    typealias InspectorView = SimpleElementInspect<SubAccount>;
+    
     public required init() {
         self.name = ""
         self.parent = nil 

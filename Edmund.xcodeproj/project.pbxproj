@@ -34,19 +34,19 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Views/Transactions/Audit.swift,
-				Views/Transactions/BillPayment.swift,
-				Views/Transactions/CompositeTransaction.swift,
-				Views/Transactions/CreditCardTrans.swift,
-				Views/Transactions/GeneralIncome.swift,
-				Views/Transactions/ManualTransactions.swift,
-				Views/Transactions/Payday.swift,
-				Views/Transactions/PersonLoan.swift,
-				Views/Transactions/TransactionEditor.swift,
-				Views/Transactions/Transfers/ManyManyTransfer.swift,
-				Views/Transactions/Transfers/ManyOneTransfer.swift,
-				Views/Transactions/Transfers/ManyTransferFoundation.swift,
-				Views/Transactions/Transfers/OneManyTransfer.swift,
+				Views/Ledger/Transaction/Audit.swift,
+				Views/Ledger/Transaction/BillPayment.swift,
+				Views/Ledger/Transaction/CompositeTransaction.swift,
+				Views/Ledger/Transaction/CreditCardTrans.swift,
+				Views/Ledger/Transaction/GeneralIncome.swift,
+				Views/Ledger/Transaction/ManualTransactions.swift,
+				Views/Ledger/Transaction/Payday.swift,
+				Views/Ledger/Transaction/PersonLoan.swift,
+				Views/Ledger/Transaction/TransactionEditor.swift,
+				Views/Ledger/Transaction/Transfers/ManyManyTransfer.swift,
+				Views/Ledger/Transaction/Transfers/ManyOneTransfer.swift,
+				Views/Ledger/Transaction/Transfers/ManyTransferFoundation.swift,
+				Views/Ledger/Transaction/Transfers/OneManyTransfer.swift,
 			);
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 		};
