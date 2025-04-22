@@ -24,7 +24,7 @@ struct BillPayment : TransactionEditorProtocol {
         }
     }
     
-    func apply(_ warning: StringWarningManifest) -> Bool {
+    func apply() -> Bool {
         fatalError("not finished")
     }
     
@@ -43,6 +43,7 @@ struct BillPayment : TransactionEditorProtocol {
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
     @State private var editing: Bill? = nil;
+    private var warning = StringWarningManifest();
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -51,7 +52,7 @@ struct BillPayment : TransactionEditorProtocol {
     }
     
     var body: some View {
-        TransactionEditorFrame(.billPay(kind), apply: apply, content: {
+        TransactionEditorFrame(.billPay(kind), warning: warning, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Paying:")

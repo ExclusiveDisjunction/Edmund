@@ -86,18 +86,50 @@ struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;
     @State private var account: SubAccount? = nil
     @State private var data: [ManyTableEntry] = [.init()];
-    
+    private var warning = StringWarningManifest();
+
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply(_ warning: StringWarningManifest) -> Bool {
-        fatalError("not implemented")
+    func apply() -> Bool {
+        guard let categories = categoriesContext else {
+            warning.warning = .init(message: "noCategories", title: "Error")
+            return false
+        }
+        
+        guard let source = account else {
+            warning.warning = .init(message: "emptyFields", title: "Error")
+            return false;
+        }
+        
+        var firstTrans = [
+            LedgerEntry(
+                name: source.name + " to Various",
+                credit: 0,
+                debit: data.amount,
+                date: date,
+                location: "Bank",
+                category: categories.accountControl.transfer,
+                account: source
+            )
+        ];
+        guard let new = data.createTransactions(transfer_into: true, categories) else {
+            warning.warning = .init(message: "missingAccount", title: "Error");
+            return false;
+        }
+        
+        firstTrans.append(contentsOf: new);
+        
+        for transaction in firstTrans {
+            modelContext.insert(transaction)
+        }
+        return true;
     }
     
     var body: some View {
-        TransactionEditorFrame(.transfer(.oneMany), apply: apply, content: {
+        TransactionEditorFrame(.transfer(.oneMany), warning: warning, apply: apply, content: {
             VStack {
                 HStack {
                     Text("Source:", comment: "Account source")
@@ -108,8 +140,16 @@ struct OneManyTransfer : TransactionEditorProtocol {
                 
                 HStack {
                     Text(data.amount, format: .currency(code: currencyCode))
-                    Text("will be moved", comment: "$ will be moved")
+                    Text("will be moved to", comment: "$ will be moved to")
+                    if let account = account {
+                        NamedPairViewer(pair: account)
+                    }
+                    else {
+                        Text("(no account)").italic()
+                    }
                 }
+                
+                DatePicker("Date:", selection: $date, displayedComponents: .date)
                 
             }
         })

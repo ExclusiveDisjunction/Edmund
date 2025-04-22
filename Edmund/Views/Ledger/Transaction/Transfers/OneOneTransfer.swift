@@ -17,6 +17,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
     @State private var dest: SubAccount?
     @State private var amount: Decimal = 0.0;
     @State private var date = Date.now;
+    private var warning = StringWarningManifest();
     
 #if os(macOS)
     let minWidth: CGFloat = 60;
@@ -27,7 +28,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
 #endif
     
     
-    func apply(_ warning: StringWarningManifest) -> Bool {
+    func apply() -> Bool {
         guard let categories = categories else {
             warning.warning = .init(message: "noCategories", title: "Error")
             return false
@@ -68,7 +69,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
     }
     
     var body: some View {
-        TransactionEditorFrame(.transfer(.oneOne), apply: apply, content: {
+        TransactionEditorFrame(.transfer(.oneOne), warning: warning, apply: apply, content: {
             Grid() {
                 GridRow {
                     Text("Amount:")

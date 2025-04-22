@@ -19,6 +19,7 @@ struct UtilityPayment : TransactionEditorProtocol {
     @State private var date: Date = .now;
     @State private var doStore: Bool = true;
     @State private var cache: [Utility] = [];
+    private var warning = StringWarningManifest();
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -26,7 +27,7 @@ struct UtilityPayment : TransactionEditorProtocol {
         cache = utilities.filter { !$0.isExpired }.sorted(by: { $0.name < $1.name } )
     }
     
-    func apply(_ warning: StringWarningManifest) -> Bool {
+    func apply() -> Bool {
         guard let target = selected, let account = account else {
             print("Aborting because the target \(selected == nil) or account \(account == nil) is nil ")
             warning.warning = .init(message: "Please fill in all fields", title: "Error");
@@ -74,7 +75,7 @@ struct UtilityPayment : TransactionEditorProtocol {
 #endif
     
     var body: some View {
-        TransactionEditorFrame(.utilityPay, apply: apply, content: {
+        TransactionEditorFrame(.utilityPay, warning: warning, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("For Utility:")

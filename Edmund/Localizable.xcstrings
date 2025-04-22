@@ -4,6 +4,9 @@
     "" : {
 
     },
+    "(no account)" : {
+
+    },
     "/" : {
       "localizations" : {
         "de" : {
@@ -279,6 +282,9 @@
       }
     },
     "Amount:" : {
+
+    },
+    "Amounts:" : {
 
     },
     "Anually" : {
@@ -689,6 +695,9 @@
     "Datapoints" : {
 
     },
+    "date" : {
+
+    },
     "Date" : {
       "localizations" : {
         "de" : {
@@ -889,6 +898,9 @@
         }
       }
     },
+    "For" : {
+
+    },
     "For Utility:" : {
 
     },
@@ -911,6 +923,9 @@
     },
     "Frequency:" : {
 
+    },
+    "from" : {
+      "comment" : "on [date] from [account]"
     },
     "From:" : {
 
@@ -1000,6 +1015,9 @@
         }
       }
     },
+    "I loaned" : {
+
+    },
     "If results are not being updated, press refresh" : {
 
     },
@@ -1035,7 +1053,13 @@
     "into" : {
 
     },
+    "into:" : {
+
+    },
     "Into:" : {
+
+    },
+    "Item" : {
 
     },
     "Kind" : {
@@ -1188,6 +1212,9 @@
       }
     },
     "Miscellaneous" : {
+
+    },
+    "missingAccount" : {
 
     },
     "Money In:" : {
@@ -1390,6 +1417,9 @@
         }
       }
     },
+    "on" : {
+      "comment" : "for [item] on [date]"
+    },
     "On" : {
       "comment" : "[Amount] on [Date]"
     },
@@ -1462,6 +1492,9 @@
     "Paying:" : {
 
     },
+    "Person" : {
+
+    },
     "Personal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1482,10 +1515,16 @@
     "Personal Loan" : {
 
     },
+    "Place" : {
+
+    },
     "Please add at least one account with a credit limit" : {
 
     },
     "Please correct fields outlined with red." : {
+
+    },
+    "Please ensure that the top total matches the bottom total" : {
 
     },
     "Please fill in all fields" : {
@@ -1497,6 +1536,9 @@
           }
         }
       }
+    },
+    "Please fix all fields." : {
+
     },
     "Please provide a name." : {
       "localizations" : {
@@ -1633,8 +1675,8 @@
     "Refund" : {
 
     },
-    "Remove Selected" : {
-
+    "refunded me" : {
+      "comment" : "company refunded me $_"
     },
     "Removing this information will remove all associated transactions. Do you wish to continue?" : {
       "localizations" : {
@@ -2171,8 +2213,8 @@
     "When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently." : {
 
     },
-    "will be moved" : {
-      "comment" : "$ will be moved"
+    "will be moved to" : {
+      "comment" : "$ will be moved to"
     },
     "Year" : {
       "extractionState" : "manual",

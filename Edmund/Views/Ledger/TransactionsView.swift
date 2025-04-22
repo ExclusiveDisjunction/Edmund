@@ -41,7 +41,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable {
 }
 
 protocol TransactionEditorProtocol : View {
-    func apply(_ warning: StringWarningManifest) -> Bool;
+    func apply() -> Bool;
 }
 
 private struct CategoriesContextKey: EnvironmentKey {
@@ -55,22 +55,23 @@ extension EnvironmentValues {
     }
 }
 
-struct TransactionEditorFrame<Content> : View where Content: View {
-    init(_ kind: TransactionKind, apply: @escaping (StringWarningManifest) -> Bool, @ViewBuilder content: @escaping () -> Content) {
+struct TransactionEditorFrame<Content, WarningKind> : View where Content: View, WarningKind: WarningBasis {
+    init(_ kind: TransactionKind, warning: BaseWarningManifest<WarningKind>, apply: @escaping () -> Bool, @ViewBuilder content: @escaping () -> Content) {
         self.kind = kind;
         self.apply = apply;
+        self.warning = warning;
         self.content = content;
     }
     
     let kind: TransactionKind;
-    private let apply: (StringWarningManifest) -> Bool;
+    private let apply: () -> Bool;
     private let content: () -> Content;
-    @Bindable private var warning: StringWarningManifest = .init()
+    @Bindable private var warning: BaseWarningManifest<WarningKind>;
     
     @Environment(\.dismiss) private var dismiss;
     
     private func submit() {
-        if apply(warning) {
+        if apply() {
             dismiss()
         }
     }
@@ -92,6 +93,11 @@ struct TransactionEditorFrame<Content> : View where Content: View {
                 Button("Save", action: submit).buttonStyle(.borderedProminent)
             }
         }.padding()
+            .alert("Error", isPresented: $warning.isPresented, actions: {
+                Button("Ok", action: { warning.isPresented = false } )
+            }, message: {
+                Text(warning.message ?? "internalError")
+            })
     }
 }
 
@@ -100,16 +106,16 @@ struct TransactionsEditor : View {
     
     var body: some View {
         switch kind {
-            case .simple:          Text("Transaction")
+            case .simple:          SimpleTransaction()
             case .composite:       Text("Composite Transaction")
             case .grouped:         Text("Batch Transactions")
             case .creditCard:      Text("Credit Card Transactions")
-            case .personalLoan:    Text("Personal Loan")
-            case .refund:          Text("Refund")
+            case .personalLoan:    PersonalLoan()
+            case .refund:          Refund()
             case .income:          Text("Income")
             case .billPay(let v):  BillPayment(kind: v)
             case .utilityPay:      UtilityPayment()
-            case .audit:           Text("Audit")
+            case .audit:           Audit()
             case .transfer(let v): Transfer(v)
         }
     }

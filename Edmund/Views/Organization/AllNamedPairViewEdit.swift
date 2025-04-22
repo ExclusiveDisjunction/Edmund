@@ -84,7 +84,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             HStack {
                 Text(child.name).padding(.leading, 30)
             }.contentShape(Rectangle()).contextMenu {
-                GeneralContextMenu(child, inspect: childInspect, remove: childDelete, canInspect: false)
+                SingularContextMenu(child, inspect: childInspect, remove: childDelete, canInspect: false)
             }
         }
     }
@@ -102,7 +102,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
                     Spacer()
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain).contextMenu {
-                GeneralContextMenu(helper.target, inspect: parentEdit, remove: parentDelete, addLabel: T.kind.addSubName, add: add_parent, canInspect: false)
+                SingularContextMenu(helper.target, inspect: parentEdit, remove: parentDelete, addLabel: T.kind.addSubName, add: add_parent, canInspect: false)
             }
             
             if helper.childrenShown {

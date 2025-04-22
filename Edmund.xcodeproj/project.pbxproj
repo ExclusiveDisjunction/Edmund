@@ -34,13 +34,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Views/Ledger/Transaction/Audit.swift,
 				Views/Ledger/Transaction/CompositeTransaction.swift,
 				Views/Ledger/Transaction/CreditCardTrans.swift,
-				Views/Ledger/Transaction/GeneralIncome.swift,
 				Views/Ledger/Transaction/ManualTransactions.swift,
-				Views/Ledger/Transaction/Payday.swift,
-				Views/Ledger/Transaction/PersonLoan.swift,
 			);
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 		};

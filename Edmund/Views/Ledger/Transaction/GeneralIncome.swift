@@ -7,115 +7,108 @@
 
 import SwiftUI
 
-public enum GeneralIncomeKind {
-    case gift
-    case interest
+enum IncomeKind : LocalizedStringKey, CaseIterable, Identifiable {
+    case gift = "gifted"
+    case pay = "paid"
+    case repay = "repaid"
+    
+    var id: Self { self }
 }
 
-@Observable
-class GeneralIncomeViewModel : TransactionEditor {
-    var id: UUID = UUID()
+struct Income: TransactionEditorProtocol {
+    @State private var kind: IncomeKind = .pay;
+    @State private var person: String = "";
+    @State private var amount: Decimal = 0;
+    @State private var date: Date = .now;
+    @State private var account: SubAccount? = nil;
+    private var warning = StringWarningManifest();
     
-    func compile_deltas() -> Dictionary<UUID, Decimal>? {
-        guard validate() else { return nil}
-        guard let acc = self.account else { return nil }
-        
-        return [ acc.id : amount];
-    }
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
-        if !validate() { return nil}
-        
-        guard let acc = self.account else { return nil }
-        
-        let result: LedgerEntry = switch kind {
-        case .gift:
-            .init(
-                memo: "Gift from " + merchant,
-                credit: amount,
-                debit: 0,
-                date: Date.now,
-                location: "Bank",
-                category: cats.account_control.gift,
-                account: acc
-            )
-        case .interest:
-            .init(
-                memo: "Interest",
-                credit: amount,
-                debit: 0,
-                date: Date.now,
-                location: merchant,
-                category: cats.account_control.interest,
-                account: acc
-            )
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    func apply() -> Bool {
+        guard let categories = categoriesContext else {
+            warning.warning = .init(message: "internalError", title: "Error")
+            return false
         }
         
-        return [result]
-    }
-    func validate() -> Bool {
-        var emptys: [String] = [];
-        
-        if merchant.isEmpty { emptys.append("merchant") }
-        if account == nil { emptys.append("account") }
-        
-        if !emptys.isEmpty {
-            err_msg = "The following fields are empty: " + emptys.joined(separator: ", ")
+        guard let destination = account else {
+            warning.warning = .init(message: "emptyFields", title: "Error")
             return false;
         }
-        else {
-            err_msg = nil;
-            return true;
+        
+        guard amount > 0 else {
+            warning.warning = .init(message: "negativeAmount", title: "Error")
+            return false;
         }
+        
+        guard !person.isEmpty  else {
+            warning.warning = .init(message: "emptyFields", title: "Error")
+            return false;
+        }
+        
+        let name = switch kind {
+            case .gift: "Gift from \(person)"
+            case .pay: "Pay"
+            case .repay: "Repayment from \(person)"
+        }
+        
+        let company = switch kind {
+            case .gift: "Bank"
+            case .repay: "Bank"
+            case .pay: person
+        }
+        
+        let category = switch kind {
+            case .gift: categories.payments.gift
+            case .pay: categories.accountControl.pay
+            case .repay: categories.payments.repayment
+        }
+        
+        let transaction = LedgerEntry(
+            name: name,
+            credit: amount,
+            debit: 0,
+            date: date,
+            location: company,
+            category: categories.payments.gift,
+            account: destination
+        );
+        modelContext.insert(transaction);
+        
+        return true;
     }
-    func clear() {
-        merchant = "";
-        amount = 0.00;
-        kind = .gift;
-        account = nil
-        err_msg = "";
-    }
-    
-    var merchant: String = "";
-    var amount: Decimal = 0;
-    var kind: GeneralIncomeKind = .gift;
-    var account: SubAccount? = nil
-    var err_msg: String? = nil;
-}
-
-struct GeneralIncome: View {
-    @Bindable var vm: GeneralIncomeViewModel;
 
     var body: some View {
-        VStack {
-            HStack {
-                Text("General Income").font(.headline)
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundColor(.red).italic()
+        TransactionEditorFrame(.income, warning: warning, apply: apply, content: {
+            VStack {
+                HStack {
+                    Text("I got")
+                    Picker("", selection: $kind) {
+                        ForEach(IncomeKind.allCases, id: \.id) { value in
+                            Text(value.rawValue).tag(value)
+                        }
+                    }.labelsHidden()
+                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                    Text("from")
+                    TextField(kind == .pay ? "Company" : "Person", text: $person)
+                    
                 }
-                Spacer()
-            }.padding([.leading, .trailing], 10).padding(.top, 5)
-            
-            HStack {
-                switch vm.kind {
-                case .gift: TextField("Person", text: $vm.merchant)
-                case .interest: TextField("Company", text: $vm.merchant)
+                HStack {
+                    Text("On")
+                    DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
+                    Text("Deposit into:")
+                    NamedPairPicker($account)
                 }
-                Text("gave the amount of ")
-                TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
-                Text("as")
-                Picker("Kind", selection: $vm.kind) {
-                    Text("Gift").tag(GeneralIncomeKind.gift)
-                    Text("Interest").tag(GeneralIncomeKind.interest)
-                }.labelsHidden()
-            }.padding([.leading, .trailing], 5).padding(.bottom, 3)
-            HStack {
-                Text("Into:")
-                NamedPairPicker(target: $vm.account)
-            }.padding([.leading, .trailing], 10).padding(.bottom, 5)
-        }.background(.background.opacity(0.5)).cornerRadius(5)
+            }
+        })
     }
 }
 
 #Preview {
-    GeneralIncome(vm: GeneralIncomeViewModel())
+    Income()
+        .padding()
+        .modelContainer(Containers.debugContainer)
 }

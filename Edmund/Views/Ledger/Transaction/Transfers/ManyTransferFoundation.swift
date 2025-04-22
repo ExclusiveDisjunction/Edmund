@@ -24,6 +24,7 @@ class ManyTableEntry : Identifiable {
 }
 
 extension [ManyTableEntry] {
+    /// Takes in the current information and builds `LedgerEntry` instances from it. If `transfer_into` is true, these will be in the form of "Various to [account]"
     func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) -> [LedgerEntry]? {
         var result: [LedgerEntry] = [];
         for entry in self {
@@ -67,16 +68,16 @@ struct ManyTransferTable : View {
                     data.append(.init())
                 }
             }) {
-                Label("Add", systemImage: "plus")
-            }
+                Image(systemName: "plus")
+            }.buttonStyle(.borderless)
         
             Button(action: {
                 withAnimation {
                     removeSelected()
                 }
             }) {
-                Label("Remove Selected", systemImage: "trash").foregroundStyle(.red)
-            }
+                Image(systemName: "trash").foregroundStyle(.red)
+            }.buttonStyle(.borderless)
             
         }.padding(.top)
         

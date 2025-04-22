@@ -23,7 +23,11 @@ struct LedgerWindow : View {
 }
 
 struct LedgerTable: View {
-    @Query(sort: \LedgerEntry.added_on, order: .reverse) var data: [LedgerEntry];
+    
+    @Query(sort: [
+        SortDescriptor(\LedgerEntry.date, order: .reverse),
+        SortDescriptor(\LedgerEntry.added_on, order: .reverse)
+    ]) var data: [LedgerEntry];
     
     @Binding var profile: String;
     
@@ -65,7 +69,7 @@ struct LedgerTable: View {
                 Spacer()
                 Text(entry.balance, format: .currency(code: currencyCode))
             }.swipeActions(edge: .trailing) {
-                GeneralContextMenu(entry, inspect: inspect, remove: deleting, asSlide: true)
+                SingularContextMenu(entry, inspect: inspect, remove: deleting, asSlide: true)
             }
         }
     }
@@ -107,7 +111,7 @@ struct LedgerTable: View {
                 }
             }
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
-            SelectionsContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
+            ManyContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 300)
@@ -117,7 +121,7 @@ struct LedgerTable: View {
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
         if horizontalSizeClass != .compact {
-            GeneralInspectToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
+            GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
         }
         
         if shouldShowPopoutButton {
@@ -202,7 +206,7 @@ struct LedgerTable: View {
         }
     
         if horizontalSizeClass != .compact {
-            GeneralInspectToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+            GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
             
             GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)
         }

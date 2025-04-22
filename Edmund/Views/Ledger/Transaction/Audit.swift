@@ -7,77 +7,75 @@
 
 import SwiftUI
 
-@Observable
-class AuditViewModel : TransactionEditor {
-    func compile_deltas() -> Dictionary<UUID, Decimal>? {
-        guard let acc = self.account else { return nil }
-        
-        if (!validate())
-        { return nil; }
-        
-        return [ acc.id : -amount];
-    }
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
-        if !validate() { return nil }
-        
-        guard let acc = self.account else { return nil }
-        
-        return [
-            LedgerEntry(
-                memo: "Audit",
-                credit: 0,
-                debit: amount,
-                date: Date.now,
-                location: "Bank",
-                category: cats.account_control.audit,
-                account: acc)
-        ];
-    }
-    func validate() -> Bool {
-        if self.account == nil {
-            err_msg = "Account is empty"
+struct Audit: TransactionEditorProtocol {
+    @State private var account: SubAccount? = nil;
+    @State private var date: Date = .now;
+    @State private var amount: Decimal = 0;
+    private var warning = StringWarningManifest();
+    
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    func apply() -> Bool {
+        guard let account = account else {
+            warning.warning = .init(message: "emptyFields", title: "Error")
             return false;
         }
-        else {
-            err_msg = nil;
-            return true;
+        
+        guard let categories = categoriesContext else {
+            warning.warning = .init(message: "internalError", title: "Error")
+            return false
         }
+        
+        let transaction = LedgerEntry(
+            name: "Audit",
+            credit: amount >= 0 ? amount : 0,
+            debit: amount < 0 ? -amount : 0,
+            date: date,
+            location: "Bank",
+            category: categories.accountControl.audit,
+            account: account
+        );
+        
+        modelContext.insert(transaction);
+        return true;
     }
-    func clear() {
-        amount = 0
-        account = nil
-        err_msg = nil
-    }
-    
-    var amount: Decimal = 0
-    var account: SubAccount? = nil
-    var err_msg: String? = nil
-    var id: UUID = UUID()
-}
-
-struct Audit: View {
-    @Bindable var vm: AuditViewModel;
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Audit").font(.headline)
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
+        TransactionEditorFrame(.audit, warning: warning, apply: apply, content: {
+            Grid {
+                GridRow {
+                    Text("Account:")
+                    HStack {
+                        NamedPairPicker($account)
+                        Spacer()
+                    }
                 }
-                Spacer()
-            }.padding(.top, 5)
-            
-            HStack {
-                Text("Deduct")
-                TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
-                Text("from")
-                NamedPairPicker(target: $vm.account)
-            }.padding(.bottom, 5)
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+                GridRow {
+                    Text("Amount:")
+                    HStack {
+                        TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                        Spacer()
+                    }
+                }
+                GridRow {
+                    Text("Date:")
+                    HStack {
+                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
+                        
+                        Spacer()
+                    }
+                }
+            }
+        })
     }
 }
 
 #Preview {
-    Audit(vm: AuditViewModel())
+    Audit()
+        .padding()
+        .modelContainer(Containers.debugContainer)
 }

@@ -86,13 +86,44 @@ struct ManyManyTransfer : TransactionEditorProtocol {
     
     @State private var top: [ManyTableEntry] = [.init()];
     @State private var bottom: [ManyTableEntry] = [.init()];
+    private var warning = StringWarningManifest();
     
-    func apply(_ warning: StringWarningManifest) -> Bool {
-        fatalError("not implemented")
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    func apply() -> Bool {
+        guard let categories = categoriesContext else {
+            warning.warning = .init(message: "noCategories", title: "Error")
+            return false
+        }
+        
+        guard top.amount == bottom.amount else {
+            warning.warning = .init(message: "Please ensure that the top total matches the bottom total", title: "Error")
+            return false;
+        }
+        
+        guard var data = top.createTransactions(transfer_into: false, categories) else {
+            warning.warning = .init(message: "missingAccount", title: "Error");
+            return false;
+        }
+        guard let bottomData = bottom.createTransactions(transfer_into: true, categories) else {
+            warning.warning = .init(message: "missingAccount", title: "Error");
+            return false;
+        }
+        
+        data.append(contentsOf: bottomData);
+        
+        for transaction in data {
+            modelContext.insert(transaction);
+        }
+        
+        return true;
     }
     
     var body : some View {
-        TransactionEditorFrame(.transfer(.manyMany), apply: apply, content: {
+        TransactionEditorFrame(.transfer(.manyMany), warning: warning, apply: apply, content: {
             VStack {
                 HStack {
                     Text("Take from").italic().bold()
@@ -100,6 +131,12 @@ struct ManyManyTransfer : TransactionEditorProtocol {
                 }
                 
                 ManyTransferTable(data: $top)
+                
+                HStack {
+                    Text("Total:")
+                    Text(top.amount, format: .currency(code: currencyCode))
+                    Spacer()
+                }
                 
                 Divider()
                 
@@ -109,6 +146,12 @@ struct ManyManyTransfer : TransactionEditorProtocol {
                 }
                 
                 ManyTransferTable(data: $bottom)
+                
+                HStack {
+                    Text("Total:")
+                    Text(bottom.amount, format: .currency(code: currencyCode))
+                    Spacer()
+                }
             }
         })
     }

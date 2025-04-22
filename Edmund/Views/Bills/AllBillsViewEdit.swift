@@ -88,7 +88,7 @@ struct AllBillsViewEdit : View {
                 Text("/")
                 Text(showcasePeriod.perName)
             }.swipeActions(edge: .trailing) {
-                GeneralContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
             }
         }
     }
@@ -119,7 +119,7 @@ struct AllBillsViewEdit : View {
                 Text((wrapper.data.isExpired ? Decimal() : wrapper.data.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            SelectionsContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
+            ManyContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 270)
@@ -153,7 +153,7 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
+        GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
         
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
@@ -173,7 +173,7 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        GeneralInspectToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+        GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
         
         GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
         

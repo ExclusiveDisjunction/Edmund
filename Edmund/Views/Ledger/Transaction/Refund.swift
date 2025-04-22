@@ -1,18 +1,19 @@
 //
-//  PersonLoan.swift
+//  Refund.swift
 //  Edmund
 //
-//  Created by Hollan on 1/16/25.
+//  Created by Hollan Sellars on 4/22/25.
 //
 
 import SwiftUI
 import SwiftData
 
-struct PersonalLoan: TransactionEditorProtocol {
-    @State private var person: String = "";
+struct Refund : TransactionEditorProtocol {
+    @State private var company: String = "";
+    @State private var reason: String = "";
     @State private var amount: Decimal = 0;
     @State private var date: Date = Date.now;
-    @State private var account: SubAccount?;
+    @State private var account: SubAccount? = nil;
     private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
@@ -31,23 +32,23 @@ struct PersonalLoan: TransactionEditorProtocol {
             return false;
         }
         
-        guard !person.isEmpty else {
+        guard !company.isEmpty && !reason.isEmpty else {
             warning.warning = .init(message: "emptyFields", title: "Error")
             return false;
         }
-    
+        
         guard amount >= 0 else {
             warning.warning = .init(message: "negativeAmount", title: "Error")
             return false;
         }
         
         let transaction = LedgerEntry(
-            name: "Personal loan to \(person)",
-            credit: 0,
-            debit: amount,
+            name: "Refund for \(reason)",
+            credit: amount,
+            debit: 0,
             date: date,
-            location: "Bank",
-            category: categories.payments.loan,
+            location: company,
+            category: categories.payments.refund,
             account: destination
         );
         
@@ -56,27 +57,27 @@ struct PersonalLoan: TransactionEditorProtocol {
     }
     
     var body: some View {
-        TransactionEditorFrame(.personalLoan, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.refund, warning: warning, apply: apply, content: {
             VStack {
                 HStack {
-                    Text("I loaned")
-                    TextField("Person", text: $person)
+                    TextField("Company", text: $company)
+                    Text("refunded me", comment: "company refunded me $_")
                     TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                 }
                 HStack {
-                    Text("On")
-                    DatePicker("On", selection: $date, displayedComponents: .date)
+                    Text("For")
+                    TextField("Item", text: $reason)
+                    Text("on", comment: "for [item] on [date]")
+                    DatePicker("Date", selection: $date, displayedComponents: .date)
                         .labelsHidden()
-                    Text("from", comment: "on [date] from [account]")
+                }
+                HStack {
+                    Text("Place")
+                    Text(amount, format: .currency(code: currencyCode))
+                    Text("into")
                     NamedPairPicker($account)
                 }
             }
         })
     }
-}
-
-#Preview {
-    PersonalLoan()
-        .padding()
-        .modelContainer(Containers.debugContainer)
 }

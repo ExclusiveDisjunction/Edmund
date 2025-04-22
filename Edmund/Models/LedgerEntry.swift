@@ -13,6 +13,15 @@ public final class LedgerEntrySnapshot : ElementSnapshot
 {
     typealias Host = LedgerEntry;
     
+    init() {
+        name = .init();
+        credit = 0;
+        debit = 0;
+        date = .now;
+        location = "";
+        category = nil;
+        account = nil;
+    }
     init(_ from: LedgerEntry) {
         name     = from.name;
         credit   = from.credit;
@@ -71,7 +80,17 @@ public final class LedgerEntry : ObservableObject, Identifiable, InspectableElem
     typealias Snapshot = LedgerEntrySnapshot;
     
     
-    
+    init() {
+        self.id = UUID()
+        self.name = ""
+        self.credit = 0
+        self.debit = 0
+        self.date = Date.now
+        self.added_on = Date.now;
+        self.location = ""
+        self.category = nil
+        self.account = nil
+    }
     init(name: String, credit: Decimal, debit: Decimal, date: Date, added_on: Date = Date.now, location: String, category: SubCategory, account: SubAccount) {
         self.id = UUID()
         self.name = name

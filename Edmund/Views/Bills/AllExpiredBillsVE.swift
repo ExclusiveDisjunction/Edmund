@@ -72,7 +72,7 @@ struct AllExpiredBillsVE : View {
                         Text("No Information").italic()
                     }
                 }.swipeActions(edge: .trailing) {
-                    GeneralContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                    SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
                 }
             }
         }
@@ -109,7 +109,7 @@ struct AllExpiredBillsVE : View {
                     }.frame(minWidth: 120)
                 }
             }.contextMenu(forSelectionType: BillBaseWrapper.ID.self) { selection in
-                SelectionsContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
+                ManyContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
             }
             #if os(macOS)
             .frame(minWidth: 350)
@@ -138,9 +138,9 @@ struct AllExpiredBillsVE : View {
                     }
                 }
                 
-                GeneralInspectToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
+                GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
                 
-                GeneralInspectToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+                GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
                 
                 GeneralDeleteToolbarButton(on: query.cached, selection: $selection, delete: deleting, warning: warning, placement: .primaryAction)
                 
