@@ -21,14 +21,14 @@ struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C =
     var body: some View {
         HStack {
             Picker(C.kind.name, selection: $selectedParent) {
-                Text("None").tag(nil as C.P?)
+                Text(C.kind.name).tag(nil as C.P?)
                 ForEach(parents, id: \.id) { parent in
                     Text(parent.name).tag(parent as C.P?)
                 }
             }.labelsHidden()
             
             Picker(C.kind.subName, selection: $target) {
-                Text("None").tag(nil as C?)
+                Text(C.kind.subName).tag(nil as C?)
                 if let parent = selectedParent {
                     ForEach(parent.children, id: \.id) { child in
                         Text(child.name).tag(child as C?)

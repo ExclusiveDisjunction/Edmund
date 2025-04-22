@@ -8,18 +8,31 @@
 import SwiftUI
 import SwiftData
 
+enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable{
+    case oneOne, oneMany, manyOne, manyMany
+    
+    var name: LocalizedStringKey {
+        switch self {
+            case.oneOne: return "One-to-One"
+            case .oneMany: return "One-to-Many"
+            case .manyOne: return "Many-to-One"
+            case .manyMany: return "Many-to-Many"
+        }
+    }
+    
+    var id: Self { self }
+}
+
 struct Transfer: View, TransactionEditorProtocol {
-    init(_ signal: TransactionEditorSignal, kind: TransferKind, categories: CategoriesContext?) {
+    init(_ signal: TransactionEditorSignal, kind: TransferKind) {
         self.kind = kind
         self.signal = signal
-        self.categories = categories
         
         self.signal.action = self.apply
     }
     
     @Environment(\.modelContext) private var modelContext;
     @State private var kind: TransferKind;
-    private let categories: CategoriesContext?;
     var signal: TransactionEditorSignal;
     
     func apply(_ warning: StringWarningManifest) -> Bool {
@@ -48,5 +61,5 @@ struct Transfer: View, TransactionEditorProtocol {
     let signal = TransactionEditorSignal()
     let kind = TransferKind.oneMany
     
-    Transfer(signal, kind: kind, categories: nil)
+    Transfer(signal, kind: kind)
 }

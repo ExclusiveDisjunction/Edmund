@@ -281,6 +281,9 @@
     "Amount:" : {
 
     },
+    "An internal error has occured. Please report this bug (Issue: missing categories context)" : {
+
+    },
     "Anually" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -809,6 +812,9 @@
         }
       }
     },
+    "Edit Bill" : {
+
+    },
     "Edit Datapoints..." : {
 
     },
@@ -899,6 +905,9 @@
         }
       }
     },
+    "For Utility:" : {
+
+    },
     "Frequency" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -920,6 +929,9 @@
 
     },
     "From" : {
+
+    },
+    "From:" : {
 
     },
     "General" : {
@@ -1034,6 +1046,9 @@
       }
     },
     "Inspect Datapoints..." : {
+
+    },
+    "Internal Error" : {
 
     },
     "Into" : {
@@ -1454,6 +1469,9 @@
         }
       }
     },
+    "Paying:" : {
+
+    },
     "Personal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1481,7 +1499,6 @@
 
     },
     "Please fill in all fields" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1658,8 +1675,14 @@
         }
       }
     },
+    "Save Datapoint:" : {
+
+    },
     "Select" : {
 
+    },
+    "Select One" : {
+      "comment" : "Select One bill\nSelect One utility"
     },
     "Semi-Anually" : {
       "localizations" : {
@@ -1856,7 +1879,7 @@
         }
       }
     },
-    "TBD" : {
+    "The amount cannot be negative" : {
 
     },
     "The profile you selected could not be opened." : {
@@ -1900,6 +1923,9 @@
           }
         }
       }
+    },
+    "Today" : {
+
     },
     "tooManyItems" : {
       "localizations" : {

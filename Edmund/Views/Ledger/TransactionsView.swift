@@ -8,21 +8,6 @@
 import SwiftUI
 import SwiftData;
 
-enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable{
-    case oneOne, oneMany, manyOne, manyMany
-    
-    var name: LocalizedStringKey {
-        switch self {
-            case.oneOne: return "One-to-One"
-            case .oneMany: return "One-to-Many"
-            case .manyOne: return "Many-to-One"
-            case .manyMany: return "Many-to-Many"
-        }
-    }
-    
-    var id: Self { self }
-}
-
 enum TransactionKind : Identifiable, Equatable, Hashable {
     case simple, composite, grouped, creditCard
     case personalLoan, refund
@@ -101,7 +86,23 @@ struct TransactionEditor : View {
     
     @ViewBuilder
     private var transactionBody: some View {
-        Text("TBD")
+        switch kind {
+            case .simple:          Text("Transaction")
+            case .composite:       Text("Composite Transaction")
+            case .grouped:         Text("Batch Transactions")
+            case .creditCard:      Text("Credit Card Transactions")
+            case .personalLoan:    Text("Personal Loan")
+            case .refund:          Text("Refund")
+            case .income:          Text("Income")
+            case .billPay(let v):
+                switch v {
+                    case .utility: UtilityPayment(signal)
+                    default:       BillPayment(signal, kind: v)
+                }
+            
+            case .audit:           Text("Audit")
+            case .transfer(let v): Transfer(signal, kind: v)
+        }
     }
     
     var body: some View {

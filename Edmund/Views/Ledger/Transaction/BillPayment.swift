@@ -8,47 +8,105 @@
 import SwiftUI
 import SwiftData
 
-@Observable
-class BillPaymentVM : TransactionEditor {
-    init() {
-        
+struct BillPayment : TransactionEditorProtocol {
+    init(_ signal: TransactionEditorSignal, kind: BillsKind) {
+        self.signal = signal;
+        self.kind = kind == .utility ? .bill : kind;
+        self.signal.action = apply;
     }
     
-    func compile_deltas() -> Dictionary<UUID, Decimal>? {
-        return [:]
-    }
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
-        return []
-    }
-    func validate() -> Bool {
-        err_msg = "This view does not produce anything right now, no error occured.";
-        return true
-    }
-    func clear() {
-        err_msg = nil;
+#if os(macOS)
+    let minWidth: CGFloat = 60;
+    let maxWidth: CGFloat = 70;
+#else
+    let minWidth: CGFloat = 70;
+    let maxWidth: CGFloat = 80;
+#endif
+    
+    @Query private var bills: [Bill];
+    
+    var signal: TransactionEditorSignal;
+    @State private var kind: BillsKind;
+    @State private var cache: [Bill] = [];
+    @State private var selected: Bill?;
+    @State private var date: Date = .now;
+    @State private var account: SubAccount?;
+    @State private var editing: Bill?;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    private func refresh() {
+        cache = bills.filter { $0.kind == kind && !$0.isExpired }.sorted(by: { $0.name < $1.name } );
     }
     
-    var err_msg: String? = nil;
-}
-
-struct BillPayment : View {
-    @Bindable var vm: BillPaymentVM;
+    func apply(_ warning: StringWarningManifest) -> Bool {
+        false;
+    }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Payment").font(.headline)
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundColor(.red).italic()
+        Grid {
+            GridRow {
+                Text("Paying:")
+                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                HStack {
+                    Picker("Bill", selection: $selected) {
+                        Text("Select One", comment: "Select One bill").tag(nil as Bill?)
+                        ForEach(cache, id: \.id) { bill in
+                            Text(bill.name).tag(bill)
+                        }
+                    }.labelsHidden()
+                    Spacer()
                 }
-                Spacer()
-            }.padding(.top, 5)
-            
-            Text("This is still in progress, and is not avalible right now.").italic().bold().padding(.bottom, 5)
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+            }
+            Divider()
+            GridRow {
+                Text("Amount:")
+                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(selected?.amount ?? Decimal(), format: .currency(code: currencyCode))
+                        .padding(.trailing)
+                    Button("Edit Bill", action: { editing = selected } ).disabled(selected == nil)
+                    
+                    Spacer()
+                }
+            }
+            GridRow {
+                Text("From:")
+                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    NamedPairPicker($account)
+                    
+                    Spacer()
+                }
+            }
+            GridRow {
+                Text("Date:")
+                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                        .labelsHidden()
+                    
+                    Button("Today", action: { date = .now } )
+                    
+                    Spacer()
+                }
+            }
+        }.onChange(of: bills, refresh)
+            .onChange(of: kind, refresh)
+            .onAppear(perform: refresh)
+            .sheet(item: $editing) { bill in
+                ElementEditor(bill)
+                    .destroyOnCancel()
+            }
     }
 }
 
 #Preview {
-    BillPayment(vm: .init())
+    BillPayment(.init(), kind: .subscription)
+        .modelContainer(Containers.debugContainer)
+        .padding()
 }
