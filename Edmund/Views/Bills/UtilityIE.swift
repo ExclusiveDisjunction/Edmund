@@ -77,7 +77,7 @@ struct UtilityInspect : View, ElementInspectorView {
     }
 }
 
-struct UtilityEdit : View, ElementEditView {
+struct UtilityEdit : View, ElementEditorView {
     typealias For = Utility;
     
     @Bindable var snapshot: UtilitySnapshot;

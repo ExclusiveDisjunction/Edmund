@@ -38,7 +38,7 @@ final class NamedPairChildSnapshot<C> : ElementSnapshot where C: BoundPair, C: E
     }
 }
 
-struct NamedPairChildEdit<C> : ElementEditView where C: BoundPair, C.P: PersistentModel, C: EditableElement, C.Snapshot == NamedPairChildSnapshot<C> {
+struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P: PersistentModel, C: EditableElement, C.Snapshot == NamedPairChildSnapshot<C> {
     init(_ data: C.Snapshot) {
         self.snapshot = data
     }

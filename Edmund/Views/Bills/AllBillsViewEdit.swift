@@ -187,10 +187,12 @@ struct AllBillsViewEdit : View {
     @ViewBuilder
     private func inspectSheet(_ wrapper: BillBaseWrapper) -> some View {
         if let asBill = wrapper.data as? Bill {
-            BillIE(asBill, isEdit: inspect.mode == .edit)
+            BillIE(asBill, mode: inspect.mode, postAction: refresh)
+                .destroyOnCancel()
         }
         else if let asUtility = wrapper.data as? Utility {
-            UtilityVE(asUtility, isEdit: inspect.mode == .edit)
+            UtilityIE(asUtility, mode: inspect.mode, postAction: refresh)
+                .destroyOnCancel()
         }
         else {
             VStack {

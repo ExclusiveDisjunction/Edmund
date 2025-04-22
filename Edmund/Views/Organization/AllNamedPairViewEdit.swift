@@ -46,7 +46,7 @@ class AllNamedPairsVE_MV<T> where T: BoundPairParent, T: PersistentModel{
     var data: [AllPairsHelper<T>];
 }
 
-struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel, T.C.P == T {
+struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentModel, T.C.P == T, T: EditableElement, T.C: EditableElement {
     @Query private var parents: [T];
     @Query private var children: [T.C];
     
@@ -110,10 +110,10 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             }
         }.padding()
             .sheet(item: $parentEdit.value) { target in
-                NamedPairParentEdit(target)
+                ElementEditor(target)
             }
             .sheet(item: $childInspect.value) { target in
-                NamedPairChildEdit(target)
+                ElementEditor(target)
             }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $parentDelete.isDeleting, titleVisibility: .visible) {
                 DeletingActionConfirm(parentDelete)
             }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $childDelete.isDeleting, titleVisibility: .visible) {

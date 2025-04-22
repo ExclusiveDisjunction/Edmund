@@ -28,8 +28,8 @@ public final class LedgerEntrySnapshot : ElementSnapshot
     public var debit: Decimal;
     public var date: Date;
     public var location: String;
-    @Relationship public var category: SubCategory?;
-    @Relationship public var account: SubAccount?;
+    public var category: SubCategory?;
+    public var account: SubAccount?;
     
     var balance: Decimal {
         credit - debit

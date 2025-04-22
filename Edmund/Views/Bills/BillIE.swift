@@ -53,7 +53,7 @@ struct BillInspect : View, ElementInspectorView {
     }
 }
 
-struct BillEdit : View, ElementEditView {
+struct BillEdit : View, ElementEditorView {
     typealias For = Bill;
     
     @Bindable private var snapshot: BillSnapshot;

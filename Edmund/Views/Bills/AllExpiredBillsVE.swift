@@ -151,10 +151,10 @@ struct AllExpiredBillsVE : View {
                 #endif
             }.sheet(item: $inspect.value) { wrapper in
                 if let asBill = wrapper.data as? Bill {
-                    BillVE(asBill, isEdit: inspect.mode == .edit)
+                    BillIE(asBill, isEdit: inspect.mode == .edit)
                 }
                 else if let asUtility = wrapper.data as? Utility {
-                    UtilityVE(asUtility, isEdit: inspect.mode == .edit)
+                    UtilityIE(asUtility, isEdit: inspect.mode == .edit)
                 }
                 else {
                     VStack {

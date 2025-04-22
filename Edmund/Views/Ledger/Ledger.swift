@@ -61,7 +61,7 @@ struct LedgerTable: View {
     private var compact: some View {
         List(data, selection: $selected) { entry in
             HStack {
-                Text(entry.memo)
+                Text(entry.name)
                 Spacer()
                 Text(entry.balance, format: .currency(code: currencyCode))
             }.swipeActions(edge: .trailing) {
@@ -72,7 +72,7 @@ struct LedgerTable: View {
     @ViewBuilder
     private var fullSized: some View {
         Table(data, selection: $selected) {
-            TableColumn("Memo", value: \.memo)
+            TableColumn("Memo", value: \.name)
             if ledgerStyle == .none {
                 TableColumn("Balance") { item in
                     Text(item.balance, format: .currency(code: currencyCode))
@@ -230,7 +230,7 @@ struct LedgerTable: View {
             .toolbarRole(.editor)
             .sheet(item: $inspect.value) { target in
                 VStack {
-                    LedgerEntryVE(target, isEdit: inspect.mode  == .edit)
+                    LedgerEntryIE(target, mode: inspect.mode)
                     HStack {
                         Spacer()
                         Button("Ok") {

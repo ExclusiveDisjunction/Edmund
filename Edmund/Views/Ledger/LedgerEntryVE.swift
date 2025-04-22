@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct LedgerEntryEdit : ElementEditView {
+struct LedgerEntryEdit : ElementEditorView {
     typealias For = LedgerEntry;
     
     init(_ data: LedgerEntrySnapshot) {

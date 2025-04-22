@@ -109,9 +109,11 @@ struct AccountsCategories : View {
         }.sheet(item: $addingCat) { category in
             NamedPairParentEdit(category)
         }.sheet(item: $addingSubAcc) { sub_account in
-            NamedPairChildEdit<SubAccount>(sub_account)
+            ElementEditor(sub_account)
+                .destroyOnCancel()
         }.sheet(item: $addingSubCat) { sub_category in
-            NamedPairChildEdit<SubCategory>(sub_category)
+            ElementEditor(sub_category)
+                .destroyOnCancel()
         }.navigationTitle("Transaction Organization")
             .toolbarRole(.editor)
             .onAppear(perform: self.refresh)

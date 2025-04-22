@@ -1481,6 +1481,7 @@
 
     },
     "Please fill in all fields" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

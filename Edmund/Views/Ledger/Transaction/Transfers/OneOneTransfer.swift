@@ -36,7 +36,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
         
         let trans: [LedgerEntry] = [
             .init(
-                memo: src!.name + " to " + dest!.name,
+                name: src!.name + " to " + dest!.name,
                 credit: 0,
                 debit: amount,
                 date: date,
@@ -45,7 +45,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                 account: src!
             ),
             .init(
-                memo: src!.name + " to " + dest!.name,
+                name: src!.name + " to " + dest!.name,
                 credit: amount,
                 debit: 0,
                 date: date,

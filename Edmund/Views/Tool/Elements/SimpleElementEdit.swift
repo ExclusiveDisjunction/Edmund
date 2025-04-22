@@ -31,7 +31,7 @@ final class SimpleElementSnapshot<T> : ElementSnapshot where T: EditableElement 
         lhs.name == rhs.name
     }
 }
-struct SimpleElementEdit<T> : ElementEditView where T: EditableElement, T.Snapshot == SimpleElementSnapshot<T> {
+struct SimpleElementEdit<T> : ElementEditorView where T: EditableElement, T.Snapshot == SimpleElementSnapshot<T> {
     typealias For = T;
     
     @Bindable private var snapshot: T.Snapshot;

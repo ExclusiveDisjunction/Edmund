@@ -9,13 +9,13 @@ import Foundation;
 import SwiftUI;
 import SwiftData;
 
-protocol InspectableElement : AnyObject, Observable, Identifiable {
+protocol InspectableElement : AnyObject, Identifiable {
     associatedtype InspectorView: ElementInspectorView where InspectorView.For == Self;
     
     var name: String { get }
 }
-protocol EditableElement : AnyObject, Observable, Identifiable {
-    associatedtype EditView: ElementEditView where EditView.For == Self;
+protocol EditableElement : AnyObject, Identifiable {
+    associatedtype EditView: ElementEditorView where EditView.For == Self;
     associatedtype Snapshot: ElementSnapshot where Snapshot.Host == Self;
     
     var name: String { get set }
@@ -35,7 +35,7 @@ protocol ElementInspectorView : View {
     
     init(_ data: For);
 }
-protocol ElementEditView : View {
+protocol ElementEditorView : View {
     associatedtype For: EditableElement;
     
     init(_ data: For.Snapshot);

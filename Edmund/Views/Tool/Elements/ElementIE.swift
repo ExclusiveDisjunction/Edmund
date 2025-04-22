@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import SwiftData;
 
 struct ElementInspector<T> : View where T: InspectableElement {
     var data: T;
@@ -29,20 +30,24 @@ struct ElementInspector<T> : View where T: InspectableElement {
     }
 }
 
-struct ElementEditor<T> : View where T: EditableElement {
+struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
     var data: T;
+    let postAction: (() -> Void)?;
     @State private var editing: T.Snapshot;
     @State private var editHash: Int;
     @State private var showAlert: Bool = false;
+
+    private var doDestroy: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
     
-    init(_ data: T) {
+    init(_ data: T, postAction: (() -> Void)?) {
         self.data = data
         let tmp = T.Snapshot(data)
         self.editing = tmp
         self.editHash = tmp.hashValue
+        self.postAction = postAction
     }
     
     func validate() -> Bool {
@@ -61,6 +66,15 @@ struct ElementEditor<T> : View where T: EditableElement {
     }
     func cancel() {
         dismiss()
+    }
+    private func onDismiss() {
+        if !editing.validate() && doDestroy {
+            modelContext.delete(data)
+        }
+        
+        if let postAction = postAction {
+            postAction()
+        }
     }
     
     var body: some View {
@@ -86,23 +100,33 @@ struct ElementEditor<T> : View where T: EditableElement {
             Text("Please correct fields outlined with red.")
         })
     }
+    
+    func destroyOnCancel() -> some View {
+        var result = self;
+        result.doDestroy = true;
+        return result;
+    }
 }
 
-struct ElementIE<T> : View where T: InspectableElement, T: EditableElement {
+struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel {
     var data: T;
+    let postAction: (() -> Void)?
     @State private var editing: T.Snapshot?;
     @State private var editHash: Int;
     @State private var showAlert: Bool = false;
     @State private var warningConfirm: Bool = false;
     
+    var doDestroy: Bool = false;
+    
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
     
-    init(_ data: T, mode: InspectionMode){
-        self.init(data, isEdit: mode == .edit)
+    init(_ data: T, mode: InspectionMode, postAction: (() -> Void)? = nil) {
+        self.init(data, isEdit: mode == .edit, postAction: postAction)
     }
-    init(_ data: T, isEdit: Bool) {
+    init(_ data: T, isEdit: Bool,  postAction: (() -> Void)? = nil) {
         self.data = data
+        self.postAction = postAction;
         if isEdit {
             let tmp = T.Snapshot(data)
             self.editing = tmp
@@ -114,30 +138,41 @@ struct ElementIE<T> : View where T: InspectableElement, T: EditableElement {
         }
     }
     
-    var isEdit: Bool {
+    private var isEdit: Bool {
         get { editing != nil }
     }
     
-    func validate() -> Bool {
+    private func validate() -> Bool {
         let result = editing?.validate() ?? true
         showAlert = !result
         
         return result
     }
-    func apply() {
+    private func apply() {
         if let editing = editing {
             editing.apply(data, context: modelContext)
         }
     }
-    func submit() {
+    private func submit() {
         if validate() {
             dismiss()
         }
     }
-    func cancel() {
+    private func cancel() {
         dismiss()
     }
-    func toggleMode() {
+    private func onDismiss() {
+        if let editing = editing {
+            if !editing.validate() && doDestroy {
+                modelContext.delete(data)
+            }
+        }
+        
+        if let postAction = postAction {
+            postAction()
+        }
+    }
+    private func toggleMode() {
         if editing == nil {
             // Go into edit mode
             editing = .init(data)
@@ -154,6 +189,12 @@ struct ElementIE<T> : View where T: InspectableElement, T: EditableElement {
         else {
             self.editing = nil
         }
+    }
+    
+    func destroyOnCancel() -> some View {
+        var result = self;
+        result.doDestroy = true;
+        return result;
     }
     
     var body: some View {
@@ -208,6 +249,6 @@ struct ElementIE<T> : View where T: InspectableElement, T: EditableElement {
             Button("Cancel", role: .cancel) {
                 warningConfirm = false
             }
-        }
+        }.onDisappear(perform: onDismiss)
     }
 }
