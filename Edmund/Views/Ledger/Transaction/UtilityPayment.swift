@@ -9,31 +9,22 @@ import SwiftUI
 import SwiftData;
 
 struct UtilityPayment : TransactionEditorProtocol {
-    init(_ signal: TransactionEditorSignal) {
-        self.signal = signal;
-        self.signal.action = self.apply;
-    }
-    
     @Query private var utilities: [Utility];
-    @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
+    @Environment(\.modelContext) private var modelContext;
     
-    var signal: TransactionEditorSignal;
     @State private var selected: Utility?;
     @State private var account: SubAccount?;
     @State private var amount: Decimal = 0.0;
     @State private var date: Date = .now;
     @State private var doStore: Bool = true;
+    @State private var cache: [Utility] = [];
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-#if os(macOS)
-    let minWidth: CGFloat = 90;
-    let maxWidth: CGFloat = 100;
-#else
-    let minWidth: CGFloat = 110;
-    let maxWidth: CGFloat = 120;
-#endif
+    private func refresh() {
+        cache = utilities.filter { !$0.isExpired }.sorted(by: { $0.name < $1.name } )
+    }
     
     func apply(_ warning: StringWarningManifest) -> Bool {
         guard let target = selected, let account = account else {
@@ -42,8 +33,8 @@ struct UtilityPayment : TransactionEditorProtocol {
             return false;
         }
         
-        guard let categoriesContext = categoriesContext else {
-            warning.warning = .init(message: "An internal error has occured. Please report this bug (Issue: missing categories context)", title: "Internal Error");
+        guard let categories = categoriesContext else {
+            warning.warning = .init(message: "internalError", title: "Error");
             return false;
         }
         
@@ -58,7 +49,7 @@ struct UtilityPayment : TransactionEditorProtocol {
             debit: amount,
             date: date,
             location: target.location ?? "Bank",
-            category: categoriesContext.bills.utility,
+            category: categories.bills.utility,
             account: account
         );
         
@@ -67,83 +58,89 @@ struct UtilityPayment : TransactionEditorProtocol {
         if doStore {
             let entry = UtilityEntry(date, amount);
             entry.parent = target;
-        
+            
             modelContext.insert(entry);
         }
         
         return true;
     }
     
+#if os(macOS)
+    let minWidth: CGFloat = 90;
+    let maxWidth: CGFloat = 100;
+#else
+    let minWidth: CGFloat = 110;
+    let maxWidth: CGFloat = 120;
+#endif
+    
     var body: some View {
-        Grid {
-            GridRow {
-                Text("For Utility:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+        TransactionEditorFrame(.utilityPay, apply: apply, content: {
+            Grid {
+                GridRow {
+                    Text("For Utility:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                HStack {
-                    Picker("Utility", selection: $selected) {
-                        Text("Select One", comment: "Select One utility").tag(nil as Utility?)
-                        ForEach(utilities, id: \.id) { utility in
-                            Text(utility.name).tag(utility)
-                        }
-                    }.labelsHidden()
-                    Spacer()
+                    HStack {
+                        Picker("Utility", selection: $selected) {
+                            Text("Select One", comment: "Select One utility").tag(nil as Utility?)
+                            ForEach(cache, id: \.id) { utility in
+                                Text(utility.name).tag(utility)
+                            }
+                        }.labelsHidden()
+                        Spacer()
+                    }
                 }
-            }
-            Divider()
-            GridRow {
-                Text("Amount:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
-                        .textFieldStyle(.roundedBorder)
+                Divider()
+                GridRow {
+                    Text("Amount:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Spacer()
+                    HStack {
+                        TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                            .textFieldStyle(.roundedBorder)
+                        
+                        Spacer()
+                    }
                 }
-            }
-            GridRow {
-                Text("From:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    NamedPairPicker($account)
+                GridRow {
+                    Text("From:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Spacer()
+                    HStack {
+                        NamedPairPicker($account)
+                        
+                        Spacer()
+                    }
                 }
-            }
-            GridRow {
-                Text("Date:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
-                        .labelsHidden()
+                GridRow {
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Button("Today", action: { date = .now } )
-                    
-                    Spacer()
+                    HStack {
+                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
+                        
+                        Button("Today", action: { date = .now } )
+                        
+                        Spacer()
+                    }
                 }
-            }
-            GridRow {
-                Text("Save Datapoint:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    Toggle("Save", isOn: $doStore)
-                        .labelsHidden()
+                GridRow {
+                    Text("Save Datapoint:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Spacer()
+                    HStack {
+                        Toggle("Save", isOn: $doStore)
+                            .labelsHidden()
+                        
+                        Spacer()
+                    }
                 }
-            }
-        }.onChange(of: selected, { _, _ in
-            print("the selected changed, is it nil? \(selected == nil)")
-        }).onChange(of: account, { _, _ in
-            print("the account changed, is it nil? \(account == nil)")
+            }.onAppear(perform: refresh)
         })
     }
 }
 
 #Preview {
-    UtilityPayment(.init()).padding().modelContainer(Containers.debugContainer)
+    UtilityPayment().padding().modelContainer(Containers.debugContainer)
 }

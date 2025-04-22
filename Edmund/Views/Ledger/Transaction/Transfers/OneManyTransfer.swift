@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/*
 @Observable
 class OneManyTransferVM : TransactionEditor {
     func compile_deltas() -> Dictionary<UUID, Decimal>? {
@@ -76,48 +77,45 @@ class OneManyTransferVM : TransactionEditor {
     }
      
     var err_msg: String? = nil;
-    var amount: Decimal = 0.0;
-    var acc: SubAccount? = nil
-    var multi: ManyTransferTableVM = ManyTransferTableVM();
-}
-struct OneManyTransfer : View {
     
-    @Bindable var vm: OneManyTransferVM;
-    @State private var selected: UUID?;
+    
+}
+*/
+ 
+struct OneManyTransfer : TransactionEditorProtocol {
+    @State private var date: Date = Date.now;
+    @State private var account: SubAccount? = nil
+    @State private var data: [ManyTableEntry] = [.init()];
+    
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    func apply(_ warning: StringWarningManifest) -> Bool {
+        fatalError("not implemented")
+    }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("One-to-Many Transfer").font(.headline)
+        TransactionEditorFrame(.transfer(.oneMany), apply: apply, content: {
+            VStack {
+                HStack {
+                    Text("Source:", comment: "Account source")
+                    NamedPairPicker($account)
+                }
                 
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
+                ManyTransferTable(data: $data)
+                
+                HStack {
+                    Text(data.amount, format: .currency(code: currencyCode))
+                    Text("will be moved", comment: "$ will be moved")
                 }
-                Spacer()
-            }.padding(.top, 5)
-            
-            Grid() {
-                GridRow {
-                    Text("Move")
-                    TextField("Amount", value: $vm.amount, format: .currency(code: "USD"))
-                }
-                GridRow {
-                    Text("From")
-                    NamedPairPicker(target: $vm.acc)
-                }
+                
             }
-            
-            HStack {
-                Text("Into").bold().italic()
-                Spacer()
-            }
-            
-            ManyTransferTable(vm: vm.multi)
-            
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+        })
     }
 }
 
 #Preview {
-    OneManyTransfer(vm: OneManyTransferVM())
+    OneManyTransfer()
 }

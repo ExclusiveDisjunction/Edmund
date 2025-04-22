@@ -29,7 +29,7 @@ struct LedgerTable: View {
     
     @State var isPopout: Bool = false;
     @State private var selected = Set<LedgerEntry.ID>();
-    @State private var transMode: TransactionKind?;
+    @State private var transKind: TransactionKind?;
     
     @Bindable private var warning: WarningManifest = .init();
     @Bindable private var inspect: InspectionManifest<LedgerEntry> = .init();
@@ -132,16 +132,16 @@ struct LedgerTable: View {
             Menu {
                 Menu {
                     Button(TransactionKind.simple.name, action: {
-                        transMode = .simple
+                        transKind = .init(.simple)
                     })
                     Button(TransactionKind.composite.name, action: {
-                        transMode = .composite
+                        transKind = .init(.composite)
                     })
                     Button(TransactionKind.grouped.name, action: {
-                        transMode = .grouped
+                        transKind = .init(.grouped)
                     })
                     Button(TransactionKind.creditCard.name, action: {
-                        transMode = .creditCard
+                        transKind = .init(.creditCard)
                     })
                 } label: {
                     Text("Basic")
@@ -149,37 +149,37 @@ struct LedgerTable: View {
                 
                 Menu {
                     Button(BillsKind.bill.name, action: {
-                        transMode = .billPay(.bill)
+                        transKind = .billPay(.bill)
                     })
                     Button(BillsKind.subscription.name, action: {
-                        transMode = .billPay(.subscription)
+                        transKind = .billPay(.subscription)
                     })
                     Button(BillsKind.utility.name, action: {
-                        transMode = .billPay(.utility)
+                        transKind = .utilityPay
                     })
                 } label: {
                     Text("Bill Payment")
                 }
                 
                 Button(TransactionKind.income.name, action: {
-                    transMode = .income
+                    transKind = .income
                 })
                 
                 Menu {
                     Button(TransferKind.oneOne.name, action: {
-                        transMode = .transfer(.oneOne)
+                        transKind = .transfer(.oneOne)
                     })
                     
                     Button(TransferKind.oneMany.name, action: {
-                        transMode = .transfer(.oneMany)
+                        transKind = .transfer(.oneMany)
                     })
                     
                     Button(TransferKind.manyOne.name, action: {
-                        transMode = .transfer(.manyOne)
+                        transKind = .transfer(.manyOne)
                     })
                     
                     Button(TransferKind.manyMany.name, action: {
-                        transMode = .transfer(.manyMany)
+                        transKind = .transfer(.manyMany)
                     })
                 } label: {
                     Text("Transfer")
@@ -187,11 +187,11 @@ struct LedgerTable: View {
                 
                 Menu {
                     Button(TransactionKind.personalLoan.name, action: {
-                        transMode = .personalLoan
+                        transKind = .personalLoan
                     })
                     
                     Button(TransactionKind.refund.name, action: {
-                        transMode = .refund
+                        transKind = .refund
                     })
                 } label: {
                     Text("Miscellaneous")
@@ -234,9 +234,9 @@ struct LedgerTable: View {
                 Button("Ok", action: { warning.isPresented = false } )
             }, message: {
                 Text((warning.warning ?? .noneSelected).message)
-            }).sheet(item: $transMode, onDismiss: { transMode = nil }) { mode in
-                TransactionEditor(kind: mode).environment(\.categoriesContext, CategoriesContext(modelContext))
-            }.confirmationDialog("Are you sure you want to delete these items?", isPresented: $deleting.isDeleting) {
+            }).sheet(item: $transKind) { kind in
+                TransactionsEditor(kind: kind).environment(\.categoriesContext, CategoriesContext(modelContext))
+            }.confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
                 DeletingActionConfirm(deleting)
             }
     }

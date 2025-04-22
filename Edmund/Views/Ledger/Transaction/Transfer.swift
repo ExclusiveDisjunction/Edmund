@@ -23,43 +23,23 @@ enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable{
     var id: Self { self }
 }
 
-struct Transfer: View, TransactionEditorProtocol {
-    init(_ signal: TransactionEditorSignal, kind: TransferKind) {
+struct Transfer: View {
+    init(_ kind: TransferKind) {
         self.kind = kind
-        self.signal = signal
-        
-        self.signal.action = self.apply
     }
     
-    @Environment(\.modelContext) private var modelContext;
-    @State private var kind: TransferKind;
-    var signal: TransactionEditorSignal;
-    
-    func apply(_ warning: StringWarningManifest) -> Bool {
-        false
-    }
+    private let kind: TransferKind;
     
     var body: some View {
-        VStack {
-            Picker("Kind", selection: $kind) {
-                ForEach(TransferKind.allCases, id: \.id) { kind in
-                    Text(kind.name).tag(kind)
-                }
-            }
-            
-            switch self.kind {
-                case .oneOne: OneOneTransfer(signal)
-                case .oneMany: EmptyView()
-                case .manyOne: EmptyView()
-                case .manyMany: EmptyView()
-            }
+        switch self.kind {
+            case .oneOne:   OneOneTransfer()
+            case .oneMany:  OneManyTransfer()
+            case .manyOne:  ManyOneTransfer()
+            case .manyMany: ManyManyTransfer()
         }
     }
 }
 
 #Preview {
-    let signal = TransactionEditorSignal()
-    let kind = TransferKind.oneMany
-    
-    Transfer(signal, kind: kind)
+    Transfer(.oneMany)
 }

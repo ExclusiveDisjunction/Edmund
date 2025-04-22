@@ -9,10 +9,23 @@ import SwiftUI
 import SwiftData
 
 struct BillPayment : TransactionEditorProtocol {
-    init(_ signal: TransactionEditorSignal, kind: BillsKind) {
-        self.signal = signal;
-        self.kind = kind == .utility ? .bill : kind;
-        self.signal.action = apply;
+    init(kind: BillsKind) {
+        self.kind = kind;
+        
+        _bills = Query(filter: BillPayment.predicate(kind: kind), sort: \Bill.name)
+    }
+    
+    private static func predicate(kind: BillsKind) -> Predicate<Bill> {
+        let distantFuture = Date.distantFuture;
+        let now = Date.now;
+        let kind = kind.rawValue;
+        return #Predicate<Bill> { utility in
+            return (utility.endDate ?? distantFuture) > now && utility.rawKind == kind
+        }
+    }
+    
+    func apply(_ warning: StringWarningManifest) -> Bool {
+        fatalError("not finished")
     }
     
 #if os(macOS)
@@ -25,88 +38,81 @@ struct BillPayment : TransactionEditorProtocol {
     
     @Query private var bills: [Bill];
     
-    var signal: TransactionEditorSignal;
-    @State private var kind: BillsKind;
-    @State private var cache: [Bill] = [];
-    @State private var selected: Bill?;
+    @State private var kind: BillsKind = .subscription;
+    @State private var selected: Bill? = nil;
     @State private var date: Date = .now;
-    @State private var account: SubAccount?;
-    @State private var editing: Bill?;
+    @State private var account: SubAccount? = nil;
+    @State private var editing: Bill? = nil;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func refresh() {
-        cache = bills.filter { $0.kind == kind && !$0.isExpired }.sorted(by: { $0.name < $1.name } );
-    }
-    
-    func apply(_ warning: StringWarningManifest) -> Bool {
-        false;
+    func apply(_ warning: StringWarningManifest, modelContext: ModelContext, categories: CategoriesContext) -> Bool {
+        false
     }
     
     var body: some View {
-        Grid {
-            GridRow {
-                Text("Paying:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+        TransactionEditorFrame(.billPay(kind), apply: apply, content: {
+            Grid {
+                GridRow {
+                    Text("Paying:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                HStack {
-                    Picker("Bill", selection: $selected) {
-                        Text("Select One", comment: "Select One bill").tag(nil as Bill?)
-                        ForEach(cache, id: \.id) { bill in
-                            Text(bill.name).tag(bill)
-                        }
-                    }.labelsHidden()
-                    Spacer()
+                    HStack {
+                        Picker("Bill", selection: $selected) {
+                            Text("Select One", comment: "Select One bill").tag(nil as Bill?)
+                            ForEach(bills, id: \.id) { bill in
+                                Text(bill.name).tag(bill)
+                            }
+                        }.labelsHidden()
+                        Spacer()
+                    }
                 }
-            }
-            Divider()
-            GridRow {
-                Text("Amount:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    Text(selected?.amount ?? Decimal(), format: .currency(code: currencyCode))
-                        .padding(.trailing)
-                    Button("Edit Bill", action: { editing = selected } ).disabled(selected == nil)
+                Divider()
+                GridRow {
+                    Text("Amount:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Spacer()
+                    HStack {
+                        Text(selected?.amount ?? Decimal(), format: .currency(code: currencyCode))
+                            .padding(.trailing)
+                        Button("Edit Bill", action: { editing = selected } ).disabled(selected == nil)
+                        
+                        Spacer()
+                    }
                 }
-            }
-            GridRow {
-                Text("From:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    NamedPairPicker($account)
+                GridRow {
+                    Text("From:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Spacer()
+                    HStack {
+                        NamedPairPicker($account)
+                        
+                        Spacer()
+                    }
                 }
-            }
-            GridRow {
-                Text("Date:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
-                        .labelsHidden()
+                GridRow {
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Button("Today", action: { date = .now } )
-                    
-                    Spacer()
+                    HStack {
+                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
+                        
+                        Button("Today", action: { date = .now } )
+                        
+                        Spacer()
+                    }
                 }
-            }
-        }.onChange(of: bills, refresh)
-            .onChange(of: kind, refresh)
-            .onAppear(perform: refresh)
-            .sheet(item: $editing) { bill in
+            }.sheet(item: $editing) { bill in
                 ElementEditor(bill)
                     .destroyOnCancel()
             }
+        })
     }
 }
 
 #Preview {
-    BillPayment(.init(), kind: .subscription)
+    BillPayment(kind: .subscription)
         .modelContainer(Containers.debugContainer)
         .padding()
 }

@@ -41,10 +41,6 @@
 				Views/Ledger/Transaction/ManualTransactions.swift,
 				Views/Ledger/Transaction/Payday.swift,
 				Views/Ledger/Transaction/PersonLoan.swift,
-				Views/Ledger/Transaction/Transfers/ManyManyTransfer.swift,
-				Views/Ledger/Transaction/Transfers/ManyOneTransfer.swift,
-				Views/Ledger/Transaction/Transfers/ManyTransferFoundation.swift,
-				Views/Ledger/Transaction/Transfers/OneManyTransfer.swift,
 			);
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 		};

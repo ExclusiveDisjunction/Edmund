@@ -7,6 +7,7 @@
 
 import SwiftUI;
 
+/*
 @Observable
 class ManyManyTransferVM : TransactionEditor {
     init() {
@@ -79,40 +80,40 @@ class ManyManyTransferVM : TransactionEditor {
     var top: ManyTransferTableVM;
     var bottom: ManyTransferTableVM;
 }
+*/
 
-struct ManyManyTransfer : View {
-    @Bindable var vm: ManyManyTransferVM;
+struct ManyManyTransfer : TransactionEditorProtocol {
+    
+    @State private var top: [ManyTableEntry] = [.init()];
+    @State private var bottom: [ManyTableEntry] = [.init()];
+    
+    func apply(_ warning: StringWarningManifest) -> Bool {
+        fatalError("not implemented")
+    }
     
     var body : some View {
-        VStack {
-            HStack {
-                Text("Many-to-One Transfer").font(.headline)
-                
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
+        TransactionEditorFrame(.transfer(.manyMany), apply: apply, content: {
+            VStack {
+                HStack {
+                    Text("Take from").italic().bold()
+                    Spacer()
                 }
-                Spacer()
-            }.padding(.top, 5)
-            
-            HStack {
-                Text("Take from").italic().bold()
-                Spacer()
+                
+                ManyTransferTable(data: $top)
+                
+                Divider()
+                
+                HStack {
+                    Text("Move to").italic().bold()
+                    Spacer()
+                }
+                
+                ManyTransferTable(data: $bottom)
             }
-            
-            ManyTransferTable(vm: vm.top)
-            
-            Divider()
-            
-            HStack {
-                Text("Move to").italic().bold()
-                Spacer()
-            }
-            
-            ManyTransferTable(vm: vm.bottom).padding(.bottom, 5)
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+        })
     }
 }
 
 #Preview {
-    ManyManyTransfer(vm: ManyManyTransferVM())
+    ManyManyTransfer().padding().modelContainer(Containers.debugContainer)
 }

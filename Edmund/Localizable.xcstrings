@@ -281,9 +281,6 @@
     "Amount:" : {
 
     },
-    "An internal error has occured. Please report this bug (Issue: missing categories context)" : {
-
-    },
     "Anually" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -332,19 +329,6 @@
           }
         }
       }
-    },
-    "Are you sure you want to delete these bills?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sind Sie sicher, dass Sie diese Rechnungen löschen wollen?"
-          }
-        }
-      }
-    },
-    "Are you sure you want to delete these items?" : {
-
     },
     "Audit" : {
       "localizations" : {
@@ -702,9 +686,6 @@
         }
       }
     },
-    "Datapoins" : {
-
-    },
     "Datapoints" : {
 
     },
@@ -788,6 +769,9 @@
           }
         }
       }
+    },
+    "deleteItemsConfirm" : {
+
     },
     "Discard" : {
 
@@ -928,9 +912,6 @@
     "Frequency:" : {
 
     },
-    "From" : {
-
-    },
     "From:" : {
 
     },
@@ -1048,10 +1029,13 @@
     "Inspect Datapoints..." : {
 
     },
-    "Internal Error" : {
+    "internalError" : {
 
     },
-    "Into" : {
+    "into" : {
+
+    },
+    "Into:" : {
 
     },
     "Kind" : {
@@ -1265,6 +1249,12 @@
         }
       }
     },
+    "Move" : {
+
+    },
+    "Move to" : {
+
+    },
     "Name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1289,6 +1279,9 @@
 
     },
     "negAmountError" : {
+
+    },
+    "negativeAmount" : {
 
     },
     "Next Due Date" : {
@@ -1345,9 +1338,6 @@
           }
         }
       }
-    },
-    "noInformationToSave" : {
-
     },
     "noItems" : {
       "localizations" : {
@@ -1643,6 +1633,9 @@
     "Refund" : {
 
     },
+    "Remove Selected" : {
+
+    },
     "Removing this information will remove all associated transactions. Do you wish to continue?" : {
       "localizations" : {
         "de" : {
@@ -1683,6 +1676,9 @@
     },
     "Select One" : {
       "comment" : "Select One bill\nSelect One utility"
+    },
+    "Selected" : {
+
     },
     "Semi-Anually" : {
       "localizations" : {
@@ -1781,6 +1777,9 @@
         }
       }
     },
+    "Source:" : {
+      "comment" : "Account source"
+    },
     "Standard Accounting Style" : {
 
     },
@@ -1878,6 +1877,9 @@
           }
         }
       }
+    },
+    "Take from" : {
+
     },
     "The amount cannot be negative" : {
 
@@ -2168,6 +2170,9 @@
     },
     "When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently." : {
 
+    },
+    "will be moved" : {
+      "comment" : "$ will be moved"
     },
     "Year" : {
       "extractionState" : "manual",

@@ -8,25 +8,31 @@
 import SwiftUI
 import SwiftData;
 
-enum TransactionKind : Identifiable, Equatable, Hashable {
-    case simple, composite, grouped, creditCard
-    case personalLoan, refund
+enum TransactionKind : Identifiable, Hashable, Equatable {
+    case simple,
+         composite,
+         grouped,
+         creditCard
+    case personalLoan,
+         refund
     case income
-    case billPay(BillsKind)
+    case billPay    (BillsKind),
+         utilityPay
     case audit
     case transfer(TransferKind)
     
     var name: LocalizedStringKey {
         switch self {
-            case .simple: "Transaction"
-            case .composite: "Composite Transaction"
-            case .grouped: "Batch Transactions"
-            case .creditCard: "Credit Card Transactions"
-            case .personalLoan: "Personal Loan"
-            case .refund: "Refund"
-            case .income: "Income"
-            case .billPay(let v): v.name
-            case .audit: "Audit"
+            case .simple:          "Transaction"
+            case .composite:       "Composite Transaction"
+            case .grouped:         "Batch Transactions"
+            case .creditCard:      "Credit Card Transactions"
+            case .personalLoan:    "Personal Loan"
+            case .refund:          "Refund"
+            case .income:          "Income"
+            case .billPay(let v):  v.name
+            case .utilityPay:      "Utility"
+            case .audit:           "Audit"
             case .transfer(let v): v.name
         }
     }
@@ -35,22 +41,7 @@ enum TransactionKind : Identifiable, Equatable, Hashable {
 }
 
 protocol TransactionEditorProtocol : View {
-    var signal: TransactionEditorSignal { get set }
     func apply(_ warning: StringWarningManifest) -> Bool;
-}
-
-@Observable
-class TransactionEditorSignal {
-    init() {
-        self.action = nil
-    }
-    
-    var action: ((StringWarningManifest) -> Bool)?;
-    func submit(_ warning: StringWarningManifest) -> Bool? {
-        guard let action = action else { return nil }
-        
-        return action(warning)
-    }
 }
 
 private struct CategoriesContextKey: EnvironmentKey {
@@ -64,19 +55,22 @@ extension EnvironmentValues {
     }
 }
 
-struct TransactionEditor : View {
-    let kind: TransactionKind
+struct TransactionEditorFrame<Content> : View where Content: View {
+    init(_ kind: TransactionKind, apply: @escaping (StringWarningManifest) -> Bool, @ViewBuilder content: @escaping () -> Content) {
+        self.kind = kind;
+        self.apply = apply;
+        self.content = content;
+    }
+    
+    let kind: TransactionKind;
+    private let apply: (StringWarningManifest) -> Bool;
+    private let content: () -> Content;
     @Bindable private var warning: StringWarningManifest = .init()
-    @Bindable private var signal: TransactionEditorSignal = .init()
+    
     @Environment(\.dismiss) private var dismiss;
     
     private func submit() {
-        guard let result = signal.submit(warning) else {
-            warning.warning = .init(message: "noInformationToSave", title: "Unexpected Error")
-            return
-        }
-        
-        if result {
+        if apply(warning) {
             dismiss()
         }
     }
@@ -84,32 +78,11 @@ struct TransactionEditor : View {
         dismiss()
     }
     
-    @ViewBuilder
-    private var transactionBody: some View {
-        switch kind {
-            case .simple:          Text("Transaction")
-            case .composite:       Text("Composite Transaction")
-            case .grouped:         Text("Batch Transactions")
-            case .creditCard:      Text("Credit Card Transactions")
-            case .personalLoan:    Text("Personal Loan")
-            case .refund:          Text("Refund")
-            case .income:          Text("Income")
-            case .billPay(let v):
-                switch v {
-                    case .utility: UtilityPayment(signal)
-                    default:       BillPayment(signal, kind: v)
-                }
-            
-            case .audit:           Text("Audit")
-            case .transfer(let v): Transfer(signal, kind: v)
-        }
-    }
-    
     var body: some View {
         VStack {
             Text(kind.name).font(.title2)
             
-            transactionBody
+            content()
             
             Spacer()
             
@@ -119,5 +92,25 @@ struct TransactionEditor : View {
                 Button("Save", action: submit).buttonStyle(.borderedProminent)
             }
         }.padding()
+    }
+}
+
+struct TransactionsEditor : View {
+    let kind: TransactionKind;
+    
+    var body: some View {
+        switch kind {
+            case .simple:          Text("Transaction")
+            case .composite:       Text("Composite Transaction")
+            case .grouped:         Text("Batch Transactions")
+            case .creditCard:      Text("Credit Card Transactions")
+            case .personalLoan:    Text("Personal Loan")
+            case .refund:          Text("Refund")
+            case .income:          Text("Income")
+            case .billPay(let v):  BillPayment(kind: v)
+            case .utilityPay:      UtilityPayment()
+            case .audit:           Text("Audit")
+            case .transfer(let v): Transfer(v)
+        }
     }
 }

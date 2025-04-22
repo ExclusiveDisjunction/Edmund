@@ -7,6 +7,7 @@
 
 import SwiftUI;
 
+/*
 @Observable
 class ManyOneTransferVM : TransactionEditor {
     func compile_deltas() -> Dictionary<UUID, Decimal>? {
@@ -72,37 +73,42 @@ class ManyOneTransferVM : TransactionEditor {
     }
      
     var err_msg: String? = nil
-    var acc: SubAccount? = nil
-    var multi: ManyTransferTableVM = .init();
-}
-struct ManyOneTransfer : View {
     
-    @Bindable var vm: ManyOneTransferVM;
-    @State private var selected: UUID?;
+}
+ */
+
+struct ManyOneTransfer : TransactionEditorProtocol {
+    @State private var account: SubAccount? = nil;
+    @State private var data: [ManyTableEntry] = [.init()];
+    
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    func apply(_ warning: StringWarningManifest) -> Bool {
+        fatalError("not implmemented")
+    }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Many-to-One Transfer").font(.headline)
+        TransactionEditorFrame(.transfer(.manyOne), apply: apply, content: {
+            VStack {
+                ManyTransferTable(data: $data)
                 
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
+                Divider()
+                
+                HStack {
+                    Text("Move")
+                    Text(data.amount, format: .currency(code: currencyCode))
+                    Text("into")
+                    
+                    NamedPairPicker($account)
                 }
-                Spacer()
-            }.padding(.top, 5)
-            
-            ManyTransferTable(vm: vm.multi)
-            
-            Divider()
-            
-            HStack {
-                Text("Move \(vm.multi.total, format: .currency(code: "USD")) into")
-                NamedPairPicker<SubAccount>(target: $vm.acc)
-            }.padding(.bottom, 5)
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+            }
+        })
     }
 }
 
 #Preview {
-    ManyOneTransfer(vm: ManyOneTransferVM())
+    ManyOneTransfer().padding().modelContainer(Containers.debugContainer)
 }

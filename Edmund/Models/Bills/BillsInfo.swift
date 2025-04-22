@@ -192,7 +192,7 @@ enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
 }
 
 enum InvalidBillFields : LocalizedStringKey, CaseIterable, Identifiable {
-    case name = "Name", dates = "Start and End Dates", company = "Company", location = "Location", children = "Datapoins", amount = "Amount"
+    case name = "Name", dates = "Start and End Dates", company = "Company", location = "Location", children = "Datapoints", amount = "Amount"
     
     var description: LocalizedStringKey {
         switch self {

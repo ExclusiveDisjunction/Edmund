@@ -170,7 +170,7 @@ struct AllExpiredBillsVE : View {
                 })
             }, message: {
                 Text((warning.warning ?? .noneSelected).message)
-            }).confirmationDialog("Are you sure you want to delete these bills?", isPresented: $deleting.isDeleting) {
+            }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
                 AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
             }.padding().onAppear(perform: refresh).onChange(of: query.hashValue, refresh).toolbarRole(.editor)
     }

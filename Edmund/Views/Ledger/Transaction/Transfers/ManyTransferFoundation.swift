@@ -9,10 +9,10 @@ import SwiftUI;
 
 @Observable
 class ManyTableEntry : Identifiable {
-    init() {
-        self.amount = 0;
-        self.account = nil;
-        self.id = UUID();
+    init(amount: Decimal = 0, account: SubAccount? = nil, id: UUID = UUID()) {
+        self.amount = amount;
+        self.account = account;
+        self.id = id;
         self.selected = false;
     }
     
@@ -23,41 +23,20 @@ class ManyTableEntry : Identifiable {
     var account: SubAccount?;
 }
 
-@Observable
-class ManyTransferTableVM {
-    init() {
-        entries = [ManyTableEntry()];
-    }
-    
-    func clear() {
-        entries.forEach { $0.selected = true } //Ensures that no editing happens
-        entries = [ManyTableEntry()];
-    }
-    
-    func get_empty_rows() -> [Int] {
-        var result: [Int] = [];
-        
-        for (i, d) in entries.enumerated() {
-            if d.account == nil {
-                result.append(i)
-            }
-        }
-        
-        return result;
-    }
-    func create_transactions(transfer_into: Bool, _ cats: CategoriesContext) -> [LedgerEntry]? {
+extension [ManyTableEntry] {
+    func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) -> [LedgerEntry]? {
         var result: [LedgerEntry] = [];
-        for entry in entries {
+        for entry in self {
             guard let acc = entry.account else { return nil; }
             
             result.append(
                 .init(
-                    memo: (transfer_into ? "Various to " + acc.name : acc.name + " to Various"),
+                    name: (transfer_into ? "Various to " + acc.name : acc.name + " to Various"),
                     credit: transfer_into ? entry.amount : 0,
                     debit: transfer_into ? 0 : entry.amount,
                     date: Date.now,
                     location: "Bank",
-                    category: cats.account_control.transfer,
+                    category: cats.accountControl.transfer,
                     account: acc
                 )
             );
@@ -66,24 +45,26 @@ class ManyTransferTableVM {
         return result;
     }
     
-    var entries: [ManyTableEntry];
-    
-    var total: Decimal {
-        var sum: Decimal = 0;
-        entries.forEach { sum += $0.amount }
-        return sum;
+    var amount: Decimal {
+        self.reduce(into: Decimal(), { $0 += $1.amount } )
     }
 }
+
 struct ManyTransferTable : View {
-    @Bindable var vm: ManyTransferTableVM;
+    @Binding var data: [ManyTableEntry];
+    @State private var selected = Set<ManyTableEntry.ID>();
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    private func removeSelected() {
+        data.removeAll(where: { $0.selected} )
+    }
     
     var body: some View {
         HStack {
             Button(action: {
                 withAnimation {
-                    vm.entries.append(
-                        ManyTableEntry()
-                    )
+                    data.append(.init())
                 }
             }) {
                 Label("Add", systemImage: "plus")
@@ -91,29 +72,28 @@ struct ManyTransferTable : View {
         
             Button(action: {
                 withAnimation {
-                    vm.entries.removeAll(where: { $0.selected })
+                    removeSelected()
                 }
             }) {
                 Label("Remove Selected", systemImage: "trash").foregroundStyle(.red)
             }
             
         }.padding(.top)
-        Text("Total: \(vm.total, format: .currency(code: "USD"))")
         
         ScrollView {
             Grid {
                 GridRow {
-                    Spacer()
+                    Text("")
                     Text("Amount")
                     Text("Account")
-
                 }
                 Divider()
-                ForEach($vm.entries) { $item in
+                
+                ForEach($data) { $item in
                     GridRow {
                         Toggle("Selected", isOn: $item.selected).labelsHidden()
                         TextField("Amount", value: $item.amount, format: .currency(code: "USD")).disabled(item.selected)
-                        NamedPairPicker<SubAccount>(target: $item.account).disabled(item.selected)
+                        NamedPairPicker($item.account).disabled(item.selected)
                     }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
                 }
             }.padding().background(.background.opacity(0.7))
@@ -122,5 +102,11 @@ struct ManyTransferTable : View {
 }
 
 #Preview {
-    ManyTransferTable(vm: ManyTransferTableVM())
+    var data: [ManyTableEntry] = [];
+    let binding = Binding(
+        get: { data },
+        set: { data = $0 }
+    );
+    
+    ManyTransferTable(data: binding).modelContainer(Containers.debugContainer)
 }

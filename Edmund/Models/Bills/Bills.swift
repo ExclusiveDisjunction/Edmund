@@ -42,7 +42,7 @@ final class Bill : BillBase, EditableElement, InspectableElement {
     var location: String?;
     var notes: String = String();
     
-    private var rawKind: Int;
+    internal var rawKind: Int;
     private var rawPeriod: Int;
     
     var kind: BillsKind {
