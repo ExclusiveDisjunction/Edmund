@@ -51,7 +51,7 @@ struct SimpleElementEdit<T> : ElementEditorView where T: EditableElement, T.Snap
         HStack {
             Text("Name:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
-            TextField("Name", text: $snapshot.name).labelsHidden()
+            TextField("Name", text: $snapshot.name).labelsHidden().textFieldStyle(.roundedBorder)
             
             Spacer()
         }

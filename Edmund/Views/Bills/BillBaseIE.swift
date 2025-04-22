@@ -57,7 +57,7 @@ struct BillBaseInspect : View {
                     Text(location)
                 }
                 else {
-                    Text("No Company")
+                    Text("No Location").italic()
                 }
                 Spacer()
             }
@@ -140,7 +140,7 @@ struct BillBaseEditor : View {
                 .foregroundStyle(editing.errors.contains(.company) ? Color.red : Color.primary)
             
             HStack {
-                TextField("Company", text: $editing.company)
+                TextField("Company", text: $editing.company).textFieldStyle(.roundedBorder)
                 Spacer()
             }
         }
@@ -150,7 +150,7 @@ struct BillBaseEditor : View {
                 .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
             HStack {
-                Toggle("Has Location", isOn: $editing.hasLocation).labelsHidden()
+                Toggle("Has location", isOn: $editing.hasLocation).labelsHidden()
                 Spacer()
             }
         }
@@ -162,7 +162,7 @@ struct BillBaseEditor : View {
                     .foregroundStyle(editing.errors.contains(.location) ? Color.red : Color.primary)
                 
                 HStack {
-                    TextField("Location", text: $editing.location)
+                    TextField("Location", text: $editing.location).textFieldStyle(.roundedBorder)
                     Spacer()
                 }
             }

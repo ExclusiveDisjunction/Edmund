@@ -948,7 +948,7 @@
     "Has End Date:" : {
 
     },
-    "Has Location" : {
+    "Has location" : {
 
     },
     "Has Location:" : {
@@ -1311,13 +1311,13 @@
         }
       }
     },
-    "No Company" : {
-
-    },
     "No end date" : {
 
     },
     "No Information" : {
+
+    },
+    "No Location" : {
 
     },
     "noCategories" : {

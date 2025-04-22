@@ -101,6 +101,7 @@ struct UtilityEntriesEditRow : View {
             TextField("Amount", value: $child.amount, format: .currency(code: currencyCode))
                 .labelsHidden()
                 .foregroundStyle(child.amount < 0 ? .red : .primary)
+                .textFieldStyle(.roundedBorder)
             DatePicker("", selection: $child.date, displayedComponents: .date).labelsHidden()
         }
     }

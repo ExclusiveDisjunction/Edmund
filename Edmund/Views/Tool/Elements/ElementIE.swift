@@ -42,7 +42,7 @@ struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
     
-    init(_ data: T, postAction: (() -> Void)?) {
+    init(_ data: T, postAction: (() -> Void)? = nil) {
         self.data = data
         let tmp = T.Snapshot(data)
         self.editing = tmp
@@ -84,6 +84,8 @@ struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
             Divider().padding([.top, .bottom])
             
             T.EditView(editing)
+            
+            Spacer()
             
             HStack{
                 Spacer()
@@ -200,7 +202,11 @@ struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: P
     var body: some View {
         VStack {
             Text(data.name).font(.title2)
-            Button(action: toggleMode) {
+            Button(action: {
+                withAnimation {
+                    toggleMode()
+                }
+            }) {
                 Image(systemName: isEdit ? "info.circle" : "pencil").resizable()
             }.buttonStyle(.borderless)
                 .scaledToFit()
@@ -218,6 +224,8 @@ struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: P
             else {
                 T.InspectorView(data)
             }
+            
+            Spacer()
             
             HStack{
                 Spacer()

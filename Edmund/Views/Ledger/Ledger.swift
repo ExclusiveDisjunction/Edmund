@@ -229,15 +229,7 @@ struct LedgerTable: View {
             }
             .toolbarRole(.editor)
             .sheet(item: $inspect.value) { target in
-                VStack {
-                    LedgerEntryIE(target, mode: inspect.mode)
-                    HStack {
-                        Spacer()
-                        Button("Ok") {
-                            self.inspect.value = nil
-                        }.buttonStyle(.borderedProminent)
-                    }.padding([.trailing, .bottom])
-                }
+                LedgerEntryIE(target, mode: inspect.mode)
             }.alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: { warning.isPresented = false } )
             }, message: {
