@@ -9,22 +9,18 @@ import SwiftUI;
 import EdmundCore
 import SwiftData
 
-private func billPredicate(now: Date) -> Predicate<Bill> {
-    let distantFuture = Date.distantPast;
-    return #Predicate<Bill> { bill in
-        (bill.endDate ?? distantFuture) < now
-    }
-}
-private func utilityPredicate(now: Date) -> Predicate<Utility> {
-    let distantFuture = Date.distantPast;
-    return #Predicate<Utility> { bill in
-        (bill.endDate ?? distantFuture) < now
-    }
-}
+import WidgetKit
+#if os(iOS)
+import BackgroundTasks
+#endif
 
 @MainActor
-func saveUpcomingBills(context: ModelContext) async {
+func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
+#if DEBUG
+    let container = Containers.debugContainer
+#else
     let container = Containers.personalContainer;
+#endif
     
     let calendar = Calendar.current;
     let now = Date.now
@@ -33,7 +29,7 @@ func saveUpcomingBills(context: ModelContext) async {
     for _ in 0..<10 {
         guard let new = calendar.date(byAdding: .day, value: 1, to: acc) else {
             print("Unable to get the next date.");
-            return;
+            return nil;
         }
         
         dates.append(new);
@@ -51,17 +47,20 @@ func saveUpcomingBills(context: ModelContext) async {
         guard let bills: [any BillBase] = try? context.fetch(billDescriptor),
               let utilities: [any BillBase] = try? context.fetch(utilityDescriptor) else {
             print("Unable to get the upcoming bills for \(date)")
-            return;
+            return nil;
         }
         
-        let combined = (bills + utilities).filter { !$0.isExpired && $0.nextBillDate != nil }.sorted(by: { $0.nextBillDate! < $1.nextBillDate! } ).prefix(12);
+        let combined = (bills + utilities).filter { !$0.isExpired && $0.nextBillDate(from: date) != nil && $0.nextBillDate(from: date)! >= date }.sorted(by: { $0.nextBillDate(from: date)! < $1.nextBillDate(from: date)! } ).prefix(15);
         let wrapped: [UpcomingBill] = combined.map { UpcomingBill(from: $0)! };
         
         print("for date \(date), \(wrapped.count) upcoming bills are saved.")
         all.append(.init(date: date, bills: wrapped));
     }
     
-    
+    return all;
+}
+
+func saveUpcomingBills(all: [UpcomingBillsSnapshot]) async {
     let fileURL = FileManager
         .default
         .containerURL(forSecurityApplicationGroupIdentifier: "group.com.exdisj.Edmund.BillTracker")?
@@ -80,3 +79,59 @@ func saveUpcomingBills(context: ModelContext) async {
         print("Unable to save upcoming bills \(error)")
     }
 }
+
+#if os(iOS)
+func registerBackgroundTasks() {
+    BGTaskScheduler.shared.register(
+        forTaskWithIdentifier: "com.exdisj.edmund.refresh",
+        using: nil) { task in
+            handleAppRefresh(task: task)
+        }
+}
+
+func scheduleAppRefresh() {
+    let request = BGAppRefreshTaskRequest(identifier: "com.exdisj.edmund.refresh")
+    request.earliestBeginDate = Date(timeIntervalSinceNow: 10 * 24 * 60) //10 days from now
+    
+    do {
+        try BGTaskScheduler.shared.submit(request)
+        print("Background task scheduled")
+    } catch {
+        print("The background task could not be made \(error)")
+    }
+}
+func handleAppRefresh(task: BGTask) {
+    scheduleAppRefresh()
+    
+    task.expirationHandler = {
+        print("App refresh canceled.")
+    }
+    
+    Task {
+        guard let all = await getUpcomingBills() else {
+            print("Unable to determine the upcoming bills");
+            return;
+            task.setTaskCompleted(success: false)
+        }
+        await saveUpcomingBills(all: all)
+        
+        WidgetCenter.shared.reloadAllTimelines()
+        print("Completed saving to upcoming bills");
+        
+        task.setTaskCompleted(success: true)
+    }
+}
+#else
+func refreshWidget() {
+    Task {
+        guard let all = await getUpcomingBills() else {
+            print("Unable to determine the upcoming bills");
+            return;
+        }
+        await saveUpcomingBills(all: all)
+        
+        print("Completed saving to upcoming bills");
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+}
+#endif

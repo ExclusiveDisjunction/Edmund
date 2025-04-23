@@ -14,6 +14,8 @@
 		DD4465442DB86CBD006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DD44655E2DB86F8D006D9A01 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
 		DD44655F2DB86F8D006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DD93B6252DB912A100DBB851 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
+		DD93B6262DB912A100DBB851 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,13 @@
 			remoteGlobalIDString = DD44651D2DB86B58006D9A01;
 			remoteInfo = EdmundCore;
 		};
+		DD93B6272DB912A100DBB851 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD44651D2DB86B58006D9A01;
+			remoteInfo = EdmundCore;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -84,6 +93,17 @@
 			dstSubfolderSpec = 10;
 			files = (
 				DD44655F2DB86F8D006D9A01 /* EdmundCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD93B6292DB912A100DBB851 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DD93B6262DB912A100DBB851 /* EdmundCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -167,6 +187,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD93B6252DB912A100DBB851 /* EdmundCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,11 +298,13 @@
 				DD34E6112D99D21E009E3875 /* Sources */,
 				DD34E6122D99D21E009E3875 /* Frameworks */,
 				DD34E6132D99D21E009E3875 /* Resources */,
+				DD93B6292DB912A100DBB851 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DD34E6172D99D21E009E3875 /* PBXTargetDependency */,
+				DD93B6282DB912A100DBB851 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
@@ -519,6 +542,11 @@
 			isa = PBXTargetDependency;
 			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
 			targetProxy = DD4465602DB86F8D006D9A01 /* PBXContainerItemProxy */;
+		};
+		DD93B6282DB912A100DBB851 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
+			targetProxy = DD93B6272DB912A100DBB851 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

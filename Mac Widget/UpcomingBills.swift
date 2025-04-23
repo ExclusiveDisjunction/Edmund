@@ -25,10 +25,10 @@ struct UpcomingBillsView : View {
     }
     private var maxVisibleCount: Int {
         switch family {
-            case .systemSmall: 2
-            case .systemMedium: 4
-            case .systemLarge: 6
-            case .systemExtraLarge: 10
+            case .systemSmall: 4
+            case .systemMedium: 6
+            case .systemLarge: 10
+            case .systemExtraLarge: 15
             default: 4
         }
     }
@@ -42,19 +42,43 @@ struct UpcomingBillsView : View {
             }
             
             if let data = data {
-                ForEach(data, id: \.id) { item in
-                    HStack {
-                        Text(item.name).lineLimit(1)
+                Grid {
+                    GridRow {
+                        HStack {
+                            Text("Name").bold()
+                            Spacer()
+                        }
                         Spacer()
-                        Text(item.amount, format: .currency(code: currencyCode))
-                        Spacer()
-                        Text(item.dueDate.formatted(date: .numeric, time: .omitted))
+                        
+                        Text("Amount").bold()
+                        
+                        HStack {
+                            Spacer()
+                            Text("Due Date").bold()
+                        }
+                    }
+                    Divider()
+                    ForEach(data, id: \.id) { item in
+                        GridRow {
+                            HStack {
+                                Text(item.name).lineLimit(1)
+                                Spacer()
+                            }
+                            Spacer()
+                            Text(item.amount, format: .currency(code: currencyCode))
+                            HStack {
+                                Spacer()
+                                Text(item.dueDate.formatted(date: .numeric, time: .omitted))
+                            }
+                        }
                     }
                 }
             }
             else {
                 Text("No information could be loaded").italic()
             }
+            
+            Spacer()
         }.padding()
     }
 }

@@ -22,18 +22,27 @@ public protocol BillBase : Identifiable, AnyObject {
 }
 public extension BillBase {
     var daysSinceStart: Int {
-        let components = Calendar.current.dateComponents([.day], from: self.startDate, to: Date.now)
+        return daysSinceStart(from: Date.now)
+    }
+    func daysSinceStart(from: Date) -> Int {
+        let components = Calendar.current.dateComponents([.day], from: self.startDate, to: from)
         return components.day ?? 0
     }
     var periodsSinceStart: Int {
-        let days = Float(daysSinceStart);
+        return periodsSinceStart(from: .now)
+    }
+    func periodsSinceStart(from: Date) -> Int {
+        let days = Float(daysSinceStart(from: from));
         let periodDays = self.period.daysInPeriod;
         
         let rawPeriods = days / periodDays
         return Int(rawPeriods.rounded(.towardZero))
     }
     var nextBillDate: Date? {
-        let duration = self.period.asDuration * (periodsSinceStart + 1);
+        nextBillDate(from: Date.now)
+    }
+    func nextBillDate(from: Date) -> Date? {
+        let duration = self.period.asDuration * (periodsSinceStart(from: from) + 1);
         let nextDate = Calendar.current.date(byAdding: duration.asDateComponents, to: self.startDate);
         if let nextDate = nextDate, let endDate = self.endDate {
             if nextDate > endDate {
