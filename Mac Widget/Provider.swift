@@ -20,7 +20,6 @@ struct Provider: AppIntentTimelineProvider {
         UpcomingBillsEntry(date: Date(), data: nil)
     }
     
-    @MainActor
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<UpcomingBillsEntry> {
         print("Widget: Fetching URL");
         let fileURL = FileManager
