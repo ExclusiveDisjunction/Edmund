@@ -6,23 +6,11 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 enum ThemeMode : String, Identifiable, CaseIterable {
     case light = "Light", dark = "Dark", system = "System"
     
-    var id: Self { self }
-}
-
-enum LedgerStyle: Int, Identifiable, CaseIterable {
-    case none = 0, standard = 1, reversed = 2
-    
-    var display: LocalizedStringKey {
-        switch self {
-            case .none: "Do not show as Accounting Style"
-            case .standard: "Standard Accounting Style"
-            case .reversed: "Reversed Accounting Style"
-        }
-    }
     var id: Self { self }
 }
 

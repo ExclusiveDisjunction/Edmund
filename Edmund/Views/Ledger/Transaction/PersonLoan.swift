@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct PersonalLoan: TransactionEditorProtocol {
     @State private var person: String = "";
@@ -22,22 +23,22 @@ struct PersonalLoan: TransactionEditorProtocol {
     
     func apply() -> Bool {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError", title: "Error")
+            warning.warning = .init(message: "internalError")
             return false
         }
         
         guard let destination = account else {
-            warning.warning = .init(message: "emptyFields", title: "Error")
+            warning.warning = .init(message: "emptyFields")
             return false;
         }
         
         guard !person.isEmpty else {
-            warning.warning = .init(message: "emptyFields", title: "Error")
+            warning.warning = .init(message: "emptyFields")
             return false;
         }
     
         guard amount >= 0 else {
-            warning.warning = .init(message: "negativeAmount", title: "Error")
+            warning.warning = .init(message: "negativeAmount")
             return false;
         }
         

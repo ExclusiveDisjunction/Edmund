@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData;
+import EdmundCore;
 
 struct UtilityPayment : TransactionEditorProtocol {
     @Query private var utilities: [Utility];
@@ -30,17 +31,17 @@ struct UtilityPayment : TransactionEditorProtocol {
     func apply() -> Bool {
         guard let target = selected, let account = account else {
             print("Aborting because the target \(selected == nil) or account \(account == nil) is nil ")
-            warning.warning = .init(message: "Please fill in all fields", title: "Error");
+            warning.warning = .init(message: "Please fill in all fields");
             return false;
         }
         
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError", title: "Error");
+            warning.warning = .init(message: "internalError");
             return false;
         }
         
         guard amount >= 0 else {
-            warning.warning = .init(message: "The amount cannot be negative", title: "Error");
+            warning.warning = .init(message: "The amount cannot be negative");
             return false;
         }
         

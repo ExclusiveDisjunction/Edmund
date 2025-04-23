@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct SimpleTransaction : TransactionEditorProtocol {
     private var snapshot = LedgerEntrySnapshot();
@@ -15,7 +16,7 @@ struct SimpleTransaction : TransactionEditorProtocol {
     
     func apply() -> Bool {
         guard snapshot.validate() else {
-            warning.warning = .init(message: "Please fix all fields.", title: "");
+            warning.warning = .init(message: "Please fix all fields.");
             return false;
         }
         

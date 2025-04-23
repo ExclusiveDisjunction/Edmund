@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import EdmundCore
 
 struct OneOneTransfer : View, TransactionEditorProtocol {
     @Environment(\.categoriesContext) private var categories: CategoriesContext?;
@@ -30,15 +31,15 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
     
     func apply() -> Bool {
         guard let categories = categories else {
-            warning.warning = .init(message: "noCategories", title: "Error")
+            warning.warning = .init(message: "noCategories")
             return false
         }
         guard let source = src, let destination = dest else {
-            warning.warning = .init(message: "emptyFields", title: "Error")
+            warning.warning = .init(message: "emptyFields")
             return false;
         }
         guard amount > 0.0 else {
-            warning.warning = .init(message: "negativeAmount", title: "Error")
+            warning.warning = .init(message: "negativeAmount")
             return false
         }
         

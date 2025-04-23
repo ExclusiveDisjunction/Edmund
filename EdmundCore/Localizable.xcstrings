@@ -1,0 +1,343 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
+    "Account" : {
+
+    },
+    "Account:" : {
+
+    },
+    "Add" : {
+
+    },
+    "Add Account" : {
+
+    },
+    "Add Category" : {
+
+    },
+    "Add Sub Account" : {
+
+    },
+    "Add Sub Category" : {
+
+    },
+    "Added On:" : {
+
+    },
+    "Alphabetical" : {
+
+    },
+    "Amount" : {
+
+    },
+    "Amount:" : {
+
+    },
+    "Anually" : {
+
+    },
+    "Balance:" : {
+
+    },
+    "Bi-Monthly" : {
+
+    },
+    "Bi-Weekly" : {
+
+    },
+    "Bill" : {
+
+    },
+    "Bills" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Category" : {
+
+    },
+    "Category:" : {
+
+    },
+    "childrenError" : {
+
+    },
+    "Company" : {
+
+    },
+    "Company:" : {
+
+    },
+    "companyEmptyError" : {
+
+    },
+    "Credit" : {
+
+    },
+    "Credit:" : {
+
+    },
+    "Datapoints" : {
+
+    },
+    "Date" : {
+
+    },
+    "Date:" : {
+
+    },
+    "Debit" : {
+
+    },
+    "Debit:" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Discard" : {
+
+    },
+    "Do not show as Accounting Style" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit Datapoints..." : {
+
+    },
+    "End" : {
+
+    },
+    "End Date:" : {
+
+    },
+    "Error" : {
+
+    },
+    "Filters" : {
+
+    },
+    "Frequency" : {
+
+    },
+    "Frequency:" : {
+
+    },
+    "Half Year" : {
+
+    },
+    "Has End Date" : {
+
+    },
+    "Has End Date:" : {
+
+    },
+    "Has location" : {
+
+    },
+    "Has Location:" : {
+
+    },
+    "High to Low" : {
+
+    },
+    "Inspect" : {
+
+    },
+    "Inspect Datapoints..." : {
+
+    },
+    "Kind" : {
+
+    },
+    "Kind:" : {
+
+    },
+    "Location" : {
+
+    },
+    "Location:" : {
+
+    },
+    "locationEmptyError" : {
+
+    },
+    "Memo:" : {
+
+    },
+    "Money In:" : {
+
+    },
+    "Money Out:" : {
+
+    },
+    "Month" : {
+
+    },
+    "Monthly" : {
+
+    },
+    "Name" : {
+
+    },
+    "Name:" : {
+
+    },
+    "nameEmptyError" : {
+
+    },
+    "negAmountError" : {
+
+    },
+    "No Account" : {
+
+    },
+    "No Category" : {
+
+    },
+    "No end date" : {
+
+    },
+    "No Location" : {
+
+    },
+    "noItems" : {
+
+    },
+    "None" : {
+
+    },
+    "Notes:" : {
+
+    },
+    "Ok" : {
+
+    },
+    "On" : {
+      "comment" : "[Amount] on [Date]"
+    },
+    "Please correct fields outlined with red." : {
+
+    },
+    "Please select at least one item." : {
+
+    },
+    "Price" : {
+
+    },
+    "Price over Time" : {
+
+    },
+    "Price Over Time" : {
+
+    },
+    "Price:" : {
+
+    },
+    "Quarter" : {
+
+    },
+    "Quarterly" : {
+
+    },
+    "Reversed Accounting Style" : {
+
+    },
+    "Save" : {
+
+    },
+    "Select" : {
+
+    },
+    "Semi-Anually" : {
+
+    },
+    "Sort & Filter" : {
+
+    },
+    "Sort By" : {
+
+    },
+    "Sorting" : {
+
+    },
+    "Standard Accounting Style" : {
+
+    },
+    "Start" : {
+
+    },
+    "Start and End Dates" : {
+
+    },
+    "Start Date:" : {
+
+    },
+    "startDateError" : {
+
+    },
+    "Sub Account" : {
+
+    },
+    "Sub Category" : {
+
+    },
+    "Subscription" : {
+
+    },
+    "Subscription to Utility" : {
+
+    },
+    "Subscriptions" : {
+
+    },
+    "There are unsaved changes, do you wish to continue?" : {
+
+    },
+    "tooManyItems" : {
+
+    },
+    "Two Months" : {
+
+    },
+    "Two Weeks" : {
+
+    },
+    "Utilities" : {
+
+    },
+    "Utility" : {
+
+    },
+    "Warning" : {
+
+    },
+    "Week" : {
+
+    },
+    "Weekly" : {
+
+    },
+    "Year" : {
+
+    }
+  },
+  "version" : "1.0"
+}

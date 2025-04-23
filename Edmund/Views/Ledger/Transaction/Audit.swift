@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 struct Audit: TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
@@ -20,12 +21,12 @@ struct Audit: TransactionEditorProtocol {
     
     func apply() -> Bool {
         guard let account = account else {
-            warning.warning = .init(message: "emptyFields", title: "Error")
+            warning.warning = .init(message: "emptyFields")
             return false;
         }
         
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError", title: "Error")
+            warning.warning = .init(message: "internalError")
             return false
         }
         

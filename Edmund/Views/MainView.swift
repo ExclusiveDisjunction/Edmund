@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct AddProfileView : View {
     @Binding var profiles: [Profile];

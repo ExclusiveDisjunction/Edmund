@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData;
+import EdmundCore;
 
 struct LedgerWindow : View {
     init(profile: Binding<String?>) {
@@ -96,7 +97,7 @@ struct LedgerTable: View {
             TableColumn("Location", value: \.location)
             TableColumn("Category") { item in
                 if let category = item.category {
-                    NamedPairViewer(pair: category)
+                    NamedPairViewer(category)
                 }
                 else {
                     Text("No Category")
@@ -104,7 +105,7 @@ struct LedgerTable: View {
             }
             TableColumn("Account") { item in
                 if let account = item.account {
-                    NamedPairViewer(pair: account)
+                    NamedPairViewer(account)
                 }
                 else {
                     Text("No Account")

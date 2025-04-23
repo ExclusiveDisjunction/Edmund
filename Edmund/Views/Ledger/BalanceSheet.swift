@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BalanceSheetWindow : View {
     init(profile: Binding<String?>, vm: BalanceSheetVM = .init()) {

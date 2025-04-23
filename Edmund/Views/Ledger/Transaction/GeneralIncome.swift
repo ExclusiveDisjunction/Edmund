@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 enum IncomeKind : LocalizedStringKey, CaseIterable, Identifiable {
     case gift = "gifted"
@@ -30,22 +31,22 @@ struct Income: TransactionEditorProtocol {
     
     func apply() -> Bool {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError", title: "Error")
+            warning.warning = .init(message: "internalError")
             return false
         }
         
         guard let destination = account else {
-            warning.warning = .init(message: "emptyFields", title: "Error")
+            warning.warning = .init(message: "emptyFields")
             return false;
         }
         
         guard amount > 0 else {
-            warning.warning = .init(message: "negativeAmount", title: "Error")
+            warning.warning = .init(message: "negativeAmount")
             return false;
         }
         
         guard !person.isEmpty  else {
-            warning.warning = .init(message: "emptyFields", title: "Error")
+            warning.warning = .init(message: "emptyFields")
             return false;
         }
         
@@ -73,7 +74,7 @@ struct Income: TransactionEditorProtocol {
             debit: 0,
             date: date,
             location: company,
-            category: categories.payments.gift,
+            category: category,
             account: destination
         );
         modelContext.insert(transaction);

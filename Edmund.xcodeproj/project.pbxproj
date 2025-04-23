@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DD4464F32DB8552C006D9A01 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4464F22DB8552C006D9A01 /* WidgetKit.framework */; };
+		DD4464F52DB8552C006D9A01 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4464F42DB8552C006D9A01 /* SwiftUI.framework */; };
+		DD4465032DB8552D006D9A01 /* MacWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DD4464F02DB8552C006D9A01 /* MacWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DD4465432DB86CBD006D9A01 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
+		DD4465442DB86CBD006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DD44655E2DB86F8D006D9A01 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
+		DD44655F2DB86F8D006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DD34E6162D99D21E009E3875 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,15 +31,83 @@
 			remoteGlobalIDString = DD34E6012D99D21D009E3875;
 			remoteInfo = Edmund;
 		};
+		DD4465012DB8552D006D9A01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD4464EF2DB8552C006D9A01;
+			remoteInfo = "Widget-macOSExtension";
+		};
+		DD4465452DB86CBD006D9A01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD44651D2DB86B58006D9A01;
+			remoteInfo = EdmundCore;
+		};
+		DD4465602DB86F8D006D9A01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD44651D2DB86B58006D9A01;
+			remoteInfo = EdmundCore;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DD4465042DB8552D006D9A01 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DD4465032DB8552D006D9A01 /* MacWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD4465472DB86CBD006D9A01 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DD4465442DB86CBD006D9A01 /* EdmundCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD4465622DB86F8D006D9A01 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DD44655F2DB86F8D006D9A01 /* EdmundCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DD34E6022D99D21D009E3875 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E6152D99D21E009E3875 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD4464F02DB8552C006D9A01 /* MacWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MacWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD4464F22DB8552C006D9A01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		DD4464F42DB8552C006D9A01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		DD44651E2DB86B58006D9A01 /* EdmundCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EdmundCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DD4465082DB8552D006D9A01 /* Exceptions for "Mac Widget" folder in "MacWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DD4464EF2DB8552C006D9A01 /* MacWidget */;
+		};
 		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -61,6 +139,19 @@
 			path = EdmundUITests;
 			sourceTree = "<group>";
 		};
+		DD4464F62DB8552C006D9A01 /* Mac Widget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DD4465082DB8552D006D9A01 /* Exceptions for "Mac Widget" folder in "MacWidget" target */,
+			);
+			path = "Mac Widget";
+			sourceTree = "<group>";
+		};
+		DD44651F2DB86B58006D9A01 /* EdmundCore */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EdmundCore;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD4465432DB86CBD006D9A01 /* EdmundCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +177,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DD4464ED2DB8552C006D9A01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD4464F52DB8552C006D9A01 /* SwiftUI.framework in Frameworks */,
+				DD4464F32DB8552C006D9A01 /* WidgetKit.framework in Frameworks */,
+				DD44655E2DB86F8D006D9A01 /* EdmundCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD44651B2DB86B58006D9A01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -94,6 +203,9 @@
 				DD34E6042D99D21D009E3875 /* Edmund */,
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
 				DD34E6222D99D21E009E3875 /* EdmundUITests */,
+				DD4464F62DB8552C006D9A01 /* Mac Widget */,
+				DD44651F2DB86B58006D9A01 /* EdmundCore */,
+				DD4464F12DB8552C006D9A01 /* Frameworks */,
 				DD34E6032D99D21D009E3875 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -104,11 +216,32 @@
 				DD34E6022D99D21D009E3875 /* Edmund.app */,
 				DD34E6152D99D21E009E3875 /* EdmundTests.xctest */,
 				DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */,
+				DD4464F02DB8552C006D9A01 /* MacWidget.appex */,
+				DD44651E2DB86B58006D9A01 /* EdmundCore.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
+		DD4464F12DB8552C006D9A01 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DD4464F22DB8552C006D9A01 /* WidgetKit.framework */,
+				DD4464F42DB8552C006D9A01 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		DD4465192DB86B58006D9A01 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		DD34E6012D99D21D009E3875 /* Edmund */ = {
@@ -118,10 +251,14 @@
 				DD34E5FE2D99D21D009E3875 /* Sources */,
 				DD34E5FF2D99D21D009E3875 /* Frameworks */,
 				DD34E6002D99D21D009E3875 /* Resources */,
+				DD4465042DB8552D006D9A01 /* Embed Foundation Extensions */,
+				DD4465472DB86CBD006D9A01 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DD4465022DB8552D006D9A01 /* PBXTargetDependency */,
+				DD4465462DB86CBD006D9A01 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DD34E6042D99D21D009E3875 /* Edmund */,
@@ -179,6 +316,53 @@
 			productReference = DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		DD4464EF2DB8552C006D9A01 /* MacWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DD4465072DB8552D006D9A01 /* Build configuration list for PBXNativeTarget "MacWidget" */;
+			buildPhases = (
+				DD4464EC2DB8552C006D9A01 /* Sources */,
+				DD4464ED2DB8552C006D9A01 /* Frameworks */,
+				DD4464EE2DB8552C006D9A01 /* Resources */,
+				DD4465622DB86F8D006D9A01 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DD4465612DB86F8D006D9A01 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DD4464F62DB8552C006D9A01 /* Mac Widget */,
+			);
+			name = MacWidget;
+			packageProductDependencies = (
+			);
+			productName = "Widget-macOSExtension";
+			productReference = DD4464F02DB8552C006D9A01 /* MacWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		DD44651D2DB86B58006D9A01 /* EdmundCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DD4465242DB86B58006D9A01 /* Build configuration list for PBXNativeTarget "EdmundCore" */;
+			buildPhases = (
+				DD4465192DB86B58006D9A01 /* Headers */,
+				DD44651A2DB86B58006D9A01 /* Sources */,
+				DD44651B2DB86B58006D9A01 /* Frameworks */,
+				DD44651C2DB86B58006D9A01 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DD44651F2DB86B58006D9A01 /* EdmundCore */,
+			);
+			name = EdmundCore;
+			packageProductDependencies = (
+			);
+			productName = EdmundCore;
+			productReference = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -186,7 +370,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					DD34E6012D99D21D009E3875 = {
@@ -199,6 +383,12 @@
 					DD34E61E2D99D21E009E3875 = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = DD34E6012D99D21D009E3875;
+					};
+					DD4464EF2DB8552C006D9A01 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					DD44651D2DB86B58006D9A01 = {
+						CreatedOnToolsVersion = 16.3;
 					};
 				};
 			};
@@ -222,6 +412,8 @@
 				DD34E6012D99D21D009E3875 /* Edmund */,
 				DD34E6142D99D21E009E3875 /* EdmundTests */,
 				DD34E61E2D99D21E009E3875 /* EdmundUITests */,
+				DD4464EF2DB8552C006D9A01 /* MacWidget */,
+				DD44651D2DB86B58006D9A01 /* EdmundCore */,
 			);
 		};
 /* End PBXProject section */
@@ -242,6 +434,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DD34E61D2D99D21E009E3875 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD4464EE2DB8552C006D9A01 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD44651C2DB86B58006D9A01 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -272,6 +478,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DD4464EC2DB8552C006D9A01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD44651A2DB86B58006D9A01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -284,6 +504,21 @@
 			isa = PBXTargetDependency;
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 			targetProxy = DD34E6202D99D21E009E3875 /* PBXContainerItemProxy */;
+		};
+		DD4465022DB8552D006D9A01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD4464EF2DB8552C006D9A01 /* MacWidget */;
+			targetProxy = DD4465012DB8552D006D9A01 /* PBXContainerItemProxy */;
+		};
+		DD4465462DB86CBD006D9A01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
+			targetProxy = DD4465452DB86CBD006D9A01 /* PBXContainerItemProxy */;
+		};
+		DD4465612DB86F8D006D9A01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
+			targetProxy = DD4465602DB86F8D006D9A01 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -442,6 +677,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -484,6 +720,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -508,10 +745,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Edmund.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Edmund";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -531,10 +769,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Edmund.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Edmund";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -553,10 +792,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Edmund;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -575,12 +815,167 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Edmund;
 				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		DD4465052DB8552D006D9A01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = "Mac Widget/MacWidget.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Mac Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Widget-macOS";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.widget.macOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DD4465062DB8552D006D9A01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = "Mac Widget/MacWidget.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Mac Widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Widget-macOS";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.widget.macOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DD4465252DB86B58006D9A01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.EdmundCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				RUN_DOCUMENTATION_COMPILER = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		DD4465262DB86B58006D9A01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.EdmundCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				RUN_DOCUMENTATION_COMPILER = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -619,6 +1014,24 @@
 			buildConfigurations = (
 				DD34E6302D99D21E009E3875 /* Debug */,
 				DD34E6312D99D21E009E3875 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DD4465072DB8552D006D9A01 /* Build configuration list for PBXNativeTarget "MacWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD4465052DB8552D006D9A01 /* Debug */,
+				DD4465062DB8552D006D9A01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DD4465242DB86B58006D9A01 /* Build configuration list for PBXNativeTarget "EdmundCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD4465252DB86B58006D9A01 /* Debug */,
+				DD4465262DB86B58006D9A01 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

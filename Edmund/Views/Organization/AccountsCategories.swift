@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 @Observable
 class AccountsCategoriesVM {
@@ -16,9 +17,9 @@ class AccountsCategoriesVM {
     }
     
     var accVM: AllNamedPairsVE_MV<Account>;
-    var catVM: AllNamedPairsVE_MV<Category>;
+    var catVM: AllNamedPairsVE_MV<EdmundCore.Category>;
     
-    func refresh(acc: [Account], cat: [Category]) {
+    func refresh(acc: [Account], cat: [EdmundCore.Category]) {
         accVM.refresh(acc)
         catVM.refresh(cat)
     }
@@ -29,11 +30,11 @@ struct AccountsCategories : View {
     @Environment(\.modelContext) private var modelContext;
     @State private var addingAcc: Account?;
     @State private var addingSubAcc: SubAccount?;
-    @State private var addingCat: Category?;
+    @State private var addingCat: EdmundCore.Category?;
     @State private var addingSubCat: SubCategory?
     
     @Query private var accounts: [Account];
-    @Query private var categories: [Category];
+    @Query private var categories: [EdmundCore.Category];
     
     var vm: AccountsCategoriesVM;
     
@@ -54,7 +55,7 @@ struct AccountsCategories : View {
             AllNamedPairViewEdit<Account>(vm: vm.accVM).tabItem {
                 Text("Accounts")
             }
-            AllNamedPairViewEdit<Category>(vm: vm.catVM).tabItem {
+            AllNamedPairViewEdit<EdmundCore.Category>(vm: vm.catVM).tabItem {
                 Text("Categories")
             }
         }.toolbar(id: "accountsCategoriesToolbar") {
@@ -105,9 +106,9 @@ struct AccountsCategories : View {
                 }
             }
         }.sheet(item: $addingAcc) { account in
-            NamedPairParentEdit(account)
+            ElementEditor(account)
         }.sheet(item: $addingCat) { category in
-            NamedPairParentEdit(category)
+            ElementEditor(category)
         }.sheet(item: $addingSubAcc) { sub_account in
             ElementEditor(sub_account)
                 .destroyOnCancel()

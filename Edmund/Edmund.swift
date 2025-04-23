@@ -7,6 +7,12 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
+import WidgetKit
+
+#if os(iOS)
+import BackgroundTasks
+#endif
 
 @main
 struct EdmundApp: App {
@@ -17,17 +23,68 @@ struct EdmundApp: App {
         self.defaultContainer = Containers.defaultContainer
         
         var startingProfiles: [Profile];
-        #if DEBUG
+#if DEBUG
         startingProfiles = [Profile("Debug"), Profile("Personal")]
-        #else
+#else
         startingProfiles = [Profile("Personal")]
-        #endif
-    
+#endif
+        
         let foundProfiles = (try? globalContainer.mainContext.fetch(FetchDescriptor<Profile>())) ?? [];
         startingProfiles.append(contentsOf: foundProfiles)
         
         self.profiles = startingProfiles
+        
+#if os(iOS)
+        EdmundApp.registerBackgroundTasks()
+#elseif os(macOS)
+        EdmundApp.refreshWidget()
+#endif
     }
+    
+#if os(iOS)
+    static func registerBackgroundTasks() {
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.exdisj.edmund.refresh",
+            using: nil) { task in
+                handleAppRefresh(task: task)
+            }
+    }
+    
+    static func scheduleAppRefresh() {
+        let request = BGAppRefreshTaskRequest(identifier: "com.exdisj.edmund.refresh")
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 10 * 24 * 60) //10 days from now
+        
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            print("Background task scheduled")
+        } catch {
+            print("The background task could not be made \(error)")
+        }
+    }
+    static func handleAppRefresh(task: BGTask) {
+        scheduleAppRefresh()
+        
+        task.expirationHandler = {
+            print("App refresh canceled.")
+        }
+        
+        Task {
+            await saveUpcomingBills(context: Containers.personalContainer.mainContext)
+            WidgetCenter.shared.reloadAllTimelines()
+            print("Completed saving to upcoming bills");
+            
+            task.setTaskCompleted(success: true)
+        }
+    }
+#else
+    static func refreshWidget() {
+        Task {
+            await saveUpcomingBills(context: Containers.personalContainer.mainContext)
+            print("Completed saving to upcoming bills");
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+#endif
     
     var defaultContainer: (ModelContainer, ContainerNames);
     var globalContainer: ModelContainer;
