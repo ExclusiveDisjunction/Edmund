@@ -11,13 +11,23 @@ import Foundation
 import SwiftData;
 import EdmundCore;
 
+func exampleUpcoming() -> [UpcomingBill] {
+    return [
+        .init(name: "Apple Music",   amount: 10.99,  dueDate: Calendar.current.date(byAdding: .day,   value: 3,  to: Date.now)!),
+        .init(name: "iCloud",        amount: 2.99,   dueDate: Calendar.current.date(byAdding: .day,   value: 4,  to: Date.now)!),
+        .init(name: "Water",         amount: 70.71,  dueDate: Calendar.current.date(byAdding: .day,   value: 7,  to: Date.now)!),
+        .init(name: "Electric",      amount: 160.40, dueDate: Calendar.current.date(byAdding: .day,   value: 12, to: Date.now)!),
+        .init(name: "Car Insurance", amount: 10.99,  dueDate: Calendar.current.date(byAdding: .month, value: 1,  to: Date.now)!),
+    ]
+}
+
 struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> UpcomingBillsEntry {
-        UpcomingBillsEntry(date: Date(), data: nil)
+        UpcomingBillsEntry(date: Date.now, data: exampleUpcoming())
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> UpcomingBillsEntry {
-        UpcomingBillsEntry(date: Date(), data: nil)
+        UpcomingBillsEntry(date: Date.now, data: exampleUpcoming())
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<UpcomingBillsEntry> {

@@ -80,25 +80,57 @@ public extension Date {
     }
 }
 public enum LongDuration : Equatable, Hashable {
-    case years(Int), months(Int), weeks(Int)
+    case years(Int), months(Int), weeks(Float)
+    
+    var weeksPer: Float {
+        switch self {
+            case .years(let v):  Float(v * 52 )
+            case .months(let v): Float(v *  4 )
+            case .weeks(let v):  v
+        }
+    }
     
     var asDateComponents: DateComponents {
         switch self {
             case .years(let year): DateComponents(year: year)
             case .months(let month): DateComponents(month: month)
-            case .weeks(let weeks): DateComponents(day: weeks * 7)
+            case .weeks(let weeks): DateComponents(day: Int(weeks * 7))
         }
     }
     
-    static func *(lhs: LongDuration, rhs: Int) -> LongDuration {
+    public static func *(lhs: LongDuration, rhs: Int) -> LongDuration {
         switch lhs {
             case .years(let years): .years(years * rhs)
             case .months(let months): .months(months * rhs)
+            case .weeks(let weeks): .weeks(weeks * Float(rhs))
+        }
+    }
+    public static func *(rhs: Int, lhs: LongDuration) -> LongDuration {
+        lhs * rhs
+    }
+    public static func *(lhs: LongDuration, rhs: Float) -> LongDuration {
+        switch lhs {
+            case .years(let years): .weeks(Float(years) * rhs * 52.0)
+            case .months(let months): .weeks(Float(months) * rhs * 4.0)
             case .weeks(let weeks): .weeks(weeks * rhs)
         }
     }
+    public static func *(rhs: Float, lhs: LongDuration) -> LongDuration {
+        lhs * rhs
+    }
+    public static func +(lhs: LongDuration, rhs: Date) -> Date? {
+        let calendar = Calendar.current
+        return switch lhs {
+            case .years(let years):   calendar.date(byAdding: .year,  value: years,          to: rhs)
+            case .months(let months): calendar.date(byAdding: .month, value: months,         to: rhs)
+            case .weeks(let weeks):   calendar.date(byAdding: .day,   value: Int(weeks * 7), to: rhs)
+        }
+    }
+    public static func -(lhs: LongDuration, rhs: Date) -> Date? {
+        (-1 * lhs) + rhs
+    }
     
-    func adding(to date: Date, calendar: Calendar = .current) -> Date? {
+    public func adding(to date: Date, calendar: Calendar = .current) -> Date? {
         return calendar.date(byAdding: asDateComponents, to: date)
     }
 }
@@ -113,15 +145,7 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
     case anually = 6
     
     private var index: Int {
-        switch self {
-            case .weekly: 0
-            case .biWeekly: 1
-            case .monthly: 2
-            case .biMonthly: 3
-            case .quarterly: 4
-            case .semiAnually: 5
-            case .anually: 6
-        }
+        self.rawValue
     }
     private static var compTable: [[Decimal]] = {
         return [
@@ -135,14 +159,14 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
             [1.0/52.0, 1.0/26.0, 1.0/12.0, 1.0/16.0, 1.0/4.0, 1.0/2.0, 1.0 ].map { Decimal($0) }
         ]
     }()
-    private static var daysTable: [Float] = [
-        7.0,
-        14.0,
-        30.42,
-        60.83,
-        91.25,
-        182.5,
-        
+    private static var weeksTable: [Int] = [
+        1,
+        2,
+        4,
+        8,
+        12,
+        26,
+        52
     ]
     
     public var perName: LocalizedStringKey {
@@ -184,8 +208,8 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
             case .anually: .years(1)
         }
     }
-    public var daysInPeriod: Float {
-        Self.daysTable[self.index]
+    public var weeksInPeriod: Int {
+        Self.weeksTable[self.index]
     }
     
     public var id: Self { self }

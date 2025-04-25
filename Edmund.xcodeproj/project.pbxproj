@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DD4464F32DB8552C006D9A01 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4464F22DB8552C006D9A01 /* WidgetKit.framework */; };
-		DD4464F52DB8552C006D9A01 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4464F42DB8552C006D9A01 /* SwiftUI.framework */; };
-		DD4465032DB8552D006D9A01 /* MacWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DD4464F02DB8552C006D9A01 /* MacWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DD394E242DB93A7400B272E3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4464F22DB8552C006D9A01 /* WidgetKit.framework */; platformFilters = (ios, macos, ); };
+		DD394E252DB93A7400B272E3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD4464F42DB8552C006D9A01 /* SwiftUI.framework */; };
+		DD394E332DB93A7500B272E3 /* crossWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DD394E232DB93A7400B272E3 /* crossWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DD394E382DB93A8100B272E3 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
+		DD394E392DB93A8100B272E3 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DD4465432DB86CBD006D9A01 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
 		DD4465442DB86CBD006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DD44655E2DB86F8D006D9A01 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
-		DD44655F2DB86F8D006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DD93B6252DB912A100DBB851 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
 		DD93B6262DB912A100DBB851 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -33,21 +33,21 @@
 			remoteGlobalIDString = DD34E6012D99D21D009E3875;
 			remoteInfo = Edmund;
 		};
-		DD4465012DB8552D006D9A01 /* PBXContainerItemProxy */ = {
+		DD394E312DB93A7500B272E3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DD4464EF2DB8552C006D9A01;
-			remoteInfo = "Widget-macOSExtension";
+			remoteGlobalIDString = DD394E222DB93A7400B272E3;
+			remoteInfo = crossWidgetExtension;
 		};
-		DD4465452DB86CBD006D9A01 /* PBXContainerItemProxy */ = {
+		DD394E3A2DB93A8100B272E3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DD44651D2DB86B58006D9A01;
 			remoteInfo = EdmundCore;
 		};
-		DD4465602DB86F8D006D9A01 /* PBXContainerItemProxy */ = {
+		DD4465452DB86CBD006D9A01 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
 			proxyType = 1;
@@ -64,13 +64,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		DD394E3C2DB93A8100B272E3 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DD394E392DB93A8100B272E3 /* EdmundCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DD4465042DB8552D006D9A01 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				DD4465032DB8552D006D9A01 /* MacWidget.appex in Embed Foundation Extensions */,
+				DD394E332DB93A7500B272E3 /* crossWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -82,17 +93,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				DD4465442DB86CBD006D9A01 /* EdmundCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DD4465622DB86F8D006D9A01 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DD44655F2DB86F8D006D9A01 /* EdmundCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -114,19 +114,19 @@
 		DD34E6022D99D21D009E3875 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E6152D99D21E009E3875 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DD4464F02DB8552C006D9A01 /* MacWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MacWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD394E232DB93A7400B272E3 /* crossWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = crossWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4464F22DB8552C006D9A01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DD4464F42DB8552C006D9A01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		DD44651E2DB86B58006D9A01 /* EdmundCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EdmundCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DD4465082DB8552D006D9A01 /* Exceptions for "Mac Widget" folder in "MacWidget" target */ = {
+		DD394E372DB93A7500B272E3 /* Exceptions for "crossWidget" folder in "crossWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = DD4464EF2DB8552C006D9A01 /* MacWidget */;
+			target = DD394E222DB93A7400B272E3 /* crossWidgetExtension */;
 		};
 		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -159,12 +159,12 @@
 			path = EdmundUITests;
 			sourceTree = "<group>";
 		};
-		DD4464F62DB8552C006D9A01 /* Mac Widget */ = {
+		DD394E262DB93A7400B272E3 /* crossWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				DD4465082DB8552D006D9A01 /* Exceptions for "Mac Widget" folder in "MacWidget" target */,
+				DD394E372DB93A7500B272E3 /* Exceptions for "crossWidget" folder in "crossWidgetExtension" target */,
 			);
-			path = "Mac Widget";
+			path = crossWidget;
 			sourceTree = "<group>";
 		};
 		DD44651F2DB86B58006D9A01 /* EdmundCore */ = {
@@ -198,13 +198,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD4464ED2DB8552C006D9A01 /* Frameworks */ = {
+		DD394E202DB93A7400B272E3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DD4464F52DB8552C006D9A01 /* SwiftUI.framework in Frameworks */,
-				DD4464F32DB8552C006D9A01 /* WidgetKit.framework in Frameworks */,
-				DD44655E2DB86F8D006D9A01 /* EdmundCore.framework in Frameworks */,
+				DD394E252DB93A7400B272E3 /* SwiftUI.framework in Frameworks */,
+				DD394E242DB93A7400B272E3 /* WidgetKit.framework in Frameworks */,
+				DD394E382DB93A8100B272E3 /* EdmundCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,8 +224,8 @@
 				DD34E6042D99D21D009E3875 /* Edmund */,
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
 				DD34E6222D99D21E009E3875 /* EdmundUITests */,
-				DD4464F62DB8552C006D9A01 /* Mac Widget */,
 				DD44651F2DB86B58006D9A01 /* EdmundCore */,
+				DD394E262DB93A7400B272E3 /* crossWidget */,
 				DD4464F12DB8552C006D9A01 /* Frameworks */,
 				DD34E6032D99D21D009E3875 /* Products */,
 			);
@@ -237,8 +237,8 @@
 				DD34E6022D99D21D009E3875 /* Edmund.app */,
 				DD34E6152D99D21E009E3875 /* EdmundTests.xctest */,
 				DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */,
-				DD4464F02DB8552C006D9A01 /* MacWidget.appex */,
 				DD44651E2DB86B58006D9A01 /* EdmundCore.framework */,
+				DD394E232DB93A7400B272E3 /* crossWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -278,8 +278,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				DD4465022DB8552D006D9A01 /* PBXTargetDependency */,
 				DD4465462DB86CBD006D9A01 /* PBXTargetDependency */,
+				DD394E322DB93A7500B272E3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DD34E6042D99D21D009E3875 /* Edmund */,
@@ -339,28 +339,28 @@
 			productReference = DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		DD4464EF2DB8552C006D9A01 /* MacWidget */ = {
+		DD394E222DB93A7400B272E3 /* crossWidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DD4465072DB8552D006D9A01 /* Build configuration list for PBXNativeTarget "MacWidget" */;
+			buildConfigurationList = DD394E342DB93A7500B272E3 /* Build configuration list for PBXNativeTarget "crossWidgetExtension" */;
 			buildPhases = (
-				DD4464EC2DB8552C006D9A01 /* Sources */,
-				DD4464ED2DB8552C006D9A01 /* Frameworks */,
-				DD4464EE2DB8552C006D9A01 /* Resources */,
-				DD4465622DB86F8D006D9A01 /* Embed Frameworks */,
+				DD394E1F2DB93A7400B272E3 /* Sources */,
+				DD394E202DB93A7400B272E3 /* Frameworks */,
+				DD394E212DB93A7400B272E3 /* Resources */,
+				DD394E3C2DB93A8100B272E3 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DD4465612DB86F8D006D9A01 /* PBXTargetDependency */,
+				DD394E3B2DB93A8100B272E3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DD4464F62DB8552C006D9A01 /* Mac Widget */,
+				DD394E262DB93A7400B272E3 /* crossWidget */,
 			);
-			name = MacWidget;
+			name = crossWidgetExtension;
 			packageProductDependencies = (
 			);
-			productName = "Widget-macOSExtension";
-			productReference = DD4464F02DB8552C006D9A01 /* MacWidget.appex */;
+			productName = crossWidgetExtension;
+			productReference = DD394E232DB93A7400B272E3 /* crossWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		DD44651D2DB86B58006D9A01 /* EdmundCore */ = {
@@ -407,7 +407,7 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = DD34E6012D99D21D009E3875;
 					};
-					DD4464EF2DB8552C006D9A01 = {
+					DD394E222DB93A7400B272E3 = {
 						CreatedOnToolsVersion = 16.3;
 					};
 					DD44651D2DB86B58006D9A01 = {
@@ -435,8 +435,8 @@
 				DD34E6012D99D21D009E3875 /* Edmund */,
 				DD34E6142D99D21E009E3875 /* EdmundTests */,
 				DD34E61E2D99D21E009E3875 /* EdmundUITests */,
-				DD4464EF2DB8552C006D9A01 /* MacWidget */,
 				DD44651D2DB86B58006D9A01 /* EdmundCore */,
+				DD394E222DB93A7400B272E3 /* crossWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -463,7 +463,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD4464EE2DB8552C006D9A01 /* Resources */ = {
+		DD394E212DB93A7400B272E3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -501,7 +501,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD4464EC2DB8552C006D9A01 /* Sources */ = {
+		DD394E1F2DB93A7400B272E3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -528,20 +528,20 @@
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 			targetProxy = DD34E6202D99D21E009E3875 /* PBXContainerItemProxy */;
 		};
-		DD4465022DB8552D006D9A01 /* PBXTargetDependency */ = {
+		DD394E322DB93A7500B272E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DD4464EF2DB8552C006D9A01 /* MacWidget */;
-			targetProxy = DD4465012DB8552D006D9A01 /* PBXContainerItemProxy */;
+			target = DD394E222DB93A7400B272E3 /* crossWidgetExtension */;
+			targetProxy = DD394E312DB93A7500B272E3 /* PBXContainerItemProxy */;
+		};
+		DD394E3B2DB93A8100B272E3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
+			targetProxy = DD394E3A2DB93A8100B272E3 /* PBXContainerItemProxy */;
 		};
 		DD4465462DB86CBD006D9A01 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
 			targetProxy = DD4465452DB86CBD006D9A01 /* PBXContainerItemProxy */;
-		};
-		DD4465612DB86F8D006D9A01 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
-			targetProxy = DD4465602DB86F8D006D9A01 /* PBXContainerItemProxy */;
 		};
 		DD93B6282DB912A100DBB851 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -853,73 +853,85 @@
 			};
 			name = Release;
 		};
-		DD4465052DB8552D006D9A01 /* Debug */ = {
+		DD394E352DB93A7500B272E3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = "Mac Widget/MacWidget.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_ENTITLEMENTS = crossWidget/crossWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Mac Widget/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Widget-macOS";
+				INFOPLIST_FILE = crossWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = crossWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.widget.macOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.crossWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
-				SDKROOT = macosx;
+				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Debug;
 		};
-		DD4465062DB8552D006D9A01 /* Release */ = {
+		DD394E362DB93A7500B272E3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = "Mac Widget/MacWidget.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_ENTITLEMENTS = crossWidget/crossWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Mac Widget/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Widget-macOS";
+				INFOPLIST_FILE = crossWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = crossWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 15.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.widget.macOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.crossWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
-				SDKROOT = macosx;
+				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Release;
 		};
@@ -1046,11 +1058,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DD4465072DB8552D006D9A01 /* Build configuration list for PBXNativeTarget "MacWidget" */ = {
+		DD394E342DB93A7500B272E3 /* Build configuration list for PBXNativeTarget "crossWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DD4465052DB8552D006D9A01 /* Debug */,
-				DD4465062DB8552D006D9A01 /* Release */,
+				DD394E352DB93A7500B272E3 /* Debug */,
+				DD394E362DB93A7500B272E3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

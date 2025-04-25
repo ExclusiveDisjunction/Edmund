@@ -66,6 +66,24 @@ struct BalanceResolver {
 }
 
 @Observable
+class AccountBalance : Identifiable {
+    init(name: String, credit: Decimal, debit: Decimal) {
+        self.id = UUID()
+        self.name = name
+        self.credit = credit
+        self.debit = debit
+    }
+    
+    let id: UUID;
+    let name: String;
+    let credit: Decimal;
+    let debit: Decimal;
+    var balance: Decimal {
+        credit - debit
+    }
+}
+
+@Observable
 class BalanceSheetAccount : Identifiable {
     init(name: String, subs: [BalanceSheetBalance]) {
         self.name = name;
@@ -102,20 +120,16 @@ class BalanceSheetVM {
     init() {
         
     }
-    init(synthetic: [BalanceSheetAccount]) {
-        self.computed = synthetic;
-        self.computed.sort { $0.balance > $1.balance }
-    }
     
-    func computeBalances(acc: [Account]) {
-        self.computed = BalanceResolver.computeSubAccountBalances(acc).map { (account, subBalances) in
+    static func computeBalances(acc: [Account]) -> [BalanceSheetAccount] {
+        return BalanceResolver.computeSubAccountBalances(acc).map { (account, subBalances) in
             BalanceSheetAccount(name: account.name, subs: subBalances.map { (subAccount, balance) in
                 BalanceSheetBalance(subAccount.name, credits: balance.0, debits: balance.1)
             })
         }.sorted(by: { $0.balance > $1.balance } )
     }
 
-    var computed: [BalanceSheetAccount] = [];
+    var computed: [BalanceSheetAccount]? = nil;
 }
 
 struct BalanceSheet: View {
@@ -143,19 +157,23 @@ struct BalanceSheet: View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func update_balances() {
-        vm.computeBalances(acc: accounts)
+        vm.computed = nil;
     }
     private func expand_all() {
-        withAnimation(.spring()) {
-            for element in vm.computed {
-                element.expanded = true
+        if let computed = vm.computed {
+            withAnimation(.spring()) {
+                for element in computed {
+                    element.expanded = true
+                }
             }
         }
     }
     private func collapse_all() {
-        withAnimation(.spring()) {
-            for element in vm.computed {
-                element.expanded = false
+        if let computed = vm.computed {
+            withAnimation(.spring()) {
+                for element in computed {
+                    element.expanded = false
+                }
             }
         }
     }
@@ -167,24 +185,53 @@ struct BalanceSheet: View {
     private func childSection(_ item: BalanceSheetAccount) -> some View {
         Grid {
             GridRow {
-                Text("Sub Account").frame(maxWidth: .infinity).font(.headline)
+                HStack {
+                    Text("Sub Account").font(.headline)
+                    Spacer()
+                }
                 if horizontalSizeClass != .compact && ledgerStyle != .none {
-                    Text(ledgerStyle == .standard ? "Debit" : "Credit").frame(maxWidth: .infinity).font(.headline)
-                    Text(ledgerStyle == .standard ? "Credit" : "Debit").frame(maxWidth: .infinity).font(.headline)
+                    HStack {
+                        Spacer()
+                        
+                        Text(ledgerStyle == .standard ? "Debit" : "Credit").font(.headline)
+                    }
+                    HStack {
+                        Spacer()
+                        
+                        Text(ledgerStyle == .standard ? "Credit" : "Debit").font(.headline)
+                    }
                 }
                 
-                Text("Balance").frame(maxWidth: .infinity).font(.headline)
+                HStack {
+                    Spacer()
+                    Text("Balance").font(.headline)
+                }
             }
             Divider()
             
             ForEach(item.subs) { sub in
                 GridRow {
-                    Text(sub.name)
-                    if horizontalSizeClass != .compact && ledgerStyle != .none {
-                        Text(sub.credits, format: .currency(code: currencyCode))
-                        Text(sub.debits, format: .currency(code: currencyCode))
+                    HStack {
+                        Text(sub.name)
+                        Spacer()
                     }
-                    Text(sub.balance, format: .currency(code: currencyCode)).foregroundStyle(sub.balance < 0 ? .red : .primary )
+                    
+                    if horizontalSizeClass != .compact && ledgerStyle != .none {
+                        HStack {
+                            Spacer()
+                            Text(sub.credits, format: .currency(code: currencyCode))
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            Text(sub.debits, format: .currency(code: currencyCode))
+                        }
+                    }
+                    
+                    HStack {
+                        Spacer()
+                        Text(sub.balance, format: .currency(code: currencyCode)).foregroundStyle(sub.balance < 0 ? .red : .primary )
+                    }
                 }
             }
         }
@@ -192,39 +239,53 @@ struct BalanceSheet: View {
     
     var body: some View {
         VStack {
-            if vm.computed.isEmpty {
-                Text("There are no transactions, or this page needs to be refreshed").italic().padding()
-                Spacer()
-            }
-            else {
-                ScrollView {
-                    VStack {
-                        ForEach(vm.computed) { (item: BalanceSheetAccount) in
-                            VStack {
-                                Button(action: {
-                                    withAnimation(.spring()) {
-                                        item.expanded.toggle()
+            if let computed = vm.computed {
+                if computed.isEmpty {
+                    Text("There are no transactions, or this page needs to be refreshed").italic().padding()
+                    Spacer()
+                }
+                else {
+                    ScrollView {
+                        VStack {
+                            ForEach(computed) { (item: BalanceSheetAccount) in
+                                VStack {
+                                    Button(action: {
+                                        withAnimation(.spring()) {
+                                            item.expanded.toggle()
+                                        }
+                                    }) {
+                                        HStack {
+                                            Label(item.name, systemImage: item.expanded ? "chevron.down" : "chevron.right").font(.title2)
+                                            Text(item.balance, format: .currency(code: currencyCode)).foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
+                                            Spacer()
+                                        }.contentShape(Rectangle())
+                                    }.padding().buttonStyle(.borderless)
+                                    
+                                    if item.expanded {
+                                        childSection(item)
                                     }
-                                }) {
-                                    HStack {
-                                        Label(item.name, systemImage: item.expanded ? "chevron.down" : "chevron.right").font(.title2)
-                                        Text(item.balance, format: .currency(code: currencyCode)).foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
-                                        Spacer()
-                                    }.contentShape(Rectangle())
-                                }.padding().buttonStyle(.borderless)
-                                
-                                if item.expanded {
-                                    childSection(item)
+                                    
+                                    Divider()
                                 }
-                                
-                                Divider()
                             }
                         }
                     }
                 }
             }
-        }.onAppear(perform: update_balances)
-            .toolbar(id: "balanceSheetToolbar") {
+            else {
+                VStack {
+                    Text("Please wait while this page loads...").font(.subheadline)
+                    ProgressView().task {
+                        print("Task invoked, loading balance sheet")
+                        let result = BalanceSheetVM.computeBalances(acc: accounts)
+                        
+                        await MainActor.run {
+                            vm.computed = result;
+                        }
+                    }
+                }
+            }
+        }.toolbar(id: "balanceSheetToolbar") {
                 ToolbarItem(id: "refresh", placement: .primaryAction) {
                     Button(action: update_balances) {
                         Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
@@ -253,7 +314,6 @@ struct BalanceSheet: View {
             .navigationTitle(isPopout ? "Balance Sheet for \(profile)" : "Balance Sheet")
             .padding()
             .toolbarRole(.editor)
-        
     }
 }
 
@@ -264,5 +324,7 @@ struct BalanceSheet: View {
         set: { profile = $0 }
     )
     
-    BalanceSheet(profile: bind, vm: BalanceSheetVM()).modelContainer(Containers.debugContainer)
+    BalanceSheet(profile: bind, vm: BalanceSheetVM())
+        .padding()
+        .frame(width: 500, height: 400).modelContainer(Containers.debugContainer)
 }

@@ -37,23 +37,37 @@ func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
     }
     
     let context = container.mainContext;
+    let billDescriptor = FetchDescriptor<Bill>();
+    let utilityDescriptor = FetchDescriptor<Utility>();
     
     var all: [ UpcomingBillsSnapshot ] = [];
     
     for date in dates{
-        let billDescriptor = FetchDescriptor<Bill>();
-        let utilityDescriptor = FetchDescriptor<Utility>();
-        
         guard let bills: [any BillBase] = try? context.fetch(billDescriptor),
               let utilities: [any BillBase] = try? context.fetch(utilityDescriptor) else {
             print("Unable to get the upcoming bills for \(date)")
             return nil;
         }
         
-        let combined = (bills + utilities).filter { !$0.isExpired && $0.nextBillDate(from: date) != nil && $0.nextBillDate(from: date)! >= date }.sorted(by: { $0.nextBillDate(from: date)! < $1.nextBillDate(from: date)! } ).prefix(15);
-        let wrapped: [UpcomingBill] = combined.map { UpcomingBill(from: $0)! };
+        let combined = ( bills + utilities );
+        var filtered: [ (any BillBase, Date ) ] = [];
+        for item in combined {
+            guard !item.isExpired else { continue }
+            guard let nextDate = item.nextBillDate(from: date) else { continue }
+            
+            if nextDate >= date {
+                filtered.append(
+                    (
+                        item,
+                        nextDate
+                    )
+                )
+            }
+        }
         
-        print("for date \(date), \(wrapped.count) upcoming bills are saved.")
+        filtered.sort(using: KeyPathComparator(\.1, order: .forward) )
+        let wrapped: [UpcomingBill] = filtered.map { UpcomingBill(name: $0.0.name, amount: $0.0.amount, dueDate: $0.1) };
+    
         all.append(.init(date: date, bills: wrapped));
     }
     
@@ -110,8 +124,8 @@ func handleAppRefresh(task: BGTask) {
     Task {
         guard let all = await getUpcomingBills() else {
             print("Unable to determine the upcoming bills");
-            return;
             task.setTaskCompleted(success: false)
+            return;
         }
         await saveUpcomingBills(all: all)
         

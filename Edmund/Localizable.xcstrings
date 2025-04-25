@@ -51,35 +51,6 @@
         }
       }
     },
-    "%@, %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, %2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, %2$@"
-          }
-        },
-        "es-US" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, %2$@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, %2$@"
-          }
-        }
-      }
-    },
     "Account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -97,16 +68,8 @@
         }
       }
     },
-    "Account Control" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontrola knota"
-          }
-        }
-      }
+    "Account Balances" : {
+
     },
     "Account:" : {
       "localizations" : {
@@ -243,23 +206,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nowa podkategoria"
-          }
-        }
-      }
-    },
-    "Added On:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hinzugefügt am "
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dodane:"
           }
         }
       }
@@ -407,50 +353,11 @@
     "Balance Verification" : {
 
     },
-    "Balance:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bilanz:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bilans:"
-          }
-        }
-      }
-    },
     "Basic" : {
 
     },
     "Batch Transactions" : {
 
-    },
-    "Bi-Monthly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zweimonatlich"
-          }
-        }
-      }
-    },
-    "Bi-Weekly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zweiwöchentlich"
-          }
-        }
-      }
     },
     "Bill" : {
       "extractionState" : "manual",
@@ -589,23 +496,6 @@
         }
       }
     },
-    "Category:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kategorie:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kategoria:"
-          }
-        }
-      }
-    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -654,23 +544,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Limit kredytu "
-          }
-        }
-      }
-    },
-    "Credit:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gutschrift:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kredyt:"
           }
         }
       }
@@ -735,23 +608,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Debet"
-          }
-        }
-      }
-    },
-    "Debit:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lastschrift:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Debet:"
           }
         }
       }
@@ -863,23 +719,6 @@
     },
     "Expired Bills" : {
 
-    },
-    "Filters" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filter"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filtry"
-          }
-        }
-      }
     },
     "For" : {
 
@@ -1074,6 +913,9 @@
         }
       }
     },
+    "Loading" : {
+
+    },
     "Location" : {
       "localizations" : {
         "de" : {
@@ -1086,23 +928,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Miejsce"
-          }
-        }
-      }
-    },
-    "Location:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standord:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Miejsce:"
           }
         }
       }
@@ -1158,62 +983,11 @@
         }
       }
     },
-    "Memo:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Memo:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opis:"
-          }
-        }
-      }
-    },
     "Miscellaneous" : {
 
     },
     "missingAccount" : {
 
-    },
-    "Money In:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geld rein:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przychód"
-          }
-        }
-      }
-    },
-    "Money Out:" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Geld raus:"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wydatki"
-          }
-        }
-      }
     },
     "Month" : {
       "extractionState" : "manual",
@@ -1228,17 +1002,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "miesiąc"
-          }
-        }
-      }
-    },
-    "Monthly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Montalich"
           }
         }
       }
@@ -1318,40 +1081,6 @@
         }
       }
     },
-    "noItems" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Bitte wählen Sie etwas aus, um fortzufahren "
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please select an item and try again."
-          }
-        }
-      }
-    },
-    "None" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nichts"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak"
-          }
-        }
-      }
-    },
     "Ok" : {
       "localizations" : {
         "de" : {
@@ -1369,7 +1098,7 @@
       }
     },
     "on" : {
-      "comment" : "for [item] on [date]"
+      "comment" : "$_ on [date]\nfor [item] on [date]"
     },
     "On" : {
       "comment" : "[Amount] on [Date]"
@@ -1491,17 +1220,6 @@
     "Please fix all fields." : {
 
     },
-    "Please provide a name." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte geben Sie einen Namen an"
-          }
-        }
-      }
-    },
     "Please select a topic to begin" : {
       "localizations" : {
         "de" : {
@@ -1511,6 +1229,9 @@
           }
         }
       }
+    },
+    "Please wait while this page loads..." : {
+
     },
     "Profile" : {
       "extractionState" : "manual",
@@ -1582,17 +1303,6 @@
         }
       }
     },
-    "Quarterly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vierteljährlich"
-          }
-        }
-      }
-    },
     "Refresh" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1657,17 +1367,6 @@
     "Selected" : {
 
     },
-    "Semi-Anually" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Halbjährlich"
-          }
-        }
-      }
-    },
     "Settings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1706,57 +1405,6 @@
     },
     "showExpiredBillsDesc" : {
 
-    },
-    "Sort & Filter" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortieren & Filtern"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortuj i filtruj "
-          }
-        }
-      }
-    },
-    "Sort By" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortieren nach"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortuj wg"
-          }
-        }
-      }
-    },
-    "Sorting" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortierung"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortowanie"
-          }
-        }
-      }
     },
     "Source:" : {
       "comment" : "Account source"
@@ -1831,17 +1479,6 @@
         }
       }
     },
-    "Subscriptions" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abonnements"
-          }
-        }
-      }
-    },
     "Take from" : {
 
     },
@@ -1889,23 +1526,6 @@
     },
     "Today" : {
 
-    },
-    "tooManyItems" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Bitte wählen Sie nur einen Artikel aus."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please select one item and try again."
-          }
-        }
-      }
     },
     "Total:" : {
       "localizations" : {
@@ -2006,25 +1626,11 @@
         }
       }
     },
-    "Use Ledger" : {
+    "Upcoming Bills" : {
 
     },
-    "Utilities" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nebenkostenabrechnungen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rachnunki za media"
-          }
-        }
-      }
+    "Use Ledger" : {
+
     },
     "Utility" : {
       "extractionState" : "manual",
@@ -2100,17 +1706,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "tydzień"
-          }
-        }
-      }
-    },
-    "Weekly" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wöchentlich"
           }
         }
       }

@@ -26,7 +26,7 @@ struct UpcomingBillsView : View {
     private var maxVisibleCount: Int {
         switch family {
             case .systemSmall: 4
-            case .systemMedium: 6
+            case .systemMedium: 5
             case .systemLarge: 10
             case .systemExtraLarge: 15
             default: 4
@@ -65,7 +65,11 @@ struct UpcomingBillsView : View {
                                 Spacer()
                             }
                             Spacer()
-                            Text(item.amount, format: .currency(code: currencyCode))
+                            HStack {
+                                Spacer()
+                                Text(item.amount, format: .currency(code: currencyCode))
+                            }
+                            
                             HStack {
                                 Spacer()
                                 Text(item.dueDate.formatted(date: .numeric, time: .omitted))
@@ -90,4 +94,10 @@ struct UpcomingBills: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
     }
+}
+
+#Preview(as: .systemSmall) {
+    UpcomingBills()
+} timeline: {
+    UpcomingBillsEntry(date: .now, data: [])
 }

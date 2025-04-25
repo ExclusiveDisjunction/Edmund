@@ -22,38 +22,56 @@ public protocol BillBase : Identifiable, AnyObject {
 }
 public extension BillBase {
     var daysSinceStart: Int {
-        return daysSinceStart(from: Date.now)
+        return weeksSinceStart(from: Date.now)
     }
-    func daysSinceStart(from: Date) -> Int {
+    func weeksSinceStart(from: Date) -> Int {
         let components = Calendar.current.dateComponents([.day], from: self.startDate, to: from)
-        return components.day ?? 0
+        return (components.day ?? 0) / 7;
     }
     var periodsSinceStart: Int {
         return periodsSinceStart(from: .now)
     }
     func periodsSinceStart(from: Date) -> Int {
-        let days = Float(daysSinceStart(from: from));
-        let periodDays = self.period.daysInPeriod;
+        let weeks = weeksSinceStart(from: from);
+        let periodWeeks = self.period.weeksInPeriod;
         
-        let rawPeriods = days / periodDays
-        return Int(rawPeriods.rounded(.towardZero))
+        return weeks / periodWeeks
+    }
+    func exactPeriodsSinceStart(from: Date) -> Float {
+        let weeks = weeksSinceStart(from: from);
+        let periodWeeks = self.period.weeksInPeriod;
+        
+        return Float(weeks) / Float(periodWeeks)
     }
     var nextBillDate: Date? {
         nextBillDate(from: Date.now)
     }
     func nextBillDate(from: Date) -> Date? {
-        let duration = self.period.asDuration * (periodsSinceStart(from: from) + 1);
-        let nextDate = Calendar.current.date(byAdding: duration.asDateComponents, to: self.startDate);
-        if let nextDate = nextDate, let endDate = self.endDate {
-            if nextDate > endDate {
-                return nil
-            }
-            else {
-                return nextDate
-            }
+        if startDate > from {
+            return startDate
         }
         else {
-            return nextDate
+            let exact = exactPeriodsSinceStart(from: from);
+            
+            let nextDate: Date;
+            if exact == floorf(exact) { //Exact number of periods, meaning that the result is the current date.
+                nextDate = from;
+            }
+            else {
+                let duration = self.period.asDuration * (periodsSinceStart(from: from) + 1);
+                guard let computed = duration + startDate else {
+                    return nil;
+                }
+                
+                nextDate = computed
+            }
+            
+            if nextDate <= (endDate ?? Date.distantFuture) {
+                return nextDate
+            }
+            else {
+                return nil
+            }
         }
     }
     var isExpired: Bool {
@@ -181,14 +199,6 @@ public struct UpcomingBill : Hashable, Equatable, Codable, Identifiable {
         self.amount = amount
         self.dueDate = dueDate
         self.id = id
-    }
-    public init?(from: any BillBase) {
-        guard let dueDate = from.nextBillDate else { return nil }
-        
-        self.name = from.name
-        self.amount = from.amount
-        self.dueDate = dueDate
-        self.id = UUID();
     }
     
     public let id: UUID;

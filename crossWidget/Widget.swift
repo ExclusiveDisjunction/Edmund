@@ -9,7 +9,7 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct MacWidget: WidgetBundle {
+struct EdmundWidget: WidgetBundle {
     var body: some Widget {
         UpcomingBills()
     }

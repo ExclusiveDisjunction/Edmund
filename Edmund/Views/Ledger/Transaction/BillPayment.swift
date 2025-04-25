@@ -26,7 +26,32 @@ struct BillPayment : TransactionEditorProtocol {
     }
     
     func apply() -> Bool {
-        fatalError("not finished")
+        guard let target = selected, let account = account else {
+            warning.warning = .init(message: "Please fill in all fields");
+            return false;
+        }
+        
+        guard let categories = categoriesContext else {
+            warning.warning = .init(message: "internalError");
+            return false;
+        }
+        
+        let amount = target.amount;
+        let company = target.company;
+        let name = target.name;
+        
+        let trans = LedgerEntry(
+            name: name,
+            credit: 0,
+            debit: amount,
+            date: date,
+            location: company,
+            category: kind == .bill ? categories.bills.bill : categories.bills.subscription,
+            account: account
+        );
+        
+        modelContext.insert(trans);
+        return true;
     }
     
 #if os(macOS)
@@ -39,18 +64,17 @@ struct BillPayment : TransactionEditorProtocol {
     
     @Query private var bills: [Bill];
     
-    @State private var kind: BillsKind = .subscription;
+    private let kind: BillsKind;
     @State private var selected: Bill? = nil;
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
     @State private var editing: Bill? = nil;
     private var warning = StringWarningManifest();
     
-    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
     
-    func apply(_ warning: StringWarningManifest, modelContext: ModelContext, categories: CategoriesContext) -> Bool {
-        false
-    }
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     var body: some View {
         TransactionEditorFrame(.billPay(kind), warning: warning, apply: apply, content: {
