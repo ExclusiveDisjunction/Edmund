@@ -341,6 +341,7 @@
       }
     },
     "Balance Sheet for %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -904,6 +905,7 @@
       }
     },
     "Ledger for %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1230,9 +1232,6 @@
         }
       }
     },
-    "Please wait while this page loads..." : {
-
-    },
     "Profile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1251,6 +1250,7 @@
       }
     },
     "Profile Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1486,6 +1486,7 @@
 
     },
     "The profile you selected could not be opened." : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -1601,6 +1602,7 @@
       }
     },
     "Unable to switch profile" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1667,6 +1669,7 @@
     },
     "View on Creation" : {
       "comment" : "When creating a new profile, users are given this option. It means that the new profile will be opened when it is created.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

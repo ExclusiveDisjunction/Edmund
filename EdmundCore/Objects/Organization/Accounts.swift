@@ -14,7 +14,6 @@ public final class Account : Identifiable, Hashable, BoundPairParent, EditableEl
     public typealias Snapshot = SimpleElementSnapshot<Account>
     public typealias InspectorView = SimpleElementInspect<Account>
     
-    
     public required init() {
         self.name = ""
         self.creditLimit = nil
@@ -34,9 +33,9 @@ public final class Account : Identifiable, Hashable, BoundPairParent, EditableEl
     }
     
     public var id: String { name }
-    @Attribute(.unique) public var name: String;
-    @Attribute public var creditLimit: Decimal?;
-    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) public var children: [SubAccount];
+    public var name: String = "";
+    public var creditLimit: Decimal? = nil;
+    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) public var children: [SubAccount]? = nil;
     public static var kind: NamedPairKind {
         .account
     }
@@ -99,10 +98,10 @@ public final class SubAccount : BoundPair, Equatable, EditableElement, Inspectab
         hasher.combine(parent)
     }
     
-    @Attribute(.unique) public var id: UUID;
-    public var name: String;
-    @Relationship public var parent: Account?;
-    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account) public var transactions: [LedgerEntry];
+    public var id: UUID = UUID();
+    public var name: String = "";
+    @Relationship public var parent: Account? = nil;
+    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account) public var transactions: [LedgerEntry]? = nil;
     
     public static var kind: NamedPairKind {
         get { .account }

@@ -33,17 +33,17 @@ public final class Bill : BillBase, EditableElement, InspectableElement {
         self.rawPeriod = period.rawValue
     }
     
-    public var id: UUID
-    @Attribute(.unique) public var name: String;
-    public var amount: Decimal;
-    public var startDate: Date;
-    public var endDate: Date?;
-    public var company: String;
-    public var location: String?;
-    public var notes: String = String();
+    public var id: UUID = UUID()
+    public var name: String = "";
+    public var amount: Decimal = 0.0;
+    public var startDate: Date = Date.now;
+    public var endDate: Date? = nil;
+    public var company: String = "";
+    public var location: String? = nil;
+    public var notes: String = "";
     
-    public var rawKind: Int;
-    private var rawPeriod: Int;
+    public var rawKind: Int = 0;
+    private var rawPeriod: Int = 0;
     
     public var kind: BillsKind {
         get {

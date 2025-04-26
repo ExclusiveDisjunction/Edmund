@@ -12,22 +12,7 @@ import EdmundCore
 @main
 struct EdmundApp: App {
     init() {
-        let globalContainer = Containers.globalContainer
-        self.globalContainer = globalContainer
-        
-        self.defaultContainer = Containers.defaultContainer
-        
-        var startingProfiles: [Profile];
-#if DEBUG
-        startingProfiles = [Profile("Debug"), Profile("Personal")]
-#else
-        startingProfiles = [Profile("Personal")]
-#endif
-        
-        let foundProfiles = (try? globalContainer.mainContext.fetch(FetchDescriptor<Profile>())) ?? [];
-        startingProfiles.append(contentsOf: foundProfiles)
-        
-        self.profiles = startingProfiles
+        self.container = Containers.container;
         
 #if os(iOS)
         registerBackgroundTasks()
@@ -36,10 +21,7 @@ struct EdmundApp: App {
 #endif
     }
     
-    var defaultContainer: (ModelContainer, ContainerNames);
-    var globalContainer: ModelContainer;
-    @State private var profiles: [Profile];
-    
+    var container: ModelContainer;
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
     var colorScheme: ColorScheme? {
@@ -52,53 +34,39 @@ struct EdmundApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainView(current: defaultContainer, global: globalContainer, profiles: $profiles).preferredColorScheme(colorScheme)
+            MainView()
+                .preferredColorScheme(colorScheme)
+                .modelContainer(container)
         }.commands {
             GeneralCommands()
         }
         
-        WindowGroup("Ledger", id: "ledger", for: Profile.ID.self ) { profile in
-            if let r_profile = profile.wrappedValue {
-                if let resolvedProfile = profiles.first(where: {$0.name == r_profile } ), let container = try? Containers.getNamedContainer(resolvedProfile.name) {
-                    NavigationStack {
-                        LedgerWindow(profile: profile).modelContainer(container)
-                    }
-                } else {
-                    Text("Unable to switch profile").italic().font(.title2)
-                }
-            }
-            else {
-                NavigationStack {
-                    LedgerWindow(profile: profile).modelContainer(Containers.defaultContainer.0)
-                }
+        WindowGroup("Ledger", id: "ledger") {
+            NavigationStack {
+                LedgerTable()
+                    .preferredColorScheme(colorScheme)
+                    .modelContainer(container)
             }
         }
         
-        WindowGroup("Balance Sheet", id: "balanceSheet", for: Profile.ID.self ) { profile in
-            if let r_profile = profile.wrappedValue {
-                if let resolvedProfile = profiles.first(where: {$0.name == r_profile } ), let container = try? Containers.getNamedContainer(resolvedProfile.name) {
-                    NavigationStack {
-                        BalanceSheetWindow(profile: profile).modelContainer(container)
-                    }
-                } else {
-                    Text("Unable to switch profile").italic().font(.title2)
-                }
-            }
-            else {
-                NavigationStack {
-                    BalanceSheetWindow(profile: profile).modelContainer(Containers.defaultContainer.0)
-                }
+        WindowGroup("Balance Sheet", id: "balanceSheet") {
+            NavigationStack {
+                BalanceSheet(vm: .init())
+                    .preferredColorScheme(colorScheme)
+                    .modelContainer(container)
             }
         }
         
         #if os(macOS)
         Settings {
-            SettingsView().preferredColorScheme(colorScheme).modelContainer(globalContainer)
+            SettingsView()
+                .preferredColorScheme(colorScheme)
         }
         #endif
         
         WindowGroup(id: "help") {
             HelpView()
+                .preferredColorScheme(colorScheme)
         }
     }
 }

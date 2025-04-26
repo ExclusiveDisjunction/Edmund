@@ -33,8 +33,8 @@ public final class Category : Identifiable, Hashable, BoundPairParent, Inspectab
     }
     
     public var id: String { name }
-    @Attribute(.unique) public var name: String;
-    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) public var children: [SubCategory];
+    public var name: String = "";
+    @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) public var children: [SubCategory]? = nil;
 
     public static var kind: NamedPairKind { .category }
     
@@ -84,7 +84,6 @@ public final class SubCategory : BoundPair, Equatable, EditableElement, Inspecta
     public typealias Snapshot = NamedPairChildSnapshot<SubCategory>;
     public typealias InspectorView = SimpleElementInspect<SubCategory>;
     
-    
     public required init() {
         self.parent = nil
         self.name = ""
@@ -112,12 +111,11 @@ public final class SubCategory : BoundPair, Equatable, EditableElement, Inspecta
         hasher.combine(name)
     }
     
-    @Attribute(.unique) public var id: UUID;
-    @Relationship public var parent: Category?;
-    public var name: String;
-    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) public var transactions: [LedgerEntry];
+    public var id: UUID = UUID();
+    public var name: String = "";
+    @Relationship public var parent: Category? = nil;
+    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) public var transactions: [LedgerEntry]? = nil;
 
-    
     public var isEmpty: Bool {
         parent?.isEmpty ?? false || name.isEmpty
     }
@@ -137,7 +135,7 @@ public protocol CategoriesHolderBasis {
 }
 public extension CategoriesHolderBasis {
     static func getOrInsert(from: Category, name: String, context: ModelContext) -> SubCategory {
-        if let target = from.children.first(where: {$0.name == name } ) {
+        if let target = from.children?.first(where: {$0.name == name } ) {
             return target
         }
         else {

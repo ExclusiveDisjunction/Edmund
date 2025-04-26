@@ -9,30 +9,12 @@ import SwiftUI
 import SwiftData;
 import EdmundCore;
 
-struct LedgerWindow : View {
-    init(profile: Binding<String?>) {
-        self._profileName = profile
-    }
-    @Binding var profileName: String?;
-    
-    var body: some View {
-        LedgerTable(profile: Binding(
-            get: { profileName ?? Containers.defaultContainerName.name },
-            set: { profileName = $0 }
-        ), isPopout: true)
-    }
-}
-
 struct LedgerTable: View {
-    
     @Query(sort: [
         SortDescriptor(\LedgerEntry.date, order: .reverse),
         SortDescriptor(\LedgerEntry.added_on, order: .reverse)
     ]) var data: [LedgerEntry];
     
-    @Binding var profile: String;
-    
-    @State var isPopout: Bool = false;
     @State private var selected = Set<LedgerEntry.ID>();
     @State private var transKind: TransactionKind?;
     
@@ -59,7 +41,7 @@ struct LedgerTable: View {
     }
     
     private func popout() {
-        openWindow(id: "ledger", value: profile)
+        openWindow(id: "ledger")
     }
     
     @ViewBuilder
@@ -228,7 +210,7 @@ struct LedgerTable: View {
                 fullSized
             }
         }.padding()
-            .navigationTitle(isPopout ? "Ledger for \(profile)" : "Ledger")
+            .navigationTitle("Ledger")
             .toolbar(id: "ledgerToolbar") {
                 toolbar
             }
@@ -248,8 +230,5 @@ struct LedgerTable: View {
 }
 
 #Preview {
-    var profile: String = ContainerNames.debug.name;
-    let binding = Binding(get: { profile }, set: { profile = $0 })
-    
-    LedgerTable(profile: binding).modelContainer(Containers.debugContainer)
+    LedgerTable().modelContainer(Containers.debugContainer)
 }

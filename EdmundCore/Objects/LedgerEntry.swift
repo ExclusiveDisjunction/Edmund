@@ -46,13 +46,13 @@ public final class LedgerEntrySnapshot : ElementSnapshot
         account  = from.account;
     }
     
-    public var name: String;
-    public var credit: Decimal;
-    public var debit: Decimal;
-    public var date: Date;
-    public var location: String;
-    public var category: SubCategory?;
-    public var account: SubAccount?;
+    public var name: String = "";
+    public var credit: Decimal = 0;
+    public var debit: Decimal = 0;
+    public var date: Date = Date.now;
+    public var location: String = "";
+    public var category: SubCategory? = nil;
+    public var account: SubAccount? = nil;
     
     public var balance: Decimal {
         credit - debit
@@ -116,15 +116,15 @@ public final class LedgerEntry : Identifiable, InspectableElement, EditableEleme
         self.account = account
     }
     
-    public var id: UUID;
-    public var name: String;
-    public var credit: Decimal;
-    public var debit: Decimal;
-    public var date: Date;
-    public var added_on: Date;
-    public var location: String;
-    @Relationship public var category: SubCategory?;
-    @Relationship public var account: SubAccount?;
+    public var id: UUID = UUID()
+    public var name: String = "";
+    public var credit: Decimal = 0;
+    public var debit: Decimal = 0;
+    public var date: Date = Date.now;
+    public var added_on: Date = Date.now;
+    public var location: String = "";
+    @Relationship public var category: SubCategory? = nil;
+    @Relationship public var account: SubAccount? = nil;
     
     public var balance: Decimal {
         credit - debit

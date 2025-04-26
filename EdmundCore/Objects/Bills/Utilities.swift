@@ -14,7 +14,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
     public init(_ from: Utility) {
         self.id = UUID()
         self.base = .init(from)
-        self.children = from.children.map { UtilityEntrySnapshot($0) }
+        self.children = from.children?.map { UtilityEntrySnapshot($0) } ?? []
     }
     
     public var id: UUID;
@@ -52,7 +52,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
     public func apply(_ to: Utility, context: ModelContext) {
         base.apply(to)
         if to.children.hashValue != children.hashValue {
-            let oldChildren = to.children;
+            guard let oldChildren = to.children else { return ;}
             for child in oldChildren {
                 context.delete(child)
             }
@@ -83,19 +83,24 @@ public final class Utility: BillBase, InspectableElement, EditableElement {
         self.location = location
     }
     
-    public var id: UUID
-    @Attribute(.unique) public var name: String
-    public var startDate: Date;
-    public var endDate: Date?
-    public var company: String;
-    public var location: String?;
-    public var notes: String = String();
+    public var id: UUID = UUID();
+    public var name: String = "";
+    public var startDate: Date = Date.now;
+    public var endDate: Date? = nil;
+    public var company: String = "";
+    public var location: String? = nil;
+    public var notes: String = "";
     
-    private var rawPeriod: Int;
-    @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) public var children: [UtilityEntry];
+    private var rawPeriod: Int = 0;
+    @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) public var children: [UtilityEntry]? = nil;
     
     public var amount: Decimal {
-        children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
+        if let children = children {
+            children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
+        }
+        else {
+            Decimal.nan
+        }
     }
     public var kind: BillsKind {
         .utility
@@ -163,8 +168,8 @@ public final class UtilityEntry: Identifiable, Hashable, Equatable {
         lhs.date == rhs.date && lhs.amount == rhs.amount
     }
     
-    public var id: UUID;
-    public var date: Date;
-    public var amount: Decimal;
-    @Relationship public var parent: Utility?;
+    public var id: UUID = UUID()
+    public var date: Date = Date.now;
+    public var amount: Decimal = 0;
+    @Relationship public var parent: Utility? = nil;
 }

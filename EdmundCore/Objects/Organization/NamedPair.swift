@@ -45,7 +45,7 @@ public protocol BoundPairParent : Identifiable, PersistentModel {
     init();
     
     var name: String { get set }
-    var children: [C] { get set }
+    var children: [C]? { get set }
     static var kind: NamedPairKind { get}
 }
 public protocol BoundPair : Identifiable, PersistentModel, Hashable, Equatable {
@@ -82,7 +82,7 @@ public extension Array where Element: BoundPairParent {
     func findPair(_ parent: String, _ child: String) -> Element.C? {
         guard let foundParent = self.first(where: {$0.name == parent } ) else { return nil }
         
-        return foundParent.children.first(where: {$0.name == child } )
+        return foundParent.children?.first(where: {$0.name == child } )
     }
 }
 

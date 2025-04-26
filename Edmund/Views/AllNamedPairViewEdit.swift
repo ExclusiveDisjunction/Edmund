@@ -20,7 +20,7 @@ class AllPairsHelper<T> : Identifiable where T: BoundPairParent {
     var childrenShown: Bool = false
     
     var children: [T.C] {
-        target.children.sorted(by: { $0.name < $1.name } )
+        target.children?.sorted(by: { $0.name < $1.name } ) ?? []
     }
 }
 
@@ -81,7 +81,7 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     
     @ViewBuilder
     func childrenList(parent: T) -> some View {
-        ForEach(parent.children) { child in
+        ForEach(parent.children ?? []) { child in
             HStack {
                 Text(child.name).padding(.leading, 30)
             }.contentShape(Rectangle()).contextMenu {

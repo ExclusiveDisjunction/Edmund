@@ -16,11 +16,7 @@ import BackgroundTasks
 
 @MainActor
 func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
-#if DEBUG
-    let container = Containers.debugContainer
-#else
-    let container = Containers.personalContainer;
-#endif
+    let container = Containers.container
     
     let calendar = Calendar.current;
     let now = Date.now
@@ -88,10 +84,20 @@ func saveUpcomingBills(all: [UpcomingBillsSnapshot]) async {
     do {
         let data = try JSONEncoder().encode(all);
         try data.write(to: fileURL);
-        print("The next 10 days worth of upcoming bills is saved")
     } catch {
         print("Unable to save upcoming bills \(error)")
     }
+}
+
+func storeWidgetData() async -> Bool{
+    guard let all = await getUpcomingBills() else {
+        print("Unable to determine the upcoming bills");
+        return false;
+    }
+    await saveUpcomingBills(all: all)
+    
+    WidgetCenter.shared.reloadAllTimelines()
+    return true;
 }
 
 #if os(iOS)
@@ -122,30 +128,15 @@ func handleAppRefresh(task: BGTask) {
     }
     
     Task {
-        guard let all = await getUpcomingBills() else {
-            print("Unable to determine the upcoming bills");
-            task.setTaskCompleted(success: false)
-            return;
-        }
-        await saveUpcomingBills(all: all)
-        
-        WidgetCenter.shared.reloadAllTimelines()
-        print("Completed saving to upcoming bills");
-        
-        task.setTaskCompleted(success: true)
+        let result = await storeWidgetData()
+
+        task.setTaskCompleted(success: result)
     }
 }
 #else
 func refreshWidget() {
     Task {
-        guard let all = await getUpcomingBills() else {
-            print("Unable to determine the upcoming bills");
-            return;
-        }
-        await saveUpcomingBills(all: all)
-        
-        print("Completed saving to upcoming bills");
-        WidgetCenter.shared.reloadAllTimelines()
+        await storeWidgetData()
     }
 }
 #endif

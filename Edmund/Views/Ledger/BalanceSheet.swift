@@ -9,30 +9,18 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BalanceSheetWindow : View {
-    init(profile: Binding<String?>, vm: BalanceSheetVM = .init()) {
-        self._profileName = profile
-        self.vm = vm
-    }
-    @Binding var profileName: String?;
-    @Bindable var vm: BalanceSheetVM;
-    
-    var body: some View {
-        BalanceSheet(profile: Binding(
-            get: { profileName ?? Containers.defaultContainerName.name },
-            set: { profileName = $0 }
-        ), isPopout: true, vm: vm)
-    }
-}
-
 struct BalanceResolver {
     static func computeAccountBalances(_ on: [Account]) -> Dictionary<Account, (Decimal, Decimal)> {
         var result: [Account: (Decimal, Decimal)] = [:];
         for account in on {
             var credits: Decimal = 0.0
             var debits: Decimal = 0.0
-            for subAccount in account.children {
-                for trans in subAccount.transactions {
+            guard let subAccounts = account.children else { continue }
+            
+            for subAccount in subAccounts {
+                guard let transactions = subAccount.transactions else { continue }
+                
+                for trans in transactions {
                     credits += trans.credit
                     debits += trans.debit
                 }
@@ -47,10 +35,13 @@ struct BalanceResolver {
         var result: [Account: [SubAccount: (Decimal, Decimal)]] = [:];
         for account in on {
             var tmpResult: [SubAccount: (Decimal, Decimal)] = [:]
-            for subAccount in account.children {
+            
+            guard let subAccounts = account.children else { continue }
+            for subAccount in subAccounts {
                 var credits: Decimal = 0
                 var debits: Decimal = 0
-                for trans in subAccount.transactions {
+                guard let transactions = subAccount.transactions else { continue }
+                for trans in transactions {
                     credits += trans.credit
                     debits += trans.debit
                 }
@@ -133,10 +124,6 @@ class BalanceSheetVM {
 }
 
 struct BalanceSheet: View {
-    @Binding var profile: String;
-    @State var isPopout = false;
-    var vm: BalanceSheetVM;
-    
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
         return true
@@ -150,6 +137,8 @@ struct BalanceSheet: View {
     
     @Query private var accounts: [Account];
     
+    @Bindable var vm: BalanceSheetVM;
+    
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
     
@@ -158,6 +147,9 @@ struct BalanceSheet: View {
     
     private func update_balances() {
         vm.computed = nil;
+    }
+    private func compute_balances() -> [BalanceSheetAccount] {
+        return BalanceSheetVM.computeBalances(acc: accounts)
     }
     private func expand_all() {
         if let computed = vm.computed {
@@ -178,7 +170,7 @@ struct BalanceSheet: View {
         }
     }
     private func popout() {
-        openWindow(id: "balanceSheet", value: profile)
+        openWindow(id: "balanceSheet")
     }
     
     @ViewBuilder
@@ -236,10 +228,57 @@ struct BalanceSheet: View {
             }
         }
     }
+    @ViewBuilder
+    private func accountView(_ item: BalanceSheetAccount) -> some View {
+        Button(action: {
+            withAnimation(.spring()) {
+                item.expanded.toggle()
+            }
+        }) {
+            HStack {
+                Label(item.name, systemImage: item.expanded ? "chevron.down" : "chevron.right").font(.title2)
+                Text(item.balance, format: .currency(code: currencyCode)).foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
+                Spacer()
+            }.contentShape(Rectangle())
+        }.padding().buttonStyle(.borderless)
+        
+        if item.expanded {
+            childSection(item)
+        }
+        
+        Divider()
+    }
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: update_balances) {
+                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            }
+        }
+        
+        ToolbarItem(placement: .secondaryAction) {
+            ControlGroup {
+                Button(action: collapse_all) {
+                    Label("Collapse All", systemImage: "arrow.up.to.line")
+                }
+                Button(action: expand_all) {
+                    Label("Expand All", systemImage: "arrow.down.to.line")
+                }
+            }
+        }
+        
+        if shouldShowPopoutButton {
+            ToolbarItem(placement: .secondaryAction) {
+                Button(action: popout) {
+                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
+                }
+            }
+        }
+    }
     
     var body: some View {
-        VStack {
-            if let computed = vm.computed {
+        LoadableView($vm.computed, process: compute_balances, onLoad: { computed in
+            VStack {
                 if computed.isEmpty {
                     Text("There are no transactions, or this page needs to be refreshed").italic().padding()
                     Spacer()
@@ -247,84 +286,26 @@ struct BalanceSheet: View {
                 else {
                     ScrollView {
                         VStack {
-                            ForEach(computed) { (item: BalanceSheetAccount) in
-                                VStack {
-                                    Button(action: {
-                                        withAnimation(.spring()) {
-                                            item.expanded.toggle()
-                                        }
-                                    }) {
-                                        HStack {
-                                            Label(item.name, systemImage: item.expanded ? "chevron.down" : "chevron.right").font(.title2)
-                                            Text(item.balance, format: .currency(code: currencyCode)).foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
-                                            Spacer()
-                                        }.contentShape(Rectangle())
-                                    }.padding().buttonStyle(.borderless)
-                                    
-                                    if item.expanded {
-                                        childSection(item)
-                                    }
-                                    
-                                    Divider()
-                                }
+                            ForEach(computed) { item in
+                                accountView(item)
                             }
                         }
                     }
                 }
             }
-            else {
-                VStack {
-                    Text("Please wait while this page loads...").font(.subheadline)
-                    ProgressView().task {
-                        print("Task invoked, loading balance sheet")
-                        let result = BalanceSheetVM.computeBalances(acc: accounts)
-                        
-                        await MainActor.run {
-                            vm.computed = result;
-                        }
-                    }
-                }
-            }
-        }.toolbar(id: "balanceSheetToolbar") {
-                ToolbarItem(id: "refresh", placement: .primaryAction) {
-                    Button(action: update_balances) {
-                        Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-                    }
-                }
-                
-                ToolbarItem(id: "view", placement: .secondaryAction) {
-                    ControlGroup {
-                        Button(action: collapse_all) {
-                            Label("Collapse All", systemImage: "arrow.up.to.line")
-                        }
-                        Button(action: expand_all) {
-                            Label("Expand All", systemImage: "arrow.down.to.line")
-                        }
-                    }
-                }
-                
-                if shouldShowPopoutButton {
-                    ToolbarItem(id: "popout", placement: .secondaryAction) {
-                        Button(action: popout) {
-                            Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                        }
-                    }
-                }
-            }
-            .navigationTitle(isPopout ? "Balance Sheet for \(profile)" : "Balance Sheet")
-            .padding()
-            .toolbarRole(.editor)
+        }).toolbar {
+            toolbar
+        }
+        .navigationTitle("Balance Sheet")
+        .padding()
+        #if os(macOS)
+        .frame(minWidth: 350, minHeight: 200)
+        #endif
     }
 }
 
 #Preview {
-    var profile: String = ContainerNames.debug.name
-    let bind = Binding(
-        get: { profile },
-        set: { profile = $0 }
-    )
-    
-    BalanceSheet(profile: bind, vm: BalanceSheetVM())
+    BalanceSheet(vm: BalanceSheetVM())
         .padding()
         .frame(width: 500, height: 400).modelContainer(Containers.debugContainer)
 }

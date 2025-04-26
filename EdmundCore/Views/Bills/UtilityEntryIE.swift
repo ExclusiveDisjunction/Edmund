@@ -158,13 +158,17 @@ public struct UtilityEntriesEdit : View {
 public struct UtilityEntriesGraph : View {
     public var source: Utility;
     
+    private var children: [UtilityEntry] {
+        source.children?.sorted(by: { $0.date < $1.date } ) ?? .init()
+    }
+    
     public var body: some View {
         VStack {
             Text("Price Over Time").font(.title2)
             
             HStack {
                 Chart {
-                    ForEach(source.children.sorted(by: { $0.date < $1.date } ), id: \.id) { point in
+                    ForEach(children, id: \.id) { point in
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value("Amount", point.amount),
@@ -189,7 +193,7 @@ public struct UtilityEntriesGraph : View {
             Divider()
             UtilityEntriesEdit(snapshot: .init(bill))
             Divider()
-            UtilityEntriesInspect(children: bill.children)
+            UtilityEntriesInspect(children: bill.children ?? [])
         }.padding()
     }
 }
