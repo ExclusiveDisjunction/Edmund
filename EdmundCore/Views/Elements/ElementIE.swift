@@ -37,7 +37,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     public init(_ data: T, postAction: (() -> Void)? = nil) {
         self.data = data
         let tmp = T.Snapshot(data)
-        self.editing = tmp
+        self._editing = .init(wrappedValue: tmp)
         self.editHash = tmp.hashValue
         self.postAction = postAction
     }
@@ -45,7 +45,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     private var data: T;
     private let postAction: (() -> Void)?;
     private var doDestroy: Bool = false;
-    @State private var editing: T.Snapshot;
+    @StateObject private var editing: T.Snapshot;
     @State private var editHash: Int;
     @State private var showAlert: Bool = false;
     
@@ -112,6 +112,24 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     }
 }
 
+private class EditingManifest<T> : ObservableObject where T: EditableElement {
+    init(_ editing: T.Snapshot?) {
+        self.snapshot = editing
+        self.hash = editing?.hashValue ?? Int()
+    }
+    @Published var snapshot: T.Snapshot?;
+    @Published var hash: Int;
+    
+    func openWith(_ data: T) {
+        self.snapshot = .init(data)
+        self.hash = self.snapshot!.hashValue
+    }
+    func reset() {
+        self.snapshot = nil;
+        self.hash = 0;
+    }
+}
+
 public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel {
     public init(_ data: T, mode: InspectionMode, postAction: (() -> Void)? = nil) {
         self.init(data, isEdit: mode == .edit, postAction: postAction)
@@ -120,20 +138,16 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         self.data = data
         self.postAction = postAction;
         if isEdit {
-            let tmp = T.Snapshot(data)
-            self.editing = tmp
-            self.editHash = tmp.hashValue
+            self._editing = .init(wrappedValue: .init(T.Snapshot(data)))
         }
         else {
-            self.editing = nil
-            self.editHash = 0
+            self._editing = .init(wrappedValue: .init(nil))
         }
     }
     
     public var data: T;
     public let postAction: (() -> Void)?
-    @State private var editing: T.Snapshot?;
-    @State private var editHash: Int;
+    @StateObject private var editing: EditingManifest<T>;
     @State private var showAlert: Bool = false;
     @State private var warningConfirm: Bool = false;
     
@@ -143,17 +157,17 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @Environment(\.dismiss) private var dismiss;
     
     private var isEdit: Bool {
-        get { editing != nil }
+        get { editing.snapshot != nil }
     }
     
     private func validate() -> Bool {
-        let result = editing?.validate() ?? true
+        let result = editing.snapshot?.validate() ?? true
         showAlert = !result
         
         return result
     }
     private func apply() {
-        if let editing = editing {
+        if let editing = editing.snapshot {
             editing.apply(data, context: modelContext)
         }
     }
@@ -166,7 +180,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         dismiss()
     }
     private func onDismiss() {
-        if let editing = editing {
+        if let editing = editing.snapshot {
             if !editing.validate() && doDestroy {
                 modelContext.delete(data)
             }
@@ -177,21 +191,20 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         }
     }
     private func toggleMode() {
-        if editing == nil {
+        if editing.snapshot == nil {
             // Go into edit mode
-            editing = .init(data)
-            editHash = editing!.hashValue
+            self.editing.openWith(data)
             return
         }
         
         // Do nothing if we have an invalid state.
         guard validate() else { return }
         
-        if editing?.hashValue != editHash {
+        if editing.snapshot?.hashValue != editing.hash {
             warningConfirm = true
         }
         else {
-            self.editing = nil
+            self.editing.reset()
         }
     }
     
@@ -219,7 +232,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             
             Divider().padding([.top, .bottom])
             
-            if let editing = editing {
+            if let editing = editing.snapshot {
                 T.EditView(editing)
             }
             else {
@@ -246,12 +259,12 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         }).confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $warningConfirm) {
             Button("Save", action: {
                 apply()
-                editing = nil
+                editing.reset()
                 warningConfirm = false
             })
             
             Button("Discard") {
-                editing = nil
+                editing.reset()
                 warningConfirm = false
             }
             

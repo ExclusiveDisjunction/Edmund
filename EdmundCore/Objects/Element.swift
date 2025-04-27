@@ -6,6 +6,7 @@
 //
 
 import Foundation;
+import Combine;
 import SwiftUI;
 import SwiftData;
 
@@ -21,7 +22,7 @@ public protocol EditableElement : AnyObject, Identifiable {
     var name: String { get set }
 }
 
-public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
+public protocol ElementSnapshot: AnyObject, ObservableObject, Hashable, Equatable, Identifiable {
     associatedtype Host: EditableElement;
     
     init(_ from: Host);
