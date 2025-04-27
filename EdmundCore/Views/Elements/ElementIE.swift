@@ -37,7 +37,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     public init(_ data: T, postAction: (() -> Void)? = nil) {
         self.data = data
         let tmp = T.Snapshot(data)
-        self._editing = .init(wrappedValue: tmp)
+        self.editing = tmp
         self.editHash = tmp.hashValue
         self.postAction = postAction
     }
@@ -45,7 +45,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     private var data: T;
     private let postAction: (() -> Void)?;
     private var doDestroy: Bool = false;
-    @StateObject private var editing: T.Snapshot;
+    @Bindable private var editing: T.Snapshot;
     @State private var editHash: Int;
     @State private var showAlert: Bool = false;
     
@@ -63,6 +63,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     }
     private func submit() {
         if validate() {
+            apply()
             dismiss()
         }
     }
@@ -173,6 +174,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     }
     private func submit() {
         if validate() {
+            apply()
             dismiss()
         }
     }

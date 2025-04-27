@@ -34,9 +34,9 @@ public final class SimpleElementSnapshot<T> : ElementSnapshot where T: EditableE
 public struct SimpleElementEdit<T> : ElementEditorView where T: EditableElement, T.Snapshot == SimpleElementSnapshot<T> {
     public typealias For = T;
     
-    @StateObject private var snapshot: T.Snapshot;
+    @Bindable private var snapshot: T.Snapshot;
     public init(_ snapshot: T.Snapshot){
-        self._snapshot = .init(wrappedValue: snapshot);
+        self.snapshot = snapshot;
     }
      
 #if os(macOS)

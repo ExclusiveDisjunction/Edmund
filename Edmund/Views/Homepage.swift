@@ -12,21 +12,15 @@ import EdmundCore
 
 
 struct Homepage : View {
-    #if os(iOS)
-    init(help: Binding<Bool>, settings: Binding<Bool>) {
-        
-    }
-    #else
     init() {
         
     }
-    #endif
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     #if os(iOS)
-    @Binding private var showHelp: Bool;
-    @Binding private var showSettings: Bool;
+    @State private var helpBinding: Bool = false;
+    @State private var settingsBinding: Bool = false;
     #endif
     
     @Query private var accounts: [Account];
@@ -60,19 +54,14 @@ struct Homepage : View {
 #if os(macOS)
         openSettings()
 #else
-        showingSettings = true
+        settingsBinding = true
 #endif
     }
     private func showHelp() {
 #if os(macOS)
         openWindow(id: "help")
 #else
-        if canPopoutWindow {
-            openWindow(id: "help")
-        }
-        else {
-            showingHelp = true
-        }
+        helpBinding = true
 #endif
     }
     
@@ -150,8 +139,16 @@ struct Homepage : View {
                     Image(systemName: "questionmark")
                 }
             }
+        #if os(iOS)
+            .sheet(isPresented: $helpBinding) {
+                HelpView()
+            }.sheet(isPresented: $settingsBinding) {
+                SettingsView()
+            }
+        #endif
     }
 }
+
 
 #Preview {
     Homepage()

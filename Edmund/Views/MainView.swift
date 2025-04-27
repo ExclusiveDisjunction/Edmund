@@ -9,18 +9,50 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
+enum PageDestinations: LocalizedStringKey, CaseIterable, Identifiable{
+    case home = "Homepage",
+        ledger = "Ledger",
+        balance = "Balance Sheet",
+        bills = "Bills",
+        budget = "Budget",
+        org = "Organization"
+    
+    var id: Self { self }
+    
+    static func active(trans: Bool) -> [Self] {
+        if trans {
+            return Self.allCases
+        }
+        else {
+            return [
+                .home,
+                .bills,
+                .budget,
+                .org
+            ]
+        }
+    }
+    
+    @ViewBuilder
+    func view(bal: BalanceSheetVM, org: AccountsCategoriesVM) -> some View {
+        switch self {
+            case .home: Homepage()
+            case .ledger: LedgerTable()
+            case .balance: BalanceSheet(vm: bal)
+            case .bills: AllBillsViewEdit()
+            case .budget: Text("Work in progress").navigationTitle("Budget")
+            case .org: AccountsCategories(vm: org)
+        }
+    }
+}
+
 struct MainView: View {
-    @AppStorage("enableTransactions") var enableTransactions: Bool?;
+    @AppStorage("enableTransactions") var enableTransactions: Bool = true;
     
-    @State private var balance_vm: BalanceSheetVM = .init();
-    @State private var accCatvm: AccountsCategoriesVM = .init();
-    
-#if os(iOS)
-    @State private var showingSettings = false;
-    @State private var showingHelp = false;
-#else
-    @Environment(\.openSettings) private var openSettings;
-#endif
+    @Bindable private var balance_vm: BalanceSheetVM = .init();
+    @Bindable private var accCatvm: AccountsCategoriesVM = .init();
+    @State private var page: PageDestinations.ID? = nil;
+    @State private var allowedPages = PageDestinations.allCases;
     
     @Environment(\.openWindow) private var openWindow;
     
@@ -35,70 +67,22 @@ struct MainView: View {
 #endif
     }
     
-    @ViewBuilder
-    private var navLinks: some View {
-        List {
-            NavigationLink {
-                Homepage()
-            } label: {
-                Text("Home")
-            }
-            
-            if enableTransactions ?? true {
-                NavigationLink {
-                    LedgerTable()
-                } label: {
-                    Text("Ledger")
-                }
-                
-                NavigationLink {
-                    BalanceSheet(vm: balance_vm)
-                } label: {
-                    Text("Balance Sheet")
-                }
-            }
-            
-            NavigationLink {
-                AllBillsViewEdit()
-            } label: {
-                Text("Bills")
-            }
-            
-            NavigationLink {
-                
-            } label: {
-                Text("Budget")
-            }
-            
-            NavigationLink {
-                AccountsCategories(vm: accCatvm)
-            } label: {
-                Text("Organization")
-            }
-        }
-    }
-
     var body: some View {
         NavigationSplitView {
             VStack {
                 Text("Edmund").font(.title).padding(.bottom).backgroundStyle(.background.secondary)
                 
-                navLinks
+                List($allowedPages, selection: $page) { $page in
+                    Text(page.rawValue)
+                }
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
-            Homepage()
+            (page ?? .home).view(bal: balance_vm, org: accCatvm)
         }
-        #if os(iOS)
-            .sheet(isPresented: $showingHelp) {
-                HelpView()
-            }.sheet(isPresented: $showingSettings) {
-                SettingsView().modelContainer(profiles.global)
-            }
-        #endif
     }
 }
 
 #Preview {
     MainView()
-        .modelContainer(Containers.container)
+        .modelContainer(Containers.debugContainer)
 }
