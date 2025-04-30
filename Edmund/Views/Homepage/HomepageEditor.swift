@@ -1,0 +1,171 @@
+//
+//  HomepageEditor.swift
+//  Edmund
+//
+//  Created by Hollan Sellars on 4/29/25.
+//
+
+import SwiftUI;
+
+enum MajorHomepageOrder : Int, CaseIterable, Identifiable, Codable {
+    case vSplit, hSplit, fullScreen, scroll
+    
+    var name: LocalizedStringKey {
+        switch self {
+            case .vSplit:     "Vertical Split"
+            case .hSplit:     "Horizontal Split"
+            case .fullScreen: "Full Screen"
+            case .scroll:     "One Page"
+        }
+    }
+    var desc: LocalizedStringKey {
+        switch self {
+            case .vSplit: "Split the homepage vertically"
+            case .hSplit: "Split the homepage horizontally"
+            case .fullScreen: "Display the homepage as one widget"
+            case .scroll: "Display the homepage as a scrollable page (iOS Default)"
+        }
+    }
+    var id: Self { self }
+}
+enum MinorHomepageOrder : Int, CaseIterable, Identifiable, Codable {
+    case full, half
+    
+    var name: LocalizedStringKey {
+        switch self {
+            case .full: "One Section"
+            case .half: "Two Sections"
+        }
+    }
+    var desc: LocalizedStringKey {
+        switch self {
+            case .full: "Use the space for only one widget"
+            case .half: "Use the space for two widgets"
+        }
+    }
+    
+    var id: Self { self }
+}
+
+struct HomepageEditor : View {
+    @AppStorage("homeMajor") private var major: MajorHomepageOrder = .vSplit;
+    @AppStorage("sectorA") private var sectorA: MinorHomepageOrder = .half;
+    @AppStorage("sectorB") private var sectorB: MinorHomepageOrder = .full;
+    @AppStorage("sectorA1") private var sectorA1: WidgetChoice = .bills;
+    @AppStorage("sectorA2") private var sectorA2: WidgetChoice = .payday;
+    @AppStorage("sectorB1") private var sectorB1: WidgetChoice = .simpleBalances;
+    @AppStorage("sectorB2") private var sectorB2: WidgetChoice = .spendingGraph;
+    
+    @Environment(\.dismiss) private var dismiss;
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    
+    @ViewBuilder
+    private var scrollDisplay: some View {
+        VStack {
+            ChoicePicker(choice: $sectorA1)
+                .frame(height: 120)
+            ChoicePicker(choice: $sectorA2)
+                .frame(height: 120)
+            ChoicePicker(choice: $sectorB1)
+                .frame(height: 120)
+            ChoicePicker(choice: $sectorB2)
+                .frame(height: 120)
+        }
+    }
+    @ViewBuilder
+    private var fullDisplay: some View {
+        ChoicePicker(choice: $sectorA1)
+    }
+    @ViewBuilder
+    private var hSplitDisplay: some View {
+        GeometryReader { geometry in
+            VStack {
+                SplitChoicePicker(kind: .vSplit, minor: sectorA, sectorA: $sectorA1, sectorB: $sectorA2)
+                    .frame(width: geometry.size.width, height: geometry.size.height / 2)
+                SplitChoicePicker(kind: .vSplit, minor: sectorB, sectorA: $sectorB1, sectorB: $sectorB2)
+                    .frame(width: geometry.size.width, height: geometry.size.height / 2)
+            }
+        }
+    }
+    @ViewBuilder
+    private var vSplitDisplay: some View {
+        GeometryReader { geometry in
+            HStack {
+                SplitChoicePicker(kind: .hSplit, minor: sectorA, sectorA: $sectorA1, sectorB: $sectorA2)
+                    .frame(width: geometry.size.width / 2, height: geometry.size.height)
+                SplitChoicePicker(kind: .hSplit, minor: sectorB, sectorA: $sectorB1, sectorB: $sectorB2)
+                    .frame(width: geometry.size.width / 2, height: geometry.size.height)
+            }
+        }
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack {
+                HStack {
+                    Text("Homepage Organizer")
+                        .font(.title)
+                    Spacer()
+                }
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        Text("Note: On iOS, and in compact mode on iPadOS, only the scrolling order will be displayed.")
+                            .italic()
+                            .font(.subheadline)
+                        Spacer()
+                    }
+                }
+                
+                Form {
+                    Section(header: EmptyView(), footer: Text(major.desc) ) {
+                        Picker("Overall Order", selection: $major) {
+                            ForEach(MajorHomepageOrder.allCases, id: \.id) { order in
+                                Text(order.name).tag(order)
+                            }
+                        }
+                    }
+                    
+                    if major == .hSplit || major == .vSplit {
+                        Section(header: EmptyView(), footer: Text(sectorA.desc) ) {
+                            Picker(major == .hSplit ? "Top Section" : "Left Side", selection: $sectorA) {
+                                ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
+                                    Text(order.name).tag(order)
+                                }
+                            }
+                        }
+                        
+                        Section(header: EmptyView(), footer: Text(sectorB.desc) ) {
+                            Picker(major == .hSplit ? "Bottom Section" : "Right Side", selection: $sectorB) {
+                                ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
+                                    Text(order.name).tag(order)
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                switch major {
+                    case .scroll: scrollDisplay
+                    case .fullScreen: fullDisplay
+                    case .vSplit: vSplitDisplay
+                    case .hSplit: hSplitDisplay
+                }
+                
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    Button("Ok", action: { dismiss() })
+                        .buttonStyle(.borderedProminent)
+                }
+            }
+            .frame(minHeight: 500, maxHeight: .infinity)
+        }.padding()
+
+    }
+}
+
+#Preview {
+    HomepageEditor()
+        .padding()
+}

@@ -68,9 +68,6 @@
         }
       }
     },
-    "Account Balances" : {
-
-    },
     "Account:" : {
       "localizations" : {
         "de" : {
@@ -340,18 +337,10 @@
         }
       }
     },
-    "Balance Sheet for %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bilanz für %@"
-          }
-        }
-      }
-    },
     "Balance Verification" : {
+
+    },
+    "Balances Graph" : {
 
     },
     "Basic" : {
@@ -409,6 +398,9 @@
           }
         }
       }
+    },
+    "Bottom Section" : {
+
     },
     "Budget" : {
       "extractionState" : "manual",
@@ -562,6 +554,9 @@
         }
       }
     },
+    "Customize" : {
+
+    },
     "date" : {
 
     },
@@ -636,6 +631,15 @@
     "Deposit into:" : {
 
     },
+    "Detailed Balances" : {
+
+    },
+    "Display the homepage as a scrollable page (iOS Default)" : {
+
+    },
+    "Display the homepage as one widget" : {
+
+    },
     "Edit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -672,6 +676,9 @@
         }
       }
     },
+    "Edmund Help" : {
+
+    },
     "emptyFields" : {
 
     },
@@ -694,6 +701,9 @@
           }
         }
       }
+    },
+    "Error!" : {
+
     },
     "Expand All" : {
       "extractionState" : "manual",
@@ -750,10 +760,16 @@
     "From:" : {
 
     },
+    "Full Screen" : {
+
+    },
     "General" : {
 
     },
     "gifted" : {
+
+    },
+    "Groups:" : {
 
     },
     "Half Year" : {
@@ -823,7 +839,10 @@
         }
       }
     },
-    "Homepage" : {
+    "Homepage Organizer" : {
+
+    },
+    "Horizontal Split" : {
 
     },
     "I got" : {
@@ -907,18 +926,13 @@
         }
       }
     },
-    "Ledger for %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haptbuch für %@"
-          }
-        }
-      }
+    "Left Side" : {
+
     },
     "Loading" : {
+
+    },
+    "Loading guides, please wait" : {
 
     },
     "Location" : {
@@ -1086,6 +1100,12 @@
         }
       }
     },
+    "None" : {
+
+    },
+    "Note: On iOS, and in compact mode on iPadOS, only the scrolling order will be displayed." : {
+
+    },
     "Ok" : {
       "localizations" : {
         "de" : {
@@ -1107,6 +1127,12 @@
     },
     "On" : {
       "comment" : "[Amount] on [Date]"
+    },
+    "One Page" : {
+
+    },
+    "One Section" : {
+
     },
     "One-to-Many" : {
       "localizations" : {
@@ -1174,7 +1200,13 @@
         }
       }
     },
+    "Overall Order" : {
+
+    },
     "paid" : {
+
+    },
+    "Payday Info" : {
 
     },
     "Paying:" : {
@@ -1248,23 +1280,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Profil"
-          }
-        }
-      }
-    },
-    "Profile Name" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profilname"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nazwa profilu "
           }
         }
       }
@@ -1345,6 +1360,9 @@
     "Reserved Cost" : {
 
     },
+    "Right Side" : {
+
+    },
     "Save" : {
       "localizations" : {
         "de" : {
@@ -1409,8 +1427,20 @@
     "showExpiredBillsDesc" : {
 
     },
+    "Simple Balances" : {
+
+    },
     "Source:" : {
       "comment" : "Account source"
+    },
+    "Spending Graph" : {
+
+    },
+    "Split the homepage horizontally" : {
+
+    },
+    "Split the homepage vertically" : {
+
     },
     "Started On" : {
 
@@ -1488,16 +1518,11 @@
     "The amount cannot be negative" : {
 
     },
-    "The profile you selected could not be opened." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wybrany profil nie mógł zostać otwarty."
-          }
-        }
-      }
+    "The help guides could not be loaded. Please report this issue." : {
+
+    },
+    "The page content could not be loaded. Please report this issue." : {
+
     },
     "There are no expired bills" : {
 
@@ -1529,6 +1554,18 @@
       }
     },
     "Today" : {
+
+    },
+    "Top Section" : {
+
+    },
+    "Topic" : {
+
+    },
+    "Topic Group" : {
+
+    },
+    "Topics:" : {
 
     },
     "Total:" : {
@@ -1587,6 +1624,9 @@
         }
       }
     },
+    "Two Sections" : {
+
+    },
     "Two Weeks" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1600,23 +1640,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "dwa tygodnie "
-          }
-        }
-      }
-    },
-    "Unable to switch profile" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil kann nicht gewechselt werden"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można zmienić profilu"
           }
         }
       }
@@ -1635,6 +1658,12 @@
 
     },
     "Use Ledger" : {
+
+    },
+    "Use the space for only one widget" : {
+
+    },
+    "Use the space for two widgets" : {
 
     },
     "Utility" : {
@@ -1670,17 +1699,8 @@
         }
       }
     },
-    "View on Creation" : {
-      "comment" : "When creating a new profile, users are given this option. It means that the new profile will be opened when it is created.",
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil bei der Erstellung ansehen"
-          }
-        }
-      }
+    "Vertical Split" : {
+
     },
     "Warning" : {
       "extractionState" : "manual",

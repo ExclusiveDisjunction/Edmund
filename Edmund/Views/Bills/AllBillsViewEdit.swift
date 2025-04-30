@@ -21,6 +21,13 @@ struct AllBillsViewEdit : View {
     @Bindable private var warning = WarningManifest()
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.openWindow) private var openWindow;
+    #if os(iOS)
+    @Environment(\.editMode) private var editMode
+    private var openWindowPlacement: ToolbarItemPlacement = .topBarLeading
+    #else
+    private var openWindowPlacement: ToolbarItemPlacement = .automatic
+    #endif
     
     @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -74,6 +81,16 @@ struct AllBillsViewEdit : View {
             context.delete(utility)
         }
     }
+    private func doubleTap() -> Void {
+        #if os(iOS)
+        guard let editMode = editMode?.wrappedValue else { return }
+        guard editMode == .inactive else { return }
+    
+        if let target = sortedBills.first(where: { tableSelected.contains($0.id) }) {
+            inspect.open(target, mode: .edit)
+        }
+        #endif
+    }
     
     private var totalPPP: Decimal {
         query.cached.reduce(0) { $0 + ($1.data.isExpired ? 0 : $1.data.pricePer(showcasePeriod)) }
@@ -90,7 +107,7 @@ struct AllBillsViewEdit : View {
                 Text(showcasePeriod.perName)
             }.swipeActions(edge: .trailing) {
                 SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-            }
+            }.onTapGesture(count: 2, perform: doubleTap)
         }
     }
     @ViewBuilder
@@ -122,6 +139,7 @@ struct AllBillsViewEdit : View {
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
             ManyContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
+        .onTapGesture(count: 2, perform: doubleTap)
         #if os(macOS)
         .frame(minWidth: 270)
         #endif
@@ -151,6 +169,13 @@ struct AllBillsViewEdit : View {
         ToolbarItem(id: "refresh", placement: .secondaryAction) {
             Button(action: refresh) {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            }
+        }
+        ToolbarItem(id: "newWindow", placement: openWindowPlacement) {
+            Button(action: {
+                openWindow(id: "billSheet")
+            }) {
+                Label("Open in new Window", systemImage: "rectangle.badge.plus")
             }
         }
         

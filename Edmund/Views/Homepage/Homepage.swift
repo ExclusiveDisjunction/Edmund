@@ -1,0 +1,146 @@
+//
+//  Homepage.swift
+//  Edmund
+//
+//  Created by Hollan on 1/1/25.
+//
+
+import SwiftUI;
+import SwiftData;
+import EdmundCore
+
+struct Homepage : View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @State private var modifyHomescreen = false;
+    
+    #if os(iOS)
+    @State private var helpBinding: Bool = false;
+    @State private var settingsBinding: Bool = false;
+    #endif
+    
+#if os(macOS)
+    @Environment(\.openSettings) private var openSettings;
+#endif
+    @Environment(\.openWindow) private var openWindow;
+    
+    @AppStorage("homeMajor") private var major: MajorHomepageOrder = .vSplit;
+    @AppStorage("sectorA") private var sectorA: MinorHomepageOrder = .half;
+    @AppStorage("sectorB") private var sectorB: MinorHomepageOrder = .full;
+    @AppStorage("sectorA1") private var sectorA1: WidgetChoice = .bills;
+    @AppStorage("sectorA2") private var sectorA2: WidgetChoice = .payday;
+    @AppStorage("sectorB1") private var sectorB1: WidgetChoice = .simpleBalances;
+    @AppStorage("sectorB2") private var sectorB2: WidgetChoice = .spendingGraph;
+    
+    private func showSettings() {
+#if os(macOS)
+        openSettings()
+#else
+        settingsBinding = true
+#endif
+    }
+    private func showHelp() {
+#if os(macOS)
+        openWindow(id: "help")
+#else
+        helpBinding = true
+#endif
+    }
+    
+    @ViewBuilder
+    private var scrollView : some View {
+        ScrollView {
+            VStack {
+                ChoiceRenderer(choice: sectorA1)
+                    .frame(minHeight: 140)
+                ChoiceRenderer(choice: sectorA2)
+                    .frame(minHeight: 140)
+                ChoiceRenderer(choice: sectorB1)
+                    .frame(minHeight: 140)
+                ChoiceRenderer(choice: sectorB2)
+                    .frame(minHeight: 140)
+            }
+        }
+    }
+    
+    var body: some View {
+        VStack {
+            if horizontalSizeClass == .compact {
+                ScrollView {
+                    VStack {
+                        ChoiceRenderer(choice: sectorA1)
+                            .frame(minHeight: 140)
+                        ChoiceRenderer(choice: sectorA2)
+                            .frame(minHeight: 140)
+                        ChoiceRenderer(choice: sectorB1)
+                            .frame(minHeight: 140)
+                        ChoiceRenderer(choice: sectorB2)
+                            .frame(minHeight: 140)
+                    }
+                }
+            }
+            else {
+                switch major {
+                    case .scroll:
+                        scrollView
+                    case .fullScreen:
+                        ChoiceRenderer(choice: sectorA1)
+                    case .hSplit:
+                        VStack(spacing: 10) {
+                            SplitChoiceRenderer(kind: .vSplit, minor: sectorA, sectorA: sectorA1, sectorB: sectorA2)
+                            SplitChoiceRenderer(kind: .vSplit, minor: sectorB, sectorA: sectorB1, sectorB: sectorB2)
+                        }.padding()
+                            .background(RoundedRectangle(
+                                cornerSize: CGSize(
+                                    width: 12,
+                                    height: 12
+                                )
+                            ).fill(.background.tertiary)
+                            )
+                    case .vSplit:
+                        HStack(spacing: 10) {
+                            SplitChoiceRenderer(kind: .hSplit, minor: sectorA, sectorA: sectorA1, sectorB: sectorA2)
+                            SplitChoiceRenderer(kind: .hSplit, minor: sectorB, sectorA: sectorB1, sectorB: sectorB2)
+                        }.padding()
+                            .background(RoundedRectangle(
+                                cornerSize: CGSize(
+                                    width: 12,
+                                    height: 12
+                                )
+                            ).fill(.background.tertiary)
+                        )
+                }
+            }
+        }.navigationTitle("Welcome")
+            .padding()
+            .toolbar {
+                Button(action: { modifyHomescreen = true } ) {
+                    Label("Customize", systemImage: "rectangle.3.group")
+                }
+                Button(action: showSettings) {
+                    Label("Settings", systemImage: "gear")
+                }
+                
+                Button(action: showHelp) {
+                    Label("Help", systemImage: "questionmark")
+                }
+            }
+            .sheet(isPresented: $modifyHomescreen) {
+                HomepageEditor()
+            }
+        #if os(iOS)
+            .sheet(isPresented: $helpBinding) {
+                HelpView()
+            }.sheet(isPresented: $settingsBinding) {
+                SettingsView()
+            }
+        #endif
+    }
+}
+
+
+#Preview {
+    Homepage()
+        .modelContainer(Containers.debugContainer)
+        .frame(width: 600, height: 400)
+        .padding()
+}

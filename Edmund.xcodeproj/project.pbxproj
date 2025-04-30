@@ -16,6 +16,8 @@
 		DD4465442DB86CBD006D9A01 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DD93B6252DB912A100DBB851 /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; };
 		DD93B6262DB912A100DBB851 /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD44651E2DB86B58006D9A01 /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DDC565C62DBFD4F10022D3FB /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = DDC565C52DBFD4F10022D3FB /* MarkdownUI */; };
+		DDC5663F2DBFE49F0022D3FB /* Help in Resources */ = {isa = PBXBuildFile; fileRef = DDC5663E2DBFE49F0022D3FB /* Help */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +120,7 @@
 		DD4464F22DB8552C006D9A01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DD4464F42DB8552C006D9A01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		DD44651E2DB86B58006D9A01 /* EdmundCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EdmundCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDC5663E2DBFE49F0022D3FB /* Help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Help; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -180,6 +183,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD4465432DB86CBD006D9A01 /* EdmundCore.framework in Frameworks */,
+				DDC565C62DBFD4F10022D3FB /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +225,7 @@
 		DD34E5F92D99D21D009E3875 = {
 			isa = PBXGroup;
 			children = (
+				DDC5663E2DBFE49F0022D3FB /* Help */,
 				DD34E6042D99D21D009E3875 /* Edmund */,
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
 				DD34E6222D99D21E009E3875 /* EdmundUITests */,
@@ -286,6 +291,7 @@
 			);
 			name = Edmund;
 			packageProductDependencies = (
+				DDC565C52DBFD4F10022D3FB /* MarkdownUI */,
 			);
 			productName = Edmund;
 			productReference = DD34E6022D99D21D009E3875 /* Edmund.app */;
@@ -427,6 +433,9 @@
 			);
 			mainGroup = DD34E5F92D99D21D009E3875;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DDC565C42DBFD4F10022D3FB /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DD34E6032D99D21D009E3875 /* Products */;
 			projectDirPath = "";
@@ -446,6 +455,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDC5663F2DBFE49F0022D3FB /* Help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1077,6 +1087,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DDC565C42DBFD4F10022D3FB /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DDC565C52DBFD4F10022D3FB /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DDC565C42DBFD4F10022D3FB /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DD34E5FA2D99D21D009E3875 /* Project object */;
 }

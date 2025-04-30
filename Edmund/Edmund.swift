@@ -57,6 +57,14 @@ struct EdmundApp: App {
             }
         }
         
+        WindowGroup("Bills", id: "billSheet") {
+            NavigationStack {
+                AllBillsViewEdit()
+                    .preferredColorScheme(colorScheme)
+                    .modelContainer(container)
+            }
+        }
+        
         #if os(macOS)
         Settings {
             SettingsView()
