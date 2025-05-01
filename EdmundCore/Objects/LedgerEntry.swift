@@ -130,20 +130,7 @@ public final class LedgerEntry : Identifiable, InspectableElement, EditableEleme
         credit - debit
     }
     
-    #if DEBUG
     public static func exampleEntries(acc: [Account], cat: [Category]) -> [LedgerEntry] {
-        /*
-         I would like to have at least one of:
-         1. One-to-One
-         2. Many-to-One
-         3. Food
-         4. Groceries
-         5. Health
-         6. Gas
-         7. Audit
-         8. Pay
-         */
-        
         let transferCat = cat.findPair("Account Control", "Transfer")!
         let auditCat = cat.findPair("Account Control", "Audit")!
         let initialCat = cat.findPair("Account Control", "Initial")!
@@ -179,5 +166,4 @@ public final class LedgerEntry : Identifiable, InspectableElement, EditableEleme
     public static let exampleEntry = {
         LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Sub Category", parent: .init("Example Category")), account: .init("Example Sub Account", parent: .init("Example Account")))
     }()
-    #endif
 }

@@ -15,7 +15,7 @@ enum MajorHomepageOrder : Int, CaseIterable, Identifiable, Codable {
             case .vSplit:     "Vertical Split"
             case .hSplit:     "Horizontal Split"
             case .fullScreen: "Full Screen"
-            case .scroll:     "One Page"
+            case .scroll:     "Scroll"
         }
     }
     var desc: LocalizedStringKey {
@@ -59,17 +59,21 @@ struct HomepageEditor : View {
     @Environment(\.dismiss) private var dismiss;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
+#if os(macOS)
+    private let minWidth: CGFloat = 60;
+    private let maxWidth: CGFloat = 70;
+#else
+    private let minWidth: CGFloat = 90;
+    private let maxWidth: CGFloat = 100;
+#endif
+    
     @ViewBuilder
     private var scrollDisplay: some View {
         VStack {
             ChoicePicker(choice: $sectorA1)
-                .frame(height: 120)
             ChoicePicker(choice: $sectorA2)
-                .frame(height: 120)
             ChoicePicker(choice: $sectorB1)
-                .frame(height: 120)
             ChoicePicker(choice: $sectorB2)
-                .frame(height: 120)
         }
     }
     @ViewBuilder
@@ -100,67 +104,97 @@ struct HomepageEditor : View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack {
-                HStack {
-                    Text("Homepage Organizer")
-                        .font(.title)
-                    Spacer()
-                }
-                if horizontalSizeClass == .compact {
-                    HStack {
-                        Text("Note: On iOS, and in compact mode on iPadOS, only the scrolling order will be displayed.")
-                            .italic()
-                            .font(.subheadline)
-                        Spacer()
-                    }
-                }
-                
-                Form {
-                    Section(header: EmptyView(), footer: Text(major.desc) ) {
-                        Picker("Overall Order", selection: $major) {
-                            ForEach(MajorHomepageOrder.allCases, id: \.id) { order in
-                                Text(order.name).tag(order)
-                            }
-                        }
-                    }
-                    
-                    if major == .hSplit || major == .vSplit {
-                        Section(header: EmptyView(), footer: Text(sectorA.desc) ) {
-                            Picker(major == .hSplit ? "Top Section" : "Left Side", selection: $sectorA) {
-                                ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
-                                    Text(order.name).tag(order)
-                                }
-                            }
-                        }
-                        
-                        Section(header: EmptyView(), footer: Text(sectorB.desc) ) {
-                            Picker(major == .hSplit ? "Bottom Section" : "Right Side", selection: $sectorB) {
-                                ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
-                                    Text(order.name).tag(order)
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                switch major {
-                    case .scroll: scrollDisplay
-                    case .fullScreen: fullDisplay
-                    case .vSplit: vSplitDisplay
-                    case .hSplit: hSplitDisplay
-                }
-                
+        VStack {
+            HStack {
+                Text("Homepage Organizer")
+                    .font(.title)
                 Spacer()
-                
+            }
+            if horizontalSizeClass == .compact {
                 HStack {
+                    Label("Compact sizes only display scroll view.", systemImage: "info.circle")
+                        .italic()
                     Spacer()
-                    Button("Ok", action: { dismiss() })
-                        .buttonStyle(.borderedProminent)
                 }
             }
-            .frame(minHeight: 500, maxHeight: .infinity)
+            
+            Picker("", selection: $major) {
+                ForEach(MajorHomepageOrder.allCases, id: \.id) { order in
+                    Text(order.name).tag(order)
+                }
+            }.labelsHidden()
+                .pickerStyle(.segmented)
+            
+            if major == .hSplit || major == .vSplit {
+                HStack {
+                    VStack {
+                        Text(major == .hSplit ? "Top Section" : "Left Side")
+                        
+                        Picker("", selection: $sectorA) {
+                            ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
+                                Text(order.name).tag(order)
+                            }
+                        }.pickerStyle(.segmented)
+                            .labelsHidden()
+                    }
+                    
+                    VStack {
+                        Text(major == .hSplit ? "Bottom Section" : "Right Side")
+                        Picker("", selection: $sectorB) {
+                            ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
+                                Text(order.name).tag(order)
+                            }
+                        }.pickerStyle(.segmented)
+                    }
+                }
+            }
+            
+            Divider()
+            
+            /*
+             if major == .hSplit || major == .vSplit {
+             GridRow {
+             Text(major == .hSplit ? "Top Section" : "Left Side")
+             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+             
+             HStack {
+             Picker("", selection: $sectorA) {
+             ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
+             Text(order.name).tag(order)
+             }
+             }.labelsHidden()
+             .pickerStyle(.segmented)
+             Spacer()
+             }
+             }
+             GridRow {
+             
+             Spacer()
+             }
+             }
+             
+             
+             }
+             */
+            
+            switch major {
+                case .scroll: scrollDisplay
+                case .fullScreen: fullDisplay
+                case .vSplit: vSplitDisplay
+                case .hSplit: hSplitDisplay
+            }
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                Button("Ok", action: { dismiss() })
+                    .buttonStyle(.borderedProminent)
+            }
         }.padding()
+        #if os(macOS)
+            .frame(height: 450)
+        #endif
 
     }
 }

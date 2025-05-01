@@ -7,8 +7,30 @@
 
 import SwiftUI
 
-public enum InspectionMode {
-    case edit, view
+public enum InspectionMode : Identifiable {
+    case edit, view, add
+    
+    public var id: String {
+        switch self {
+            case .edit: "edit"
+            case .view: "view"
+            case .add: "add"
+        }
+    }
+    public var icon: String {
+        switch self {
+            case .edit: "pencil"
+            case .view: "info.circle"
+            case .add: "exclimationmark"
+        }
+    }
+    public var display: String {
+        switch self {
+            case .edit: "Edit"
+            case .view: "Inspect"
+            case .add: "Add"
+        }
+    }
 }
 
 @Observable
@@ -55,11 +77,11 @@ public struct GeneralIEToolbarButton<T> : CustomizableToolbarContent where T: Id
     
     @ToolbarContentBuilder
     public var body: some CustomizableToolbarContent {
-        ToolbarItem(id: role == .edit ? "edit" : "inspect", placement: placement) {
+        ToolbarItem(id: role.id, placement: placement) {
             Button(action: {
                 inspect.inspectSelected(selection, mode: role, on: on, warning: warning)
             }) {
-                Label(role == .edit ? "Edit" : "Inspect", systemImage: role == .edit ? "pencil" : "info.circle")
+                Label(role.display, systemImage: role.icon)
             }
         }
     }

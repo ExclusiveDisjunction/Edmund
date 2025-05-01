@@ -120,7 +120,6 @@ struct AllExpiredBillsVE : View {
     
     var body: some View {
         VStack {
-            
             if horizontalSizeClass == .compact {
                 compact
             }
@@ -152,10 +151,10 @@ struct AllExpiredBillsVE : View {
                 #endif
             }.sheet(item: $inspect.value) { wrapper in
                 if let asBill = wrapper.data as? Bill {
-                    BillIE(asBill, isEdit: inspect.mode == .edit)
+                    BillIE(asBill, mode: inspect.mode)
                 }
                 else if let asUtility = wrapper.data as? Utility {
-                    UtilityIE(asUtility, isEdit: inspect.mode == .edit)
+                    UtilityIE(asUtility, mode: inspect.mode)
                 }
                 else {
                     VStack {

@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import Foundation
 
-public enum BillsKind : Int, Filterable, Equatable {
+public enum BillsKind : Int, Filterable, Equatable, Codable, Hashable {
     public typealias On = BillBaseWrapper
     
     case subscription = 0

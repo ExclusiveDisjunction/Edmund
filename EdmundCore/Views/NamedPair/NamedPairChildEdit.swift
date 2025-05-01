@@ -78,5 +78,5 @@ public struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P:
 #Preview {
     let child = Account.exampleAccounts[0].children![0]
     
-    ElementEditor(child).modelContainer(Containers.debugContainer)
+    ElementEditor(child, adding: false).modelContainer(Containers.debugContainer)
 }

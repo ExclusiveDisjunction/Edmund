@@ -38,7 +38,6 @@ public final class Category : Identifiable, Hashable, BoundPairParent, Inspectab
 
     public static var kind: NamedPairKind { .category }
     
-    #if DEBUG
     public static let exampleCategories: [Category] = {
         [
             exampleCategory,
@@ -72,7 +71,6 @@ public final class Category : Identifiable, Hashable, BoundPairParent, Inspectab
             .init("Bills")
         ])
     }()
-    #endif
     
     public var isEmpty: Bool {
         name.isEmpty
@@ -124,9 +122,7 @@ public final class SubCategory : BoundPair, Equatable, EditableElement, Inspecta
         get { .category }
     }
     
-    #if DEBUG
     static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills"))
-    #endif
 }
 
 public protocol CategoriesHolderBasis {

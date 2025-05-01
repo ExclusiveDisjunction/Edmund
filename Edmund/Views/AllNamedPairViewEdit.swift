@@ -63,10 +63,10 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
     @Environment(\.modelContext) private var modelContext;
     
     private func add_parent() {
-        parentEdit.open(.init(), mode: .edit)
+        parentEdit.open(.init(), mode: .add)
     }
     private func add_child() {
-        childInspect.open(.init(), mode: .edit)
+        childInspect.open(.init(), mode: .add)
     }
     
     private func parents_remove_from(_ offsets: IndexSet) {
@@ -111,10 +111,10 @@ struct AllNamedPairViewEdit<T> : View where T: BoundPairParent, T: PersistentMod
             }
         }.padding()
             .sheet(item: $parentEdit.value) { target in
-                ElementEditor(target)
+                ElementEditor(target, adding: parentEdit.mode == .add)
             }
             .sheet(item: $childInspect.value) { target in
-                ElementEditor(target)
+                ElementEditor(target, adding: childInspect.mode == .add)
             }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $parentDelete.isDeleting, titleVisibility: .visible) {
                 DeletingActionConfirm(parentDelete)
             }.confirmationDialog("Removing this information will remove all associated transactions. Do you wish to continue?", isPresented: $childDelete.isDeleting, titleVisibility: .visible) {

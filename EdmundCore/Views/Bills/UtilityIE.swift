@@ -137,5 +137,5 @@ public struct UtilityEdit : View, ElementEditorView {
 public typealias UtilityIE = ElementIE<Utility>;
 
 #Preview {
-    UtilityIE(Utility.exampleUtility[0], isEdit: false).modelContainer(Containers.debugContainer)
+    UtilityIE(Utility.exampleUtility[0], mode: .view).modelContainer(Containers.debugContainer)
 }

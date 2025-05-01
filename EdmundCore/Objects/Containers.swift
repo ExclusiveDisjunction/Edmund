@@ -25,7 +25,6 @@ public class Containers {
         )
     }()
     
-#if DEBUG
     public static let debugContainer: ModelContainer = {
         let configuration = ModelConfiguration("debug", schema: schema, isStoredInMemoryOnly: true)
         
@@ -64,7 +63,6 @@ public class Containers {
             fatalError("Could not create Debug ModelContainer: \(error)")
         }
     }()
-#endif
     
     public static let container: ModelContainer = {
         do {

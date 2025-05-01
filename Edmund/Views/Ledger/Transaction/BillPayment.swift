@@ -130,8 +130,7 @@ struct BillPayment : TransactionEditorProtocol {
                     }
                 }
             }.sheet(item: $editing) { bill in
-                ElementEditor(bill)
-                    .destroyOnCancel()
+                ElementEditor(bill, adding: false)
             }
         })
     }

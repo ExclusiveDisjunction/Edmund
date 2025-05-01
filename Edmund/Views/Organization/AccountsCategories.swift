@@ -106,16 +106,14 @@ struct AccountsCategories : View {
                 }
             }
         }.sheet(item: $addingAcc) { account in
-            ElementEditor(account)
+            ElementEditor(account, adding: true)
         }.sheet(item: $addingCat) { category in
-            ElementEditor(category)
+            ElementEditor(category, adding: true)
         }.sheet(item: $addingSubAcc) { sub_account in
-            ElementEditor(sub_account)
-                .destroyOnCancel()
+            ElementEditor(sub_account, adding: true)
         }.sheet(item: $addingSubCat) { sub_category in
-            ElementEditor(sub_category)
-                .destroyOnCancel()
-        }.navigationTitle("Transaction Organization")
+            ElementEditor(sub_category, adding: true)
+        }.navigationTitle("Organization")
             .toolbarRole(.editor)
             .onAppear(perform: self.refresh)
     }

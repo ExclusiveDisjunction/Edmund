@@ -15,6 +15,9 @@ public final class Bill : BillBase, EditableElement, InspectableElement {
     public typealias InspectorView = BillInspect
     public typealias Snapshot = BillSnapshot
     
+    public convenience init(kind: BillsKind) {
+        self.init(name: "", kind: kind, amount: 0, company: "", start: Date.now)
+    }
     public convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
         self.init(name: sub, kind: .subscription,  amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
     }

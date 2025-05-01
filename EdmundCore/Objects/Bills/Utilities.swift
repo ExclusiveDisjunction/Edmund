@@ -72,6 +72,9 @@ public final class Utility: BillBase, InspectableElement, EditableElement {
     public typealias EditView = UtilityEdit
     public typealias Snapshot = UtilitySnapshot
     
+    public convenience init() {
+        self.init("", amounts: [], company: "", start: Date.now)
+    }
     public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
         self.id = id
         self.name = name

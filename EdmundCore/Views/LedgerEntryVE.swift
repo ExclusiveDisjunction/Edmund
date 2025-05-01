@@ -223,5 +223,5 @@ public struct LedgerEntryInspect : ElementInspectorView {
 public typealias LedgerEntryIE = ElementIE<LedgerEntry>;
 
 #Preview {
-    LedgerEntryIE(LedgerEntry.exampleEntry, isEdit: true).modelContainer(Containers.debugContainer)
+    LedgerEntryIE(LedgerEntry.exampleEntry, mode: .edit).modelContainer(Containers.debugContainer)
 }

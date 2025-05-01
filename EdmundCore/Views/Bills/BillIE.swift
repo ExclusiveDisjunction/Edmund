@@ -111,5 +111,5 @@ public typealias BillIE = ElementIE<Bill>;
 
 #Preview {
     let bill = Bill.exampleSubscriptions[0];
-    ElementIE(bill, isEdit: true)
+    ElementIE(bill, mode: .view)
 }

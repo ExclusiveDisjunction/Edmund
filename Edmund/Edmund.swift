@@ -57,7 +57,7 @@ struct EdmundApp: App {
             }
         }
         
-        WindowGroup("Bills", id: "billSheet") {
+        WindowGroup("Bills", id: "bills") {
             NavigationStack {
                 AllBillsViewEdit()
                     .preferredColorScheme(colorScheme)
@@ -66,13 +66,26 @@ struct EdmundApp: App {
         }
         
         #if os(macOS)
+        WindowGroup("Expired Bills", id: "expiredBills") {
+            NavigationStack {
+                AllExpiredBillsVE()
+                    .preferredColorScheme(colorScheme)
+                    .modelContainer(container)
+            }
+        }
+        
+        Window("About", id: "about") {
+            AboutView()
+                .preferredColorScheme(colorScheme)
+        }
+        
         Settings {
             SettingsView()
                 .preferredColorScheme(colorScheme)
         }
         #endif
         
-        WindowGroup(id: "help") {
+        WindowGroup("Help", id: "help") {
             HelpView()
                 .preferredColorScheme(colorScheme)
         }

@@ -13,7 +13,9 @@ import EdmundCore;
 struct AllBillsViewEdit : View {
     @State private var tableSelected = Set<BillBaseWrapper.ID>();
     @State private var showingChart: Bool = false;
+    #if os(iOS)
     @State private var expiredBillsSheet = false;
+    #endif
     
     @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name);
     @Bindable private var inspect: InspectionManifest<BillBaseWrapper> = .init();
@@ -22,11 +24,11 @@ struct AllBillsViewEdit : View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
+    
     #if os(iOS)
-    @Environment(\.editMode) private var editMode
-    private var openWindowPlacement: ToolbarItemPlacement = .topBarLeading
+    private let openWindowPlacement: ToolbarItemPlacement = .topBarLeading
     #else
-    private var openWindowPlacement: ToolbarItemPlacement = .automatic
+    private let openWindowPlacement: ToolbarItemPlacement = .automatic
     #endif
     
     @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
@@ -46,10 +48,7 @@ struct AllBillsViewEdit : View {
         let filteredBills = bills.filter { showExpiredBills || !$0.isExpired }
         let filteredUtilities = utilities.filter { showExpiredBills || !$0.isExpired }
         
-        var combined: [any BillBase] = [];
-        combined.append(contentsOf: filteredBills)
-        combined.append(contentsOf: filteredUtilities)
-        
+        let combined: [any BillBase] = filteredBills + filteredUtilities;
         query.apply(combined.map { BillBaseWrapper($0) } )
     }
     private func add_bill(_ kind: BillsKind = .bill) {
@@ -57,38 +56,35 @@ struct AllBillsViewEdit : View {
         
         withAnimation {
             let raw = Bill(name: "", kind: kind, amount: 0, company: "",start: Date.now, end: nil, period: .monthly)
-            modelContext.insert(raw)
             refresh()
-            inspect.open(BillBaseWrapper(raw), mode: .edit)
+            inspect.open(BillBaseWrapper(raw), mode: .add)
         }
     }
     private func add_utility() {
         withAnimation {
             let raw = Utility("", amounts: [], company: "", start: Date.now)
-            modelContext.insert(raw)
             refresh()
-            inspect.open(BillBaseWrapper(raw), mode: .edit)
+            inspect.open(BillBaseWrapper(raw), mode: .add)
         }
     }
     private func toggle_inspector() {
         showingChart.toggle()
     }
     private func deleteFromModel(data: BillBaseWrapper, context: ModelContext) {
-        if let bill = data.data as? Bill {
-            context.delete(bill)
-        }
-        else if let utility = data.data as? Utility {
-            context.delete(utility)
+        withAnimation {
+            if let bill = data.data as? Bill {
+                context.delete(bill)
+            }
+            else if let utility = data.data as? Utility {
+                context.delete(utility)
+            }
         }
     }
-    private func doubleTap() -> Void {
+    private func openExpired() {
         #if os(iOS)
-        guard let editMode = editMode?.wrappedValue else { return }
-        guard editMode == .inactive else { return }
-    
-        if let target = sortedBills.first(where: { tableSelected.contains($0.id) }) {
-            inspect.open(target, mode: .edit)
-        }
+        expiredBillsSheet = true
+        #else
+        openWindow(id: "expiredBills")
         #endif
     }
     
@@ -107,7 +103,7 @@ struct AllBillsViewEdit : View {
                 Text(showcasePeriod.perName)
             }.swipeActions(edge: .trailing) {
                 SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-            }.onTapGesture(count: 2, perform: doubleTap)
+            }//.onTapGesture(count: 2, perform: doubleTap)
         }
     }
     @ViewBuilder
@@ -117,6 +113,7 @@ struct AllBillsViewEdit : View {
             TableColumn("Kind") { wrapper in
                 Text(wrapper.data.kind.name)
             }
+            #if os(iOS)
             TableColumn("Amount") { wrapper in
                 HStack {
                     Text(wrapper.data.amount, format: .currency(code: currencyCode))
@@ -124,6 +121,14 @@ struct AllBillsViewEdit : View {
                     Text(wrapper.data.period.perName)
                 }
             }
+            #else
+            TableColumn("Amount") { wrapper in
+                Text(wrapper.data.amount, format: .currency(code: currencyCode))
+            }
+            TableColumn("Frequency") { wrapper in
+                Text(wrapper.data.period.perName)
+            }
+            #endif
             TableColumn("Next Due Date") { wrapper in
                 if wrapper.data.isExpired {
                     Text("Expired Bill").italic()
@@ -133,15 +138,15 @@ struct AllBillsViewEdit : View {
                 }
             }
             
-            TableColumn("Reserved Cost") { wrapper in
+            TableColumn("Set-Aside Cost") { wrapper in
                 Text((wrapper.data.isExpired ? Decimal() : wrapper.data.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
             ManyContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
-        .onTapGesture(count: 2, perform: doubleTap)
+        //.onTapGesture(count: 2, perform: doubleTap)
         #if os(macOS)
-        .frame(minWidth: 270)
+        .frame(minWidth: 320)
         #endif
     }
     
@@ -159,9 +164,7 @@ struct AllBillsViewEdit : View {
         
         if !showExpiredBills {
             ToolbarItem(id: "showExpired", placement: .secondaryAction) {
-                Button(action: {
-                    expiredBillsSheet = true;
-                }) {
+                Button(action: openExpired) {
                     Label("Expired Bills", systemImage: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
                 }
             }
@@ -173,7 +176,7 @@ struct AllBillsViewEdit : View {
         }
         ToolbarItem(id: "newWindow", placement: openWindowPlacement) {
             Button(action: {
-                openWindow(id: "billSheet")
+                openWindow(id: "bills")
             }) {
                 Label("Open in new Window", systemImage: "rectangle.badge.plus")
             }
@@ -214,11 +217,9 @@ struct AllBillsViewEdit : View {
     private func inspectSheet(_ wrapper: BillBaseWrapper) -> some View {
         if let asBill = wrapper.data as? Bill {
             BillIE(asBill, mode: inspect.mode, postAction: refresh)
-                .destroyOnCancel()
         }
         else if let asUtility = wrapper.data as? Utility {
             UtilityIE(asUtility, mode: inspect.mode, postAction: refresh)
-                .destroyOnCancel()
         }
         else {
             VStack {
@@ -230,6 +231,7 @@ struct AllBillsViewEdit : View {
         }
     }
     
+    #if os(iOS)
     @ViewBuilder
     private var billsExpiredSheet: some View {
         NavigationStack {
@@ -242,10 +244,8 @@ struct AllBillsViewEdit : View {
                 Button("Ok", action: { expiredBillsSheet = false } ).buttonStyle(.borderedProminent)
             }
         }.padding()
-#if os(macOS)
-            .frame(minWidth: 700, minHeight: 400)
-#endif
     }
+    #endif
     
     @ViewBuilder
     private var chartView: some View {
@@ -270,11 +270,6 @@ struct AllBillsViewEdit : View {
         }.padding()
     }
     
-    @ViewBuilder
-    private var utilitiesPicker: some View {
-        
-    }
-    
     var body: some View {
         VStack {
             if horizontalSizeClass == .compact {
@@ -289,8 +284,14 @@ struct AllBillsViewEdit : View {
                 Text("Total:")
                 Text(self.totalPPP, format: .currency(code: currencyCode))
                 Text("/")
-                Text(showcasePeriod.perName)
-                
+                Picker("", selection: $showcasePeriod) {
+                    ForEach(BillsPeriod.allCases, id: \.id) { period in
+                        Text(period.perName).tag(period)
+                    }
+                }
+                #if os(macOS)
+                .frame(width: 150)
+                #endif
             }
         }.sheet(item: $inspect.value) { wrapper in
             inspectSheet(wrapper)
@@ -304,8 +305,6 @@ struct AllBillsViewEdit : View {
             Text((warning.warning ?? .noneSelected).message )
         }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
             AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
-        }.sheet(isPresented: $expiredBillsSheet) {
-            billsExpiredSheet
         }.sheet(isPresented: $showingChart) {
             chartView
         }.padding()
@@ -314,6 +313,11 @@ struct AllBillsViewEdit : View {
             .onChange(of: query.hashValue, refresh)
             .onChange(of: showExpiredBills, refresh)
             .onAppear(perform: refresh)
+        #if os(iOS)
+            .sheet(isPresented: $expiredBillsSheet) {
+                billsExpiredSheet
+            }
+        #endif
     }
 }
 

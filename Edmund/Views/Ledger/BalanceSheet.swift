@@ -175,54 +175,60 @@ struct BalanceSheet: View {
     
     @ViewBuilder
     private func childSection(_ item: BalanceSheetAccount) -> some View {
-        Grid {
-            GridRow {
-                HStack {
-                    Text("Sub Account").font(.headline)
-                    Spacer()
-                }
-                if horizontalSizeClass != .compact && ledgerStyle != .none {
-                    HStack {
-                        Spacer()
-                        
-                        Text(ledgerStyle == .standard ? "Debit" : "Credit").font(.headline)
-                    }
-                    HStack {
-                        Spacer()
-                        
-                        Text(ledgerStyle == .standard ? "Credit" : "Debit").font(.headline)
-                    }
-                }
-                
-                HStack {
-                    Spacer()
-                    Text("Balance").font(.headline)
-                }
-            }
-            Divider()
-            
-            ForEach(item.subs) { sub in
+        if item.subs.isEmpty {
+            Text("There are no associated transactions for this account")
+                .italic()
+        }
+        else {
+            Grid {
                 GridRow {
                     HStack {
-                        Text(sub.name)
+                        Text("Sub Account").font(.headline)
                         Spacer()
                     }
-                    
                     if horizontalSizeClass != .compact && ledgerStyle != .none {
                         HStack {
                             Spacer()
-                            Text(sub.credits, format: .currency(code: currencyCode))
+                            
+                            Text(ledgerStyle == .standard ? "Debit" : "Credit").font(.headline)
                         }
-                        
                         HStack {
                             Spacer()
-                            Text(sub.debits, format: .currency(code: currencyCode))
+                            
+                            Text(ledgerStyle == .standard ? "Credit" : "Debit").font(.headline)
                         }
                     }
                     
                     HStack {
                         Spacer()
-                        Text(sub.balance, format: .currency(code: currencyCode)).foregroundStyle(sub.balance < 0 ? .red : .primary )
+                        Text("Balance").font(.headline)
+                    }
+                }
+                Divider()
+                
+                ForEach(item.subs) { sub in
+                    GridRow {
+                        HStack {
+                            Text(sub.name)
+                            Spacer()
+                        }
+                        
+                        if horizontalSizeClass != .compact && ledgerStyle != .none {
+                            HStack {
+                                Spacer()
+                                Text(sub.credits, format: .currency(code: currencyCode))
+                            }
+                            
+                            HStack {
+                                Spacer()
+                                Text(sub.debits, format: .currency(code: currencyCode))
+                            }
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            Text(sub.balance, format: .currency(code: currencyCode)).foregroundStyle(sub.balance < 0 ? .red : .primary )
+                        }
                     }
                 }
             }

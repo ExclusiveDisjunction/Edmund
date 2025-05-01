@@ -34,9 +34,10 @@ public struct ElementInspector<T> : View where T: InspectableElement {
 }
 
 public struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
-    public init(_ data: T, postAction: (() -> Void)? = nil) {
+    public init(_ data: T, adding: Bool, postAction: (() -> Void)? = nil) {
         self.data = data
         let tmp = T.Snapshot(data)
+        self.adding = adding;
         self.editing = tmp
         self.editHash = tmp.hashValue
         self.postAction = postAction
@@ -44,7 +45,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     
     private var data: T;
     private let postAction: (() -> Void)?;
-    private var doDestroy: Bool = false;
+    private let adding: Bool;
     @Bindable private var editing: T.Snapshot;
     @State private var editHash: Int;
     @State private var showAlert: Bool = false;
@@ -59,6 +60,10 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
         return result
     }
     private func apply() {
+        if adding {
+            modelContext.insert(data)
+        }
+        
         editing.apply(data, context: modelContext)
     }
     private func submit() {
@@ -71,10 +76,6 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
         dismiss()
     }
     private func onDismiss() {
-        if !editing.validate() && doDestroy {
-            modelContext.delete(data)
-        }
-        
         if let postAction = postAction {
             postAction()
         }
@@ -105,12 +106,6 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
             Text("Please correct fields outlined with red.")
         })
     }
-    
-    public func destroyOnCancel() -> some View {
-        var result = self;
-        result.doDestroy = true;
-        return result;
-    }
 }
 
 private class EditingManifest<T> : ObservableObject where T: EditableElement {
@@ -133,26 +128,23 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
 
 public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel {
     public init(_ data: T, mode: InspectionMode, postAction: (() -> Void)? = nil) {
-        self.init(data, isEdit: mode == .edit, postAction: postAction)
-    }
-    public init(_ data: T, isEdit: Bool,  postAction: (() -> Void)? = nil) {
         self.data = data
         self.postAction = postAction;
-        if isEdit {
-            self._editing = .init(wrappedValue: .init(T.Snapshot(data)))
+        self.mode = mode;
+        if mode == .view {
+            self._editing = .init(wrappedValue: .init(nil))
         }
         else {
-            self._editing = .init(wrappedValue: .init(nil))
+            self._editing = .init(wrappedValue: .init(T.Snapshot(data)))
         }
     }
     
     public var data: T;
     public let postAction: (() -> Void)?
+    @State private var mode: InspectionMode;
     @StateObject private var editing: EditingManifest<T>;
     @State private var showAlert: Bool = false;
     @State private var warningConfirm: Bool = false;
-    
-    private var doDestroy: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
@@ -169,6 +161,9 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     }
     private func apply() {
         if let editing = editing.snapshot {
+            if mode == .add {
+                modelContext.insert(data)
+            }
             editing.apply(data, context: modelContext)
         }
     }
@@ -182,12 +177,6 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         dismiss()
     }
     private func onDismiss() {
-        if let editing = editing.snapshot {
-            if !editing.validate() && doDestroy {
-                modelContext.delete(data)
-            }
-        }
-        
         if let postAction = postAction {
             postAction()
         }
@@ -208,12 +197,6 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         else {
             self.editing.reset()
         }
-    }
-    
-    public func destroyOnCancel() -> some View {
-        var result = self;
-        result.doDestroy = true;
-        return result;
     }
     
     public var body: some View {
