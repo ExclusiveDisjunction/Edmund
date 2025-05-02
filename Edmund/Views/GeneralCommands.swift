@@ -13,21 +13,21 @@ struct GeneralCommands : Commands {
     
     var body: some Commands {
         CommandMenu("Ledger") {
-            Button("Balance Sheet") {
-                openWindow(id: "balanceSheet")
-            }.keyboardShortcut("b", modifiers: [.command, .shift])
-            
             Button("Ledger") {
                 openWindow(id: "ledger")
             }.keyboardShortcut("l", modifiers: [.command])
             
+            Button("Balance Sheet") {
+                openWindow(id: "balanceSheet")
+            }.keyboardShortcut("b", modifiers: [.command, .shift])
+            
             Divider()
             
-            Button("Reset Ledger") {
+            Button("Initialize Ledger") {
                 
             }
             
-            Button("Initialize Ledger") {
+            Button("Reset Ledger") {
                 
             }
             
@@ -59,13 +59,13 @@ struct GeneralCommands : Commands {
             
             Menu {
                 Button("Spending Report") {
-                    
+                    openWindow(id: "reports", value: ReportType.spending)
                 }
                 Button("Balance Sheet") {
-                    
+                    openWindow(id: "reports", value: ReportType.balances)
                 }
                 Button("Transactions List") {
-                    
+                    openWindow(id: "reports", value: ReportType.transactions)
                 }
             } label: {
                 Text("Generate Report")

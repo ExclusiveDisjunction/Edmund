@@ -66,7 +66,7 @@ public final class Account : Identifiable, Hashable, BoundPairParent, EditableEl
     }()
 }
 @Model
-public final class SubAccount : BoundPair, Equatable, EditableElement, InspectableElement {
+public final class SubAccount : BoundPair, Equatable, EditableElement, InspectableElement, TransactionHolder {
     public typealias EditView = NamedPairChildEdit<SubAccount>
     public typealias Snapshot = NamedPairChildSnapshot<SubAccount>;
     public typealias InspectorView = SimpleElementInspect<SubAccount>;

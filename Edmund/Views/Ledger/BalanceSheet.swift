@@ -9,118 +9,21 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BalanceResolver {
-    static func computeAccountBalances(_ on: [Account]) -> Dictionary<Account, (Decimal, Decimal)> {
-        var result: [Account: (Decimal, Decimal)] = [:];
-        for account in on {
-            var credits: Decimal = 0.0
-            var debits: Decimal = 0.0
-            guard let subAccounts = account.children else { continue }
-            
-            for subAccount in subAccounts {
-                guard let transactions = subAccount.transactions else { continue }
-                
-                for trans in transactions {
-                    credits += trans.credit
-                    debits += trans.debit
-                }
-            }
-            
-            result[account] = (credits, debits)
-        }
-        
-        return result
-    }
-    static func computeSubAccountBalances(_ on: [Account]) -> Dictionary<Account, Dictionary<SubAccount, (Decimal, Decimal)>> {
-        var result: [Account: [SubAccount: (Decimal, Decimal)]] = [:];
-        for account in on {
-            var tmpResult: [SubAccount: (Decimal, Decimal)] = [:]
-            
-            guard let subAccounts = account.children else { continue }
-            for subAccount in subAccounts {
-                var credits: Decimal = 0
-                var debits: Decimal = 0
-                guard let transactions = subAccount.transactions else { continue }
-                for trans in transactions {
-                    credits += trans.credit
-                    debits += trans.debit
-                }
-                
-                tmpResult[subAccount] = (credits, debits)
-            }
-            
-            result[account] = tmpResult;
-        }
-        
-        return result
-    }
-}
-
-@Observable
-class AccountBalance : Identifiable {
-    init(name: String, credit: Decimal, debit: Decimal) {
-        self.id = UUID()
-        self.name = name
-        self.credit = credit
-        self.debit = debit
-    }
-    
-    let id: UUID;
-    let name: String;
-    let credit: Decimal;
-    let debit: Decimal;
-    var balance: Decimal {
-        credit - debit
-    }
-}
-
-@Observable
-class BalanceSheetAccount : Identifiable {
-    init(name: String, subs: [BalanceSheetBalance]) {
-        self.name = name;
-        self.subs = subs;
-        
-        self.subs.sort { $0.balance > $1.balance }
-    }
-    
-    var name: String;
-    var subs: [BalanceSheetBalance];
-    var balance: Decimal {
-        subs.reduce(into: 0) { $0 += $1.balance }
-    }
-    var expanded = true;
-}
-@Observable
-class BalanceSheetBalance : Identifiable {
-    init(_ name: String, credits: Decimal, debits: Decimal) {
-        self.name = name
-        self.credits = credits
-        self.debits = debits
-    }
-    
-    var name: String;
-    var credits: Decimal;
-    var debits: Decimal;
-    var balance: Decimal {
-        credits - debits
-    }
-}
-
 @Observable
 class BalanceSheetVM {
     init() {
         
     }
     
-    static func computeBalances(acc: [Account]) -> [BalanceSheetAccount] {
-        return BalanceResolver.computeSubAccountBalances(acc).map { (account, subBalances) in
-            BalanceSheetAccount(name: account.name, subs: subBalances.map { (subAccount, balance) in
-                BalanceSheetBalance(subAccount.name, credits: balance.0, debits: balance.1)
-            })
-        }.sorted(by: { $0.balance > $1.balance } )
+    static func computeBalances(acc: [Account]) -> [ComplexBalance] {
+        var bal = BalanceResolver.computeSubBalances(acc)
+            .intoComplexBalances();
+        bal.sortByBalances()
+        
+        return bal
     }
 
-    var computed: [BalanceSheetAccount]? = nil;
+    var computed: [ComplexBalance]? = nil;
 }
 
 struct BalanceSheet: View {
@@ -148,7 +51,7 @@ struct BalanceSheet: View {
     private func update_balances() {
         vm.computed = nil;
     }
-    private func compute_balances() -> [BalanceSheetAccount] {
+    private func compute_balances() -> [ComplexBalance] {
         return BalanceSheetVM.computeBalances(acc: accounts)
     }
     private func expand_all() {
@@ -174,7 +77,7 @@ struct BalanceSheet: View {
     }
     
     @ViewBuilder
-    private func childSection(_ item: BalanceSheetAccount) -> some View {
+    private func childSection(_ item: ComplexBalance) -> some View {
         if item.subs.isEmpty {
             Text("There are no associated transactions for this account")
                 .italic()
@@ -216,12 +119,12 @@ struct BalanceSheet: View {
                         if horizontalSizeClass != .compact && ledgerStyle != .none {
                             HStack {
                                 Spacer()
-                                Text(sub.credits, format: .currency(code: currencyCode))
+                                Text(sub.credit, format: .currency(code: currencyCode))
                             }
                             
                             HStack {
                                 Spacer()
-                                Text(sub.debits, format: .currency(code: currencyCode))
+                                Text(sub.debit, format: .currency(code: currencyCode))
                             }
                         }
                         
@@ -235,7 +138,7 @@ struct BalanceSheet: View {
         }
     }
     @ViewBuilder
-    private func accountView(_ item: BalanceSheetAccount) -> some View {
+    private func accountView(_ item: ComplexBalance) -> some View {
         Button(action: {
             withAnimation(.spring()) {
                 item.expanded.toggle()

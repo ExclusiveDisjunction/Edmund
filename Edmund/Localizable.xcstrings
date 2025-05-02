@@ -346,6 +346,9 @@
     "Balances Graph" : {
 
     },
+    "Balances Report" : {
+
+    },
     "Basic" : {
 
     },
@@ -752,6 +755,9 @@
     "Expired Bills" : {
 
     },
+    "Export as PDF" : {
+
+    },
     "Export Data" : {
 
     },
@@ -896,6 +902,9 @@
     "Income" : {
 
     },
+    "Income Report" : {
+
+    },
     "Initialize Ledger" : {
 
     },
@@ -995,6 +1004,9 @@
           }
         }
       }
+    },
+    "Major Group" : {
+
     },
     "Maks Kruc" : {
 
@@ -1405,6 +1417,9 @@
     "repaid" : {
 
     },
+    "Report" : {
+
+    },
     "Reset Ledger" : {
 
     },
@@ -1673,6 +1688,9 @@
     "Transactions List" : {
 
     },
+    "Transactions Report" : {
+
+    },
     "Transfer" : {
       "localizations" : {
         "de" : {
@@ -1725,6 +1743,9 @@
           }
         }
       }
+    },
+    "Unexpected error" : {
+
     },
     "Unexpected Error" : {
       "localizations" : {

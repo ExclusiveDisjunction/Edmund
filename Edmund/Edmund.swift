@@ -74,6 +74,15 @@ struct EdmundApp: App {
             }
         }
         
+        WindowGroup("Report", id: "reports", for: ReportType.self) { report in
+            if let report = report.wrappedValue {
+                ReportBase(kind: report)
+            }
+            else {
+                Text("Unexpected error")
+            }
+        }
+        
         Window("About", id: "about") {
             AboutView()
                 .preferredColorScheme(colorScheme)

@@ -9,53 +9,24 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-fileprivate struct DetailedBalance : Identifiable {
-    init(_ name: String, _ balance: Decimal, children: [DetailedBalance]? = nil) {
-        self.name = name
-        self.balance = balance
-        self.id = UUID()
-        self.children = children
-    }
-    
-    var id: UUID
-    var name: String;
-    var balance: Decimal;
-    var children: [DetailedBalance]?;
-}
-
 struct DetailedBalancesView : View {
     @Query private var accounts: [Account];
     @State private var loadedBalances: [DetailedBalance]? = nil;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
+    let cmp = KeyPathComparator(\DetailedBalance.balance, order: .reverse)
     private func loadBalances() -> [DetailedBalance] {
-        let rawBalances = BalanceResolver.computeSubAccountBalances(accounts);
-        let transformed = rawBalances.map { balance in
-            let children = balance.value.map { subAccount, subBalance in
-                DetailedBalance(subAccount.name, subBalance.0 - subBalance.1)
-            }.sorted(
-                using: KeyPathComparator(
-                    \.balance,
-                     order: .reverse
-                )
-            )
-            
-            return DetailedBalance(
-                balance.key.name,
-                children.reduce(Decimal(), {
-                    $0 + $1.balance
-                }),
-                children: children
-            )
-        }
-            .sorted(
-                using: KeyPathComparator(
-                    \.balance,
-                     order: .reverse
-                )
-            );
+        let result = BalanceResolver.computeSubBalances(accounts)
+            .intoDetailedBalances()
+            .sorted(using: cmp);
         
-        return transformed
+        for item in result {
+            if var children = item.children {
+                children.sort(using: cmp)
+            }
+        }
+        
+        return result
     }
     
     var body: some View {
