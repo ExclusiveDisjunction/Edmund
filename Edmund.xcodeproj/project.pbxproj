@@ -28,13 +28,6 @@
 			remoteGlobalIDString = DD34E6012D99D21D009E3875;
 			remoteInfo = Edmund;
 		};
-		DD34E6202D99D21E009E3875 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DD34E6012D99D21D009E3875;
-			remoteInfo = Edmund;
-		};
 		DD394E312DB93A7500B272E3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
@@ -115,7 +108,6 @@
 /* Begin PBXFileReference section */
 		DD34E6022D99D21D009E3875 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E6152D99D21E009E3875 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD394E232DB93A7400B272E3 /* crossWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = crossWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4464F22DB8552C006D9A01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DD4464F42DB8552C006D9A01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -157,11 +149,6 @@
 			path = EdmundTests;
 			sourceTree = "<group>";
 		};
-		DD34E6222D99D21E009E3875 /* EdmundUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = EdmundUITests;
-			sourceTree = "<group>";
-		};
 		DD394E262DB93A7400B272E3 /* crossWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -195,13 +182,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD34E61C2D99D21E009E3875 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DD394E202DB93A7400B272E3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -228,7 +208,6 @@
 				DDC5663E2DBFE49F0022D3FB /* Help */,
 				DD34E6042D99D21D009E3875 /* Edmund */,
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
-				DD34E6222D99D21E009E3875 /* EdmundUITests */,
 				DD44651F2DB86B58006D9A01 /* EdmundCore */,
 				DD394E262DB93A7400B272E3 /* crossWidget */,
 				DD4464F12DB8552C006D9A01 /* Frameworks */,
@@ -241,7 +220,6 @@
 			children = (
 				DD34E6022D99D21D009E3875 /* Edmund.app */,
 				DD34E6152D99D21E009E3875 /* EdmundTests.xctest */,
-				DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */,
 				DD44651E2DB86B58006D9A01 /* EdmundCore.framework */,
 				DD394E232DB93A7400B272E3 /* crossWidgetExtension.appex */,
 			);
@@ -322,29 +300,6 @@
 			productReference = DD34E6152D99D21E009E3875 /* EdmundTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DD34E61E2D99D21E009E3875 /* EdmundUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DD34E62F2D99D21E009E3875 /* Build configuration list for PBXNativeTarget "EdmundUITests" */;
-			buildPhases = (
-				DD34E61B2D99D21E009E3875 /* Sources */,
-				DD34E61C2D99D21E009E3875 /* Frameworks */,
-				DD34E61D2D99D21E009E3875 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DD34E6212D99D21E009E3875 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DD34E6222D99D21E009E3875 /* EdmundUITests */,
-			);
-			name = EdmundUITests;
-			packageProductDependencies = (
-			);
-			productName = EdmundUITests;
-			productReference = DD34E61F2D99D21E009E3875 /* EdmundUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		DD394E222DB93A7400B272E3 /* crossWidgetExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DD394E342DB93A7500B272E3 /* Build configuration list for PBXNativeTarget "crossWidgetExtension" */;
@@ -409,10 +364,6 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = DD34E6012D99D21D009E3875;
 					};
-					DD34E61E2D99D21E009E3875 = {
-						CreatedOnToolsVersion = 16.2;
-						TestTargetID = DD34E6012D99D21D009E3875;
-					};
 					DD394E222DB93A7400B272E3 = {
 						CreatedOnToolsVersion = 16.3;
 					};
@@ -443,7 +394,6 @@
 			targets = (
 				DD34E6012D99D21D009E3875 /* Edmund */,
 				DD34E6142D99D21E009E3875 /* EdmundTests */,
-				DD34E61E2D99D21E009E3875 /* EdmundUITests */,
 				DD44651D2DB86B58006D9A01 /* EdmundCore */,
 				DD394E222DB93A7400B272E3 /* crossWidgetExtension */,
 			);
@@ -460,13 +410,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DD34E6132D99D21E009E3875 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DD34E61D2D99D21E009E3875 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -504,13 +447,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD34E61B2D99D21E009E3875 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DD394E1F2DB93A7400B272E3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -532,11 +468,6 @@
 			isa = PBXTargetDependency;
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 			targetProxy = DD34E6162D99D21E009E3875 /* PBXContainerItemProxy */;
-		};
-		DD34E6212D99D21E009E3875 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DD34E6012D99D21D009E3875 /* Edmund */;
-			targetProxy = DD34E6202D99D21E009E3875 /* PBXContainerItemProxy */;
 		};
 		DD394E322DB93A7500B272E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -706,8 +637,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -749,8 +680,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -817,52 +748,6 @@
 			};
 			name = Release;
 		};
-		DD34E6302D99D21E009E3875 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Edmund;
-				XROS_DEPLOYMENT_TARGET = 2.2;
-			};
-			name = Debug;
-		};
-		DD34E6312D99D21E009E3875 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				MACOSX_DEPLOYMENT_TARGET = 15.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Edmund;
-				XROS_DEPLOYMENT_TARGET = 2.2;
-			};
-			name = Release;
-		};
 		DD394E352DB93A7500B272E3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -877,7 +762,7 @@
 				INFOPLIST_FILE = crossWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = crossWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -918,7 +803,7 @@
 				INFOPLIST_FILE = crossWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = crossWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1055,15 +940,6 @@
 			buildConfigurations = (
 				DD34E62D2D99D21E009E3875 /* Debug */,
 				DD34E62E2D99D21E009E3875 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DD34E62F2D99D21E009E3875 /* Build configuration list for PBXNativeTarget "EdmundUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DD34E6302D99D21E009E3875 /* Debug */,
-				DD34E6312D99D21E009E3875 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
