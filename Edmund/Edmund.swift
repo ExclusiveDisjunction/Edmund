@@ -79,7 +79,7 @@ struct EdmundApp: App {
                 ReportBase(kind: report)
             }
             else {
-                Text("Unexpected error")
+                Text("Unexpected Error")
             }
         }
         

@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "" : {
-
+      "shouldTranslate" : false
     },
     "(no account)" : {
 
@@ -27,7 +27,8 @@
             "value" : "/"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "%@" : {
       "localizations" : {
@@ -49,7 +50,8 @@
             "value" : "%@"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "About" : {
 
@@ -93,6 +95,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Styl księgowości"
+          }
+        }
+      }
+    },
+    "accountingStylesDesc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accounting style refers to how balances will be presented to you. "
           }
         }
       }
@@ -435,6 +447,16 @@
         }
       }
     },
+    "budgetingPeriodDesc" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The budgeting period refers to how often you do your budgeting, or how often you get paid. Bill set-aside costs are determined from this value as well."
+          }
+        }
+      }
+    },
     "Bug? Feature Request? Concerns?" : {
 
     },
@@ -557,7 +579,7 @@
       }
     },
     "CSV" : {
-
+      "shouldTranslate" : false
     },
     "Currency" : {
 
@@ -644,7 +666,14 @@
       }
     },
     "deleteItemsConfirm" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete these items?"
+          }
+        }
+      }
     },
     "Deposit into:" : {
 
@@ -695,7 +724,8 @@
             "value" : "Edmund"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "Edmund Formatting" : {
 
@@ -704,7 +734,14 @@
 
     },
     "emptyFields" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please fill in all fields."
+          }
+        }
+      }
     },
     "Ended On" : {
 
@@ -872,6 +909,9 @@
         }
       }
     },
+    "Homepage" : {
+
+    },
     "Homepage Organizer" : {
 
     },
@@ -879,10 +919,10 @@
 
     },
     "https://github.com/ExclusiveDisjunction/Edmund" : {
-
+      "shouldTranslate" : false
     },
     "https://github.com/swiftlang/swift-markdown" : {
-
+      "shouldTranslate" : false
     },
     "I got" : {
 
@@ -891,9 +931,6 @@
 
     },
     "If results are not being updated, press refresh" : {
-
-    },
-    "If transactions are enabled, all ledger & transaction data/forms can be accessed. If this is off, then these features will be hidden and non-accessible. Disable this feature if you want to use the budgeting and bill tracking features only." : {
 
     },
     "Import Data" : {
@@ -926,7 +963,14 @@
       }
     },
     "internalError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An internal error has occurred. Please submit a bug report."
+          }
+        }
+      }
     },
     "into" : {
 
@@ -941,7 +985,7 @@
 
     },
     "James Larson" : {
-
+      "shouldTranslate" : false
     },
     "Kind" : {
       "extractionState" : "manual",
@@ -961,7 +1005,7 @@
       }
     },
     "Kyle Lawrence" : {
-
+      "shouldTranslate" : false
     },
     "Ledger" : {
       "extractionState" : "manual",
@@ -1005,11 +1049,8 @@
         }
       }
     },
-    "Major Group" : {
-
-    },
     "Maks Kruc" : {
-
+      "shouldTranslate" : false
     },
     "Manual" : {
 
@@ -1066,7 +1107,14 @@
 
     },
     "missingAccount" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An account must be selected."
+          }
+        }
+      }
     },
     "Month" : {
       "extractionState" : "manual",
@@ -1109,7 +1157,14 @@
       }
     },
     "negativeAmount" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The amount cannot be negative."
+          }
+        }
+      }
     },
     "Next Due Date" : {
 
@@ -1344,9 +1399,6 @@
         }
       }
     },
-    "profileDescription" : {
-      "comment" : "A pharagraph explaining what profiles are, why they exists, and general actions"
-    },
     "Profiles" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1427,7 +1479,7 @@
 
     },
     "Ruth" : {
-
+      "shouldTranslate" : false
     },
     "Save" : {
       "localizations" : {
@@ -1594,7 +1646,7 @@
 
     },
     "Swift-Markdown-UI" : {
-
+      "shouldTranslate" : false
     },
     "Take from" : {
 
@@ -1674,17 +1726,6 @@
     "Transaction" : {
 
     },
-    "Transaction Organization" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Organizacja transakcji"
-          }
-        }
-      }
-    },
     "Transactions List" : {
 
     },
@@ -1744,9 +1785,6 @@
         }
       }
     },
-    "Unexpected error" : {
-
-    },
     "Unexpected Error" : {
       "localizations" : {
         "en" : {
@@ -1758,9 +1796,6 @@
       }
     },
     "Upcoming Bills" : {
-
-    },
-    "Use Ledger" : {
 
     },
     "Use the space for only one widget" : {
@@ -1858,9 +1893,6 @@
           }
         }
       }
-    },
-    "When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently." : {
-
     },
     "will be moved to" : {
       "comment" : "$ will be moved to"

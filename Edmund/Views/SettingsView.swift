@@ -21,7 +21,6 @@ struct LocaleCurrencyCode : Identifiable {
 
 struct SettingsView : View {
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
-    @AppStorage("enableTransactions") private var enableTransactions: Bool = true
     @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -47,14 +46,6 @@ struct SettingsView : View {
             }
             
             Section() {
-                Toggle("Use Ledger", isOn: $enableTransactions)
-            } header: {
-                Text("Ledger").font(.headline)
-            } footer: {
-                Text("If transactions are enabled, all ledger & transaction data/forms can be accessed. If this is off, then these features will be hidden and non-accessible. Disable this feature if you want to use the budgeting and bill tracking features only.").font(.subheadline)
-            }
-            
-            Section() {
                 Picker("Accounting Style", selection: $ledgerStyle) {
                     ForEach(LedgerStyle.allCases, id: \.id) { style in
                         Text(style.display).tag(style)
@@ -64,7 +55,7 @@ struct SettingsView : View {
                 Text("Styles").font(.headline)
             }
             footer: {
-                Text("When accouning mode is enabled, instead of showing 'Balance' on the Ledger, 'Credit' and 'Debit' are showed independently.").font(.subheadline)
+                Text("accountingStylesDesc").font(.subheadline)
             }
             
             Section() {
@@ -73,6 +64,8 @@ struct SettingsView : View {
                         Text(bill.name).tag(bill)
                     }
                 }
+            } footer: {
+                Text("budgetingPeriodDesc")
             }
             
             Section() {
@@ -83,39 +76,6 @@ struct SettingsView : View {
         }.padding()
     }
     
-    @ViewBuilder
-    private var profilesTab: some View {
-        VStack {
-            Text("profileDescription", comment: "A pharagraph explaining what profiles are, why they exists, and general actions").font(.title2)
-            
-            VStack {
-                List {
-                    
-                }
-                
-                HStack {
-                    Button(action: {
-                        
-                    }) {
-                        Label("Add", systemImage: "plus")
-                    }
-                    
-                    Button(action: {
-                        
-                    }) {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    
-                    Button(action: {
-                        
-                    }) {
-                        Label("Delete", systemImage: "trash").foregroundStyle(.red)
-                    }
-                }
-            }
-        }
-    }
-    
     var body: some View {
         TabView {
             generalTab
@@ -123,9 +83,10 @@ struct SettingsView : View {
                     Label("General", systemImage: "gear")
                 }
             
-            profilesTab
+            HomepageEditor()
+                .padding()
                 .tabItem {
-                    Label("Profiles", systemImage: "person.circle")
+                    Label("Homepage", systemImage: "rectangle.3.group")
                 }
         }.padding()
     }

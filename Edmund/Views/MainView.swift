@@ -19,20 +19,6 @@ enum PageDestinations: LocalizedStringKey, CaseIterable, Identifiable{
     
     var id: Self { self }
     
-    static func active(trans: Bool) -> [Self] {
-        if trans {
-            return Self.allCases
-        }
-        else {
-            return [
-                .home,
-                .bills,
-                .budget,
-                .org
-            ]
-        }
-    }
-    
     @ViewBuilder
     func view(bal: BalanceSheetVM, org: AccountsCategoriesVM) -> some View {
         switch self {
@@ -47,8 +33,6 @@ enum PageDestinations: LocalizedStringKey, CaseIterable, Identifiable{
 }
 
 struct MainView: View {
-    @AppStorage("enableTransactions") var enableTransactions: Bool = true;
-    
     @Bindable private var balance_vm: BalanceSheetVM = .init();
     @Bindable private var accCatvm: AccountsCategoriesVM = .init();
     @State private var page: PageDestinations.ID? = nil;
