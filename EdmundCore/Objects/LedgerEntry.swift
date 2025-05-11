@@ -148,7 +148,7 @@ public final class LedgerEntry : Identifiable, InspectableElement, EditableEleme
         let creditGroceries = acc.findPair("Credit", "Groceries")!
         
         return [
-            .init(name: "Initial Balance", credit: 10000, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: savingsMain),
+            .init(name: "Initial Balance", credit: 1000, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: savingsMain),
             .init(name: "Initial Balance", credit: 170, debit: 0, date: Date.now, location: "Bank", category: initialCat, account: payAcc),
             .init(name: "'Pay' to Various", credit: 0, debit: 100, date: Date.now, location: "Bank", category: transferCat, account: payAcc),
             .init(name: "'Pay' to 'DI'", credit: 35, debit: 0, date: Date.now, location: "Bank", category: transferCat, account: diAcc),

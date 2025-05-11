@@ -23,8 +23,7 @@ struct ChoiceRenderer : View {
                     case .bills: UpcomingBillsView()
                     case .detailedBalances: DetailedBalancesView()
                     case .simpleBalances: SimpleBalancesView()
-                    case .moneyGraph:
-                        Text("Work in progress")
+                    case .moneyGraph: MoneyGraph()
                     case .payday:
                         Text("Work in progress")
                     case .spendingGraph:

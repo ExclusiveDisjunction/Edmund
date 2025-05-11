@@ -55,6 +55,36 @@ struct BalanceResolver {
         return result
     }
 }
+
+struct MonthYear : Hashable, Codable, Comparable {
+    init(date: Date) {
+        let comp = Calendar.current.dateComponents(Set([Calendar.Component.year, Calendar.Component.month]), from: date);
+        self.year = comp.year ?? 0
+        self.month = comp.month ?? 0
+    }
+    
+    let year: Int;
+    let month: Int;
+    
+    static func < (lhs: MonthYear, rhs: MonthYear) -> Bool {
+        if lhs.year == rhs.year {
+            lhs.month < rhs.month
+        }
+        else {
+            lhs.year < rhs.year
+        }
+    }
+}
+
+/// A collection of functions that can process transactions into different forms for usable information.
+struct TransactionResolver {
+    static func splitByMonth(_ entries: [LedgerEntry]) -> [MonthYear: [LedgerEntry]] {
+        var result: [MonthYear: [LedgerEntry]] = [:];
+        
+        
+    }
+}
+
 extension Dictionary where Key: EdmundCore.InspectableElement, Value == (Decimal, Decimal) {
     func intoSimpleBalances() -> [SimpleBalance] {
         self.map { (element, balances) in

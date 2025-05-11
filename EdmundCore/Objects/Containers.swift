@@ -66,7 +66,7 @@ public class Containers {
     
     public static let container: ModelContainer = {
         do {
-            let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .automatic)
+            let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
             
             return try ModelContainer(for: schema, configurations: [configuration ] )
         } catch {
