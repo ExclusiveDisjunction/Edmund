@@ -51,13 +51,13 @@ struct Homepage : View {
         ScrollView {
             VStack {
                 ChoiceRenderer(choice: sectorA1)
-                    .frame(minHeight: 140)
+                    .frame(minHeight: 250)
                 ChoiceRenderer(choice: sectorA2)
-                    .frame(minHeight: 140)
+                    .frame(minHeight: 250)
                 ChoiceRenderer(choice: sectorB1)
-                    .frame(minHeight: 140)
+                    .frame(minHeight: 250)
                 ChoiceRenderer(choice: sectorB2)
-                    .frame(minHeight: 140)
+                    .frame(minHeight: 250)
             }
         }
     }
@@ -65,18 +65,7 @@ struct Homepage : View {
     var body: some View {
         VStack {
             if horizontalSizeClass == .compact {
-                ScrollView {
-                    VStack {
-                        ChoiceRenderer(choice: sectorA1)
-                            .frame(minHeight: 140)
-                        ChoiceRenderer(choice: sectorA2)
-                            .frame(minHeight: 140)
-                        ChoiceRenderer(choice: sectorB1)
-                            .frame(minHeight: 140)
-                        ChoiceRenderer(choice: sectorB2)
-                            .frame(minHeight: 140)
-                    }
-                }
+                scrollView
             }
             else {
                 switch major {

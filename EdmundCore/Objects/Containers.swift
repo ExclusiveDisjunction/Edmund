@@ -64,6 +64,48 @@ public class Containers {
         }
     }()
     
+    public static let exampleContainer: ModelContainer = {
+        do {
+            let configuration = ModelConfiguration("example", schema: schema, isStoredInMemoryOnly: true)
+            
+            var result = try ModelContainer(for: schema, configurations: [ configuration ])
+            
+            //Inserting mock stuff
+            let accounts = Account.exampleAccounts
+            for account in accounts {
+                result.mainContext.insert(account)
+            }
+            let categories = Category.exampleCategories;
+            for category in categories {
+                result.mainContext.insert(category)
+            }
+
+            //We make our own manual LedgerEntry
+            let ledger: [LedgerEntry] = [
+                //HERE: Fill in example data that has variance in dates.
+            ];
+            
+            for entry in ledger {
+                result.mainContext.insert(entry);
+            }
+            
+            let bills = Bill.exampleBills;
+            for bill in bills {
+                result.mainContext.insert(bill)
+            }
+            
+            let utilities = Utility.exampleUtility;
+            for utility in utilities {
+                result.mainContext.insert(utility)
+            }
+            
+            return result
+        }
+        catch {
+            fatalError("Could not create Example ModelContainer: \(error)")
+        }
+    }()
+    
     public static let container: ModelContainer = {
         do {
             let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)

@@ -8,6 +8,7 @@
 import Foundation
 import EdmundCore
 import SwiftData
+import Charts
 
 struct BalanceResolver {
     static func computeBalances<T>(_ on: [T]) -> Dictionary<T, (Decimal, Decimal)> where T: BoundPairParent, T.C: TransactionHolder {
@@ -56,17 +57,25 @@ struct BalanceResolver {
     }
 }
 
-struct MonthYear : Hashable, Codable, Comparable {
-    init(date: Date) {
+public struct MonthYear : Hashable, Codable, Comparable {
+    public init(_ year: Int, _ month: Int) {
+        self.year = year
+        self.month = month
+    }
+    public init(date: Date) {
         let comp = Calendar.current.dateComponents(Set([Calendar.Component.year, Calendar.Component.month]), from: date);
         self.year = comp.year ?? 0
         self.month = comp.month ?? 0
     }
     
-    let year: Int;
-    let month: Int;
+    public let year: Int;
+    public let month: Int;
     
-    static func < (lhs: MonthYear, rhs: MonthYear) -> Bool {
+    public var asDate: Date {
+        Calendar.current.date(from: DateComponents(year: self.year, month: self.month, day: 1)) ?? Date.distantFuture
+    }
+    
+    public static func < (lhs: MonthYear, rhs: MonthYear) -> Bool {
         if lhs.year == rhs.year {
             lhs.month < rhs.month
         }
@@ -77,11 +86,21 @@ struct MonthYear : Hashable, Codable, Comparable {
 }
 
 /// A collection of functions that can process transactions into different forms for usable information.
-struct TransactionResolver {
-    static func splitByMonth(_ entries: [LedgerEntry]) -> [MonthYear: [LedgerEntry]] {
+public struct TransactionResolver {
+    public static func splitByMonth(_ entries: [LedgerEntry]) -> [MonthYear: [LedgerEntry]] {
         var result: [MonthYear: [LedgerEntry]] = [:];
         
+        for entry in entries {
+            let monthYear = MonthYear(date: entry.date);
+            
+            if result[monthYear] == nil {
+                result[monthYear] = [];
+            }
+            
+            result[monthYear]?.append(entry);
+        }
         
+        return result
     }
 }
 

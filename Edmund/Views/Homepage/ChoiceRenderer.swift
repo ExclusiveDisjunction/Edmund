@@ -26,10 +26,8 @@ struct ChoiceRenderer : View {
                     case .moneyGraph: MoneyGraph()
                     case .payday:
                         Text("Work in progress")
-                    case .spendingGraph:
-                        Text("Work in progress")
-                    case .none:
-                        EmptyView()
+                    case .spendingGraph: SpendingGraph()
+                    case .none: EmptyView()
                 }
                 Spacer()
             }
