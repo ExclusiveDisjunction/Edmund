@@ -987,6 +987,9 @@
     "James Larson" : {
       "shouldTranslate" : false
     },
+    "Jobs" : {
+
+    },
     "Kind" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1310,6 +1313,12 @@
       }
     },
     "paid" : {
+
+    },
+    "Pay" : {
+
+    },
+    "Paychecks" : {
 
     },
     "Payday Info" : {
@@ -1656,6 +1665,9 @@
       "shouldTranslate" : false
     },
     "Take from" : {
+
+    },
+    "Taxes" : {
 
     },
     "The amount cannot be negative" : {

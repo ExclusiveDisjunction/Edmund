@@ -48,7 +48,7 @@ struct SettingsView : View {
             Section() {
                 Picker("Accounting Style", selection: $ledgerStyle) {
                     ForEach(LedgerStyle.allCases, id: \.id) { style in
-                        Text(style.display).tag(style)
+                        Text(style.description).tag(style)
                     }
                 }
             } header: {

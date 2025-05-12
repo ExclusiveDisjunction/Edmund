@@ -12,11 +12,25 @@ import Foundation;
 public enum LedgerStyle: Int, Identifiable, CaseIterable {
     case none = 0, standard = 1, reversed = 2
     
-    public var display: LocalizedStringKey {
+    public var description: LocalizedStringKey {
         switch self {
             case .none: "Do not show as Accounting Style"
             case .standard: "Standard Accounting Style"
             case .reversed: "Reversed Accounting Style"
+        }
+    }
+    public var displayCredit: LocalizedStringKey {
+        switch self {
+            case .none: "Money In"
+            case .standard: "Debit"
+            case .reversed: "Credit"
+        }
+    }
+    public var displayDebit: LocalizedStringKey {
+        switch self {
+            case .none: "Money Out"
+            case .standard: "Credit"
+            case .reversed: "Debit"
         }
     }
     public var id: Self { self }

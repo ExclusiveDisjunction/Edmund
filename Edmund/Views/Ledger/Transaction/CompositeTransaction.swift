@@ -6,147 +6,118 @@
 //
 
 import SwiftUI;
+import EdmundCore
 import Foundation;
 
-@Observable
-class CompositeTransactionVM : TransactionEditor {
-    init() {
-        
-    }
-    
-    func compile_deltas() -> Dictionary<UUID, Decimal>? {
-        if !validate() { return nil }
-        guard let acc = self.acc else { return nil }
-        
-        return [acc.id: credit ? total : -total];
-    }
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
-        if !validate() { return nil }
-        
-        guard let acc = self.acc, let cat = self.category else { return nil }
-        
-        return [
-            .init(
-                memo: memo,
-                credit: self.credit ? total : 0,
-                debit: self.credit ? 0 : total,
-                date: self.date,
-                location: location,
-                category: cat,
-                account: acc)
-        ]
-    }
-    func validate() -> Bool {
-        var empty_fields: [String] = [];
-        
-        if memo.isEmpty { empty_fields.append("memo") }
-        if category == nil { empty_fields.append("category") }
-        if acc == nil { empty_fields.append("account")}
-        
-        if !empty_fields.isEmpty {
-            err_msg = "The following fields are empty: " + empty_fields.joined(separator: ", ");
-            return false;
+public extension Array {
+    func windows(_ count: Int) -> [[Element]] {
+        return (0..<self.count).map {
+            stride(from: $0, to: count, by: self.count).map { self[$0] }
         }
-        else {
-            err_msg = nil;
-            return true;
-        }
-    }
-    func clear() {
-        memo = "";
-        date = Date.now;
-        location = "Various";
-        category = nil
-        acc = nil
-        entries = [];
-        credit = false;
-        err_msg = nil;
-    }
-    
-    var memo: String = ""
-    var date: Date = Date.now
-    var location: String = "Various"
-    var category: SubCategory? = nil
-    var acc: SubAccount? = nil
-    var entries: [Decimal] = [];
-    var credit: Bool = false;
-    var err_msg: String? = nil;
-    
-    var total: Decimal {
-        entries.reduce(into: 0.0) { $0 += $1 }
     }
 }
 
-struct CompositeTransaction : View {
-    @Bindable var vm: CompositeTransactionVM;
+struct CompositeTransaction : TransactionEditorProtocol {
+    enum Mode : Int, Identifiable {
+        case debit, credit
+        
+        var id: Self { self }
+    }
+    struct DataWrapper : Identifiable {
+        var data: Decimal = 0.0;
+        var id: UUID = UUID();
+    }
+    
+#if os(macOS)
+    let minWidth: CGFloat = 60;
+    let maxWidth: CGFloat = 70;
+#else
+    let minWidth: CGFloat = 70;
+    let maxWidth: CGFloat = 80;
+#endif
+    
+    private var warning = StringWarningManifest();
+    @State private var mode: Mode = .debit;
+    @State private var data: [DataWrapper];
+    @Bindable private var snapshot = LedgerEntrySnapshot();
+    @Environment(\.modelContext) private var modelContext;
+    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
+    
+    var groups: [[DataWrapper]] {
+        data.windows(4);
+    }
+    
+    func apply() -> Bool {
+        guard snapshot.validate() else {
+            warning.warning = .init(message: "Please fix all fields.");
+            return false;
+        }
+        
+        let newTrans = LedgerEntry();
+        snapshot.apply(newTrans, context: modelContext);
+    }
     
     var body : some View {
-        VStack {
-            HStack {
-                Text("Composite Transaction").font(.headline)
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
-                }
-                Spacer()
-            }.padding(.top, 5)
-            
+        TransactionEditorFrame(.composite, warning: warning, apply: apply, content: {
             Grid {
                 GridRow {
-                    Text("Memo")
-                    TextField("Memo", text: $vm.memo)
-                }
-                GridRow {
-                    Text("Date")
+                    Text("Memo:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
                     HStack {
-                        DatePicker("", selection: $vm.date, displayedComponents: .date).labelsHidden()
-                        Text("Location")
-                        TextField("Location", text: $vm.location)
+                        TextField("Memo", text: $snapshot.name)
+                            .textFieldStyle(.roundedBorder)
+                        Spacer()
                     }
                 }
                 GridRow {
-                    Text("Category")
-                    NamedPairPicker(target: $vm.category)
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        DatePicker("Date", selection: $snapshot.date, displayedComponents: .date)
+                            .labelsHidden()
+                
+                        Spacer()
+                    }
                 }
+                
                 GridRow {
-                    Text("Account")
-                    NamedPairPicker(target: $vm.acc)
+                    Text("Location:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        TextField("Location", text: $snapshot.location)
+                            .textFieldStyle(.roundedBorder)
+                        
+                        Spacer()
+                    }
                 }
-            }.padding(.bottom, 5)
-            
-            HStack {
-                Button(action: {}) {
-                    Label("Add", systemImage: "plus")
+                
+                Divider()
+                
+                GridRow {
+                    
                 }
-                Button(action: {}) {
-                    Label("Remove", systemImage: "trash").foregroundStyle(.red)
+                
+                Divider()
+                
+                GridRow {
+                    Text("Amount Kind:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    Picker("", selection: $mode) {
+                        Text(ledgerStyle.displayCredit).tag(Mode.credit)
+                        Text(ledgerStyle.displayDebit).tag(Mode.debit)
+                    }.labelsHidden()
+                        .pickerStyle(.segmented)
                 }
             }
             
-            ScrollView {
-                Grid {
-                    /*
-                    let upper_bound: Int = .init(
-                        ceil(Double.init(vm.entries.count) / 4.0)
-                    )
-                    
-                    ForEach(vm.entries.windows(ofSize: 4)) { group in
-                        GridRow {
-                            ForEach(group) { item in
-                                Text("Here")
-                            }
-                        }
-                    }
-                    ForEach(0..<upper_bound, id: \Int.self) { row_index in
-                        GridRow {
-                            ForEach(row_index..<(row_index * 4)) {
-                                Text("\($0, format: .currency(code: "USD"))")
-                            }
-                        }
-                    }
-                    */
-                }
-            }.frame(minHeight: 120)
-        }.padding([.leading, .trailing], 10).background(.background.opacity(0.5)).cornerRadius(5)
+            VStack {
+                
+            }
+        })
     }
 }
 

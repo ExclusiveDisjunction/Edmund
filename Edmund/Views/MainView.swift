@@ -9,13 +9,39 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-enum PageDestinations: LocalizedStringKey, CaseIterable, Identifiable{
+enum PageDestinations: LocalizedStringKey, Identifiable {
     case home = "Home",
-        ledger = "Ledger",
-        balance = "Balance Sheet",
-        bills = "Bills",
-        budget = "Budget",
-        org = "Organization"
+         ledger = "Ledger",
+         balance = "Balance Sheet",
+         bills = "Bills",
+         budget = "Budget",
+         
+         org = "Organization",
+         accounts = "Accounts",
+         categories = "Categories",
+         
+         pay = "Pay",
+         paychecks = "Paychecks",
+         jobs = "Jobs",
+         taxes = "Taxes"
+    
+    static var topLevel: [Self] {
+        [
+            .home,
+            .ledger,
+            .bills,
+            .budget,
+            .org,
+            .pay
+        ]
+    }
+    var children: [Self]? {
+        switch self {
+            case .org: [.accounts, .categories]
+            case .pay: [.paychecks, .jobs, .taxes]
+            default: nil
+        }
+    }
     
     var id: Self { self }
     
@@ -28,6 +54,7 @@ enum PageDestinations: LocalizedStringKey, CaseIterable, Identifiable{
             case .bills: AllBillsViewEdit()
             case .budget: Text("Work in progress").navigationTitle("Budget")
             case .org: AccountsCategories(vm: org)
+            default: Text("Work in progress").navigationTitle(self.rawValue)
         }
     }
 }
@@ -36,7 +63,7 @@ struct MainView: View {
     @Bindable private var balance_vm: BalanceSheetVM = .init();
     @Bindable private var accCatvm: AccountsCategoriesVM = .init();
     @State private var page: PageDestinations.ID? = nil;
-    @State private var allowedPages = PageDestinations.allCases;
+    @State private var allowedPages = PageDestinations.topLevel;
     
     var body: some View {
         NavigationSplitView {
@@ -46,7 +73,7 @@ struct MainView: View {
                     .padding(.bottom)
                     .backgroundStyle(.background.secondary)
                 
-                List($allowedPages, selection: $page) { $page in
+                List(allowedPages, children: \.children, selection: $page) { page in
                     Text(page.rawValue)
                 }
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
