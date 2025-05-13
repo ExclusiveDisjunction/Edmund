@@ -61,8 +61,9 @@ struct TopicView : View {
     @ViewBuilder
     private var isATopic: some View {
         if let content = content {
-            GeometryReader { geometry in
+            ScrollView {
                 Markdown(content)
+                    .padding()
                     .background(
                         RoundedRectangle(cornerSize: CGSize(width: 15, height: 15))
                             .fill(.background.secondary)

@@ -108,12 +108,15 @@ public struct UtilityEntriesEditRow : View {
 }
 public struct UtilityEntriesEdit : View {
     @Bindable public var snapshot: UtilitySnapshot;
+    @State private var selected = Set<UtilityEntry.ID>();
+    
     @Environment(\.dismiss) private var dismiss;
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func remove_selected() {
-        snapshot.children.removeAll(where: { $0.isSelected } )
+        snapshot.children.removeAll(where: { selected.contains($0.id) } )
     }
     private func add_new() {
         snapshot.children.append(.init(amount: 0, date: Date.now))
@@ -130,21 +133,51 @@ public struct UtilityEntriesEdit : View {
                     Label("Delete", systemImage: "trash").foregroundStyle(.red).buttonStyle(.bordered)
                 }
                 Spacer()
+                
+                #if os(iOS)
+                EditButton()
+                #endif
             }
             
-            ScrollView {
-                Grid {
-                    GridRow {
-                        Text("")
-                        Text("Amount")
-                        Text("Date")
+            if horizontalSizeClass == .compact {
+                List($snapshot.children, selection: $selected) { $child in
+                    HStack {
+                        TextField("", value: $child.amount, format: .currency(code: currencyCode))
+                            .textFieldStyle(.roundedBorder)
+                        Text("On", comment: "[Amount] on [Date]")
+                        DatePicker("", selection: $child.date, displayedComponents: .date)
+                            .labelsHidden()
                     }
-                    
-                    ForEach(snapshot.children, id: \.id) { child in
-                        UtilityEntriesEditRow(child: child, currencyCode: currencyCode)
+                }.frame(minHeight: 300, maxHeight: .infinity)
+            }
+            else {
+                Table($snapshot.children, selection: $selected) {
+                    TableColumn("Amount") { $child in
+                        TextField("", value: $child.amount, format: .currency(code: currencyCode))
+                            .textFieldStyle(.roundedBorder)
                     }
-                }
-            }.frame(minHeight: 300, maxHeight: .infinity)
+                    TableColumn("Date") { $child in
+                        DatePicker("", selection: $child.date, displayedComponents: .date)
+                            .labelsHidden()
+                    }
+                }.frame(minHeight: 300, maxHeight: .infinity)
+                    .contextMenu(forSelectionType: UtilityEntrySnapshot.ID.self) { selection in
+                        Button(action: add_new) {
+                            Label("Add", systemImage: "plus")
+                        }
+                        
+                        if !selection.isEmpty {
+                            Button(action: {
+                                withAnimation {
+                                    self.snapshot.children.removeAll(where: { selection.contains($0.id)} )
+                                }
+                            }) {
+                                Label("Remove", systemImage: "trans")
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                    }
+            }
             
             Spacer()
             

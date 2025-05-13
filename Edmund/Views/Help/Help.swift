@@ -62,10 +62,6 @@ struct HelpView : View {
     }
     
     private func loadRoots() async {
-        #if DEBUG
-        print("load roots called")
-        #endif
-        
         if let url = Bundle.main.url(forResource: "Help", withExtension: nil) {
             let helpUrl = url.appendingPathComponent("Help");
             let documentationUrl = url.appendingPathComponent("Documentation");

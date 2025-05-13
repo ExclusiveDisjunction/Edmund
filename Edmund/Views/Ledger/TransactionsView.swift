@@ -12,7 +12,6 @@ import EdmundCore;
 enum TransactionKind : Identifiable, Hashable, Equatable {
     case simple,
          composite,
-         grouped,
          creditCard
     case personalLoan,
          refund
@@ -22,11 +21,17 @@ enum TransactionKind : Identifiable, Hashable, Equatable {
     case audit
     case transfer(TransferKind)
     
+#if os(macOS)
+    case grouped
+#endif
+    
     var name: LocalizedStringKey {
         switch self {
             case .simple:          "Transaction"
             case .composite:       "Composite Transaction"
+#if os(macOS)
             case .grouped:         "Batch Transactions"
+#endif
             case .creditCard:      "Credit Card Transactions"
             case .personalLoan:    "Personal Loan"
             case .refund:          "Refund"
@@ -108,12 +113,14 @@ struct TransactionsEditor : View {
     var body: some View {
         switch kind {
             case .simple:          SimpleTransaction()
-            case .composite:       Text("Composite Transaction")
-            case .grouped:         Text("Batch Transactions")
-            case .creditCard:      Text("Credit Card Transactions")
+            case .composite:       CompositeTransaction()
+#if os(macOS)
+            case .grouped:         ManualTransactions()
+#endif
+            case .creditCard:      CreditCardTrans()
             case .personalLoan:    PersonalLoan()
             case .refund:          Refund()
-            case .income:          Text("Income")
+            case .income:          Income()
             case .billPay(let v):  BillPayment(kind: v)
             case .utilityPay:      UtilityPayment()
             case .audit:           Audit()

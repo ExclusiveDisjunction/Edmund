@@ -148,6 +148,9 @@ extension Array where Element: BalanceEncoder {
     mutating func sortByBalances() {
         self.sort(using: KeyPathComparator(\.balance, order: .reverse))
     }
+    func sortedByBalances() -> Self {
+        return self.sorted(using: KeyPathComparator(\.balance, order: .reverse))
+    }
 }
 extension Array where Element: ParentBalanceEncoder {
     mutating func sortByBalances() {

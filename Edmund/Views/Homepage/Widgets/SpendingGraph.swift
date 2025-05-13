@@ -17,39 +17,81 @@ struct SpendingComputation: Identifiable {
             (acc.0 + trans.credit, acc.1 + trans.debit)
         })
         
-        self.balance = computed.0 - computed.1
+        self.credit = computed.0
+        self.debit = computed.1
         self.id = UUID()
     }
     
     var id: UUID;
     var monthYear: MonthYear;
-    var balance: Decimal;
+    var credit: Decimal;
+    var debit: Decimal;
+    var balance: Decimal {
+        self.credit - self.debit
+    }
     
     var label: String {
         self.monthYear.asDate.formatted(date: .abbreviated, time: .omitted)
     }
 }
 
+enum SpendingGraphMode: Int, Identifiable, CaseIterable {
+    case net
+    case individual
+    
+    var name: LocalizedStringKey {
+        switch self {
+            case .net: "Net Spending"
+            case .individual: "Individual Spending"
+        }
+    }
+    var id: Self { self }
+}
+
 struct SpendingGraph : View {
     @Query private var entries: [LedgerEntry];
     @State private var resolved: [SpendingComputation]? = nil;
     
+    @AppStorage("spendingGraphShowingLast") private var showingLast: Int = 10;
+    @AppStorage("spendingGraphMode") private var spendingGraphMode: SpendingGraphMode = .net;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func load() -> [SpendingComputation] {
         let split = TransactionResolver.splitByMonth(entries);
-        return split.map(SpendingComputation.init)
+        return Array(split.map(SpendingComputation.init).sorted(using: KeyPathComparator(\.monthYear, order: .forward)).prefix(showingLast))
     }
     
     var body: some View {
+        Picker("", selection: $spendingGraphMode) {
+            ForEach(SpendingGraphMode.allCases, id: \.id) { mode in
+                Text(mode.name).tag(mode)
+            }
+        }.pickerStyle(.segmented)
+            .labelsHidden()
+        
         LoadableView($resolved, process: load, onLoad: { resolved in
             Chart(resolved) { pair in
-                BarMark(
-                    x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
-                    y: .value(Text(pair.balance, format: .currency(code: currencyCode)), pair.balance)
-                )
-                .foregroundStyle(pair.balance < 0 ? .red : .green)
-            }.chartLegend(.visible)
+                if spendingGraphMode == .net {
+                    BarMark(
+                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
+                        y: .value(Text(pair.balance, format: .currency(code: currencyCode)), pair.balance)
+                    )
+                    .foregroundStyle(pair.balance < 0 ? .red : .green)
+                }
+                else {
+                    BarMark(
+                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
+                        y: .value(Text(pair.credit, format: .currency(code: currencyCode)), pair.credit)
+                    )
+                    .foregroundStyle(.green)
+                    
+                    BarMark(
+                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
+                        y: .value(Text(-pair.debit, format: .currency(code: currencyCode)), -pair.debit)
+                    )
+                    .foregroundStyle(.red)
+                }
+            }.chartLegend(.visible).chartXAxisLabel("Month & Year").chartYAxisLabel("Amount")
         })
     }
 }
@@ -58,5 +100,5 @@ struct SpendingGraph : View {
     SpendingGraph()
         .padding()
         .frame(width: 500)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(Containers.transactionsWithSpreadContainer)
 }

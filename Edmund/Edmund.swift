@@ -98,5 +98,11 @@ struct EdmundApp: App {
             HelpView()
                 .preferredColorScheme(colorScheme)
         }
+        
+        WindowGroup("Credit Helper", id: "creditHelper") {
+            CreditCardHelper()
+                .modelContainer(container)
+                .preferredColorScheme(colorScheme)
+        }
     }
 }

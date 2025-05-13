@@ -182,7 +182,13 @@
     "Memo:" : {
 
     },
+    "Money In" : {
+
+    },
     "Money In:" : {
+
+    },
+    "Money Out" : {
 
     },
     "Money Out:" : {
@@ -255,6 +261,9 @@
 
     },
     "Quarterly" : {
+
+    },
+    "Remove" : {
 
     },
     "Reversed Accounting Style" : {

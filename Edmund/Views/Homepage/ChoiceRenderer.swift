@@ -24,8 +24,7 @@ struct ChoiceRenderer : View {
                     case .detailedBalances: DetailedBalancesView()
                     case .simpleBalances: SimpleBalancesView()
                     case .moneyGraph: MoneyGraph()
-                    case .payday:
-                        Text("Work in progress")
+                    case .payday: PaydayWidget()
                     case .spendingGraph: SpendingGraph()
                     case .none: EmptyView()
                 }

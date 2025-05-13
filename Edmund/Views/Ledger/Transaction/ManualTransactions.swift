@@ -8,171 +8,108 @@
 import SwiftUI;
 import SwiftData;
 import Foundation;
+import EdmundCore;
 
-@Observable
-class ManTransactionLine : Identifiable {
-    init() {
-       
-    }
-    
-    var id: UUID = UUID();
-    var memo: String = "";
-    var credit: Decimal = 0;
-    var debit: Decimal = 0;
-    var date: Date = Date.now;
-    var location: String = "";
-    var category: SubCategory? = nil;
-    var account: SubAccount? = nil;
-    var selected: Bool = false;
-    
-    func contains_empty() -> Bool {
-        memo.isEmpty || category == nil || account == nil
-    }
-    
-    func into_trans() -> LedgerEntry? {
-        guard !memo.isEmpty else { return nil }
-        guard let acc = self.account, let cat = self.category else { return nil }
-        
-        return LedgerEntry(
-            memo: memo,
-            credit: credit,
-            debit: debit,
-            date: date,
-            location: location,
-            category: cat,
-            account: acc)
-    }
-}
+#if os(macOS)
 
-struct ManTransLineView : View {
-    @Binding var line: ManTransactionLine;
-    @Binding var enable_dates: Bool;
+struct ManualTransactions: TransactionEditorProtocol {
+    @State private var snapshots: [LedgerEntrySnapshot] = [.init()];
+    @State private var enableDates: Bool = true;
+    private var warning = StringWarningManifest();
     
-    var body: some View {
-        Toggle("Selected", isOn: $line.selected).labelsHidden()
-        TextField("Memo", text: $line.memo).frame(minWidth: 120).disabled(line.selected)
-        TextField("Money In", value: $line.credit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(line.selected)
-        TextField("Money Out", value: $line.debit, format: .currency(code: "USD")).frame(minWidth: 60).disabled(line.selected)
-        DatePicker("Date", selection: $line.date, displayedComponents: .date).labelsHidden().disabled(!enable_dates || line.selected)
-        TextField("Location", text: $line.location).frame(minWidth: 100).disabled(line.selected)
-        NamedPairPicker(target: $line.category).frame(minWidth: 200).disabled(line.selected)
-        NamedPairPicker(target: $line.account).frame(minWidth: 200).disabled(line.selected)
-    }
-}
-
-@Observable
-class ManualTransactionsVM : TransactionEditor {
-    init() {
-        adding.append(.init())
-    }
+    @Environment(\.modelContext) private var modelContext;
     
-    var adding : [ManTransactionLine] = [];
-    var enable_dates: Bool = true;
-    var err_msg: String? = nil;
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func compile_deltas() -> Dictionary<UUID, Decimal>? {
-        if !validate() { return nil; }
+    func apply() -> Bool {
         
-        return adding.reduce(into: [:]) {
-            guard let acc = $1.account else { return }
-            $0[acc.id] = $1.credit - $1.debit
-        };
-    }
-    func create_transactions(_ cats: CategoriesContext) -> [LedgerEntry]? {
-        if !validate() { return nil; }
-        
-        return adding.reduce(into: []) {
-            guard let entry = $1.into_trans() else { return }
-            $0.append(entry)
-        };
-    }
-    func validate() -> Bool {
-        let empty_lines: [Int] = adding.enumerated().reduce(into: []) { result, pair in
-            if pair.element.contains_empty() {
-                result.append(pair.offset)
+        var result: [LedgerEntry] = [];
+        for snapshot in snapshots {
+            if !snapshot.validate() {
+                warning.warning = .init(message: "emptyFields")
             }
+            
+            let entry = LedgerEntry();
+            snapshot.apply(entry, context: modelContext)
+            
+            result.append(entry)
         }
-        
-        if !empty_lines.isEmpty {
-            err_msg = "The following lines contain empty fields: " + empty_lines.map(String.init).joined(separator: ", ")
-            return false;
-        }
-        else {
-            err_msg = nil;
-            return true;
-        }
-    }
-    func clear() {
-        adding = []
-        err_msg = nil
-    }
-}
 
-struct ManualTransactions: View {
-    @Bindable var vm: ManualTransactionsVM;
-    
-    private func add_trans() {
-        vm.adding.append(.init())
+        for item in result {
+            modelContext.insert(item)
+        }
+        return true;
     }
-    private func remove_selected() {
-        vm.adding.removeAll(where: { $0.selected })
+    private func add_trans() {
+        withAnimation {
+            snapshots.append(.init())
+        }
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Manual Transactions").font(.headline)
-                if let msg = vm.err_msg {
-                    Text(msg).foregroundStyle(.red).italic()
-                }
-                Spacer()
-            }.padding([.leading, .trailing], 10).padding(.top, 5)
-            
-            HStack {
-                Button(action: {
-                    withAnimation {
-                        add_trans()
-                    }
-                }) {
+        TransactionEditorFrame(.grouped, warning: warning, apply: apply, content: {
+            VStack {
+                Button(action: add_trans) {
                     Label("Add", systemImage: "plus")
-                }.help("Add a transaction to the table")
-                Button(action: {
-                    withAnimation {
-                        remove_selected()
+                }
+                
+                Toggle("Enable Dates", isOn: $enableDates)
+                
+                Table($snapshots) {
+                    TableColumn("Memo") { $item in
+                        TextField("", text: $item.name)
+                            .textFieldStyle(.roundedBorder)
                     }
-                }) {
-                    Label("Remove Selected", systemImage: "trash").foregroundStyle(.red)
-                }.help("Remove all transactions that are currently selected")
-            }.padding(.bottom, 5)
-            
-            Toggle("Enable Dates", isOn: $vm.enable_dates).help("Enable the date field, for manual input. You can disable the date field for quicker inputs if the current date is satisfactory.")
-            
-            ScrollView {
-                Grid {
-                    GridRow {
-                        Text("")
-                        Text("Memo")
-                        Text("Credit")
-                        Text("Debit")
-                        Text("Date")
-                        Text("Location")
-                        Text("Category")
-                        Text("Account")
+                    TableColumn("Credit") { $item in
+                        TextField("", value: $item.credit, format: .currency(code: currencyCode))
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    TableColumn("Debit") { $item in
+                        TextField("", value: $item.debit, format: .currency(code: currencyCode))
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    TableColumn("Date") { $item in
+                        DatePicker("", selection: $item.date, displayedComponents: .date)
+                            .labelsHidden()
+                            .disabled(!enableDates)
+                    }
+                    TableColumn("Location") { $item in
+                        TextField("", text: $item.location)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    TableColumn("Category") { $item in
+                        NamedPairPicker($item.category)
+                    }.width(170)
+                    TableColumn("Account") { $item in
+                        NamedPairPicker($item.account)
+                    }.width(170)
+                }
+                .contextMenu(forSelectionType: LedgerEntrySnapshot.ID.self) { selection in
+                    Button(action: add_trans) {
+                        Label("Add", systemImage: "plus")
                     }
                     
-                    Divider()
-                    
-                    ForEach($vm.adding) { $item in
-                        GridRow {
-                            ManTransLineView(line: $item, enable_dates: $vm.enable_dates)
+                    if !selection.isEmpty {
+                        Button(action: {
+                            withAnimation {
+                                self.snapshots.removeAll(where: { selection.contains($0.id)} )
+                            }
+                        }) {
+                            Label("Remove", systemImage: "trans")
+                                .foregroundStyle(.red)
                         }
                     }
-                }.padding().background(.background.opacity(0.7))
+                }
+                .frame(minWidth: 500, minHeight: 300)
             }
-        }.background(.background.opacity(0.5)).cornerRadius(5)
+        })
     }
 }
 
 #Preview {
-    ManualTransactions(vm: .init())
+    ManualTransactions()
+        .modelContainer(Containers.debugContainer)
+        .padding()
 }
+
+#endif

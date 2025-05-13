@@ -51,6 +51,10 @@ public final class Account : Identifiable, Hashable, BoundPairParent, EditableEl
             .init("Credit", creditLimit: 3000, children: [
                 .init("DI"),
                 .init("Groceries")
+            ]),
+            .init("Visa", creditLimit: 4000, children: [
+                .init("DI"),
+                .init("Groceries")
             ])
         ]
     }()

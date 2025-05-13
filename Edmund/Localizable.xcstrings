@@ -30,29 +30,6 @@
       },
       "shouldTranslate" : false
     },
-    "%@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
-        "es-US" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "About" : {
 
     },
@@ -121,22 +98,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Konta"
-          }
-        }
-      }
-    },
-    "Accout Name" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Name des Kontos"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nazwa konta"
           }
         }
       }
@@ -239,6 +200,9 @@
         }
       }
     },
+    "Amount Kind:" : {
+
+    },
     "Amount:" : {
 
     },
@@ -310,15 +274,8 @@
         }
       }
     },
-    "Avalible Credit" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dostępne saldo"
-          }
-        }
-      }
+    "Availiable Credit" : {
+
     },
     "Balance" : {
       "localizations" : {
@@ -353,6 +310,12 @@
       }
     },
     "Balance Verification" : {
+
+    },
+    "Balance Verifier" : {
+
+    },
+    "Balanced" : {
 
     },
     "Balances Graph" : {
@@ -463,16 +426,6 @@
     "Build %@" : {
 
     },
-    "Calculated" : {
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obliczone "
-          }
-        }
-      }
-    },
     "Cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -565,7 +518,13 @@
         }
       }
     },
+    "Credit Card Helper" : {
+
+    },
     "Credit Card Transactions" : {
+
+    },
+    "Credit Helper" : {
 
     },
     "Credit Limit" : {
@@ -742,6 +701,9 @@
           }
         }
       }
+    },
+    "Enable Dates" : {
+
     },
     "Ended On" : {
 
@@ -930,7 +892,7 @@
     "I loaned" : {
 
     },
-    "If results are not being updated, press refresh" : {
+    "If you need assistance with this tool, please see the help topic." : {
 
     },
     "Import Data" : {
@@ -940,6 +902,9 @@
 
     },
     "Income Report" : {
+
+    },
+    "Individual Spending" : {
 
     },
     "Initialize Ledger" : {
@@ -1052,11 +1017,11 @@
         }
       }
     },
+    "Location:" : {
+
+    },
     "Maks Kruc" : {
       "shouldTranslate" : false
-    },
-    "Manual" : {
-
     },
     "Many-to-Many" : {
       "localizations" : {
@@ -1105,6 +1070,9 @@
           }
         }
       }
+    },
+    "Memo:" : {
+
     },
     "Miscellaneous" : {
 
@@ -1168,6 +1136,9 @@
           }
         }
       }
+    },
+    "Net Spending" : {
+
     },
     "Next Due Date" : {
 
@@ -1312,6 +1283,9 @@
         }
       }
     },
+    "Over" : {
+
+    },
     "paid" : {
 
     },
@@ -1351,9 +1325,6 @@
 
     },
     "Place" : {
-
-    },
-    "Please add at least one account with a credit limit" : {
 
     },
     "Please ensure that the top total matches the bottom total" : {
@@ -1464,6 +1435,9 @@
     },
     "refunded me" : {
       "comment" : "company refunded me $_"
+    },
+    "Remove" : {
+
     },
     "Removing this information will remove all associated transactions. Do you wish to continue?" : {
       "localizations" : {
@@ -1591,6 +1565,9 @@
     "Started On" : {
 
     },
+    "Status" : {
+
+    },
     "Styles" : {
       "localizations" : {
         "de" : {
@@ -1695,22 +1672,6 @@
         }
       }
     },
-    "There is nothing to report" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Es gibt nichts zu berichten"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak informacji."
-          }
-        }
-      }
-    },
     "This app is not translated with professional translators." : {
 
     },
@@ -1803,6 +1764,9 @@
           }
         }
       }
+    },
+    "Under" : {
+
     },
     "Unexpected Error" : {
       "localizations" : {
@@ -1919,7 +1883,13 @@
     "Work in progress" : {
 
     },
+    "Work in Progress" : {
+
+    },
     "Written by Hollan Sellars (ExDisj)" : {
+
+    },
+    "x" : {
 
     },
     "Year" : {

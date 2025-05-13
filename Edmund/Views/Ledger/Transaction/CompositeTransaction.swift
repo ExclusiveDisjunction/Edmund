@@ -38,7 +38,7 @@ struct CompositeTransaction : TransactionEditorProtocol {
     
     private var warning = StringWarningManifest();
     @State private var mode: Mode = .debit;
-    @State private var data: [DataWrapper];
+    @State private var data: [DataWrapper] = [];
     @Bindable private var snapshot = LedgerEntrySnapshot();
     @Environment(\.modelContext) private var modelContext;
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
@@ -55,6 +55,20 @@ struct CompositeTransaction : TransactionEditorProtocol {
         
         let newTrans = LedgerEntry();
         snapshot.apply(newTrans, context: modelContext);
+        
+        let total = data.reduce(into: 0.0) { result, item in
+            result += item.data
+        };
+        
+        if mode == .debit {
+            newTrans.debit = total
+        }
+        else {
+            newTrans.credit = total
+        }
+        
+        modelContext.insert(newTrans)
+        return true
     }
     
     var body : some View {
@@ -122,5 +136,7 @@ struct CompositeTransaction : TransactionEditorProtocol {
 }
 
 #Preview {
-    CompositeTransaction(vm: CompositeTransactionVM())
+    CompositeTransaction()
+        .modelContainer(Containers.debugContainer)
+        .padding()
 }

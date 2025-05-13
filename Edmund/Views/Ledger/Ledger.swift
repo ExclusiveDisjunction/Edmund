@@ -124,9 +124,11 @@ struct LedgerTable: View {
                     Button(TransactionKind.composite.name, action: {
                         transKind = .init(.composite)
                     })
+#if os(macOS)
                     Button(TransactionKind.grouped.name, action: {
                         transKind = .init(.grouped)
                     })
+#endif
                     Button(TransactionKind.creditCard.name, action: {
                         transKind = .init(.creditCard)
                     })

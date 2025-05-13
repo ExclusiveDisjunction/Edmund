@@ -18,6 +18,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
          
          org = "Organization",
          accounts = "Accounts",
+         credit = "Credit Card Helper",
+         audit = "Balance Verifier",
          categories = "Categories",
          
          pay = "Pay",
@@ -29,6 +31,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
         [
             .home,
             .ledger,
+            .balance,
             .bills,
             .budget,
             .org,
@@ -37,7 +40,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     }
     var children: [Self]? {
         switch self {
-            case .org: [.accounts, .categories]
+            case .org: [.accounts, .credit, .audit, .categories]
             case .pay: [.paychecks, .jobs, .taxes]
             default: nil
         }
@@ -54,6 +57,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .bills: AllBillsViewEdit()
             case .budget: Text("Work in progress").navigationTitle("Budget")
             case .org: AccountsCategories(vm: org)
+            case .credit: CreditCardHelper()
+            case .audit: BalanceVerifier()
             default: Text("Work in progress").navigationTitle(self.rawValue)
         }
     }
@@ -64,6 +69,8 @@ struct MainView: View {
     @Bindable private var accCatvm: AccountsCategoriesVM = .init();
     @State private var page: PageDestinations.ID? = nil;
     @State private var allowedPages = PageDestinations.topLevel;
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     var body: some View {
         NavigationSplitView {
@@ -79,6 +86,7 @@ struct MainView: View {
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             (page ?? .home).view(bal: balance_vm, org: accCatvm)
+                .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
         }
     }
 }
