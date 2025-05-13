@@ -12,7 +12,11 @@ import EdmundCore
 @main
 struct EdmundApp: App {
     init() {
+        #if DEBUG
+        self.container = Containers.debugContainer;
+#else
         self.container = Containers.container;
+#endif
         
 #if os(iOS)
         registerBackgroundTasks()

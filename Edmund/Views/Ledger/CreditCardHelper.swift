@@ -41,6 +41,7 @@ struct CreditCardHelper: View {
     @Query private var accounts: [Account];
     @State private var manual: Bool = false;
     @State private var rows: [BalanceVerifyRow] = [];
+    @State private var showSheet = false;
     
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -72,34 +73,42 @@ struct CreditCardHelper: View {
     private func popout() {
         openWindow(id: "creditHelper")
     }
+    private func show_sheet() {
+        self.showSheet = true;
+    }
     
     @ViewBuilder
     var expanded: some View {
-        Table($rows) {
-            TableColumn("Account") { $row in
+        Table(rows) {
+            TableColumn("Account") { row in
                 Text(row.name)
             }
-            TableColumn("Credit Limit") { $row in
+            TableColumn("Credit Limit") { row in
                 Text(row.creditLimit, format: .currency(code: currencyCode))
             }
-            TableColumn("Availiable Credit") { $row in
-                TextField("", value: $row.avalibleCredit, format: .currency(code: currencyCode))
-                    .textFieldStyle(.roundedBorder)
+            TableColumn("Availiable Credit") { row in
+                Text(row.avalibleCredit, format: .currency(code: currencyCode))
             }
-            TableColumn("Expected Balance") { $row in
+            TableColumn("Expected Balance") { row in
                 Text(row.expectedBalance, format: .currency(code: currencyCode))
             }
-            TableColumn("Current Balance") { $row in
+            TableColumn("Current Balance") { row in
                 Text(row.balance, format: .currency(code: currencyCode))
             }
-            TableColumn("Variance") { $row in
+            TableColumn("Variance") { row in
                 Text(row.variance, format: .currency(code: currencyCode))
             }
-            TableColumn("Status") { $row in
+            TableColumn("Status") { row in
                 Text(row.variance == 0 ? "Balanced" : row.variance > 0 ? "Over" : "Under")
             }
-        }.contextMenu(forSelectionType: BalanceVerifyRow.ID.self) { selection in
+        }.contextMenu {
+            Button(action: show_sheet) {
+                Label("Edit Available Credit", systemImage: "pencil")
+            }
             
+            Button(action: refresh) {
+                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            }
         }
     }
     
@@ -152,6 +161,20 @@ struct CreditCardHelper: View {
                         }
                     }
                 }
+            }.sheet(isPresented: $showSheet) {
+                VStack {
+                    AvailableCreditEdit(targets: $rows)
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button("Ok") {
+                            showSheet = false
+                        }.buttonStyle(.borderedProminent)
+                    }
+                }.padding()
+                #if os(macOS)
+                    .frame(minHeight: 350)
+                #endif
             }
     }
 }
