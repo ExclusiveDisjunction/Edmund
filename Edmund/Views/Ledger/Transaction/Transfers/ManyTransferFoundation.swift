@@ -94,7 +94,13 @@ struct ManyTransferTable : View {
                 ForEach($data) { $item in
                     GridRow {
                         Toggle("Selected", isOn: $item.selected).labelsHidden()
-                        TextField("Amount", value: $item.amount, format: .currency(code: "USD")).disabled(item.selected)
+                        TextField("Amount", value: $item.amount, format: .currency(code: "USD"))
+                            .disabled(item.selected)
+                            .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                            .keyboardType(.decimalPad)
+#endif
+
                         NamedPairPicker($item.account).disabled(item.selected)
                     }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
                 }

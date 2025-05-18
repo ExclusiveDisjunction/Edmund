@@ -274,9 +274,6 @@
         }
       }
     },
-    "Available Credit" : {
-
-    },
     "Availiable Credit" : {
 
     },
@@ -479,6 +476,9 @@
         }
       }
     },
+    "Category:" : {
+
+    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -499,7 +499,7 @@
     "Compact sizes only display scroll view." : {
 
     },
-    "Company" : {
+    "Company:" : {
 
     },
     "Composite Transaction" : {
@@ -637,7 +637,7 @@
         }
       }
     },
-    "Deposit into:" : {
+    "Deposit:" : {
 
     },
     "Detailed Balances" : {
@@ -766,7 +766,10 @@
     "Export Data" : {
 
     },
-    "For" : {
+    "Expression:" : {
+
+    },
+    "For Item:" : {
 
     },
     "For Utility:" : {
@@ -789,9 +792,6 @@
         }
       }
     },
-    "from" : {
-      "comment" : "on [date] from [account]"
-    },
     "From:" : {
 
     },
@@ -802,9 +802,6 @@
 
     },
     "Generate Report" : {
-
-    },
-    "gifted" : {
 
     },
     "Groups:" : {
@@ -892,12 +889,6 @@
     "https://github.com/swiftlang/swift-markdown" : {
       "shouldTranslate" : false
     },
-    "I got" : {
-
-    },
-    "I loaned" : {
-
-    },
     "If you need assistance with this tool, please see the help topic." : {
 
     },
@@ -943,16 +934,10 @@
         }
       }
     },
-    "into" : {
-
-    },
     "into:" : {
 
     },
     "Into:" : {
-
-    },
-    "Item" : {
 
     },
     "James Larson" : {
@@ -1005,6 +990,9 @@
 
     },
     "Loading guides, please wait" : {
+
+    },
+    "Loan" : {
 
     },
     "Location" : {
@@ -1080,7 +1068,7 @@
     "Memo:" : {
 
     },
-    "Miscellaneous" : {
+    "Miscellaneous Income" : {
 
     },
     "missingAccount" : {
@@ -1092,6 +1080,9 @@
           }
         }
       }
+    },
+    "Mode:" : {
+
     },
     "Month" : {
       "extractionState" : "manual",
@@ -1215,10 +1206,7 @@
       }
     },
     "on" : {
-      "comment" : "$_ on [date]\nfor [item] on [date]"
-    },
-    "On" : {
-      "comment" : "[Amount] on [Date]"
+      "comment" : "$_ on [date]"
     },
     "One Section" : {
 
@@ -1292,13 +1280,13 @@
     "Over" : {
 
     },
-    "paid" : {
-
-    },
     "Pay" : {
 
     },
     "Paychecks" : {
+
+    },
+    "Payday" : {
 
     },
     "Payday Info" : {
@@ -1330,10 +1318,13 @@
     "Personal Loan" : {
 
     },
-    "Place" : {
+    "Please ensure that the elements are numbers separated by commas." : {
 
     },
     "Please ensure that the top total matches the bottom total" : {
+
+    },
+    "Please enter the values, separated by commas (',')" : {
 
     },
     "Please fill in all fields" : {
@@ -1439,9 +1430,6 @@
     "Refund" : {
 
     },
-    "refunded me" : {
-      "comment" : "company refunded me $_"
-    },
     "Remove" : {
 
     },
@@ -1455,7 +1443,7 @@
         }
       }
     },
-    "repaid" : {
+    "Repayment" : {
 
     },
     "Report" : {
@@ -1548,6 +1536,9 @@
       }
     },
     "Simple Balances" : {
+
+    },
+    "Source" : {
 
     },
     "Source:" : {
@@ -1662,6 +1653,9 @@
     "The page content could not be loaded. Please report this issue." : {
 
     },
+    "There are no accounts with credit limits to modify." : {
+
+    },
     "There are no associated transactions for this account" : {
 
     },
@@ -1682,6 +1676,9 @@
 
     },
     "This app is released as open source, but only the developer, Hollan Sellars, is authorized to publish it." : {
+
+    },
+    "To:" : {
 
     },
     "Today" : {

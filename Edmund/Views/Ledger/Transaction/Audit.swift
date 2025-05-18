@@ -49,17 +49,15 @@ struct Audit: TransactionEditorProtocol {
             Grid {
                 GridRow {
                     Text("Account:")
-                    HStack {
-                        NamedPairPicker($account)
-                        Spacer()
-                    }
+                    NamedPairPicker($account)
                 }
                 GridRow {
                     Text("Amount:")
-                    HStack {
-                        TextField("Amount", value: $amount, format: .currency(code: currencyCode))
-                        Spacer()
-                    }
+                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                        .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
                 }
                 GridRow {
                     Text("Date:")

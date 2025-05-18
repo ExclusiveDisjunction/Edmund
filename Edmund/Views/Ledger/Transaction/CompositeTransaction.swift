@@ -27,10 +27,14 @@ struct CompositeTransaction : TransactionEditorProtocol {
         var data: Decimal = 0.0;
         var id: UUID = UUID();
     }
+    struct DataList : Identifiable {
+        var data: [DataWrapper];
+        var id: UUID = UUID();
+    }
     
 #if os(macOS)
-    let minWidth: CGFloat = 60;
-    let maxWidth: CGFloat = 70;
+    let minWidth: CGFloat = 75;
+    let maxWidth: CGFloat = 85;
 #else
     let minWidth: CGFloat = 70;
     let maxWidth: CGFloat = 80;
@@ -38,13 +42,32 @@ struct CompositeTransaction : TransactionEditorProtocol {
     
     private var warning = StringWarningManifest();
     @State private var mode: Mode = .debit;
-    @State private var data: [DataWrapper] = [];
+    @State private var working: String = "";
     @Bindable private var snapshot = LedgerEntrySnapshot();
     @Environment(\.modelContext) private var modelContext;
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    var groups: [[DataWrapper]] {
-        data.windows(4);
+    func computeWorking() -> Decimal? {
+        let split = working.split(separator: ",");
+        let trimmed = split.map { $0.trimmingCharacters(in: .whitespaces) };
+        
+        guard !trimmed.isEmpty else {
+            return 0.0;
+        }
+        
+        let trans = trimmed.map({ $0.isEmpty ? Decimal() : Decimal(string: $0) } );
+        
+        var result: Decimal = 0;
+        for item in trans {
+            guard let item = item else {
+                return nil;
+            }
+            
+            result += item;
+        }
+        
+        return result;
     }
     
     func apply() -> Bool {
@@ -56,9 +79,10 @@ struct CompositeTransaction : TransactionEditorProtocol {
         let newTrans = LedgerEntry();
         snapshot.apply(newTrans, context: modelContext);
         
-        let total = data.reduce(into: 0.0) { result, item in
-            result += item.data
-        };
+        guard let total = computeWorking() else {
+            warning.warning = .init(message: "Please ensure that the elements are numbers separated by commas.");
+            return false;
+        }
         
         if mode == .debit {
             newTrans.debit = total
@@ -78,11 +102,9 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     Text("Memo:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        TextField("Memo", text: $snapshot.name)
+                    
+                    TextField("Memo", text: $snapshot.name)
                             .textFieldStyle(.roundedBorder)
-                        Spacer()
-                    }
                 }
                 GridRow {
                     Text("Date:")
@@ -100,18 +122,23 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     Text("Location:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        TextField("Location", text: $snapshot.location)
+                    TextField("Location", text: $snapshot.location)
                             .textFieldStyle(.roundedBorder)
-                        
-                        Spacer()
-                    }
                 }
                 
                 Divider()
                 
                 GridRow {
+                    Text("Category:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
+                    NamedPairPicker($snapshot.category)
+                }
+                GridRow {
+                    Text("Account:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    NamedPairPicker($snapshot.account)
                 }
                 
                 Divider()
@@ -126,9 +153,33 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     }.labelsHidden()
                         .pickerStyle(.segmented)
                 }
-            }
-            
-            VStack {
+                
+                GridRow {
+                    Text("Expression:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("", text: $working)
+                        .textFieldStyle(.roundedBorder)
+                }
+                
+                GridRow {
+                    Text("")
+                    HStack {
+                        Text("Please enter the values, separated by commas (',')")
+                            .italic()
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Total:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(self.computeWorking() ?? Decimal.nan, format: .currency(code: currencyCode))
+                        Spacer()
+                    }
+                }
                 
             }
         })
@@ -138,5 +189,4 @@ struct CompositeTransaction : TransactionEditorProtocol {
 #Preview {
     CompositeTransaction()
         .modelContainer(Containers.debugContainer)
-        .padding()
 }

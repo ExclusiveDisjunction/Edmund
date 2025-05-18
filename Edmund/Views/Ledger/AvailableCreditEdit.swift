@@ -13,15 +13,35 @@ struct AvailableCreditEdit: View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     var body: some View {
-        Table($targets) {
-            TableColumn("Name") { $target in
-                Text(target.name)
+        VStack {
+            if targets.isEmpty {
+                Text("There are no accounts with credit limits to modify.")
+                    .italic()
             }
-            TableColumn("Available Credit") { $target in
-                TextField("", value: $target.avalibleCredit, format: .currency(code: currencyCode))
-                    .textFieldStyle(.roundedBorder)
+            else {
+                Grid {
+                    GridRow {
+                        Text("Account")
+                            .bold()
+                        Text("Credit Limit")
+                            .bold()
+                    }
+                    Divider()
+                    
+                    ForEach($targets, id: \.id) { $target in
+                        GridRow {
+                            Text(target.name)
+                        
+                            TextField("", value: $target.avalibleCredit, format: .currency(code: currencyCode))
+                                .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                                .keyboardType(.decimalPad)
+#endif
+                        }
+                    }
+                }
             }
-        }
+        }.padding()
     }
 }
 

@@ -31,5 +31,4 @@ struct CreditCardTrans: TransactionEditorProtocol {
 #Preview {
     CreditCardTrans()
         .modelContainer(Containers.debugContainer)
-        .padding()
 }

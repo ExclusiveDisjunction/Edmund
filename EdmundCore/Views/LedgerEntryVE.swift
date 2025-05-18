@@ -39,7 +39,12 @@ public struct LedgerEntryEdit : ElementEditorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
-                    TextField("Credit", value: $snapshot.credit, format: .currency(code: currencyCode)).textFieldStyle(.roundedBorder)
+                    TextField("Credit", value: $snapshot.credit, format: .currency(code: currencyCode))
+                        .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
+
                     Spacer()
                 }
             }
@@ -48,7 +53,12 @@ public struct LedgerEntryEdit : ElementEditorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
-                    TextField("Debit", value: $snapshot.debit, format: .currency(code: currencyCode)).textFieldStyle(.roundedBorder)
+                    TextField("Debit", value: $snapshot.debit, format: .currency(code: currencyCode))
+                        .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
+
                     Spacer()
                 }
             }

@@ -10,6 +10,13 @@ import SwiftData
 import EdmundCore
 
 struct PersonalLoan: TransactionEditorProtocol {
+    enum Mode : LocalizedStringKey, Identifiable, CaseIterable {
+        case loan = "Loan", repayment = "Repayment"
+        
+        var id: Self { self }
+    }
+    
+    @State private var mode = Mode.loan;
     @State private var person: String = "";
     @State private var amount: Decimal = 0;
     @State private var date: Date = Date.now;
@@ -20,6 +27,14 @@ struct PersonalLoan: TransactionEditorProtocol {
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+#if os(macOS)
+    let minWidth: CGFloat = 60;
+    let maxWidth: CGFloat = 70;
+#else
+    let minWidth: CGFloat = 70;
+    let maxWidth: CGFloat = 80;
+#endif
     
     func apply() -> Bool {
         guard let categories = categoriesContext else {
@@ -42,13 +57,18 @@ struct PersonalLoan: TransactionEditorProtocol {
             return false;
         }
         
+        let name = switch mode {
+            case .loan: "Personal loan to \(person)"
+            case .repayment: "Repayment from \(person)"
+        }
+        
         let transaction = LedgerEntry(
-            name: "Personal loan to \(person)",
-            credit: 0,
-            debit: amount,
+            name: name,
+            credit: mode == .loan ? 0 : amount,
+            debit: mode == .loan ? amount : 0,
             date: date,
             location: "Bank",
-            category: categories.payments.loan,
+            category: mode == .loan ? categories.payments.loan : categories.payments.repayment,
             account: destination
         );
         
@@ -58,17 +78,54 @@ struct PersonalLoan: TransactionEditorProtocol {
     
     var body: some View {
         TransactionEditorFrame(.personalLoan, warning: warning, apply: apply, content: {
-            VStack {
-                HStack {
-                    Text("I loaned")
-                    TextField("Person", text: $person)
-                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+            Grid {
+                GridRow {
+                    Text("Mode:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    Picker("", selection: $mode) {
+                        ForEach(Mode.allCases, id: \.id) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }.labelsHidden()
+                        .pickerStyle(.segmented)
                 }
-                HStack {
-                    Text("On")
-                    DatePicker("On", selection: $date, displayedComponents: .date)
-                        .labelsHidden()
-                    Text("from", comment: "on [date] from [account]")
+                
+                GridRow {
+                    Text("Amount:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("", value: $amount, format: .currency(code: currencyCode))
+                        .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
+
+                }
+                
+                GridRow {
+                    Text(mode == .loan ? "To:" : "From:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("Person", text: $person)
+                        .textFieldStyle(.roundedBorder)
+                }
+                
+                GridRow {
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        DatePicker("", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Account:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
                     NamedPairPicker($account)
                 }
             }
@@ -78,6 +135,5 @@ struct PersonalLoan: TransactionEditorProtocol {
 
 #Preview {
     PersonalLoan()
-        .padding()
         .modelContainer(Containers.debugContainer)
 }

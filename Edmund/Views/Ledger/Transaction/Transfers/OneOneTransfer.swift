@@ -80,6 +80,10 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                         TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                             .labelsHidden()
                             .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                            .keyboardType(.decimalPad)
+#endif
+
                         Spacer()
                     }
                 }

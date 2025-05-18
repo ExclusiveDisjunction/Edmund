@@ -15,7 +15,8 @@ enum TransactionKind : Identifiable, Hashable, Equatable {
          creditCard
     case personalLoan,
          refund
-    case income
+    case miscIncome,
+         payday
     case billPay    (BillsKind),
          utilityPay
     case audit
@@ -35,7 +36,8 @@ enum TransactionKind : Identifiable, Hashable, Equatable {
             case .creditCard:      "Credit Card Transactions"
             case .personalLoan:    "Personal Loan"
             case .refund:          "Refund"
-            case .income:          "Income"
+            case .miscIncome:      "Miscellaneous Income"
+            case .payday:          "Payday"
             case .billPay(let v):  v.name
             case .utilityPay:      "Utility"
             case .audit:           "Audit"
@@ -115,12 +117,13 @@ struct TransactionsEditor : View {
             case .simple:          SimpleTransaction()
             case .composite:       CompositeTransaction()
 #if os(macOS)
-            case .grouped:         ManualTransactions()
+            case .grouped:         BatchTransactions()
 #endif
             case .creditCard:      CreditCardTrans()
             case .personalLoan:    PersonalLoan()
             case .refund:          Refund()
-            case .income:          Income()
+            case .miscIncome:      MiscIncome()
+            case .payday:          PaydayEditor()
             case .billPay(let v):  BillPayment(kind: v)
             case .utilityPay:      UtilityPayment()
             case .audit:           Audit()

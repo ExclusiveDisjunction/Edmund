@@ -8,16 +8,7 @@
 import SwiftUI
 import EdmundCore
 
-enum IncomeKind : LocalizedStringKey, CaseIterable, Identifiable {
-    case gift = "gifted"
-    case pay = "paid"
-    case repay = "repaid"
-    
-    var id: Self { self }
-}
-
-struct Income: TransactionEditorProtocol {
-    @State private var kind: IncomeKind = .pay;
+struct MiscIncome: TransactionEditorProtocol {
     @State private var person: String = "";
     @State private var amount: Decimal = 0;
     @State private var date: Date = .now;
@@ -29,13 +20,21 @@ struct Income: TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
+#if os(macOS)
+    let minWidth: CGFloat = 60;
+    let maxWidth: CGFloat = 70;
+#else
+    let minWidth: CGFloat = 70;
+    let maxWidth: CGFloat = 80;
+#endif
+    
     func apply() -> Bool {
         guard let categories = categoriesContext else {
             warning.warning = .init(message: "internalError")
             return false
         }
         
-        guard let destination = account else {
+        guard let destination = account, !person.isEmpty else {
             warning.warning = .init(message: "emptyFields")
             return false;
         }
@@ -44,29 +43,10 @@ struct Income: TransactionEditorProtocol {
             warning.warning = .init(message: "negativeAmount")
             return false;
         }
-        
-        guard !person.isEmpty  else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
-        }
-        
-        let name = switch kind {
-            case .gift: "Gift from \(person)"
-            case .pay: "Pay"
-            case .repay: "Repayment from \(person)"
-        }
-        
-        let company = switch kind {
-            case .gift: "Bank"
-            case .repay: "Bank"
-            case .pay: person
-        }
-        
-        let category = switch kind {
-            case .gift: categories.payments.gift
-            case .pay: categories.accountControl.pay
-            case .repay: categories.payments.repayment
-        }
+    
+        let name = "Misc. Income from \(person)";
+        let company = "Bank";
+        let category = categories.payments.gift;
         
         let transaction = LedgerEntry(
             name: name,
@@ -83,24 +63,42 @@ struct Income: TransactionEditorProtocol {
     }
 
     var body: some View {
-        TransactionEditorFrame(.income, warning: warning, apply: apply, content: {
-            VStack {
-                HStack {
-                    Text("I got")
-                    Picker("", selection: $kind) {
-                        ForEach(IncomeKind.allCases, id: \.id) { value in
-                            Text(value.rawValue).tag(value)
-                        }
-                    }.labelsHidden()
-                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
-                    Text("from")
-                    TextField(kind == .pay ? "Company" : "Person", text: $person)
+        TransactionEditorFrame(.miscIncome, warning: warning, apply: apply, content: {
+            Grid {
+                GridRow {
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
+                    HStack {
+                        DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
+                        Spacer()
+                    }
                 }
-                HStack {
-                    Text("On")
-                    DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
-                    Text("Deposit into:")
+                
+                GridRow {
+                    Text("Amount:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                        .labelsHidden()
+                        .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
+
+                }
+                
+                GridRow {
+                    Text("From:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("Source", text: $person)
+                }
+                
+                GridRow {
+                    Text("Deposit:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
                     NamedPairPicker($account)
                 }
             }
@@ -109,7 +107,6 @@ struct Income: TransactionEditorProtocol {
 }
 
 #Preview {
-    Income()
-        .padding()
+    MiscIncome()
         .modelContainer(Containers.debugContainer)
 }

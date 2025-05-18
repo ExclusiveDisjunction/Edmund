@@ -22,6 +22,14 @@ struct Refund : TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
+#if os(macOS)
+    let minWidth: CGFloat = 75;
+    let maxWidth: CGFloat = 85;
+#else
+    let minWidth: CGFloat = 70;
+    let maxWidth: CGFloat = 80;
+#endif
+    
     func apply() -> Bool {
         guard let categories = categoriesContext else {
             warning.warning = .init(message: "internalError")
@@ -59,26 +67,48 @@ struct Refund : TransactionEditorProtocol {
     
     var body: some View {
         TransactionEditorFrame(.refund, warning: warning, apply: apply, content: {
-            VStack {
-                HStack {
-                    TextField("Company", text: $company)
-                    Text("refunded me", comment: "company refunded me $_")
-                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+            Grid {
+                GridRow {
+                    Text("Company:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 }
-                HStack {
-                    Text("For")
-                    TextField("Item", text: $reason)
-                    Text("on", comment: "for [item] on [date]")
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                
+                GridRow {
+                    Text("Amount")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
+                        .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
+                }
+                
+                GridRow {
+                    Text("For Item:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                }
+                
+                GridRow {
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    DatePicker("", selection: $date, displayedComponents: .date)
                         .labelsHidden()
                 }
-                HStack {
-                    Text("Place")
-                    Text(amount, format: .currency(code: currencyCode))
-                    Text("into")
+                
+                GridRow {
+                    Text("Deposit:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
                     NamedPairPicker($account)
                 }
             }
         })
     }
+}
+
+#Preview {
+    Refund()
+        .modelContainer(Containers.debugContainer)
 }

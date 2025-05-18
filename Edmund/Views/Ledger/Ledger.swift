@@ -150,9 +150,24 @@ struct LedgerTable: View {
                     Text("Bill Payment")
                 }
                 
-                Button(TransactionKind.income.name, action: {
-                    transKind = .income
-                })
+                Menu {
+                    Button(TransactionKind.payday.name, action: {
+                        transKind = .payday
+                    })
+                    Button(TransactionKind.personalLoan.name, action: {
+                        transKind = .personalLoan
+                    })
+                    
+                    Button(TransactionKind.miscIncome.name, action: {
+                        transKind = .miscIncome
+                    })
+                    
+                    Button(TransactionKind.refund.name, action: {
+                        transKind = .refund
+                    })
+                } label: {
+                    Text("Income")
+                }
                 
                 Menu {
                     Button(TransferKind.oneOne.name, action: {
@@ -172,18 +187,6 @@ struct LedgerTable: View {
                     })
                 } label: {
                     Text("Transfer")
-                }
-                
-                Menu {
-                    Button(TransactionKind.personalLoan.name, action: {
-                        transKind = .personalLoan
-                    })
-                    
-                    Button(TransactionKind.refund.name, action: {
-                        transKind = .refund
-                    })
-                } label: {
-                    Text("Miscellaneous")
                 }
             } label: {
                 Label("Add", systemImage: "plus")

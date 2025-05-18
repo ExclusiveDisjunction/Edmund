@@ -12,7 +12,7 @@ import EdmundCore;
 
 #if os(macOS)
 
-struct ManualTransactions: TransactionEditorProtocol {
+struct BatchTransactions: TransactionEditorProtocol {
     @State private var snapshots: [LedgerEntrySnapshot] = [.init()];
     @State private var enableDates: Bool = true;
     private var warning = StringWarningManifest();
@@ -107,7 +107,7 @@ struct ManualTransactions: TransactionEditorProtocol {
 }
 
 #Preview {
-    ManualTransactions()
+    BatchTransactions()
         .modelContainer(Containers.debugContainer)
         .padding()
 }

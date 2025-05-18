@@ -100,6 +100,10 @@ struct UtilityPayment : TransactionEditorProtocol {
                     HStack {
                         TextField("Amount", value: $amount, format: .currency(code: currencyCode))
                             .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                            .keyboardType(.decimalPad)
+#endif
+
                         
                         Spacer()
                     }
