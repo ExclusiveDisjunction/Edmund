@@ -19,6 +19,8 @@ public protocol BillBase : Identifiable, AnyObject {
     var company: String { get set }
     var location: String? { get set }
     var notes: String { get set }
+    var destination: SubAccount? { get set }
+    var autoPay: Bool { get set }
 }
 public extension BillBase {
     var daysSinceStart: Int {
@@ -117,6 +119,7 @@ public extension BillBase {
         self.company = from.company
         self.location = from.hasLocation ? from.location : nil
         self.notes = from.notes
+        self.autoPay = from.autoPay
     }
 }
 public struct BillBaseWrapper : Identifiable, Queryable {
@@ -151,6 +154,7 @@ public class BillBaseSnapshot: Identifiable, Hashable, Equatable {
         self.hasLocation = from.location != nil
         self.location = from.location ?? String()
         self.notes = from.notes
+        self.autoPay = from.autoPay;
         self.id = UUID()
     }
     
@@ -164,6 +168,7 @@ public class BillBaseSnapshot: Identifiable, Hashable, Equatable {
     public var hasLocation: Bool;
     public var location: String;
     public var notes: String;
+    public var autoPay: Bool;
     
     internal var errors = Set<InvalidBillFields>();
     
@@ -179,9 +184,10 @@ public class BillBaseSnapshot: Identifiable, Hashable, Equatable {
         hasher.combine(company)
         hasher.combine(location)
         hasher.combine(notes)
+        hasher.combine(autoPay)
     }
     public static func ==(lhs: BillBaseSnapshot, rhs: BillBaseSnapshot) -> Bool {
-        lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.endDate == rhs.endDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.location == rhs.location && lhs.notes == rhs.notes
+        lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.endDate == rhs.endDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.location == rhs.location && lhs.notes == rhs.notes && lhs.autoPay == rhs.autoPay
     }
     
     public func apply<T>(_ to: T) where T: BillBase {

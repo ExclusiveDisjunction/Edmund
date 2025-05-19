@@ -93,6 +93,8 @@ public final class Utility: BillBase, InspectableElement, EditableElement {
     public var company: String = "";
     public var location: String? = nil;
     public var notes: String = "";
+    public var destination: SubAccount? = nil;
+    public var autoPay: Bool = true;
     
     private var rawPeriod: Int = 0;
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent) public var children: [UtilityEntry]? = nil;

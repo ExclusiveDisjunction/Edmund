@@ -63,6 +63,16 @@ struct BillBaseInspect : View {
             }
         }
         
+        GridRow {
+            Text("Autopay:")
+                .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            
+            HStack {
+                Text(target.autoPay ? "Yes" : "No")
+                Spacer()
+            }
+        }
+        
         Divider()
         
         GridRow {
@@ -165,6 +175,18 @@ struct BillBaseEditor : View {
                     TextField("Location", text: $editing.location).textFieldStyle(.roundedBorder)
                     Spacer()
                 }
+            }
+        }
+        
+        GridRow {
+            Text("Autopay:")
+                .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            
+            
+            HStack {
+                Toggle("", isOn: $editing.autoPay)
+                    .labelsHidden()
+                Spacer()
             }
         }
         

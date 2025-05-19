@@ -71,6 +71,9 @@ struct Refund : TransactionEditorProtocol {
                 GridRow {
                     Text("Company:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("Company", text: $company)
+                        .textFieldStyle(.roundedBorder)
                 }
                 
                 GridRow {

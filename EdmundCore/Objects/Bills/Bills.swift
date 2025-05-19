@@ -44,6 +44,8 @@ public final class Bill : BillBase, EditableElement, InspectableElement {
     public var company: String = "";
     public var location: String? = nil;
     public var notes: String = "";
+    public var destination: SubAccount? = nil;
+    public var autoPay: Bool = true;
     
     public var rawKind: Int = 0;
     private var rawPeriod: Int = 0;

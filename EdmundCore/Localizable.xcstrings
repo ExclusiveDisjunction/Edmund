@@ -50,6 +50,9 @@
     "Anually" : {
 
     },
+    "Autopay:" : {
+
+    },
     "Balance:" : {
 
     },
@@ -212,6 +215,9 @@
     "negAmountError" : {
 
     },
+    "No" : {
+
+    },
     "No Account" : {
 
     },
@@ -345,6 +351,9 @@
 
     },
     "Year" : {
+
+    },
+    "Yes" : {
 
     }
   },
