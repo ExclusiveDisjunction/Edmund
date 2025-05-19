@@ -57,6 +57,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
                 }
                 
                 ManyTransferTable(data: $top)
+                    .frame(minHeight: 150)
                 
                 HStack {
                     Text("Total:")
@@ -72,6 +73,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
                 }
                 
                 ManyTransferTable(data: $bottom)
+                    .frame(minHeight: 150)
                 
                 HStack {
                     Text("Total:")

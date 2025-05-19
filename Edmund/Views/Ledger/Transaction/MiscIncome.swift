@@ -93,6 +93,7 @@ struct MiscIncome: TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     TextField("Source", text: $person)
+                        .textFieldStyle(.roundedBorder)
                 }
                 
                 GridRow {

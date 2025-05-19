@@ -63,6 +63,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
                 }
                 
                 ManyTransferTable(data: $data)
+                    .frame(minHeight: 250)
                 
                 HStack {
                     Text(data.amount, format: .currency(code: currencyCode))
@@ -74,8 +75,17 @@ struct OneManyTransfer : TransactionEditorProtocol {
                         Text("(no account)").italic()
                     }
                 }
-                
-                DatePicker("Date:", selection: $date, displayedComponents: .date)
+
+                HStack {
+                    Text("Date:")
+                    
+                    DatePicker("", selection: $date, displayedComponents: .date)
+                        .labelsHidden()
+                    Button("Today", action: {
+                        date = .now
+                    })
+                    Spacer()
+                }
                 
             }
         })

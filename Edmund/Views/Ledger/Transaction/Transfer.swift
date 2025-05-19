@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable{
+enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable, Codable {
     case oneOne, oneMany, manyOne, manyMany
     
     var name: LocalizedStringKey {

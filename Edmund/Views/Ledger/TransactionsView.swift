@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData;
 import EdmundCore;
 
-enum TransactionKind : Identifiable, Hashable, Equatable {
+enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
     case simple,
          composite,
          creditCard
@@ -20,7 +20,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable {
     case billPay    (BillsKind),
          utilityPay
     case audit
-    case transfer(TransferKind)
+    case transfer   (TransferKind)
     
 #if os(macOS)
     case grouped

@@ -18,6 +18,8 @@ struct EdmundApp: App {
         self.container = Containers.container;
 #endif
         
+        self.categories = .init(container.mainContext)
+        
 #if os(iOS)
         registerBackgroundTasks()
 #elseif os(macOS)
@@ -26,6 +28,7 @@ struct EdmundApp: App {
     }
     
     var container: ModelContainer;
+    var categories: CategoriesContext?;
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
     var colorScheme: ColorScheme? {
@@ -41,6 +44,7 @@ struct EdmundApp: App {
             MainView()
                 .preferredColorScheme(colorScheme)
                 .modelContainer(container)
+                .environment(\.categoriesContext, categories)
         }.commands {
             GeneralCommands()
         }
@@ -81,10 +85,18 @@ struct EdmundApp: App {
         WindowGroup("Report", id: "reports", for: ReportType.self) { report in
             if let report = report.wrappedValue {
                 ReportBase(kind: report)
+                    .modelContainer(container)
             }
             else {
                 Text("Unexpected Error")
             }
+        }
+        
+        WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
+            TransactionsEditor(kind: kind.wrappedValue ?? .simple)
+                .modelContainer(container)
+                .preferredColorScheme(colorScheme)
+                .environment(\.categoriesContext, categories)
         }
         
         Window("About", id: "about") {

@@ -28,6 +28,9 @@ struct LedgerTable: View {
     
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+#if os(macOS)
+    @AppStorage("preferTransWindow") private var preferTransWindow: Bool = false;
+#endif
     
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -42,6 +45,18 @@ struct LedgerTable: View {
     
     private func popout() {
         openWindow(id: "ledger")
+    }
+    private func openEditor(_ kind: TransactionKind) {
+        #if os(macOS)
+        if preferTransWindow {
+            openWindow(id: "transactionEditor", value: kind)
+        }
+        else {
+            self.transKind = kind
+        }
+        #else
+        self.transKind = kind
+        #endif
     }
     
     @ViewBuilder
@@ -119,32 +134,32 @@ struct LedgerTable: View {
             Menu {
                 Menu {
                     Button(TransactionKind.simple.name, action: {
-                        transKind = .init(.simple)
+                        openEditor(.simple)
                     })
                     Button(TransactionKind.composite.name, action: {
-                        transKind = .init(.composite)
+                        openEditor(.composite)
                     })
 #if os(macOS)
                     Button(TransactionKind.grouped.name, action: {
-                        transKind = .init(.grouped)
+                        openWindow(id: "transactionEditor", value: TransactionKind.grouped)
                     })
 #endif
                     Button(TransactionKind.creditCard.name, action: {
-                        transKind = .init(.creditCard)
-                    })
+                        openEditor(.creditCard)
+                    }).disabled(true).help("futureRelease")
                 } label: {
                     Text("Basic")
                 }
                 
                 Menu {
                     Button(BillsKind.bill.name, action: {
-                        transKind = .billPay(.bill)
+                        openEditor(.billPay(.bill))
                     })
                     Button(BillsKind.subscription.name, action: {
-                        transKind = .billPay(.subscription)
+                        openEditor(.billPay(.subscription))
                     })
                     Button(BillsKind.utility.name, action: {
-                        transKind = .utilityPay
+                        openEditor(.utilityPay)
                     })
                 } label: {
                     Text("Bill Payment")
@@ -152,18 +167,18 @@ struct LedgerTable: View {
                 
                 Menu {
                     Button(TransactionKind.payday.name, action: {
-                        transKind = .payday
-                    })
+                        openEditor(.payday)
+                    }).disabled(true).help("futureRelease")
                     Button(TransactionKind.personalLoan.name, action: {
-                        transKind = .personalLoan
+                        openEditor(.personalLoan)
                     })
                     
                     Button(TransactionKind.miscIncome.name, action: {
-                        transKind = .miscIncome
+                        openEditor(.miscIncome)
                     })
                     
                     Button(TransactionKind.refund.name, action: {
-                        transKind = .refund
+                        openEditor(.refund)
                     })
                 } label: {
                     Text("Income")
@@ -171,19 +186,19 @@ struct LedgerTable: View {
                 
                 Menu {
                     Button(TransferKind.oneOne.name, action: {
-                        transKind = .transfer(.oneOne)
+                        openEditor(.transfer(.oneOne))
                     })
                     
                     Button(TransferKind.oneMany.name, action: {
-                        transKind = .transfer(.oneMany)
+                        openEditor(.transfer(.oneMany))
                     })
                     
                     Button(TransferKind.manyOne.name, action: {
-                        transKind = .transfer(.manyOne)
+                        openEditor(.transfer(.manyOne))
                     })
                     
                     Button(TransferKind.manyMany.name, action: {
-                        transKind = .transfer(.manyMany)
+                        openEditor(.transfer(.manyMany))
                     })
                 } label: {
                     Text("Transfer")
@@ -227,7 +242,7 @@ struct LedgerTable: View {
             }, message: {
                 Text((warning.warning ?? .noneSelected).message)
             }).sheet(item: $transKind) { kind in
-                TransactionsEditor(kind: kind).environment(\.categoriesContext, CategoriesContext(modelContext))
+                TransactionsEditor(kind: kind)
             }.confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
                 DeletingActionConfirm(deleting)
             }

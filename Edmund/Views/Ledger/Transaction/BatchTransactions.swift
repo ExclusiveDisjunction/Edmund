@@ -22,11 +22,11 @@ struct BatchTransactions: TransactionEditorProtocol {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     func apply() -> Bool {
-        
         var result: [LedgerEntry] = [];
         for snapshot in snapshots {
             if !snapshot.validate() {
                 warning.warning = .init(message: "emptyFields")
+                return false;
             }
             
             let entry = LedgerEntry();

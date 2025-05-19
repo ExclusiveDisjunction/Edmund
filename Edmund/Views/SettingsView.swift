@@ -25,6 +25,9 @@ struct SettingsView : View {
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
+#if os(macOS)
+    @AppStorage("preferTransWindow") private var preferTransWindow: Bool = false;
+#endif
     
     static let currencyCodes: [LocaleCurrencyCode] = Locale.commonISOCurrencyCodes.map { LocaleCurrencyCode(code: $0) }
     
@@ -73,6 +76,14 @@ struct SettingsView : View {
             } footer: {
                 Text("showExpiredBillsDesc")
             }
+            
+            #if os(macOS)
+            Section() {
+                Toggle("Prefer Transaction Window", isOn: $preferTransWindow)
+            } footer: {
+                Text("preferTransactionWindowDesc")
+            }
+            #endif
         }.padding()
     }
     

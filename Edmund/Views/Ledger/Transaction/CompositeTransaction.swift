@@ -160,6 +160,9 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     
                     TextField("", text: $working)
                         .textFieldStyle(.roundedBorder)
+                    #if os(iOS)
+                        .keyboardType(.decimalPad)
+                    #endif
                 }
                 
                 GridRow {

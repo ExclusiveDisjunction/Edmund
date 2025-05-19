@@ -11,7 +11,7 @@ import EdmundCore
 @Observable
 class ManyTableEntry : Identifiable {
     init(amount: Decimal = 0, account: SubAccount? = nil, id: UUID = UUID()) {
-        self.amount = amount;
+        self.amount = .init(amount);
         self.account = account;
         self.id = id;
         self.selected = false;
@@ -20,7 +20,7 @@ class ManyTableEntry : Identifiable {
     
     var id: UUID;
     var selected: Bool;
-    var amount: Decimal;
+    var amount: CurrencyValue;
     var account: SubAccount?;
 }
 
@@ -34,8 +34,8 @@ extension [ManyTableEntry] {
             result.append(
                 .init(
                     name: (transfer_into ? "Various to " + acc.name : acc.name + " to Various"),
-                    credit: transfer_into ? entry.amount : 0,
-                    debit: transfer_into ? 0 : entry.amount,
+                    credit: transfer_into ? entry.amount.amount : 0,
+                    debit: transfer_into ? 0 : entry.amount.amount,
                     date: Date.now,
                     location: "Bank",
                     category: cats.accountControl.transfer,
@@ -48,73 +48,123 @@ extension [ManyTableEntry] {
     }
     
     var amount: Decimal {
-        self.reduce(into: Decimal(), { $0 += $1.amount } )
+        self.reduce(into: Decimal(), { $0 += $1.amount.amount } )
     }
 }
 
 struct ManyTransferTable : View {
     @Binding var data: [ManyTableEntry];
+    @State private var editing: ManyTableEntry? = nil;
     @State private var selected = Set<ManyTableEntry.ID>();
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func removeSelected() {
         data.removeAll(where: { $0.selected} )
     }
     
+    @ViewBuilder
+    private var addButton: some View {
+        Button(action: {
+            withAnimation {
+                data.append(.init())
+            }
+        }) {
+            Label("Add", systemImage: "plus")
+        }.buttonStyle(.borderless)
+    }
+    
+    @ViewBuilder
+    private var compact: some View {
+        List(data, selection: $selected) { item in
+            HStack {
+                Text(item.amount.amount, format: .currency(code: currencyCode))
+                if let account = item.account {
+                    NamedPairViewer(account)
+                }
+                else {
+                    Text("No Account").italic()
+                }
+            }.swipeActions(edge: .leading) {
+                Button(action: {
+                    editing = item
+                }) {
+                    Image(systemName: "pencil")
+                }.tint(.green)
+            }
+        }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
+            /*
+             .sheet(item: $editing) { item in
+                 VStack {
+                     Grid {
+                         GridRow {
+                             Text("Amount:")
+                         }
+                         GridRow {
+                             Text("Account:")
+                             
+                             NamedPairPicker()
+                         }
+                     }
+                     
+                     Spacer()
+                     
+                     HStack {
+                         Spacer()
+                         Button("Ok", action: { editing = nil } )
+                             .buttonStyle(.borderedProminent)
+                     }
+                 }
+             }
+             */
+    }
+    
+    @ViewBuilder
+    private func itemContextMenu(_ selection: Set<ManyTableEntry.ID>) -> some View {
+        addButton
+        Button(action: {
+            self.data.removeAll(where: { selection.contains($0.id) } )
+        }) {
+            Label("Remove", systemImage: "trash")
+        }
+    }
+    
     var body: some View {
-        HStack {
-            Button(action: {
-                withAnimation {
-                    data.append(.init())
-                }
-            }) {
-                Image(systemName: "plus")
-            }.buttonStyle(.borderless)
-        
-            Button(action: {
-                withAnimation {
-                    removeSelected()
-                }
-            }) {
-                Image(systemName: "trash").foregroundStyle(.red)
-            }.buttonStyle(.borderless)
-            
-        }.padding(.top)
-        
-        ScrollView {
-            Grid {
-                GridRow {
-                    Text("")
-                    Text("Amount")
-                    Text("Account")
-                }
-                Divider()
-                
-                ForEach($data) { $item in
-                    GridRow {
-                        Toggle("Selected", isOn: $item.selected).labelsHidden()
-                        TextField("Amount", value: $item.amount, format: .currency(code: "USD"))
-                            .disabled(item.selected)
-                            .textFieldStyle(.roundedBorder)
+        VStack {
 #if os(iOS)
-                            .keyboardType(.decimalPad)
+            HStack {
+                addButton
+                
+                Spacer()
+                
+                EditButton()
+            }
+#else
+            addButton
 #endif
-
-                        NamedPairPicker($item.account).disabled(item.selected)
-                    }.background(item.selected ? Color.accentColor.opacity(0.2) : Color.clear)
+            
+            Table($data, selection: $selected) {
+                TableColumn("Amount") { $item in
+                    CurrencyField($item.amount)
                 }
-            }.padding().background(.background.opacity(0.7))
+                
+                TableColumn("Account") { $item in
+                    NamedPairPicker($item.account)
+                }
+            }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
         }
     }
 }
 
 #Preview {
-    var data: [ManyTableEntry] = [];
+    var data: [ManyTableEntry] = [.init(), .init()];
     let binding = Binding(
         get: { data },
         set: { data = $0 }
     );
     
-    ManyTransferTable(data: binding).modelContainer(Containers.debugContainer)
+    ManyTransferTable(data: binding)
+        .padding()
+        .modelContainer(Containers.debugContainer)
 }

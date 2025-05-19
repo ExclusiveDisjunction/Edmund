@@ -327,6 +327,9 @@
     "Basic" : {
 
     },
+    "Basic Templates" : {
+
+    },
     "Batch Transactions" : {
 
     },
@@ -362,6 +365,9 @@
           }
         }
       }
+    },
+    "Bill Payments" : {
+
     },
     "Bills" : {
       "extractionState" : "manual",
@@ -497,6 +503,9 @@
       }
     },
     "Compact sizes only display scroll view." : {
+
+    },
+    "Company" : {
 
     },
     "Company:" : {
@@ -669,9 +678,6 @@
         }
       }
     },
-    "Edit Available Credit" : {
-
-    },
     "Edit Bill" : {
 
     },
@@ -796,6 +802,9 @@
 
     },
     "Full Screen" : {
+
+    },
+    "futureRelease" : {
 
     },
     "General" : {
@@ -938,6 +947,9 @@
 
     },
     "Into:" : {
+
+    },
+    "Item" : {
 
     },
     "James Larson" : {
@@ -1359,6 +1371,12 @@
     "Please visit the project on GitHub:" : {
 
     },
+    "Prefer Transaction Window" : {
+
+    },
+    "preferTransactionWindowDesc" : {
+
+    },
     "Profile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1482,9 +1500,6 @@
     },
     "Select One" : {
       "comment" : "Select One bill\nSelect One utility"
-    },
-    "Selected" : {
-
     },
     "Set-Aside Cost" : {
 
@@ -1653,9 +1668,6 @@
     "The page content could not be loaded. Please report this issue." : {
 
     },
-    "There are no accounts with credit limits to modify." : {
-
-    },
     "There are no associated transactions for this account" : {
 
     },
@@ -1709,6 +1721,12 @@
     "Transaction" : {
 
     },
+    "Transaction Editor" : {
+
+    },
+    "Transaction Templates" : {
+
+    },
     "Transactions List" : {
 
     },
@@ -1730,6 +1748,9 @@
           }
         }
       }
+    },
+    "Transfers" : {
+
     },
     "Two Months" : {
       "extractionState" : "manual",

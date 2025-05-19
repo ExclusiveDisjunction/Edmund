@@ -88,7 +88,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                 }
                 
                 ManyTransferTable(data: $data)
-            
+                    .frame(minHeight: 250)
 
             }
         })

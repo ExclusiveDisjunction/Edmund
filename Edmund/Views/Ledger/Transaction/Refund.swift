@@ -90,14 +90,20 @@ struct Refund : TransactionEditorProtocol {
                 GridRow {
                     Text("For Item:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("Item", text: $reason)
+                        .textFieldStyle(.roundedBorder)
                 }
                 
                 GridRow {
                     Text("Date:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    DatePicker("", selection: $date, displayedComponents: .date)
-                        .labelsHidden()
+                    HStack {
+                        DatePicker("", selection: $date, displayedComponents: .date)
+                            .labelsHidden()
+                        Spacer()
+                    }
                 }
                 
                 GridRow {
