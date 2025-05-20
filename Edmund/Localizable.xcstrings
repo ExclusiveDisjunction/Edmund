@@ -120,6 +120,7 @@
       }
     },
     "Add Account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -136,6 +137,7 @@
       }
     },
     "Add Category" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -152,6 +154,7 @@
       }
     },
     "Add Sub Account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -168,6 +171,7 @@
       }
     },
     "Add Sub Category" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -549,6 +553,9 @@
         }
       }
     },
+    "Credit Limit: %@" : {
+
+    },
     "CSV" : {
       "shouldTranslate" : false
     },
@@ -756,6 +763,9 @@
           }
         }
       }
+    },
+    "Expected" : {
+
     },
     "Expected Balance" : {
 

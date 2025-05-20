@@ -43,7 +43,9 @@ public struct CurrencyField : View {
                 on.format(currencyCode)
             }
             .onChange(of: on.raw) { _, newValue in
-                if let parsed = Decimal(string: newValue.filter { "0123456789.".contains($0) } ) {
+                let filter = newValue.filter { "-0123456789.".contains($0) }
+
+                if let parsed = Decimal(string: filter) {
                     on.amount = parsed
                 }
             }.focusable()

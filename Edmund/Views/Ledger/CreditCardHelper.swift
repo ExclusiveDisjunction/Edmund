@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 @Observable
-class BalanceVerifyRow : Identifiable {
+class CreditCardRow : Identifiable {
     init(account: Account, balance: Decimal) {
         self.id = UUID();
         self.account = account;
@@ -40,7 +40,7 @@ class BalanceVerifyRow : Identifiable {
 struct CreditCardHelper: View {
     @Query private var accounts: [Account];
     @State private var manual: Bool = false;
-    @State private var rows: [BalanceVerifyRow] = [];
+    @State private var rows: [CreditCardRow] = [];
     
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -63,7 +63,7 @@ struct CreditCardHelper: View {
         let balances = BalanceResolver.computeBalances(accounts).filter { $0.key.creditLimit != nil };
         
         self.rows = balances.map { bal in
-            BalanceVerifyRow(
+            CreditCardRow(
                 account: bal.key,
                 balance: bal.value.1 - bal.value.0
             )
