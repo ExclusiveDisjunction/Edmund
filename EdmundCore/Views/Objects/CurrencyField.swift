@@ -8,13 +8,39 @@
 import SwiftUI
 
 @Observable
-public class CurrencyValue {
+public class CurrencyValue : Comparable, Equatable, Hashable {
     public init(_ amount: Decimal = 0.0) {
         self.amount = amount;
         self.raw = "";
     }
     public var amount: Decimal;
     var raw: String;
+    
+    public static func <(lhs: CurrencyValue, rhs: CurrencyValue) -> Bool {
+        lhs.amount < rhs.amount
+    }
+    public static func <(lhs: CurrencyValue, rhs: Decimal) -> Bool {
+        lhs.amount < rhs
+    }
+    public static func <=(lhs: CurrencyValue, rhs: Decimal) -> Bool {
+        lhs.amount <= rhs
+    }
+    public static func >(lhs: CurrencyValue, rhs: Decimal) -> Bool {
+        lhs.amount > rhs
+    }
+    public static func >=(lhs: CurrencyValue, rhs: Decimal) -> Bool {
+        lhs.amount >= rhs
+    }
+    public static func ==(lhs: CurrencyValue, rhs: Decimal) -> Bool {
+        lhs.amount == rhs
+    }
+    public static func ==(lhs: CurrencyValue, rhs: CurrencyValue) -> Bool {
+        lhs.amount == rhs.amount
+    }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(amount)
+        hasher.combine(raw)
+    }
     
     public func format(_ currencyCode: String) {
         let formatter = NumberFormatter();

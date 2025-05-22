@@ -83,7 +83,7 @@ public struct BillEdit : View, ElementEditorView {
                     )
                     
                 HStack {
-                    TextField("Amount", value: $snapshot.amount, format: .currency(code: currencyCode)).textFieldStyle(.roundedBorder)
+                    CurrencyField($snapshot.amount, label: "Amount")
                     Spacer()
                 }
             }

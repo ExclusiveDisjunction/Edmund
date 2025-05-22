@@ -105,13 +105,13 @@ public final class BillSnapshot : BillBaseSnapshotKind {
     public init(_ from: Bill) {
         self.id = UUID();
         self.base = .init(from)
-        self.amount = from.amount
+        self.amount = .init(from.amount)
         self.kind = from.kind
     }
     
     public var id: UUID;
     public var base: BillBaseSnapshot;
-    public var amount: Decimal;
+    public var amount: CurrencyValue;
     public var kind: BillsKind;
     
     public func validate() -> Bool {
@@ -126,7 +126,7 @@ public final class BillSnapshot : BillBaseSnapshotKind {
     
     public func apply(_ to: Bill, context: ModelContext) {
         base.apply(to)
-        to.amount = amount
+        to.amount = amount.amount
         to.kind = kind
     }
     

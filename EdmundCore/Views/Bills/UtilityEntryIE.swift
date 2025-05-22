@@ -13,23 +13,23 @@ import Charts
 @Observable
 public class UtilityEntrySnapshot: Identifiable, Hashable, Equatable {
     public init(_ from: UtilityEntry) {
-        self.amount = from.amount
+        self.amount = .init(from.amount)
         self.date = from.date
         self.id = UUID()
     }
     public init(amount: Decimal, date: Date, id: UUID = UUID()) {
         self.id = id
-        self.amount = amount
+        self.amount = .init(amount)
         self.date = date
     }
     public init() {
         self.id = UUID()
-        self.amount = 0
+        self.amount = .init(0)
         self.date = Date.now
     }
     
     public var id: UUID;
-    public var amount: Decimal;
+    public var amount: CurrencyValue;
     public var date: Date;
     public var isSelected: Bool = false;
     
@@ -91,21 +91,6 @@ public struct UtilityEntriesInspect : View {
 #endif
     }
 }
-public struct UtilityEntriesEditRow : View {
-    @Bindable public var child: UtilityEntrySnapshot
-    public let currencyCode: String;
-    
-    public var body: some View {
-        GridRow {
-            Toggle("Select", isOn: $child.isSelected).labelsHidden()//.toggleStyle(CheckboxToggleStyle())
-            TextField("Amount", value: $child.amount, format: .currency(code: currencyCode))
-                .labelsHidden()
-                .foregroundStyle(child.amount < 0 ? .red : .primary)
-                .textFieldStyle(.roundedBorder)
-            DatePicker("", selection: $child.date, displayedComponents: .date).labelsHidden()
-        }
-    }
-}
 public struct UtilityEntriesEdit : View {
     @Bindable public var snapshot: UtilitySnapshot;
     @State private var selected = Set<UtilityEntry.ID>();
@@ -127,12 +112,11 @@ public struct UtilityEntriesEdit : View {
             Text("Datapoints").font(.title2)
             HStack {
                 Button(action: add_new) {
-                    Label("Add", systemImage: "plus").buttonStyle(.bordered)
-                }
+                    Image(systemName: "plus")
+                }.buttonStyle(.borderless)
                 Button(action: remove_selected) {
-                    Label("Delete", systemImage: "trash").foregroundStyle(.red).buttonStyle(.bordered)
-                }
-                Spacer()
+                    Image(systemName: "trash").foregroundStyle(.red)
+                }.buttonStyle(.borderless)
                 
                 #if os(iOS)
                 EditButton()
@@ -142,8 +126,7 @@ public struct UtilityEntriesEdit : View {
             if horizontalSizeClass == .compact {
                 List($snapshot.children, selection: $selected) { $child in
                     HStack {
-                        TextField("", value: $child.amount, format: .currency(code: currencyCode))
-                            .textFieldStyle(.roundedBorder)
+                        CurrencyField($child.amount)
                         Text("On", comment: "[Amount] on [Date]")
                         DatePicker("", selection: $child.date, displayedComponents: .date)
                             .labelsHidden()
@@ -153,8 +136,7 @@ public struct UtilityEntriesEdit : View {
             else {
                 Table($snapshot.children, selection: $selected) {
                     TableColumn("Amount") { $child in
-                        TextField("", value: $child.amount, format: .currency(code: currencyCode))
-                            .textFieldStyle(.roundedBorder)
+                        CurrencyField($child.amount)
                     }
                     TableColumn("Date") { $child in
                         DatePicker("", selection: $child.date, displayedComponents: .date)

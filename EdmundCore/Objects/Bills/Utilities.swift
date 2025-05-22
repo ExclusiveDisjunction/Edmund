@@ -26,7 +26,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
             return Decimal()
         }
         else {
-            return children.reduce(Decimal(), { $0 + $1.amount } ) / Decimal(children.count)
+            return children.reduce(Decimal(), { $0 + $1.amount.amount } ) / Decimal(children.count)
         }
     }
     
@@ -57,7 +57,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
                 context.delete(child)
             }
             
-            let children = children.map { UtilityEntry($0.date, $0.amount) }
+            let children = children.map { UtilityEntry($0.date, $0.amount.amount) }
             for child in children {
                 context.insert(child)
             }

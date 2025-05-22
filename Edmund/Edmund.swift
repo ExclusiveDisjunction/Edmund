@@ -20,9 +20,11 @@ struct EdmundApp: App {
         
         self.categories = .init(container.mainContext)
         
+        /*
         if container.mainContext.undoManager == nil {
             container.mainContext.undoManager = UndoManager();
         }
+         */
         
 #if os(iOS)
         registerBackgroundTasks()
@@ -33,7 +35,7 @@ struct EdmundApp: App {
     
     var container: ModelContainer;
     var categories: CategoriesContext?;
-    var undo: UndoManager?;
+    //var undo: UndoManager?;
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
     var colorScheme: ColorScheme? {
