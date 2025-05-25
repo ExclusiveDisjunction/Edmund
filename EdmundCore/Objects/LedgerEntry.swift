@@ -101,7 +101,7 @@ public final class LedgerEntrySnapshot : ElementSnapshot
 }
 
 @Model
-public final class LedgerEntry : Identifiable, InspectableElement, EditableElement {
+public final class LedgerEntry : Identifiable, NamedInspectableElement, NamedEditableElement {
     public typealias InspectorView = LedgerEntryInspect;
     public typealias EditView = LedgerEntryEdit;
     public typealias Snapshot = LedgerEntrySnapshot;

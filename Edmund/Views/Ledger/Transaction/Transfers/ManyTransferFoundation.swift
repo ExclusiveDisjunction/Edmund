@@ -11,7 +11,7 @@ import EdmundCore
 @Observable
 class ManyTableEntry : Identifiable {
     init(amount: Decimal = 0, account: SubAccount? = nil, id: UUID = UUID()) {
-        self.amount = .init(amount);
+        self.amount = .init(rawValue: amount);
         self.account = account;
         self.id = id;
         self.selected = false;
@@ -34,8 +34,8 @@ extension [ManyTableEntry] {
             result.append(
                 .init(
                     name: (transfer_into ? "Various to " + acc.name : acc.name + " to Various"),
-                    credit: transfer_into ? entry.amount.amount : 0,
-                    debit: transfer_into ? 0 : entry.amount.amount,
+                    credit: transfer_into ? entry.amount.rawValue : 0,
+                    debit: transfer_into ? 0 : entry.amount.rawValue,
                     date: Date.now,
                     location: "Bank",
                     category: cats.accountControl.transfer,
@@ -48,7 +48,7 @@ extension [ManyTableEntry] {
     }
     
     var amount: Decimal {
-        self.reduce(into: Decimal(), { $0 += $1.amount.amount } )
+        self.reduce(into: Decimal(), { $0 += $1.amount.rawValue } )
     }
 }
 
@@ -79,7 +79,7 @@ struct ManyTransferTable : View {
     private var compact: some View {
         List(data, selection: $selected) { item in
             HStack {
-                Text(item.amount.amount, format: .currency(code: currencyCode))
+                Text(item.amount.rawValue, format: .currency(code: currencyCode))
                 if let account = item.account {
                     NamedPairViewer(account)
                 }

@@ -11,13 +11,15 @@ import SwiftData;
 
 public protocol InspectableElement : AnyObject, Identifiable {
     associatedtype InspectorView: ElementInspectorView where InspectorView.For == Self;
-    
+}
+public protocol NamedInspectableElement : InspectableElement {
     var name: String { get }
 }
 public protocol EditableElement : AnyObject, Identifiable {
     associatedtype EditView: ElementEditorView where EditView.For == Self;
     associatedtype Snapshot: ElementSnapshot where Snapshot.Host == Self;
-    
+}
+public protocol NamedEditableElement : EditableElement {
     var name: String { get set }
 }
 

@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 
 @Model
-public final class Category : Identifiable, Hashable, BoundPairParent, InspectableElement, EditableElement {
+public final class Category : Identifiable, Hashable, BoundPairParent, NamedInspectableElement, NamedEditableElement {
     public typealias EditView = SimpleElementEdit<Category>
     public typealias Snapshot = SimpleElementSnapshot<Category>
     public typealias InspectorView = SimpleElementInspect<Category>
@@ -77,7 +77,7 @@ public final class Category : Identifiable, Hashable, BoundPairParent, Inspectab
     }
 }
 @Model
-public final class SubCategory : BoundPair, Equatable, EditableElement, InspectableElement, TransactionHolder {
+public final class SubCategory : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, TransactionHolder {
     public typealias EditView = NamedPairChildEdit<SubCategory>
     public typealias Snapshot = NamedPairChildSnapshot<SubCategory>;
     public typealias InspectorView = SimpleElementInspect<SubCategory>;

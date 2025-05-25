@@ -8,7 +8,7 @@
 import SwiftUI;
 import SwiftData;
 
-public struct SimpleElementInspect<T> : ElementInspectorView where T: InspectableElement {
+public struct SimpleElementInspect<T> : ElementInspectorView where T: NamedInspectableElement {
     public typealias For = T;
     
     public init(_ data: T) {

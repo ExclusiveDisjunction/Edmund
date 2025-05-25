@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import Foundation
 
-public protocol BillBase : Identifiable, AnyObject {
+public protocol BillBase : Identifiable, AnyObject, NamedInspectableElement, NamedEditableElement {
     var name: String { get set }
     var startDate: Date { get set }
     var endDate: Date? { get set }

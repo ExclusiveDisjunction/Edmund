@@ -14,7 +14,7 @@ class CreditCardRow : Identifiable {
     init(account: Account, balance: Decimal) {
         self.id = UUID();
         self.account = account;
-        self.avalibleCredit = .init(account.creditLimit ?? .nan);
+        self.avalibleCredit = .init(rawValue: account.creditLimit ?? .nan);
         self.balance = balance
     }
     
@@ -30,7 +30,7 @@ class CreditCardRow : Identifiable {
     let balance: Decimal;
 
     var expectedBalance: Decimal {
-        creditLimit - avalibleCredit.amount
+        creditLimit - avalibleCredit.rawValue
     }
     var variance: Decimal {
         balance - expectedBalance

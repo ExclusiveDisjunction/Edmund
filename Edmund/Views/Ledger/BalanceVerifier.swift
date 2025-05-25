@@ -15,7 +15,7 @@ class BalanceVerifyRow : Identifiable {
         self.id = UUID();
         self.account = account;
         self.balance = balance
-        self.expectedBalance = .init(balance)
+        self.expectedBalance = .init(rawValue: balance)
     }
     
     let id: UUID
@@ -27,10 +27,10 @@ class BalanceVerifyRow : Identifiable {
     let balance: Decimal;
     
     var variance: Decimal {
-        balance - expectedBalance.amount
+        balance - expectedBalance.rawValue
     }
     var absVariance : Decimal {
-        abs(balance) - abs(expectedBalance.amount)
+        abs(balance) - abs(expectedBalance.rawValue)
     }
 }
 

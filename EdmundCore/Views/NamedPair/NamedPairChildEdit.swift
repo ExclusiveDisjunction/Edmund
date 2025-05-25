@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @Observable
-public final class NamedPairChildSnapshot<C> : ElementSnapshot where C: BoundPair, C: EditableElement {
+public final class NamedPairChildSnapshot<C> : ElementSnapshot where C: BoundPair, C: NamedEditableElement {
     public init(_ from: C) {
         self.name = from.name
         self.parent = from.parent
@@ -37,7 +37,7 @@ public final class NamedPairChildSnapshot<C> : ElementSnapshot where C: BoundPai
     }
 }
 
-public struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P: PersistentModel, C: EditableElement, C.Snapshot == NamedPairChildSnapshot<C> {
+public struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P: PersistentModel, C: NamedEditableElement, C.Snapshot == NamedPairChildSnapshot<C> {
     public init(_ data: C.Snapshot) {
         self.snapshot = data
     }

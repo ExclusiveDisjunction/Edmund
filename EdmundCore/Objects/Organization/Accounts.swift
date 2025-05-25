@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-public final class Account : Identifiable, Hashable, BoundPairParent, EditableElement, InspectableElement {
+public final class Account : Identifiable, Hashable, BoundPairParent, NamedEditableElement, NamedInspectableElement {
     public typealias EditView = SimpleElementEdit<Account>
     public typealias Snapshot = SimpleElementSnapshot<Account>
     public typealias InspectorView = SimpleElementInspect<Account>
@@ -70,7 +70,7 @@ public final class Account : Identifiable, Hashable, BoundPairParent, EditableEl
     }()
 }
 @Model
-public final class SubAccount : BoundPair, Equatable, EditableElement, InspectableElement, TransactionHolder {
+public final class SubAccount : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, TransactionHolder {
     public typealias EditView = NamedPairChildEdit<SubAccount>
     public typealias Snapshot = NamedPairChildSnapshot<SubAccount>;
     public typealias InspectorView = SimpleElementInspect<SubAccount>;

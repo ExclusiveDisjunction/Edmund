@@ -8,7 +8,7 @@
 import SwiftData;
 import SwiftUI;
 
-public final class SimpleElementSnapshot<T> : ElementSnapshot where T: EditableElement {
+public final class SimpleElementSnapshot<T> : ElementSnapshot where T: NamedEditableElement {
     public typealias Host = T;
     
     public init(_ from: T) {
@@ -31,7 +31,7 @@ public final class SimpleElementSnapshot<T> : ElementSnapshot where T: EditableE
         lhs.name == rhs.name
     }
 }
-public struct SimpleElementEdit<T> : ElementEditorView where T: EditableElement, T.Snapshot == SimpleElementSnapshot<T> {
+public struct SimpleElementEdit<T> : ElementEditorView where T: NamedEditableElement, T.Snapshot == SimpleElementSnapshot<T> {
     public typealias For = T;
     
     @Bindable private var snapshot: T.Snapshot;

@@ -104,14 +104,14 @@ public struct TransactionResolver {
     }
 }
 
-extension Dictionary where Key: EdmundCore.InspectableElement, Value == (Decimal, Decimal) {
+extension Dictionary where Key: EdmundCore.NamedInspectableElement, Value == (Decimal, Decimal) {
     func intoSimpleBalances() -> [SimpleBalance] {
         self.map { (element, balances) in
                 .init(element.name, balances.0, balances.1)
         }
     }
 }
-extension Dictionary where Key: InspectableElement, Key: BoundPairParent, Key.C: TransactionHolder, Key.C: InspectableElement, Value == Dictionary<Key.C, (Decimal, Decimal)> {
+extension Dictionary where Key: NamedInspectableElement, Key: BoundPairParent, Key.C: TransactionHolder, Key.C: NamedInspectableElement, Value == Dictionary<Key.C, (Decimal, Decimal)> {
     func intoSimpleBalances() -> [SimpleBalance] {
         self.map { (account, subAccount) in
             var credit: Decimal = 0, debit: Decimal = 0;

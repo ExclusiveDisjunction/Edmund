@@ -13,18 +13,18 @@ import Charts
 @Observable
 public class UtilityEntrySnapshot: Identifiable, Hashable, Equatable {
     public init(_ from: UtilityEntry) {
-        self.amount = .init(from.amount)
+        self.amount = .init(rawValue: from.amount)
         self.date = from.date
         self.id = UUID()
     }
     public init(amount: Decimal, date: Date, id: UUID = UUID()) {
         self.id = id
-        self.amount = .init(amount)
+        self.amount = .init(rawValue: amount)
         self.date = date
     }
     public init() {
         self.id = UUID()
-        self.amount = .init(0)
+        self.amount = .init(rawValue: 0.0)
         self.date = Date.now
     }
     

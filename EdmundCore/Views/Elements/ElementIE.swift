@@ -18,7 +18,13 @@ public struct ElementInspector<T> : View where T: InspectableElement {
     
     public var body: some View {
         VStack {
-            Text(data.name).font(.title2)
+            if let conv = data as? any NamedInspectableElement {
+                Text(conv.name).font(.title2)
+            }
+            else {
+                Text("Inspect").font(.title2)
+            }
+            
             
             Divider().padding([.top, .bottom])
             
@@ -83,7 +89,12 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     
     public var body: some View {
         VStack {
-            Text(data.name).font(.title2)
+            if let conv = data as? any NamedInspectableElement {
+                Text(conv.name).font(.title2)
+            }
+            else {
+                Text("Inspect").font(.title2)
+            }
             
             Divider().padding([.top, .bottom])
             
@@ -201,7 +212,13 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     
     public var body: some View {
         VStack {
-            Text(data.name).font(.title2)
+            if let conv = data as? any NamedInspectableElement {
+                Text(conv.name).font(.title2)
+            }
+            else {
+                Text(mode.display).font(.title2)
+            }
+            
             Button(action: {
                 withAnimation {
                     toggleMode()

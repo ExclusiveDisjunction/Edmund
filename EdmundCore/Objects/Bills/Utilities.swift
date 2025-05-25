@@ -26,7 +26,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
             return Decimal()
         }
         else {
-            return children.reduce(Decimal(), { $0 + $1.amount.amount } ) / Decimal(children.count)
+            return children.reduce(Decimal(), { $0 + $1.amount.rawValue } ) / Decimal(children.count)
         }
     }
     
@@ -57,7 +57,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
                 context.delete(child)
             }
             
-            let children = children.map { UtilityEntry($0.date, $0.amount.amount) }
+            let children = children.map { UtilityEntry($0.date, $0.amount.rawValue) }
             for child in children {
                 context.insert(child)
             }
@@ -67,7 +67,7 @@ public final class UtilitySnapshot : BillBaseSnapshotKind {
 }
 
 @Model
-public final class Utility: BillBase, InspectableElement, EditableElement {
+public final class Utility: BillBase, NamedInspectableElement, NamedEditableElement {
     public typealias InspectorView = UtilityInspect
     public typealias EditView = UtilityEdit
     public typealias Snapshot = UtilitySnapshot

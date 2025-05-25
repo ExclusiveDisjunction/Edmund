@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 @Model
-public final class Bill : BillBase, EditableElement, InspectableElement {
+public final class Bill : BillBase, NamedEditableElement, NamedInspectableElement {
     public typealias EditView = BillEdit
     public typealias InspectorView = BillInspect
     public typealias Snapshot = BillSnapshot
@@ -105,7 +105,7 @@ public final class BillSnapshot : BillBaseSnapshotKind {
     public init(_ from: Bill) {
         self.id = UUID();
         self.base = .init(from)
-        self.amount = .init(from.amount)
+        self.amount = .init(rawValue: from.amount)
         self.kind = from.kind
     }
     
@@ -126,7 +126,7 @@ public final class BillSnapshot : BillBaseSnapshotKind {
     
     public func apply(_ to: Bill, context: ModelContext) {
         base.apply(to)
-        to.amount = amount.amount
+        to.amount = amount.rawValue
         to.kind = kind
     }
     

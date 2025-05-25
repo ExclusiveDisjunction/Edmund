@@ -8,37 +8,39 @@
 import SwiftUI
 
 @Observable
-public class CurrencyValue : Comparable, Equatable, Hashable {
-    public init(_ amount: Decimal = 0.0) {
-        self.amount = amount;
+public final class CurrencyValue : Comparable, Equatable, Hashable, RawRepresentable {
+    public typealias RawValue = Decimal;
+    
+    public init(rawValue: Decimal = 0.0) {
+        self.rawValue = rawValue;
         self.raw = "";
     }
-    public var amount: Decimal;
+    public var rawValue: Decimal;
     var raw: String;
     
     public static func <(lhs: CurrencyValue, rhs: CurrencyValue) -> Bool {
-        lhs.amount < rhs.amount
+        lhs.rawValue < rhs.rawValue
     }
     public static func <(lhs: CurrencyValue, rhs: Decimal) -> Bool {
-        lhs.amount < rhs
+        lhs.rawValue < rhs
     }
     public static func <=(lhs: CurrencyValue, rhs: Decimal) -> Bool {
-        lhs.amount <= rhs
+        lhs.rawValue <= rhs
     }
     public static func >(lhs: CurrencyValue, rhs: Decimal) -> Bool {
-        lhs.amount > rhs
+        lhs.rawValue > rhs
     }
     public static func >=(lhs: CurrencyValue, rhs: Decimal) -> Bool {
-        lhs.amount >= rhs
+        lhs.rawValue >= rhs
     }
     public static func ==(lhs: CurrencyValue, rhs: Decimal) -> Bool {
-        lhs.amount == rhs
+        lhs.rawValue == rhs
     }
     public static func ==(lhs: CurrencyValue, rhs: CurrencyValue) -> Bool {
-        lhs.amount == rhs.amount
+        lhs.rawValue == rhs.rawValue
     }
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(amount)
+        hasher.combine(rawValue)
         hasher.combine(raw)
     }
     
@@ -46,7 +48,7 @@ public class CurrencyValue : Comparable, Equatable, Hashable {
         let formatter = NumberFormatter();
         formatter.numberStyle = .currency;
         formatter.currencyCode = currencyCode
-        self.raw = formatter.string(from: amount as NSDecimalNumber) ?? "";
+        self.raw = formatter.string(from: rawValue as NSDecimalNumber) ?? "";
     }
 }
 
@@ -72,7 +74,7 @@ public struct CurrencyField : View {
                 let filter = newValue.filter { "-0123456789.".contains($0) }
 
                 if let parsed = Decimal(string: filter) {
-                    on.amount = parsed
+                    on.rawValue = parsed
                 }
             }.focusable()
             .focused($focus)
@@ -88,14 +90,14 @@ public struct CurrencyField : View {
 }
 
 #Preview {
-    var data: CurrencyValue = .init(100.0);
+    var data: CurrencyValue = .init(rawValue: 100.0);
     let binding = Binding(get: { data }, set: { data = $0 } );
     
     VStack {
         CurrencyField(binding, label: "Testing")
         HStack {
             Text("Extracted:")
-            Text(data.amount, format: .currency(code: "USD"))
+            Text(data.rawValue, format: .currency(code: "USD"))
         }
         TextField("", text: Binding.constant(""))
     }.padding()
