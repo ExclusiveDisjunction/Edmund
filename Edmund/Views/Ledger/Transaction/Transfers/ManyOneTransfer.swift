@@ -73,7 +73,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                         Text("Date:")
                         
                         HStack {
-                            DatePicker("date", selection: $date, displayedComponents: .date)
+                            DatePicker("", selection: $date, displayedComponents: .date)
                                 .labelsHidden()
                             
                             Spacer()

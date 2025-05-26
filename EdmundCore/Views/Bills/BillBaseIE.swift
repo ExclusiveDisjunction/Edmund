@@ -112,7 +112,7 @@ struct BillBaseEditor : View {
                 .foregroundStyle(editing.errors.contains(.dates) ? Color.red : Color.primary)
             
             HStack {
-                DatePicker("Start", selection: $editing.startDate, displayedComponents: .date)
+                DatePicker("", selection: $editing.startDate, displayedComponents: .date)
                     .labelsHidden()
                 Spacer()
             }
@@ -122,7 +122,7 @@ struct BillBaseEditor : View {
             Text("Has End Date:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
             HStack {
-                Toggle("Has End Date", isOn: $editing.hasEndDate).labelsHidden()
+                Toggle("", isOn: $editing.hasEndDate).labelsHidden()
                 Spacer()
             }
         }
@@ -160,7 +160,7 @@ struct BillBaseEditor : View {
                 .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
             HStack {
-                Toggle("Has location", isOn: $editing.hasLocation).labelsHidden()
+                Toggle("", isOn: $editing.hasLocation).labelsHidden()
                 Spacer()
             }
         }

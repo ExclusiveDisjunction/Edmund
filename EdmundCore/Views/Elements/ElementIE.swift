@@ -8,6 +8,19 @@
 import SwiftUI;
 import SwiftData;
 
+public struct InspectEditTitle<T> : View where T: TypeTitled {
+    public init(mode: InspectionMode = .view) {
+        self.mode = mode
+    }
+    
+    @State private var mode: InspectionMode;
+    
+    public var body: some View {
+        Text(mode == .edit ? T.typeDisplay.edit : mode == .add ? T.typeDisplay.add : T.typeDisplay.inspect)
+            .font(.title2)
+    }
+}
+
 public struct ElementInspector<T> : View where T: InspectableElement {
     public init(data: T) {
         self.data = data
@@ -89,14 +102,9 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     
     public var body: some View {
         VStack {
-            if let conv = data as? any NamedInspectableElement {
-                Text(conv.name).font(.title2)
-            }
-            else {
-                Text("Inspect").font(.title2)
-            }
+            InspectEditTitle<T>(mode: adding ? .add : .edit)
             
-            Divider().padding([.top, .bottom])
+            Divider()
             
             T.EditView(editing)
             
@@ -212,12 +220,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     
     public var body: some View {
         VStack {
-            if let conv = data as? any NamedInspectableElement {
-                Text(conv.name).font(.title2)
-            }
-            else {
-                Text(mode.display).font(.title2)
-            }
+            InspectEditTitle<T>(mode: mode)
             
             Button(action: {
                 withAnimation {
@@ -232,7 +235,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                 .padding(.bottom)
 #endif
             
-            Divider().padding([.top, .bottom])
+            Divider()
             
             if let editing = editing.snapshot {
                 T.EditView(editing)

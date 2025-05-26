@@ -109,27 +109,13 @@ struct GeneralCommands : Commands {
             
             Divider()
             
-            Menu {
-                Button("Edmund Formatting") {
-                    
-                }
-                Button("CSV") {
-                    
-                }
-            } label: {
-                Text("Import Data")
-            }.disabled(true)
+            Button("Export", action: {
+                
+            }).disabled(true)
             
-            Menu {
-                Button("Edmund Formatting") {
-                    
-                }
-                Button("CSV") {
-                    
-                }
-            } label: {
-                Text("Export Data")
-            }.disabled(true)
+            Button("Import", action: {
+                
+            }).disabled(true)
             
             Divider()
             

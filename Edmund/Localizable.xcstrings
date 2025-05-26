@@ -119,74 +119,6 @@
         }
       }
     },
-    "Add Account" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neues Konto"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nowe konto "
-          }
-        }
-      }
-    },
-    "Add Category" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neue Kategorie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nowa kategoria "
-          }
-        }
-      }
-    },
-    "Add Sub Account" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neues Unterknto"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nowe subkonto "
-          }
-        }
-      }
-    },
-    "Add Sub Category" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neue Unterkategorie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nowa podkategoria"
-          }
-        }
-      }
-    },
     "Amount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -434,7 +366,7 @@
 
     },
     "Build %@" : {
-
+      "comment" : "App build version. This appears as Build (Number)"
     },
     "Cancel" : {
       "extractionState" : "manual",
@@ -554,10 +486,7 @@
       }
     },
     "Credit Limit: %@" : {
-
-    },
-    "CSV" : {
-      "shouldTranslate" : false
+      "comment" : "Credit Limit: (Number)"
     },
     "Currency" : {
 
@@ -573,9 +502,6 @@
       }
     },
     "Customize" : {
-
-    },
-    "date" : {
 
     },
     "Date" : {
@@ -705,9 +631,6 @@
       },
       "shouldTranslate" : false
     },
-    "Edmund Formatting" : {
-
-    },
     "Edmund Help" : {
 
     },
@@ -744,9 +667,6 @@
         }
       }
     },
-    "Error!" : {
-
-    },
     "Expand All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -776,10 +696,10 @@
     "Expired Bills" : {
 
     },
-    "Export as PDF" : {
+    "Export" : {
 
     },
-    "Export Data" : {
+    "Export as PDF" : {
 
     },
     "Expression:" : {
@@ -815,7 +735,14 @@
 
     },
     "futureRelease" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This feature will be released in a future release."
+          }
+        }
+      }
     },
     "General" : {
 
@@ -911,7 +838,7 @@
     "If you need assistance with this tool, please see the help topic." : {
 
     },
-    "Import Data" : {
+    "Import" : {
 
     },
     "Income" : {
@@ -1385,7 +1312,14 @@
 
     },
     "preferTransactionWindowDesc" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If this is enabled, new transaction templates will be opened in a separate window. This allows the main window to still be used while transactions are being added."
+          }
+        }
+      }
     },
     "Profile" : {
       "extractionState" : "manual",
@@ -1855,7 +1789,7 @@
       }
     },
     "Version %@" : {
-
+      "comment" : "App version. This has the format \"Version: (Number).(Number)\""
     },
     "Vertical Split" : {
 
@@ -1924,7 +1858,7 @@
 
     },
     "x" : {
-
+      "shouldTranslate" : false
     },
     "Year" : {
       "extractionState" : "manual",

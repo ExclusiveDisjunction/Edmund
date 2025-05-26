@@ -36,6 +36,16 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
     public var name: String = "";
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) public var children: [SubCategory]? = nil;
 
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Category",
+            plural:   "Categories",
+            inspect:  "Inspect Category",
+            edit:     "Edit Category",
+            add:      "Add Category"
+        )
+    }
+    
     public static var kind: NamedPairKind { .category }
     
     public static let exampleCategories: [Category] = {
@@ -113,6 +123,16 @@ public final class SubCategory : BoundPair, Equatable, NamedEditableElement, Nam
     public var name: String = "";
     @Relationship public var parent: Category? = nil;
     @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) public var transactions: [LedgerEntry]? = nil;
+    
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Sub Category",
+            plural:   "Sub Categories",
+            inspect:  "Inspect Sub Category",
+            edit:     "Edit Sub Category",
+            add:      "Add Sub Category"
+        )
+    }
 
     public var isEmpty: Bool {
         parent?.isEmpty ?? false || name.isEmpty

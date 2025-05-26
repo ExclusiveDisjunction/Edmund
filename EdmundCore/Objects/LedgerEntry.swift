@@ -144,6 +144,16 @@ public final class LedgerEntry : Identifiable, NamedInspectableElement, NamedEdi
         credit - debit
     }
     
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Transaction",
+            plural:   "Transactions",
+            inspect:  "Inspect Transaction",
+            edit:     "Edit Transaction",
+            add:      "Add Transaction"
+        )
+    }
+    
     public static func exampleEntries(acc: [Account], cat: [Category]) -> [LedgerEntry] {
         let transferCat = cat.findPair("Account Control", "Transfer")!
         let auditCat = cat.findPair("Account Control", "Audit")!

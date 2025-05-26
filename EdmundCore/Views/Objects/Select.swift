@@ -89,7 +89,7 @@ public struct SelectionSheet<T, Title, Columns> : View where T: Identifiable, Co
                     showWarning = false
                 })
             }, message: {
-                Text("Please select at least one item.")
+                Text("noItems")
             })
     }
 }

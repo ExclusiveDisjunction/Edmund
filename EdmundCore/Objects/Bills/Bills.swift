@@ -50,6 +50,16 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     public var rawKind: Int = 0;
     private var rawPeriod: Int = 0;
     
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Bill",
+            plural:   "Bills",
+            inspect:  "Inspect Bill",
+            edit:     "Edit Bill",
+            add:      "Add Bill"
+        )
+    }
+    
     public var kind: BillsKind {
         get {
             BillsKind(rawValue: rawKind)!

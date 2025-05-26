@@ -307,6 +307,7 @@
 				pl,
 				Base,
 				"es-US",
+				"fr-CA",
 			);
 			mainGroup = DD34E5F92D99D21D009E3875;
 			minimizedProjectReferenceProxies = 1;

@@ -109,7 +109,7 @@ struct HelpView : View {
                 }
             }
             else if isError {
-                Text("Error!")
+                Text("internalError")
                 Spacer()
             }
             else {

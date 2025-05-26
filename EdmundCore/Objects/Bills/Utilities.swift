@@ -115,6 +115,16 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
         set { rawPeriod = newValue.rawValue }
     }
     
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Utility",
+            plural:   "Utilities",
+            inspect:  "Inspect Utility",
+            edit:     "Edit Utility",
+            add:      "Add Utility"
+        )
+    }
+    
     public static let exampleUtility: [Utility] = {
         [
             .init(

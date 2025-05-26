@@ -40,6 +40,16 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
         .account
     }
     
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Account",
+            plural:   "Accounts",
+            inspect:  "Inspect Account",
+            edit:     "Edit Account",
+            add:      "Add Account"
+        )
+    }
+    
     public static let exampleAccounts: [Account] = {
         [
             exampleAccount,
@@ -106,6 +116,16 @@ public final class SubAccount : BoundPair, Equatable, NamedEditableElement, Name
     public var name: String = "";
     @Relationship public var parent: Account? = nil;
     @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account) public var transactions: [LedgerEntry]? = nil;
+    
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Sub Account",
+            plural:   "Sub Accounts",
+            inspect:  "Inspect Sub Account",
+            edit:     "Edit Sub Account",
+            add:      "Add Sub Account"
+        )
+    }
     
     public static var kind: NamedPairKind {
         get { .account }

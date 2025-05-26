@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "" : {
-
+      "shouldTranslate" : false
     },
     "%@, %@" : {
       "localizations" : {
@@ -12,12 +12,16 @@
             "value" : "%1$@, %2$@"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "Account" : {
 
     },
     "Account:" : {
+
+    },
+    "Accounts" : {
 
     },
     "Add" : {
@@ -26,13 +30,28 @@
     "Add Account" : {
 
     },
+    "Add Bill" : {
+
+    },
     "Add Category" : {
+
+    },
+    "Add Hourly Job" : {
+
+    },
+    "Add Salaried Job" : {
 
     },
     "Add Sub Account" : {
 
     },
     "Add Sub Category" : {
+
+    },
+    "Add Transaction" : {
+
+    },
+    "Add Utility" : {
 
     },
     "Added On:" : {
@@ -53,6 +72,12 @@
     "Autopay:" : {
 
     },
+    "Average Hours" : {
+
+    },
+    "Average Hours:" : {
+
+    },
     "Balance:" : {
 
     },
@@ -71,6 +96,9 @@
     "Cancel" : {
 
     },
+    "Categories" : {
+
+    },
     "Category" : {
 
     },
@@ -78,7 +106,14 @@
 
     },
     "childrenError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One or more Utility Entries are invalid."
+          }
+        }
+      }
     },
     "Company" : {
 
@@ -87,7 +122,14 @@
 
     },
     "companyEmptyError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please provide a company name."
+          }
+        }
+      }
     },
     "Credit" : {
 
@@ -96,7 +138,7 @@
 
     },
     "Datapoints" : {
-
+      "comment" : "Used for utility entries"
     },
     "Date" : {
 
@@ -122,7 +164,34 @@
     "Edit" : {
 
     },
+    "Edit Account" : {
+
+    },
+    "Edit Bill" : {
+
+    },
+    "Edit Category" : {
+
+    },
     "Edit Datapoints..." : {
+
+    },
+    "Edit Hourly Job" : {
+
+    },
+    "Edit Salaried Job" : {
+
+    },
+    "Edit Sub Account" : {
+
+    },
+    "Edit Sub Category" : {
+
+    },
+    "Edit Transaction" : {
+
+    },
+    "Edit Utility" : {
 
     },
     "End" : {
@@ -146,13 +215,7 @@
     "Half Year" : {
 
     },
-    "Has End Date" : {
-
-    },
     "Has End Date:" : {
-
-    },
-    "Has location" : {
 
     },
     "Has Location:" : {
@@ -161,10 +224,46 @@
     "High to Low" : {
 
     },
+    "Hourly Job" : {
+
+    },
+    "Hourly Jobs" : {
+
+    },
+    "Hourly Rate:" : {
+
+    },
     "Inspect" : {
 
     },
+    "Inspect Account" : {
+
+    },
+    "Inspect Bill" : {
+
+    },
+    "Inspect Category" : {
+
+    },
     "Inspect Datapoints..." : {
+
+    },
+    "Inspect Hourly Job" : {
+
+    },
+    "Inspect Salaried Job" : {
+
+    },
+    "Inspect Sub Account" : {
+
+    },
+    "Inspect Sub Category" : {
+
+    },
+    "Inspect Transaction" : {
+
+    },
+    "Inspect Utility" : {
 
     },
     "Kind" : {
@@ -180,7 +279,14 @@
 
     },
     "locationEmptyError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please provide a location."
+          }
+        }
+      }
     },
     "Memo:" : {
 
@@ -210,10 +316,24 @@
 
     },
     "nameEmptyError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please provide a valid name."
+          }
+        }
+      }
     },
     "negAmountError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please ensure the amount is at least zero (non-negative)."
+          }
+        }
+      }
     },
     "No" : {
 
@@ -231,7 +351,14 @@
 
     },
     "noItems" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select at least one item."
+          }
+        }
+      }
     },
     "None" : {
 
@@ -248,8 +375,11 @@
     "Please correct fields outlined with red." : {
 
     },
-    "Please select at least one item." : {
+    "Position" : {
 
+    },
+    "Position:" : {
+      "comment" : "Job position"
     },
     "Price" : {
 
@@ -275,6 +405,12 @@
     "Reversed Accounting Style" : {
 
     },
+    "Salaried Job" : {
+
+    },
+    "Salaried Jobs" : {
+
+    },
     "Save" : {
 
     },
@@ -296,9 +432,6 @@
     "Standard Accounting Style" : {
 
     },
-    "Start" : {
-
-    },
     "Start and End Dates" : {
 
     },
@@ -306,9 +439,22 @@
 
     },
     "startDateError" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The start date is invalid."
+          }
+        }
+      }
     },
     "Sub Account" : {
+
+    },
+    "Sub Accounts" : {
+
+    },
+    "Sub Categories" : {
 
     },
     "Sub Category" : {
@@ -327,6 +473,19 @@
 
     },
     "tooManyItems" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select only one item."
+          }
+        }
+      }
+    },
+    "Transaction" : {
+
+    },
+    "Transactions" : {
 
     },
     "Two Months" : {
