@@ -8,6 +8,7 @@
 import SwiftUI;
 import SwiftData;
 
+/// A simplification of the title used for the various Inspector and Editor views.
 public struct InspectEditTitle<T> : View where T: TypeTitled {
     public init(mode: InspectionMode = .view) {
         self.mode = mode
@@ -21,6 +22,7 @@ public struct InspectEditTitle<T> : View where T: TypeTitled {
     }
 }
 
+/// A high level abstraction over element inspection. If `T` is an `InspectableElement`, then it will load the inspector view, and handle the layout/closing actions for the process.
 public struct ElementInspector<T> : View where T: InspectableElement {
     public init(data: T) {
         self.data = data
@@ -31,15 +33,9 @@ public struct ElementInspector<T> : View where T: InspectableElement {
     
     public var body: some View {
         VStack {
-            if let conv = data as? any NamedInspectableElement {
-                Text(conv.name).font(.title2)
-            }
-            else {
-                Text("Inspect").font(.title2)
-            }
+            InspectEditTitle<T>()
             
-            
-            Divider().padding([.top, .bottom])
+            Divider()
             
             T.InspectorView(data)
             
@@ -52,7 +48,13 @@ public struct ElementInspector<T> : View where T: InspectableElement {
     }
 }
 
+/// A high level abstraction over element edting. If `T` is an `EditableElement`, then it will load the editing view, and handle the layout/closing/saving actions for the process.
 public struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
+    /// Constructs the view using the specified data.
+    /// - Parameters:
+    ///     - data: The element to modify. A `T.Snapshot` will be created for it.
+    ///     - adding: When true, the editor will understand that the `data` provided is new. Therefore, it will append it to the `ModelContext` upon successful save.
+    ///     - postAction: If provided, this will be called when the editor closes, regardless of saving or not.
     public init(_ data: T, adding: Bool, postAction: (() -> Void)? = nil) {
         self.data = data
         let tmp = T.Snapshot(data)
@@ -72,12 +74,14 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
     
+    /// Determines if the specified edit is allowed, and shows the error otherwise.
     private func validate() -> Bool {
         let result = editing.validate();
         showAlert = !result
         
         return result
     }
+    /// Applies the data to the specified data.
     private func apply() {
         if adding {
             modelContext.insert(data)
@@ -85,15 +89,18 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
         
         editing.apply(data, context: modelContext)
     }
+    /// Run when the `Save` button is pressed. This will validate & apply the data (if it is valid).
     private func submit() {
         if validate() {
             apply()
             dismiss()
         }
     }
+    /// Closes the popup.
     func cancel() {
         dismiss()
     }
+    /// Runs the post action, if provided.
     private func onDismiss() {
         if let postAction = postAction {
             postAction()
@@ -113,20 +120,24 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
             HStack{
                 Spacer()
                 
-                Button("Cancel", action: cancel).buttonStyle(.bordered)
+                Button("Cancel", action: cancel)
+                    .buttonStyle(.bordered)
                 
-                Button("Ok", action: submit).buttonStyle(.borderedProminent)
+                Button("Ok", action: submit)
+                    .buttonStyle(.borderedProminent)
             }
-        }.padding().alert("Error", isPresented: $showAlert, actions: {
-            Button("Ok", action: {
-                showAlert = false
+        }.padding()
+            .alert("Error", isPresented: $showAlert, actions: {
+                Button("Ok", action: {
+                    showAlert = false
+                })
+            }, message: {
+                Text("Please correct fields outlined with red.")
             })
-        }, message: {
-            Text("Please correct fields outlined with red.")
-        })
     }
 }
 
+/// A wrapper around editing for a specific data type. It stores a hash (to know that a change took place), and the actual snapshot itself.
 private class EditingManifest<T> : ObservableObject where T: EditableElement {
     init(_ editing: T.Snapshot?) {
         self.snapshot = editing
@@ -145,7 +156,13 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
     }
 }
 
+/// A high level view that allows for switching between editing
 public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel {
+    /// Opens the editor with a specific mode.
+    /// - Parameters:
+    ///     - data: The data being passed for inspection/editing
+    ///     - mode: The mode to open by default. The user can change the mode, unless the action is `add`. In this case, the user will be locked to editing mode only.
+    ///     - postAction: An action to run after the editor closes, regardless of success or not.
     public init(_ data: T, mode: InspectionMode, postAction: (() -> Void)? = nil) {
         self.data = data
         self.postAction = postAction;
@@ -168,16 +185,19 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.dismiss) private var dismiss;
     
+    /// Determines if the mode is currently editing.
     private var isEdit: Bool {
         get { editing.snapshot != nil }
     }
     
+    /// If in edit mode, it will determine if the input is valid. It will show an error otherwise.
     private func validate() -> Bool {
         let result = editing.snapshot?.validate() ?? true
         showAlert = !result
         
         return result
     }
+    /// Modifies the attached data to the editing snapshot, if edit mode is active.
     private func apply() {
         if let editing = editing.snapshot {
             if mode == .add {
@@ -186,20 +206,24 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             editing.apply(data, context: modelContext)
         }
     }
+    /// Validates, applies and dismisses, if the validation passes.
     private func submit() {
         if validate() {
             apply()
             dismiss()
         }
     }
+    /// Closes the tool window.
     private func cancel() {
         dismiss()
     }
+    /// Runs the post action, if it exists.
     private func onDismiss() {
         if let postAction = postAction {
             postAction()
         }
     }
+    /// Switches from inspect -> edit mode, and vice versa.
     private func toggleMode() {
         if editing.snapshot == nil {
             // Go into edit mode
@@ -227,10 +251,12 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                     toggleMode()
                 }
             }) {
-                Image(systemName: isEdit ? "info.circle" : "pencil").resizable()
+                Image(systemName: isEdit ? "info.circle" : "pencil")
+                    .resizable()
             }.buttonStyle(.borderless)
                 .scaledToFit()
                 .frame(width: 20, height: 20)
+                .disabled(mode == .add) //you cannot change mode if the data is not stored.
 #if os(iOS)
                 .padding(.bottom)
 #endif
@@ -253,29 +279,32 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                     Button("Cancel", action: cancel).buttonStyle(.bordered)
                 }
                 
-                Button("Ok", action: isEdit ? submit : cancel).buttonStyle(.borderedProminent)
+                Button(mode == .view ? "Ok" : "Save", action: isEdit ? submit : cancel).buttonStyle(.borderedProminent)
             }
-        }.padding().alert("Error", isPresented: $showAlert, actions: {
-            Button("Ok", action: {
-                showAlert = false
+        }.padding()
+            .onDisappear(perform: onDismiss)
+            .alert("Error", isPresented: $showAlert, actions: {
+                Button("Ok", action: {
+                    showAlert = false
+                })
+            }, message: {
+                Text("Please correct fields outlined with red.")
             })
-        }, message: {
-            Text("Please correct fields outlined with red.")
-        }).confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $warningConfirm) {
-            Button("Save", action: {
-                apply()
-                editing.reset()
-                warningConfirm = false
-            })
-            
-            Button("Discard") {
-                editing.reset()
-                warningConfirm = false
+            .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $warningConfirm) {
+                Button("Save", action: {
+                    apply()
+                    editing.reset()
+                    warningConfirm = false
+                })
+                
+                Button("Discard") {
+                    editing.reset()
+                    warningConfirm = false
+                }
+                
+                Button("Cancel", role: .cancel) {
+                    warningConfirm = false
+                }
             }
-            
-            Button("Cancel", role: .cancel) {
-                warningConfirm = false
-            }
-        }.onDisappear(perform: onDismiss)
     }
 }

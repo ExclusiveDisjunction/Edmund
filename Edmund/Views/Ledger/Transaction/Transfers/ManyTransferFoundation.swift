@@ -81,7 +81,7 @@ struct ManyTransferTable : View {
             HStack {
                 Text(item.amount.rawValue, format: .currency(code: currencyCode))
                 if let account = item.account {
-                    NamedPairViewer(account)
+                    CompactNamedPairInspect(account)
                 }
                 else {
                     Text("No Account").italic()
@@ -146,7 +146,7 @@ struct ManyTransferTable : View {
             
             Table($data, selection: $selected) {
                 TableColumn("Amount") { $item in
-                    CurrencyField($item.amount)
+                    CurrencyField(item.amount)
                 }
                 
                 TableColumn("Account") { $item in

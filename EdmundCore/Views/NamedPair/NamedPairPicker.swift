@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+/// Allows for the dynamic selection of a named pair child (and by proxy, parent) from the `ModelContext`'s store of bound pairs, over type `C` and `C.P`. 
 public struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, C.P.C == C {
     public init(_ target: Binding<C?>) {
         selectedParent = target.wrappedValue?.parent

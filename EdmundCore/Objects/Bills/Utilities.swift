@@ -9,63 +9,6 @@ import SwiftUI;
 import SwiftData;
 import Foundation;
 
-@Observable
-public final class UtilitySnapshot : BillBaseSnapshotKind {
-    public init(_ from: Utility) {
-        self.id = UUID()
-        self.base = .init(from)
-        self.children = from.children?.map { UtilityEntrySnapshot($0) } ?? []
-    }
-    
-    public var id: UUID;
-    public var base: BillBaseSnapshot;
-    public var children: [UtilityEntrySnapshot];
-    
-    public var amount: Decimal {
-        if children.isEmpty {
-            return Decimal()
-        }
-        else {
-            return children.reduce(Decimal(), { $0 + $1.amount.rawValue } ) / Decimal(children.count)
-        }
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(base)
-        hasher.combine(children)
-    }
-    public static func ==(lhs: UtilitySnapshot, rhs: UtilitySnapshot) -> Bool {
-        lhs.base == rhs.base && lhs.children == rhs.children
-    }
-    
-    public func validate() -> Bool {
-        let children_result = children.reduce(true, { $0 && $1.isValid } )
-        let top_result = self.base.isValid
-        
-        if !children_result {
-            self.base.errors.insert(.children)
-        }
-        
-        return children_result && top_result
-    }
-    
-    public func apply(_ to: Utility, context: ModelContext) {
-        base.apply(to)
-        if to.children.hashValue != children.hashValue {
-            guard let oldChildren = to.children else { return ;}
-            for child in oldChildren {
-                context.delete(child)
-            }
-            
-            let children = children.map { UtilityEntry($0.date, $0.amount.rawValue) }
-            for child in children {
-                context.insert(child)
-            }
-            to.children = children
-        }
-    }
-}
-
 @Model
 public final class Utility: BillBase, NamedInspectableElement, NamedEditableElement {
     public typealias InspectorView = UtilityInspect
@@ -187,4 +130,97 @@ public final class UtilityEntry: Identifiable, Hashable, Equatable {
     public var date: Date = Date.now;
     public var amount: Decimal = 0;
     @Relationship public var parent: Utility? = nil;
+}
+
+@Observable
+public class UtilityEntrySnapshot: Identifiable, Hashable, Equatable {
+    public init(_ from: UtilityEntry) {
+        self.amount = .init(rawValue: from.amount)
+        self.date = from.date
+        self.id = UUID()
+    }
+    public init(amount: Decimal, date: Date, id: UUID = UUID()) {
+        self.id = id
+        self.amount = .init(rawValue: amount)
+        self.date = date
+    }
+    public init() {
+        self.id = UUID()
+        self.amount = .init(rawValue: 0.0)
+        self.date = Date.now
+    }
+    
+    public var id: UUID;
+    public var amount: CurrencyValue;
+    public var date: Date;
+    public var isSelected: Bool = false;
+    
+    public var isValid: Bool {
+        amount >= 0
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(amount)
+        hasher.combine(date)
+    }
+    public static func ==(lhs: UtilityEntrySnapshot, rhs: UtilityEntrySnapshot) -> Bool {
+        lhs.amount == rhs.amount && lhs.date == rhs.date
+    }
+}
+
+@Observable
+public final class UtilitySnapshot : BillBaseSnapshotKind {
+    public init(_ from: Utility) {
+        self.id = UUID()
+        self.base = .init(from)
+        self.children = from.children?.map { UtilityEntrySnapshot($0) } ?? []
+    }
+    
+    public var id: UUID;
+    public var base: BillBaseSnapshot;
+    public var children: [UtilityEntrySnapshot];
+    
+    public var amount: Decimal {
+        if children.isEmpty {
+            return Decimal()
+        }
+        else {
+            return children.reduce(Decimal(), { $0 + $1.amount.rawValue } ) / Decimal(children.count)
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(base)
+        hasher.combine(children)
+    }
+    public static func ==(lhs: UtilitySnapshot, rhs: UtilitySnapshot) -> Bool {
+        lhs.base == rhs.base && lhs.children == rhs.children
+    }
+    
+    public func validate() -> Bool {
+        let children_result = children.reduce(true, { $0 && $1.isValid } )
+        let top_result = self.base.isValid
+        
+        if !children_result {
+            self.base.errors.insert(.children)
+        }
+        
+        return children_result && top_result
+    }
+    
+    public func apply(_ to: Utility, context: ModelContext) {
+        base.apply(to)
+        if to.children.hashValue != children.hashValue {
+            guard let oldChildren = to.children else { return ;}
+            for child in oldChildren {
+                context.delete(child)
+            }
+            
+            let children = children.map { UtilityEntry($0.date, $0.amount.rawValue) }
+            for child in children {
+                context.insert(child)
+            }
+            to.children = children
+        }
+    }
 }

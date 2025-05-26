@@ -142,7 +142,7 @@ struct AllBillsViewEdit : View {
                 Text((wrapper.data.isExpired ? Decimal() : wrapper.data.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            ManyContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
+            SelectionContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
         //.onTapGesture(count: 2, perform: doubleTap)
         #if os(macOS)
@@ -216,10 +216,10 @@ struct AllBillsViewEdit : View {
     @ViewBuilder
     private func inspectSheet(_ wrapper: BillBaseWrapper) -> some View {
         if let asBill = wrapper.data as? Bill {
-            BillIE(asBill, mode: inspect.mode, postAction: refresh)
+            ElementIE(asBill, mode: inspect.mode, postAction: refresh)
         }
         else if let asUtility = wrapper.data as? Utility {
-            UtilityIE(asUtility, mode: inspect.mode, postAction: refresh)
+            ElementIE(asUtility, mode: inspect.mode, postAction: refresh)
         }
         else {
             VStack {

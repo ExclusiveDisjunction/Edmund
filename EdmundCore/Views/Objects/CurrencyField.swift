@@ -7,16 +7,19 @@
 
 import SwiftUI
 
+/// A data type that encapsulates a `Decimal` value, and will update the `Decimal` value based off of a raw string.
 @Observable
 public final class CurrencyValue : Comparable, Equatable, Hashable, RawRepresentable {
     public typealias RawValue = Decimal;
     
+    /// Creates the `CurrencyValue` from a predetermined value.
     public init(rawValue: Decimal = 0.0) {
         self.rawValue = rawValue;
         self.raw = "";
     }
     public var rawValue: Decimal;
-    var raw: String;
+    /// The raw string being used to store the current value.
+    fileprivate var raw: String;
     
     public static func <(lhs: CurrencyValue, rhs: CurrencyValue) -> Bool {
         lhs.rawValue < rhs.rawValue
@@ -44,7 +47,8 @@ public final class CurrencyValue : Comparable, Equatable, Hashable, RawRepresent
         hasher.combine(raw)
     }
     
-    public func format(_ currencyCode: String) {
+    /// Converts the internal `rawValue` into a displayable string.
+    fileprivate func format(_ currencyCode: String) {
         let formatter = NumberFormatter();
         formatter.numberStyle = .currency;
         formatter.currencyCode = currencyCode
@@ -52,20 +56,19 @@ public final class CurrencyValue : Comparable, Equatable, Hashable, RawRepresent
     }
 }
 
+/// A view that takes in a `CurrencyValue` and allows for user editing of that value. This will update the internal `rawValue` as modifications are submitted.
 public struct CurrencyField : View {
-    public init(_ on: Binding<CurrencyValue>, label: LocalizedStringKey = "") {
-        self._on = on;
-        self.label = label;
+    public init(_ on: CurrencyValue) {
+        self.on = on;
     }
     
-    @Binding public var on: CurrencyValue;
+    @Bindable public var on: CurrencyValue;
     @FocusState private var focus: Bool;
-    private let label: LocalizedStringKey;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     public var body: some View {
-        TextField(self.label, text: $on.raw)
+        TextField("", text: $on.raw)
             .textFieldStyle(.roundedBorder)
             .onAppear {
                 on.format(currencyCode)
@@ -90,11 +93,10 @@ public struct CurrencyField : View {
 }
 
 #Preview {
-    var data: CurrencyValue = .init(rawValue: 100.0);
-    let binding = Binding(get: { data }, set: { data = $0 } );
+    let data: CurrencyValue = .init(rawValue: 100.0);
     
     VStack {
-        CurrencyField(binding, label: "Testing")
+        CurrencyField(data)
         HStack {
             Text("Extracted:")
             Text(data.rawValue, format: .currency(code: "USD"))

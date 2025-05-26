@@ -8,6 +8,7 @@
 import SwiftUI;
 import SwiftData;
 
+/// A simple `InspectorView` that can be used just to display the name of a `NamedInspectableElement`.
 public struct SimpleElementInspect<T> : ElementInspectorView where T: NamedInspectableElement {
     public typealias For = T;
     
@@ -27,7 +28,8 @@ public struct SimpleElementInspect<T> : ElementInspectorView where T: NamedInspe
     
     public var body: some View {
         HStack {
-            Text("Name:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            Text("Name:")
+                .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
             Text(data.name)
             

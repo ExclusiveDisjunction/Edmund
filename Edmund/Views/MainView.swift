@@ -41,7 +41,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     var children: [Self]? {
         switch self {
             case .org: [.accounts, .categories, .credit, .audit ]
-            case .pay: [.paychecks, .jobs, .taxes]
+            case .pay: [.paychecks, .jobs ] //.taxes
             default: nil
         }
     }

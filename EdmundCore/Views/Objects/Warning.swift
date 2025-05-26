@@ -7,7 +7,9 @@
 
 import SwiftUI
 
+/// A simple basis for what warnings should include.
 public protocol WarningBasis : Identifiable {
+    /// The encoded message that the warning presents.
     var message: LocalizedStringKey { get }
 }
 
@@ -29,6 +31,7 @@ public enum WarningKind: Int, Identifiable, WarningBasis {
     }
 }
 
+/// A string-based message used to indicate errors for the UI.
 public struct WarningMessage: Identifiable, WarningBasis {
     public init(message: LocalizedStringKey) {
         self.message = message
@@ -57,5 +60,7 @@ public class BaseWarningManifest<T> where T: WarningBasis {
     }
 }
 
+/// A specalized version of `BaseWarningManifest<T>` that works for `WarningKind` values.
 public typealias WarningManifest = BaseWarningManifest<WarningKind>;
+/// A specalized version of `BaseWarningManifest<T>` that works for `WarningMessage` values.
 public typealias StringWarningManifest = BaseWarningManifest<WarningMessage>

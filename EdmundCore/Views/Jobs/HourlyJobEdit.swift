@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// The edit view for Hourly Jobs. 
 public struct HourlyJobEdit : View, ElementEditorView {
     public typealias For = HourlyJob
     
@@ -46,7 +47,7 @@ public struct HourlyJobEdit : View, ElementEditorView {
                 Text("Hourly Rate:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                CurrencyField($snapshot.hourlyRate)
+                CurrencyField(snapshot.hourlyRate)
             }
             
             GridRow {
@@ -54,6 +55,13 @@ public struct HourlyJobEdit : View, ElementEditorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 TextField("Average Hours", value: $snapshot.avgHours, format: .number.precision(.fractionLength(2)))
+            }
+            
+            GridRow {
+                Text("Tax Rate:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                TextField("", value: $snapshot.taxRate, format: .percent)
             }
         }
     }

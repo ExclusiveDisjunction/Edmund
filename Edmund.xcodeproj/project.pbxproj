@@ -84,19 +84,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DD529BB62DDB9316005F6D94 /* Exceptions for "EdmundCore" folder in "EdmundCore" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			platformFiltersByRelativePath = {
-				Views/Objects/SelectButton.swift = (ios, );
-			};
-			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
-		};
 		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
+		};
+		DDE78CBC2DE5141E0040A55A /* Exceptions for "EdmundCore" folder in "EdmundCore" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Views/Objects/Select.swift,
+			);
+			target = DD44651D2DB86B58006D9A01 /* EdmundCore */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -122,7 +122,7 @@
 		DD44651F2DB86B58006D9A01 /* EdmundCore */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				DD529BB62DDB9316005F6D94 /* Exceptions for "EdmundCore" folder in "EdmundCore" target */,
+				DDE78CBC2DE5141E0040A55A /* Exceptions for "EdmundCore" folder in "EdmundCore" target */,
 			);
 			path = EdmundCore;
 			sourceTree = "<group>";

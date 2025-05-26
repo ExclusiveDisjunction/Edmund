@@ -29,3 +29,15 @@ public protocol TraditionalJob : JobBase {
     /// The role that the individual works.
     var position: String  { get set }
 }
+
+/// Holds an `any TraditionalJob` for use in UI code & logic.
+public struct TraditionalJobWrapper : Identifiable {
+    init(_ data: any TraditionalJob, id: UUID = UUID()) {
+        self.data = data;
+        self.id = id;
+    }
+    
+    /// The targeted data
+    public var data: any TraditionalJob;
+    public var id: UUID;
+}

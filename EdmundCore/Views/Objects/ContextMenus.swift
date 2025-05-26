@@ -25,6 +25,15 @@ public struct SingularContextMenu<T> : View where T: Identifiable {
     /// Signals that the view uses the Slide style.
     private let asSlide: Bool;
     
+    /// Constructs a context menu based on the provided information.
+    /// - Parameters:
+    ///     - target: The element to modify
+    ///     - inspect: The `InspectionManifest<T>` used to signal to the parent view that an inspection/edit should take place.
+    ///     - remove: The `DeletingManifest<T>` used to signal to the parent view that the element is being removed.
+    ///     - addLabel:  A `LocalizedStringKey` used to signal the "Add" option, if allowed.
+    ///     - add: A method that will add a new `T` to the data store. If this is `nil`, then adding is disallowed.
+    ///     - canInspect: If the `target` can be inspected or not.
+    ///     - asSlide: When true, the menu will be presented as a slide menu, with tinted colors.
     public init(_ target: T, inspect: InspectionManifest<T>, remove: DeletingManifest<T>, addLabel: LocalizedStringKey = "Add", add: (() -> Void)? = nil, canInspect: Bool = true, asSlide: Bool = false) {
         self.target = target
         self.inspection = inspect
@@ -65,7 +74,7 @@ public struct SingularContextMenu<T> : View where T: Identifiable {
 }
 
 /// A generalized context menu that runs for `.contextMenu(forSelectionType: T.ID)`.
-public struct ManyContextMenu<T> : View where T: Identifiable {
+public struct SelectionContextMenu<T> : View where T: Identifiable {
     /// A handle for viewing/editing
     private let inspect: InspectionManifest<T>;
     /// A handle for deleting objects.
@@ -78,6 +87,14 @@ public struct ManyContextMenu<T> : View where T: Identifiable {
     private let canView: Bool;
     private let data: [T];
     
+    /// Constructs a context menu based on the provided information.
+    /// - Parameters:
+    ///     - sel: The selection being provided.
+    ///     - data: The data that the selection comes from.
+    ///     - inspect: The `InspectionManifest<T>` used to signal to the parent view that an inspection/edit should take place.
+    ///     - delete: The `DeletingManifest<T>` used to signal to the parent view that the element is being removed.
+    ///     - warning: The `WarningManifest` used to signal to the parent view that something is wrong.
+    ///     - canView: When true, inspection is allowed.
     public init(_ sel: Set<T.ID>, data: [T], inspect: InspectionManifest<T>, delete: DeletingManifest<T>, warning: WarningManifest, canView: Bool = true) {
         self.selection = sel
         self.data = data

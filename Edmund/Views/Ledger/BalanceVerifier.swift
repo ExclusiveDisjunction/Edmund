@@ -57,7 +57,7 @@ struct BalanceVerifier: View {
                     Text(item.balance, format: .currency(code: currencyCode))
                 }
                 TableColumn("Expected") { $item in
-                    CurrencyField($item.expectedBalance)
+                    CurrencyField(item.expectedBalance)
                 }
                 TableColumn("Variance") { $item in
                     Text(item.variance, format: .currency(code: currencyCode))

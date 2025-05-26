@@ -70,7 +70,7 @@ struct AccountsIE : View {
                     }
                 }
             }.contextMenu(forSelectionType: AccountTableRow.ID.self) {
-                ManyContextMenu($0, data: cache, inspect: inspecting, delete: delete, warning: warning, canView: false)
+                SelectionContextMenu($0, data: cache, inspect: inspecting, delete: delete, warning: warning, canView: false)
             }
         }.padding()
             .navigationTitle("Accounts")

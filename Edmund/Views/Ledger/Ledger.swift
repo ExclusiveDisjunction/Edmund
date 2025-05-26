@@ -94,7 +94,7 @@ struct LedgerTable: View {
             TableColumn("Location", value: \.location)
             TableColumn("Category") { item in
                 if let category = item.category {
-                    NamedPairViewer(category)
+                    CompactNamedPairInspect(category)
                 }
                 else {
                     Text("No Category")
@@ -102,14 +102,14 @@ struct LedgerTable: View {
             }
             TableColumn("Account") { item in
                 if let account = item.account {
-                    NamedPairViewer(account)
+                    CompactNamedPairInspect(account)
                 }
                 else {
                     Text("No Account")
                 }
             }
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
-            ManyContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
+            SelectionContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 300)
@@ -231,21 +231,22 @@ struct LedgerTable: View {
             }
         }.padding()
             .navigationTitle("Ledger")
-            .toolbar(id: "ledgerToolbar") {
-                toolbar
-            }
+            .toolbar(id: "ledgerToolbar") { toolbar }
             .toolbarRole(.editor)
+            .sheet(item: $transKind) { kind in
+                TransactionsEditor(kind: kind)
+            }
             .sheet(item: $inspect.value) { target in
-                LedgerEntryIE(target, mode: inspect.mode)
-            }.alert("Warning", isPresented: $warning.isPresented, actions: {
+                ElementIE(target, mode: inspect.mode)
+            }
+            .confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
+                DeletingActionConfirm(deleting)
+            }
+            .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: { warning.isPresented = false } )
             }, message: {
                 Text((warning.warning ?? .noneSelected).message)
-            }).sheet(item: $transKind) { kind in
-                TransactionsEditor(kind: kind)
-            }.confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
-                DeletingActionConfirm(deleting)
-            }
+            })
     }
 }
 

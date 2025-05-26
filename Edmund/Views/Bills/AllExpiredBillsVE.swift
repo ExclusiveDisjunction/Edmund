@@ -110,7 +110,7 @@ struct AllExpiredBillsVE : View {
                     }.frame(minWidth: 120)
                 }
             }.contextMenu(forSelectionType: BillBaseWrapper.ID.self) { selection in
-                ManyContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
+                SelectionContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
             }
             #if os(macOS)
             .frame(minWidth: 350)
@@ -151,10 +151,10 @@ struct AllExpiredBillsVE : View {
                 #endif
             }.sheet(item: $inspect.value) { wrapper in
                 if let asBill = wrapper.data as? Bill {
-                    BillIE(asBill, mode: inspect.mode)
+                    ElementIE(asBill, mode: inspect.mode)
                 }
                 else if let asUtility = wrapper.data as? Utility {
-                    UtilityIE(asUtility, mode: inspect.mode)
+                    ElementIE(asUtility, mode: inspect.mode)
                 }
                 else {
                     VStack {

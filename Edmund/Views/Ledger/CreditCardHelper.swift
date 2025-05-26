@@ -83,7 +83,7 @@ struct CreditCardHelper: View {
                 Text(row.creditLimit, format: .currency(code: currencyCode))
             }
             TableColumn("Availiable Credit") { $row in
-                CurrencyField($row.avalibleCredit)
+                CurrencyField(row.avalibleCredit)
             }
             TableColumn("Expected Balance") { $row in
                 Text(row.expectedBalance, format: .currency(code: currencyCode))

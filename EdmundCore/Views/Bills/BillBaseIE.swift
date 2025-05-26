@@ -8,9 +8,13 @@
 import Foundation
 import SwiftUI
 
+/// A collection of common rows used for `BillInspect` and `UtilityInspect`, specifically for inspection.
 struct BillBaseInspect : View {
+    /// The target value to inspect
     var target: any BillBase
+    /// The minimum column width used by the labels.
     let minWidth: CGFloat;
+    /// The maximum column width used by the labels.
     let maxWidth: CGFloat;
     
     var body: some View {
@@ -87,9 +91,14 @@ struct BillBaseInspect : View {
         Divider()
     }
 }
+
+/// A collection of common rows used for `BillEdit` and `UtilityEdit`, specifically for editing.
 struct BillBaseEditor : View {
+    /// The target snapshot
     @Bindable var editing: BillBaseSnapshot;
+    /// The minimum column width used by the labels.
     let minWidth: CGFloat;
+    /// The maximum column width used by the labels.
     let maxWidth: CGFloat;
     
     var body: some View {
@@ -97,11 +106,8 @@ struct BillBaseEditor : View {
             Text("Name:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 .foregroundStyle(editing.errors.contains(.name) ? Color.red : Color.primary)
             
-            HStack {
-                TextField("Name", text: $editing.name)
-                    .textFieldStyle(.roundedBorder)
-                Spacer()
-            }
+            TextField("Name", text: $editing.name)
+                .textFieldStyle(.roundedBorder)
         }
         
         Divider()
@@ -149,10 +155,8 @@ struct BillBaseEditor : View {
                 .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 .foregroundStyle(editing.errors.contains(.company) ? Color.red : Color.primary)
             
-            HStack {
-                TextField("Company", text: $editing.company).textFieldStyle(.roundedBorder)
-                Spacer()
-            }
+            TextField("Company", text: $editing.company)
+                .textFieldStyle(.roundedBorder)
         }
         
         GridRow {
@@ -171,10 +175,8 @@ struct BillBaseEditor : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     .foregroundStyle(editing.errors.contains(.location) ? Color.red : Color.primary)
                 
-                HStack {
-                    TextField("Location", text: $editing.location).textFieldStyle(.roundedBorder)
-                    Spacer()
-                }
+                TextField("Location", text: $editing.location)
+                    .textFieldStyle(.roundedBorder)
             }
         }
         
@@ -209,6 +211,7 @@ struct BillBaseEditor : View {
     }
 }
 
+/// A simple abstraction for a row  that uses a large `TextEditor` over some value.
 struct LongTextEditWithLabel : View {
     @Binding var value: String;
     let minWidth: CGFloat;
@@ -217,11 +220,14 @@ struct LongTextEditWithLabel : View {
     var body: some View {
         GridRow {
             VStack {
-                Text("Notes:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                Text("Notes:")
+                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 Spacer()
             }
             
-            TextEditor(text: $value).multilineTextAlignment(.leading).frame(maxHeight: 150)
+            TextEditor(text: $value)
+                .multilineTextAlignment(.leading)
+                .frame(maxHeight: 150)
         }
     }
 }

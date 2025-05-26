@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+/// A snapshot type for anything that is a `BoundPair` and `NamedEditableElement`.
 @Observable
 public final class NamedPairChildSnapshot<C> : ElementSnapshot where C: BoundPair, C: NamedEditableElement {
     public init(_ from: C) {
@@ -37,6 +38,7 @@ public final class NamedPairChildSnapshot<C> : ElementSnapshot where C: BoundPai
     }
 }
 
+/// A View element that can edit a NamedPair type, `C`, so long as it uses the `NamedPairChildSnapshot<C>` as its snapshot type.
 public struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P: PersistentModel, C: NamedEditableElement, C.Snapshot == NamedPairChildSnapshot<C> {
     public init(_ data: C.Snapshot) {
         self.snapshot = data

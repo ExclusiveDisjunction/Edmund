@@ -4,6 +4,12 @@
     "" : {
       "shouldTranslate" : false
     },
+    "(No information)" : {
+
+    },
+    "(No parent), %@" : {
+
+    },
     "%@, %@" : {
       "localizations" : {
         "en" : {
@@ -212,6 +218,9 @@
     "Frequency:" : {
 
     },
+    "Gross Pay:" : {
+
+    },
     "Half Year" : {
 
     },
@@ -381,9 +390,6 @@
     "Position:" : {
       "comment" : "Job position"
     },
-    "Price" : {
-
-    },
     "Price over Time" : {
 
     },
@@ -412,9 +418,6 @@
 
     },
     "Save" : {
-
-    },
-    "Select" : {
 
     },
     "Semi-Anually" : {
@@ -469,6 +472,9 @@
     "Subscriptions" : {
 
     },
+    "Tax Rate:" : {
+
+    },
     "There are unsaved changes, do you wish to continue?" : {
 
     },
@@ -498,9 +504,6 @@
 
     },
     "Utility" : {
-
-    },
-    "Warning" : {
 
     },
     "Week" : {

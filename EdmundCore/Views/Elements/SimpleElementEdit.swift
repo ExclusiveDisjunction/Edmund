@@ -8,6 +8,8 @@
 import SwiftData;
 import SwiftUI;
 
+/// A simple `ElementSnapshot` class for any  `NamedEditableElement`.
+@Observable
 public final class SimpleElementSnapshot<T> : ElementSnapshot where T: NamedEditableElement {
     public typealias Host = T;
     
@@ -15,6 +17,7 @@ public final class SimpleElementSnapshot<T> : ElementSnapshot where T: NamedEdit
         self.name = from.name;
     }
     
+    /// The name of the element to edit.
     public var name: String;
     
     public func validate() -> Bool {
@@ -31,6 +34,8 @@ public final class SimpleElementSnapshot<T> : ElementSnapshot where T: NamedEdit
         lhs.name == rhs.name
     }
 }
+
+/// A simple element editor for any type that uses `ElementSnapshot` as its snapshot type.
 public struct SimpleElementEdit<T> : ElementEditorView where T: NamedEditableElement, T.Snapshot == SimpleElementSnapshot<T> {
     public typealias For = T;
     
@@ -49,11 +54,11 @@ public struct SimpleElementEdit<T> : ElementEditorView where T: NamedEditableEle
     
     public var body: some View {
         HStack {
-            Text("Name:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            Text("Name:")
+                .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
-            TextField("Name", text: $snapshot.name).labelsHidden().textFieldStyle(.roundedBorder)
-            
-            Spacer()
+            TextField("", text: $snapshot.name)
+                .textFieldStyle(.roundedBorder)
         }
     }
 }

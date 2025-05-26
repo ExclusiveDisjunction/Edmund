@@ -61,7 +61,7 @@ struct CategoriesIE : View {
             List(cache, children: \.children, selection: $selection) { acc in
                 Text(acc.name)
             }.contextMenu(forSelectionType: AccountTableRow.ID.self) {
-                ManyContextMenu($0, data: cache, inspect: inspecting, delete: delete, warning: warning, canView: false)
+                SelectionContextMenu($0, data: cache, inspect: inspecting, delete: delete, warning: warning, canView: false)
             }
         }.padding()
             .navigationTitle("Categories")

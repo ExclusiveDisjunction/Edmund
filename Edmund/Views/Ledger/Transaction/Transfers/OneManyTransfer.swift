@@ -69,7 +69,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
                     Text(data.amount, format: .currency(code: currencyCode))
                     Text("will be moved to", comment: "$ will be moved to")
                     if let account = account {
-                        NamedPairViewer(account)
+                        CompactNamedPairInspect(account)
                     }
                     else {
                         Text("(no account)").italic()

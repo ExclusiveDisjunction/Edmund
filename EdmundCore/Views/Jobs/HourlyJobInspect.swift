@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// The inspection view for Hourly Jobs. 
 public struct HourlyJobInspect : View, ElementInspectorView {
     public typealias For = HourlyJob
     
@@ -18,19 +19,69 @@ public struct HourlyJobInspect : View, ElementInspectorView {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
-    private let labelMinWidth: CGFloat = 60;
-    private let labelMaxWidth: CGFloat = 70;
+    private let labelMinWidth: CGFloat = 90;
+    private let labelMaxWidth: CGFloat = 100;
 #else
-    private let labelMinWidth: CGFloat = 80;
-    private let labelMaxWidth: CGFloat = 85;
+    private let labelMinWidth: CGFloat = 100;
+    private let labelMaxWidth: CGFloat = 110;
 #endif
     
     public var body: some View {
         Grid {
             GridRow {
+                Text("Position:", comment: "Job position")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(data.position)
+                    Spacer()
+                }
+            }
+            
+            GridRow {
                 Text("Company:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(data.company)
+                    Spacer()
+                }
+            }
+            
+            GridRow {
+                Text("Hourly Rate:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(data.hourlyRate, format: .currency(code: currencyCode))
+                    Spacer()
+                }
+            }
+            
+            GridRow {
+                Text("Average Hours:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(data.avgHours, format: .number.precision(.fractionLength(2)))
+                    Spacer()
+                }
+            }
+            
+            GridRow {
+                Text("Tax Rate:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(data.taxRate, format: .percent)
+                    Spacer()
+                }
             }
         }
     }
+}
+
+#Preview {
+    ElementInspector(data: HourlyJob())
+        .modelContainer(Containers.debugContainer)
 }
