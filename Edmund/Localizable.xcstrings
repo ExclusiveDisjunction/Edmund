@@ -213,6 +213,9 @@
     "Availiable Credit" : {
 
     },
+    "Avg. Pay:" : {
+
+    },
     "Balance" : {
       "localizations" : {
         "de" : {
@@ -667,6 +670,9 @@
         }
       }
     },
+    "Estimated Pay" : {
+
+    },
     "Expand All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -750,6 +756,9 @@
     "Generate Report" : {
 
     },
+    "Gross Pay" : {
+
+    },
     "Groups:" : {
 
     },
@@ -827,6 +836,9 @@
 
     },
     "Horizontal Split" : {
+
+    },
+    "Hourly" : {
 
     },
     "https://github.com/ExclusiveDisjunction/Edmund" : {
@@ -1308,6 +1320,9 @@
     "Please visit the project on GitHub:" : {
 
     },
+    "Position" : {
+
+    },
     "Prefer Transaction Window" : {
 
     },
@@ -1419,6 +1434,9 @@
     },
     "Ruth" : {
       "shouldTranslate" : false
+    },
+    "Salaried" : {
+
     },
     "Save" : {
       "localizations" : {
@@ -1598,6 +1616,9 @@
       "shouldTranslate" : false
     },
     "Take from" : {
+
+    },
+    "Tax Rate" : {
 
     },
     "Taxes" : {

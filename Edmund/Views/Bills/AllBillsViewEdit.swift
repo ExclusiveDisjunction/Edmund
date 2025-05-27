@@ -144,7 +144,6 @@ struct AllBillsViewEdit : View {
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
             SelectionContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
-        //.onTapGesture(count: 2, perform: doubleTap)
         #if os(macOS)
         .frame(minWidth: 320)
         #endif

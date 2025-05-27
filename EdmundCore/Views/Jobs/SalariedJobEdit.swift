@@ -56,6 +56,10 @@ public struct SalariedJobEdit : ElementEditorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 TextField("", value: $snapshot.taxRate, format: .percent)
+                    .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                    .keyboardType(.decimalPad)
+#endif
             }
         }
     }

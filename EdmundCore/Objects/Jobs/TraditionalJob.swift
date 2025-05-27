@@ -18,7 +18,7 @@ public protocol JobBase : PersistentModel, InspectableElement, EditableElement {
 public extension JobBase {
     /// The average amount gained (post-tax).
     var estimatedProfit : Decimal {
-        grossAmount * taxRate
+        grossAmount * (1 - taxRate)
     }
 }
 
@@ -32,7 +32,7 @@ public protocol TraditionalJob : JobBase {
 
 /// Holds an `any TraditionalJob` for use in UI code & logic.
 public struct TraditionalJobWrapper : Identifiable {
-    init(_ data: any TraditionalJob, id: UUID = UUID()) {
+    public init(_ data: any TraditionalJob, id: UUID = UUID()) {
         self.data = data;
         self.id = id;
     }

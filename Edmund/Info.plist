@@ -2,9 +2,86 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIBackgroundModes</key>
+	<key>CFBundleDocumentTypes</key>
 	<array>
-		<string>processing</string>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>Logo512</string>
+			<key>CFBundleTypeName</key>
+			<string>Edmund Document</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.exdisj.edmund.document</string>
+			</array>
+			<key>NSDocumentClass</key>
+			<string>NSDocument</string>
+		</dict>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Edmund Document</string>
+			<key>UTTypeIconFile</key>
+			<string>Logo512</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBackgroundName</key>
+				<string>Logo512</string>
+				<key>UTTypeIconBadgeName</key>
+				<string>Logo512</string>
+				<key>UTTypeIconText</key>
+				<string>Edmund</string>
+			</dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.exdisj.edmund.document</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>.edmund</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Edmund Document</string>
+			<key>UTTypeIconFile</key>
+			<string>Logo512</string>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBackgroundName</key>
+				<string>Logo512</string>
+				<key>UTTypeIconBadgeName</key>
+				<string>Logo512</string>
+				<key>UTTypeIconText</key>
+				<string>Edmund</string>
+			</dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.exdisj.edmund.document</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>.edmund</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 </dict>
 </plist>

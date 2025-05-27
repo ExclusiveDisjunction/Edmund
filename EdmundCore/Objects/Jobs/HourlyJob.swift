@@ -74,6 +74,7 @@ public final class HourlyJobSnapshot : Identifiable, Equatable, Hashable, Elemen
         to.position = self.position
         to.avgHours = self.avgHours
         to.hourlyRate = self.hourlyRate.rawValue
+        to.taxRate = self.taxRate
     }
     
     public typealias Host = HourlyJob
@@ -93,8 +94,9 @@ public final class HourlyJobSnapshot : Identifiable, Equatable, Hashable, Elemen
         hasher.combine(position)
         hasher.combine(hourlyRate)
         hasher.combine(avgHours)
+        hasher.combine(taxRate)
     }
     public static func == (lhs: HourlyJobSnapshot, rhs: HourlyJobSnapshot) -> Bool {
-        lhs.company == rhs.company && lhs.position == rhs.position && lhs.hourlyRate == rhs.hourlyRate && lhs.avgHours == rhs.avgHours
+        lhs.company == rhs.company && lhs.position == rhs.position && lhs.hourlyRate == rhs.hourlyRate && lhs.avgHours == rhs.avgHours && lhs.taxRate == rhs.taxRate
     }
 }

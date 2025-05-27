@@ -18,11 +18,11 @@ public struct HourlyJobEdit : View, ElementEditorView {
     @Bindable private var snapshot: HourlyJobSnapshot;
     
 #if os(macOS)
-    private let labelMinWidth: CGFloat = 70;
-    private let labelMaxWidth: CGFloat = 80;
+    private let labelMinWidth: CGFloat = 100;
+    private let labelMaxWidth: CGFloat = 110;
 #else
-    private let labelMinWidth: CGFloat = 80;
-    private let labelMaxWidth: CGFloat = 90;
+    private let labelMinWidth: CGFloat = 130;
+    private let labelMaxWidth: CGFloat = 140;
 #endif
     
     public var body: some View {
@@ -55,6 +55,10 @@ public struct HourlyJobEdit : View, ElementEditorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 TextField("Average Hours", value: $snapshot.avgHours, format: .number.precision(.fractionLength(2)))
+                    .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                    .keyboardType(.decimalPad)
+#endif
             }
             
             GridRow {
@@ -62,6 +66,10 @@ public struct HourlyJobEdit : View, ElementEditorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 TextField("", value: $snapshot.taxRate, format: .percent)
+                    .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                    .keyboardType(.decimalPad)
+#endif
             }
         }
     }

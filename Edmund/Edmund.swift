@@ -24,13 +24,14 @@ struct EdmundApp: App {
         if container.mainContext.undoManager == nil {
             container.mainContext.undoManager = UndoManager();
         }
-         */
+         
         
 #if os(iOS)
         registerBackgroundTasks()
 #elseif os(macOS)
         refreshWidget()
 #endif
+         */
     }
     
     var container: ModelContainer;

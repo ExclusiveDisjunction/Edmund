@@ -63,6 +63,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .categories: CategoriesIE()
             case .credit: CreditCardHelper()
             case .audit: BalanceVerifier()
+                
+            case .jobs: AllJobsViewEdit()
             default: Text("Work in progress").navigationTitle(self.rawValue)
         }
     }

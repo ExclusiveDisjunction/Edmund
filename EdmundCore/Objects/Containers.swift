@@ -21,6 +21,8 @@ public class Containers {
                 Bill.self,
                 Utility.self,
                 UtilityEntry.self,
+                HourlyJob.self,
+                SalariedJob.self
             ]
         )
     }()

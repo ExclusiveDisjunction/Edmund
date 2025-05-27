@@ -15,6 +15,36 @@ import BackgroundTasks
 #endif
 
 @MainActor
+func getUpcomingBills(for date: Date, context: ModelContext, billDesc: FetchDescriptor<Bill> = .init(), utilityDesc: FetchDescriptor<Utility> = .init()) async -> UpcomingBillsSnapshot? {
+    guard let bills: [any BillBase] = try? context.fetch(billDesc),
+          let utilities: [any BillBase] = try? context.fetch(utilityDesc) else {
+        print("Unable to get the upcoming bills for \(date)")
+        return nil;
+    }
+    
+    let combined = ( bills + utilities );
+    var filtered: [ (any BillBase, Date ) ] = [];
+    for item in combined {
+        guard !item.isExpired else { continue }
+        guard let nextDate = item.nextBillDate(from: date) else { continue }
+        
+        if nextDate >= date {
+            filtered.append(
+                (
+                    item,
+                    nextDate
+                )
+            )
+        }
+    }
+    
+    filtered.sort(using: KeyPathComparator(\.1, order: .forward) )
+    let wrapped: [UpcomingBill] = filtered.map { UpcomingBill(name: $0.0.name, amount: $0.0.amount, dueDate: $0.1) };
+    
+    return .init(date: date, bills: wrapped)
+}
+
+@MainActor
 func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
     let container = Containers.container
     
@@ -39,32 +69,11 @@ func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
     var all: [ UpcomingBillsSnapshot ] = [];
     
     for date in dates{
-        guard let bills: [any BillBase] = try? context.fetch(billDescriptor),
-              let utilities: [any BillBase] = try? context.fetch(utilityDescriptor) else {
-            print("Unable to get the upcoming bills for \(date)")
+        guard let result = await getUpcomingBills(for: date, context: context, billDesc: billDescriptor, utilityDesc: utilityDescriptor) else {
             return nil;
         }
-        
-        let combined = ( bills + utilities );
-        var filtered: [ (any BillBase, Date ) ] = [];
-        for item in combined {
-            guard !item.isExpired else { continue }
-            guard let nextDate = item.nextBillDate(from: date) else { continue }
-            
-            if nextDate >= date {
-                filtered.append(
-                    (
-                        item,
-                        nextDate
-                    )
-                )
-            }
-        }
-        
-        filtered.sort(using: KeyPathComparator(\.1, order: .forward) )
-        let wrapped: [UpcomingBill] = filtered.map { UpcomingBill(name: $0.0.name, amount: $0.0.amount, dueDate: $0.1) };
     
-        all.append(.init(date: date, bills: wrapped));
+        all.append(result);
     }
     
     return all;
