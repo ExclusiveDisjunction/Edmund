@@ -8,6 +8,14 @@
 import SwiftUI
 import SwiftData
 
+/// A view used to help determine the paycheck amount of a salaried job. 
+public struct SalariedJobHelper : View {
+    
+    public var body: some View {
+        
+    }
+}
+
 /// The edit view for Salaried Jobs.
 public struct SalariedJobEdit : ElementEditorView {
     public typealias For = SalariedJob;
@@ -17,6 +25,7 @@ public struct SalariedJobEdit : ElementEditorView {
     }
     
     @Bindable private var snapshot: SalariedJobSnapshot;
+    @State private var showingTax: Bool = false;
     
 #if os(macOS)
     private let labelMinWidth: CGFloat = 70;
@@ -55,12 +64,19 @@ public struct SalariedJobEdit : ElementEditorView {
                 Text("Tax Rate:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                TextField("", value: $snapshot.taxRate, format: .percent)
-                    .textFieldStyle(.roundedBorder)
+                HStack {
+                    TextField("", value: $snapshot.taxRate, format: .percent)
+                        .textFieldStyle(.roundedBorder)
 #if os(iOS)
-                    .keyboardType(.decimalPad)
+                        .keyboardType(.decimalPad)
 #endif
+                    Button("...", action: {
+                        showingTax = true
+                    }).buttonStyle(.bordered)
+                }
             }
+        }.sheet(isPresented: $showingTax) {
+            JobTaxEstimator(output: $snapshot.taxRate)
         }
     }
 }

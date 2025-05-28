@@ -39,6 +39,9 @@ public final class CurrencyValue : Comparable, Equatable, Hashable, RawRepresent
     public static func ==(lhs: CurrencyValue, rhs: Decimal) -> Bool {
         lhs.rawValue == rhs
     }
+    public static func !=(lhs: CurrencyValue, rhs: Decimal) -> Bool {
+        lhs.rawValue != rhs
+    }
     public static func ==(lhs: CurrencyValue, rhs: CurrencyValue) -> Bool {
         lhs.rawValue == rhs.rawValue
     }
@@ -79,7 +82,7 @@ public struct CurrencyField : View {
                 if let parsed = Decimal(string: filter) {
                     on.rawValue = parsed
                 }
-            }.focusable()
+            }
             .focused($focus)
             .onChange(of: focus) { _, newValue in
                 if !newValue {

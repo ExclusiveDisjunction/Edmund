@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
+/// The homepage elements that are presented to the user.
 enum PageDestinations: LocalizedStringKey, Identifiable {
     case home = "Home",
          ledger = "Ledger",
@@ -27,6 +28,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
          jobs = "Jobs",
          taxes = "Taxes"
     
+    /// The top level options for the main page.
     static var topLevel: [Self] {
         [
             .home,
@@ -38,6 +40,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             .pay
         ]
     }
+    /// The children of a specific top level element. This is `nil` for all other elements.
     var children: [Self]? {
         switch self {
             case .org: [.accounts, .categories, .credit, .audit ]
@@ -48,13 +51,14 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     
     var id: Self { self }
     
+    /// The specified view used to store the data.
     @ViewBuilder
-    func view(bal: BalanceSheetVM) -> some View {
+    var view : some View {
         switch self {
             case .home: Homepage()
                 
             case .ledger: LedgerTable()
-            case .balance: BalanceSheet(vm: bal)
+            case .balance: BalanceSheet()
                 
             case .bills: AllBillsViewEdit()
                 
@@ -71,7 +75,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
 }
 
 struct MainView: View {
-    @Bindable private var balance_vm: BalanceSheetVM = .init();
     @State private var page: PageDestinations.ID? = nil;
     @State private var allowedPages = PageDestinations.topLevel;
     
@@ -90,7 +93,7 @@ struct MainView: View {
                 }
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
-            (page ?? .home).view(bal: balance_vm)
+            (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
         }
     }

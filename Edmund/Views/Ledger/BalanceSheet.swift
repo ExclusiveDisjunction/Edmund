@@ -9,23 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-@Observable
-class BalanceSheetVM {
-    init() {
-        
-    }
-    
-    static func computeBalances(acc: [Account]) -> [ComplexBalance] {
-        var bal = BalanceResolver.computeSubBalances(acc)
-            .intoComplexBalances();
-        bal.sortByBalances()
-        
-        return bal
-    }
-
-    var computed: [ComplexBalance]? = nil;
-}
-
+/// A top level view to display all accounts, their balances, and then the sub balances within.
 struct BalanceSheet: View {
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -40,7 +24,7 @@ struct BalanceSheet: View {
     
     @Query private var accounts: [Account];
     
-    @Bindable var vm: BalanceSheetVM;
+    @State private var computed: [ComplexBalance]? = nil;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
@@ -48,14 +32,18 @@ struct BalanceSheet: View {
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func update_balances() {
-        vm.computed = nil;
+    private func refresh() {
+        computed = nil;
     }
-    private func compute_balances() -> [ComplexBalance] {
-        return BalanceSheetVM.computeBalances(acc: accounts)
+    private func computeBalances() -> [ComplexBalance] {
+        var bal = BalanceResolver.computeSubBalances(accounts)
+            .intoComplexBalances();
+        bal.sortByBalances()
+        
+        return bal
     }
-    private func expand_all() {
-        if let computed = vm.computed {
+    private func expandAll() {
+        if let computed = computed {
             withAnimation(.spring()) {
                 for element in computed {
                     element.expanded = true
@@ -63,8 +51,8 @@ struct BalanceSheet: View {
             }
         }
     }
-    private func collapse_all() {
-        if let computed = vm.computed {
+    private func collapseAll() {
+        if let computed = computed {
             withAnimation(.spring()) {
                 for element in computed {
                     element.expanded = false
@@ -76,6 +64,7 @@ struct BalanceSheet: View {
         openWindow(id: "balanceSheet")
     }
     
+    /// The view for each sub account
     @ViewBuilder
     private func childSection(_ item: ComplexBalance) -> some View {
         if item.subs.isEmpty {
@@ -137,6 +126,8 @@ struct BalanceSheet: View {
             }
         }
     }
+    
+    /// The view for accounts
     @ViewBuilder
     private func accountView(_ item: ComplexBalance) -> some View {
         Button(action: {
@@ -157,27 +148,28 @@ struct BalanceSheet: View {
         
         Divider()
     }
+    
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            Button(action: update_balances) {
-                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-            }
-        }
-        
-        ToolbarItem(placement: .secondaryAction) {
             ControlGroup {
-                Button(action: collapse_all) {
+                Button(action: collapseAll) {
                     Label("Collapse All", systemImage: "arrow.up.to.line")
                 }
-                Button(action: expand_all) {
+                Button(action: expandAll) {
                     Label("Expand All", systemImage: "arrow.down.to.line")
                 }
             }
         }
         
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: refresh) {
+                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            }
+        }
+        
         if shouldShowPopoutButton {
-            ToolbarItem(placement: .secondaryAction) {
+            ToolbarItem(placement: .primaryAction) {
                 Button(action: popout) {
                     Label("Open in new Window", systemImage: "rectangle.badge.plus")
                 }
@@ -186,7 +178,7 @@ struct BalanceSheet: View {
     }
     
     var body: some View {
-        LoadableView($vm.computed, process: compute_balances, onLoad: { computed in
+        LoadableView($computed, process: computeBalances, onLoad: { computed in
             VStack {
                 if computed.isEmpty {
                     Text("There are no transactions, or this page needs to be refreshed").italic().padding()
@@ -214,7 +206,6 @@ struct BalanceSheet: View {
 }
 
 #Preview {
-    BalanceSheet(vm: BalanceSheetVM())
-        .padding()
+    BalanceSheet()
         .frame(width: 500, height: 400).modelContainer(Containers.debugContainer)
 }

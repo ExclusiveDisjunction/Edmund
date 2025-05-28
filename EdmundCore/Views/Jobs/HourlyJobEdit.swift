@@ -16,6 +16,7 @@ public struct HourlyJobEdit : View, ElementEditorView {
     }
     
     @Bindable private var snapshot: HourlyJobSnapshot;
+    @State private var showingTax: Bool = false;
     
 #if os(macOS)
     private let labelMinWidth: CGFloat = 100;
@@ -65,12 +66,19 @@ public struct HourlyJobEdit : View, ElementEditorView {
                 Text("Tax Rate:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                TextField("", value: $snapshot.taxRate, format: .percent)
-                    .textFieldStyle(.roundedBorder)
+                HStack {
+                    TextField("", value: $snapshot.taxRate, format: .percent)
+                        .textFieldStyle(.roundedBorder)
 #if os(iOS)
-                    .keyboardType(.decimalPad)
+                        .keyboardType(.decimalPad)
 #endif
+                    Button("...", action: {
+                        showingTax = true
+                    }).buttonStyle(.bordered)
+                }
             }
+        }.sheet(isPresented: $showingTax) {
+            JobTaxEstimator(output: $snapshot.taxRate)
         }
     }
 }

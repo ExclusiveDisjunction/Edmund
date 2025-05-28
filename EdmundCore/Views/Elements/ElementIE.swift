@@ -48,6 +48,22 @@ public struct ElementInspector<T> : View where T: InspectableElement {
     }
 }
 
+public class EditUndoWrapper<T> where T: EditableElement {
+    public init(item: T, snapshot: T.Snapshot) {
+        self.item = item
+        self.snapshot = snapshot
+    }
+    
+    public weak var item: T?;
+    public let snapshot: T.Snapshot;
+    
+    public func update(context: ModelContext) {
+        if let item = self.item {
+            snapshot.apply(item, context: context)
+        }
+    }
+}
+
 /// A high level abstraction over element edting. If `T` is an `EditableElement`, then it will load the editing view, and handle the layout/closing/saving actions for the process.
 public struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
     /// Constructs the view using the specified data.
@@ -72,6 +88,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     @State private var showAlert: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.undoManager) private var undoManager;
     @Environment(\.dismiss) private var dismiss;
     
     /// Determines if the specified edit is allowed, and shows the error otherwise.
@@ -85,6 +102,15 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     private func apply() {
         if adding {
             modelContext.insert(data)
+            undoManager?.registerUndo(withTarget: data, handler: { item in
+                modelContext.delete(item)
+            });
+        }
+        else {
+            let previous = T.Snapshot(data);
+            undoManager?.registerUndo(withTarget: EditUndoWrapper(item: data, snapshot: previous), handler: { wrapper in
+                wrapper.update(context: modelContext)
+            })
         }
         
         editing.apply(data, context: modelContext)
@@ -183,6 +209,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @State private var warningConfirm: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.undoManager) private var undoManager;
     @Environment(\.dismiss) private var dismiss;
     
     /// Determines if the mode is currently editing.
@@ -200,10 +227,28 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     /// Modifies the attached data to the editing snapshot, if edit mode is active.
     private func apply() {
         if let editing = editing.snapshot {
+            undoManager?.beginUndoGrouping()
+            
             if mode == .add {
                 modelContext.insert(data)
+                undoManager?.registerUndo(withTarget: data, handler: { item in
+                    modelContext.delete(item)
+                });
+                
+                undoManager?.setActionName("Add")
             }
+            else {
+                let previous = T.Snapshot(data);
+                undoManager?.registerUndo(withTarget: EditUndoWrapper(item: data, snapshot: previous), handler: { wrapper in
+                    wrapper.update(context: modelContext)
+                })
+                
+                undoManager?.setActionName("Edit")
+            }
+            
             editing.apply(data, context: modelContext)
+            
+            undoManager?.endUndoGrouping()
         }
     }
     /// Validates, applies and dismisses, if the validation passes.

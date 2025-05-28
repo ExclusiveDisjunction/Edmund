@@ -1411,6 +1411,7 @@
 
     },
     "Removing this information will remove all associated transactions. Do you wish to continue?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1421,9 +1422,6 @@
       }
     },
     "Repayment" : {
-
-    },
-    "Report" : {
 
     },
     "Reset Ledger" : {

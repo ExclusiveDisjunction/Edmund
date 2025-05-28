@@ -8,8 +8,9 @@
 import Foundation
 import SwiftData
 
-@MainActor
-public class Containers {
+/// A collection of various tools used for SwiftData containers.
+public struct Containers {
+    /// The schema used by the containers.
     public static let schema: Schema = {
         return Schema(
             [
@@ -27,11 +28,16 @@ public class Containers {
         )
     }()
     
+    /// A container that contains temporary, simple data used for showcasing.
+    @MainActor
     public static let debugContainer: ModelContainer = {
         let configuration = ModelConfiguration("debug", schema: schema, isStoredInMemoryOnly: true)
         
         do {
             var result = try ModelContainer(for: schema, configurations: [ configuration ])
+            if result.mainContext.undoManager == nil {
+                result.mainContext.undoManager = UndoManager()
+            }
             
             //Inserting mock stuff
             let accounts = Account.exampleAccounts
@@ -60,17 +66,26 @@ public class Containers {
                 result.mainContext.insert(utility)
             }
             
+            result.mainContext.insert(HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15))
+            
+            result.mainContext.insert(SalariedJob(company: "Winn Dixie", position: "Customer Service Manager", grossAmount: 850, taxRate: 0.25))
+            
             return result
         } catch {
             fatalError("Could not create Debug ModelContainer: \(error)")
         }
     }()
     
+    /// A model container with just transactions. it shows a spread with amounts & dates so that the UI elements can be tested.
+    @MainActor
     public static let transactionsWithSpreadContainer: ModelContainer = {
         do {
             let configuration = ModelConfiguration("example", schema: schema, isStoredInMemoryOnly: true)
             
             var result = try ModelContainer(for: schema, configurations: [ configuration ])
+            if result.mainContext.undoManager == nil {
+                result.mainContext.undoManager = UndoManager()
+            }
             
             let account = SubAccount("", parent: .init(""))
             let category = SubCategory("", parent: .init(""))
@@ -111,11 +126,18 @@ public class Containers {
         }
     }()
     
+    /// The main container used by the app. This stores the data for the app in non-debug based contexts. 
+    @MainActor
     public static let container: ModelContainer = {
         do {
             let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
             
-            return try ModelContainer(for: schema, configurations: [configuration ] )
+            let result = try ModelContainer(for: schema, configurations: [configuration ] )
+            if result.mainContext.undoManager == nil {
+                result.mainContext.undoManager = UndoManager()
+            }
+            
+            return result;
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
