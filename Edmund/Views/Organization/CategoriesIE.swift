@@ -65,8 +65,8 @@ struct CategoriesIE : View {
             }
         }.padding()
             .navigationTitle("Categories")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+            .toolbar(id: "categoriesToolbar") {
+                ToolbarItem(id: "add", placement: .primaryAction) {
                     Menu {
                         Button("Category") {
                             inspecting.open(.init(category: .init()), mode: .add)
@@ -78,11 +78,10 @@ struct CategoriesIE : View {
                         Label("Add", systemImage: "plus")
                     }
                 }
-                
+            
                 GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
                 
                 GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning)
-                
             }.task { refresh() }
             .sheet(item: $inspecting.value) { item in
                 if let category = item.target as? EdmundCore.Category {

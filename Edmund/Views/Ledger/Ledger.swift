@@ -118,18 +118,6 @@ struct LedgerTable: View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
-        if horizontalSizeClass != .compact {
-            GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
-        }
-        
-        if shouldShowPopoutButton {
-            ToolbarItem(id: "popout", placement: .secondaryAction) {
-                Button(action: popout) {
-                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                }
-            }
-        }
-        
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
                 Menu {
@@ -211,7 +199,17 @@ struct LedgerTable: View {
         if horizontalSizeClass != .compact {
             GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
             
-            GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)
+            GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .view, placement: .primaryAction)
+        }
+        
+        GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)
+        
+        if shouldShowPopoutButton {
+            ToolbarItem(id: "popout", placement: .primaryAction) {
+                Button(action: popout) {
+                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
+                }
+            }
         }
         
 #if os(iOS)
