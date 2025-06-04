@@ -114,7 +114,8 @@ struct Homepage : View {
                 }
             }
             .sheet(isPresented: $modifyHomescreen) {
-                HomepageEditor()
+                HomepageEditor(isSheet: true)
+                    .padding()
             }
         #if os(iOS)
             .sheet(isPresented: $helpBinding) {

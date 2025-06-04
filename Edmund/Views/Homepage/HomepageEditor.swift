@@ -48,6 +48,8 @@ enum MinorHomepageOrder : Int, CaseIterable, Identifiable, Codable {
 }
 
 struct HomepageEditor : View {
+    let isSheet: Bool;
+    
     @AppStorage("homeMajor") private var major: MajorHomepageOrder = .vSplit;
     @AppStorage("sectorA") private var sectorA: MinorHomepageOrder = .half;
     @AppStorage("sectorB") private var sectorB: MinorHomepageOrder = .full;
@@ -58,14 +60,6 @@ struct HomepageEditor : View {
     
     @Environment(\.dismiss) private var dismiss;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    
-#if os(macOS)
-    private let minWidth: CGFloat = 60;
-    private let maxWidth: CGFloat = 70;
-#else
-    private let minWidth: CGFloat = 90;
-    private let maxWidth: CGFloat = 100;
-#endif
     
     @ViewBuilder
     private var scrollDisplay: some View {
@@ -105,11 +99,14 @@ struct HomepageEditor : View {
     
     var body: some View {
         VStack {
-            HStack {
-                Text("Homepage Organizer")
-                    .font(.title)
-                Spacer()
+            if isSheet {
+                HStack {
+                    Text("Homepage Organizer")
+                        .font(.title)
+                    Spacer()
+                }
             }
+            
             if horizontalSizeClass == .compact {
                 HStack {
                     Label("Compact sizes only display scroll view.", systemImage: "info.circle")
@@ -151,32 +148,6 @@ struct HomepageEditor : View {
             
             Divider()
             
-            /*
-             if major == .hSplit || major == .vSplit {
-             GridRow {
-             Text(major == .hSplit ? "Top Section" : "Left Side")
-             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-             
-             HStack {
-             Picker("", selection: $sectorA) {
-             ForEach(MinorHomepageOrder.allCases, id: \.id) { order in
-             Text(order.name).tag(order)
-             }
-             }.labelsHidden()
-             .pickerStyle(.segmented)
-             Spacer()
-             }
-             }
-             GridRow {
-             
-             Spacer()
-             }
-             }
-             
-             
-             }
-             */
-            
             switch major {
                 case .scroll: scrollDisplay
                 case .fullScreen: fullDisplay
@@ -186,12 +157,14 @@ struct HomepageEditor : View {
             
             Spacer()
             
-            HStack {
-                Spacer()
-                Button("Ok", action: { dismiss() })
-                    .buttonStyle(.borderedProminent)
+            if isSheet {
+                HStack {
+                    Spacer()
+                    Button("Ok", action: { dismiss() })
+                        .buttonStyle(.borderedProminent)
+                }
             }
-        }.padding()
+        }
         #if os(macOS)
             .frame(height: 450)
         #endif
@@ -200,6 +173,6 @@ struct HomepageEditor : View {
 }
 
 #Preview {
-    HomepageEditor()
+    HomepageEditor(isSheet: false)
         .padding()
 }
