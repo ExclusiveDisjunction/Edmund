@@ -15,7 +15,7 @@ import BackgroundTasks
 #endif
 
 @MainActor
-func getUpcomingBills(for date: Date, context: ModelContext, billDesc: FetchDescriptor<Bill> = .init(), utilityDesc: FetchDescriptor<Utility> = .init()) async -> UpcomingBillsSnapshot? {
+func getUpcomingBills(for date: Date, context: ModelContext, billDesc: FetchDescriptor<Bill> = .init(), utilityDesc: FetchDescriptor<Utility> = .init()) async -> UpcomingBillsBundle? {
     guard let bills: [any BillBase] = try? context.fetch(billDesc),
           let utilities: [any BillBase] = try? context.fetch(utilityDesc) else {
         print("Unable to get the upcoming bills for \(date)")
@@ -45,7 +45,7 @@ func getUpcomingBills(for date: Date, context: ModelContext, billDesc: FetchDesc
 }
 
 @MainActor
-func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
+func getUpcomingBills() async -> [ UpcomingBillsBundle ]? {
     let container = Containers.container
     
     let calendar = Calendar.current;
@@ -66,7 +66,7 @@ func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
     let billDescriptor = FetchDescriptor<Bill>();
     let utilityDescriptor = FetchDescriptor<Utility>();
     
-    var all: [ UpcomingBillsSnapshot ] = [];
+    var all: [ UpcomingBillsBundle ] = [];
     
     for date in dates{
         guard let result = await getUpcomingBills(for: date, context: context, billDesc: billDescriptor, utilityDesc: utilityDescriptor) else {
@@ -79,7 +79,7 @@ func getUpcomingBills() async -> [ UpcomingBillsSnapshot ]? {
     return all;
 }
 
-func saveUpcomingBills(all: [UpcomingBillsSnapshot]) async {
+func saveUpcomingBills(all: [UpcomingBillsBundle]) async {
     let fileURL = FileManager
         .default
         .containerURL(forSecurityApplicationGroupIdentifier: "group.com.exdisj.Edmund.BillTracker")?

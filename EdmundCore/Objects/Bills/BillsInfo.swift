@@ -135,7 +135,7 @@ public enum LongDuration : Equatable, Hashable {
     }
 }
 
-public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
+public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -192,10 +192,10 @@ public enum BillsPeriod: Int, CaseIterable, Identifiable, Equatable {
         }
     }
     
-    public func conversionFactor(_ to: BillsPeriod) -> Decimal {
+    public func conversionFactor(_ to: TimePeriods) -> Decimal {
         let i = self.index, j = to.index
         
-        return BillsPeriod.compTable[i][j]
+        return TimePeriods.compTable[i][j]
     }
     public var asDuration: LongDuration {
         switch self {

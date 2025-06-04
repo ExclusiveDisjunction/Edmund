@@ -199,7 +199,7 @@ struct BillBaseEditor : View {
             
             HStack {
                 Picker("Frequency", selection: $editing.period) {
-                    ForEach(BillsPeriod.allCases, id: \.id) { period in
+                    ForEach(TimePeriods.allCases, id: \.id) { period in
                         Text(period.name).tag(period)
                     }
                 }.labelsHidden()

@@ -18,13 +18,13 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     public convenience init(kind: BillsKind) {
         self.init(name: "", kind: kind, amount: 0, company: "", start: Date.now)
     }
-    public convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+    public convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
         self.init(name: sub, kind: .subscription,  amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
     }
-    public convenience init(bill: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+    public convenience init(bill: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
         self.init(name: bill, kind: .bill, amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
     }
-    public init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+    public init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
         self.id = id
         self.name = name
         self.amount = amount
@@ -70,9 +70,9 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
             self.rawKind = newValue.rawValue
         }
     }
-    public var period: BillsPeriod {
+    public var period: TimePeriods {
         get {
-            BillsPeriod(rawValue: rawPeriod)!
+            TimePeriods(rawValue: rawPeriod)!
         }
         set {
             self.rawPeriod = newValue.rawValue

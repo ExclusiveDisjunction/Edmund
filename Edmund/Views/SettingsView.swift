@@ -21,7 +21,7 @@ struct LocaleCurrencyCode : Identifiable {
 
 struct SettingsView : View {
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
-    @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
+    @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
@@ -63,7 +63,7 @@ struct SettingsView : View {
             
             Section() {
                 Picker("Budgeting Period", selection: $showcasePeriod) {
-                    ForEach(BillsPeriod.allCases, id: \.self) { bill in
+                    ForEach(TimePeriods.allCases, id: \.self) { bill in
                         Text(bill.name).tag(bill)
                     }
                 }

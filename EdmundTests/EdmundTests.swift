@@ -17,7 +17,7 @@ struct DateEstTestCase {
 }
 
 struct PeriodTestCase {
-    init(_ period: BillsPeriod, date: Date = .now) {
+    init(_ period: TimePeriods, date: Date = .now) {
         self.period = period;
         
         let period = period.asDuration;
@@ -38,7 +38,7 @@ struct PeriodTestCase {
         self.case8 = .init(start: (1.25 * period - date)!, end: (0.75 * period + date)!, next: nil);
     }
     
-    let period: BillsPeriod;
+    let period: TimePeriods;
     /// s = d + p, e = nil, ne = s
     let case1: DateEstTestCase;
     /// s = d + p, e = s + p , ne = s
@@ -83,7 +83,7 @@ struct EdmundTests {
     }
     
     @Test func billsPredictedDate() async throws {
-        let cases = BillsPeriod.allCases.map{ PeriodTestCase($0) };
+        let cases = TimePeriods.allCases.map{ PeriodTestCase($0) };
         
         for testCase in cases {
             for (i, date) in testCase.cases.enumerated() {

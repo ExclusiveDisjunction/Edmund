@@ -31,7 +31,7 @@ struct AllBillsViewEdit : View {
     private let openWindowPlacement: ToolbarItemPlacement = .automatic
     #endif
     
-    @AppStorage("showcasePeriod") private var showcasePeriod: BillsPeriod = .weekly;
+    @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
     
@@ -284,7 +284,7 @@ struct AllBillsViewEdit : View {
                 Text(self.totalPPP, format: .currency(code: currencyCode))
                 Text("/")
                 Picker("", selection: $showcasePeriod) {
-                    ForEach(BillsPeriod.allCases, id: \.id) { period in
+                    ForEach(TimePeriods.allCases, id: \.id) { period in
                         Text(period.perName).tag(period)
                     }
                 }

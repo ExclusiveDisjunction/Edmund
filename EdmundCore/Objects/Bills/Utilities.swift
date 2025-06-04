@@ -18,7 +18,7 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
     public convenience init() {
         self.init("", amounts: [], company: "", start: Date.now)
     }
-    public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: BillsPeriod = .monthly, id: UUID = UUID()) {
+    public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
         self.id = id
         self.name = name
         self.startDate = start
@@ -53,8 +53,8 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
     public var kind: BillsKind {
         .utility
     }
-    public var period: BillsPeriod {
-        get { BillsPeriod(rawValue: rawPeriod)! }
+    public var period: TimePeriods {
+        get { TimePeriods(rawValue: rawPeriod)! }
         set { rawPeriod = newValue.rawValue }
     }
     
