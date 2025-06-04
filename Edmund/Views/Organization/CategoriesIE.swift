@@ -81,7 +81,7 @@ struct CategoriesIE : View {
             
                 GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
                 
-                GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning)
+                GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
             }.task { refresh() }
             .sheet(item: $inspecting.value) { item in
                 if let category = item.target as? EdmundCore.Category {
@@ -91,6 +91,7 @@ struct CategoriesIE : View {
                     ElementEditor(subCategory, adding: inspecting.mode == .add)
                 }
             }
+            .toolbarRole(.editor)
             .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: {
                     warning.isPresented = false

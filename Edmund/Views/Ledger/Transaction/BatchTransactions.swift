@@ -10,10 +10,9 @@ import SwiftData;
 import Foundation;
 import EdmundCore;
 
-#if os(macOS)
-
 struct BatchTransactions: TransactionEditorProtocol {
     @State private var snapshots: [LedgerEntrySnapshot] = [.init()];
+    @State private var selection: Set<LedgerEntrySnapshot.ID> = .init();
     @State private var enableDates: Bool = true;
     private var warning = StringWarningManifest();
     
@@ -55,7 +54,7 @@ struct BatchTransactions: TransactionEditorProtocol {
                 
                 Toggle("Enable Dates", isOn: $enableDates)
                 
-                Table($snapshots) {
+                Table($snapshots, selection: $selection) {
                     TableColumn("Memo") { $item in
                         TextField("", text: $item.name)
                             .textFieldStyle(.roundedBorder)
@@ -111,5 +110,3 @@ struct BatchTransactions: TransactionEditorProtocol {
         .modelContainer(Containers.debugContainer)
         .padding()
 }
-
-#endif

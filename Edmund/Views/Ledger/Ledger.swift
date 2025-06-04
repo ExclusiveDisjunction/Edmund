@@ -28,9 +28,6 @@ struct LedgerTable: View {
     
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-#if os(macOS)
-    @AppStorage("preferTransWindow") private var preferTransWindow: Bool = false;
-#endif
     
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -45,18 +42,6 @@ struct LedgerTable: View {
     
     private func popout() {
         openWindow(id: "ledger")
-    }
-    private func openEditor(_ kind: TransactionKind) {
-        #if os(macOS)
-        if preferTransWindow {
-            openWindow(id: "transactionEditor", value: kind)
-        }
-        else {
-            self.transKind = kind
-        }
-        #else
-        self.transKind = kind
-        #endif
     }
     
     @ViewBuilder
@@ -118,80 +103,16 @@ struct LedgerTable: View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
+        if shouldShowPopoutButton {
+            ToolbarItem(id: "popout", placement: .primaryAction) {
+                Button(action: popout) {
+                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
+                }
+            }
+        }
+        
         ToolbarItem(id: "add", placement: .primaryAction) {
-            Menu {
-                Menu {
-                    Button(TransactionKind.simple.name, action: {
-                        openEditor(.simple)
-                    })
-                    Button(TransactionKind.composite.name, action: {
-                        openEditor(.composite)
-                    })
-#if os(macOS)
-                    Button(TransactionKind.grouped.name, action: {
-                        openWindow(id: "transactionEditor", value: TransactionKind.grouped)
-                    })
-#endif
-                    Button(TransactionKind.creditCard.name, action: {
-                        openEditor(.creditCard)
-                    }).disabled(true).help("futureRelease")
-                } label: {
-                    Text("Basic")
-                }
-                
-                Menu {
-                    Button(BillsKind.bill.name, action: {
-                        openEditor(.billPay(.bill))
-                    })
-                    Button(BillsKind.subscription.name, action: {
-                        openEditor(.billPay(.subscription))
-                    })
-                    Button(BillsKind.utility.name, action: {
-                        openEditor(.utilityPay)
-                    })
-                } label: {
-                    Text("Bill Payment")
-                }
-                
-                Menu {
-                    Button(TransactionKind.payday.name, action: {
-                        openEditor(.payday)
-                    }).disabled(true).help("futureRelease")
-                    Button(TransactionKind.personalLoan.name, action: {
-                        openEditor(.personalLoan)
-                    })
-                    
-                    Button(TransactionKind.miscIncome.name, action: {
-                        openEditor(.miscIncome)
-                    })
-                    
-                    Button(TransactionKind.refund.name, action: {
-                        openEditor(.refund)
-                    })
-                } label: {
-                    Text("Income")
-                }
-                
-                Menu {
-                    Button(TransferKind.oneOne.name, action: {
-                        openEditor(.transfer(.oneOne))
-                    })
-                    
-                    Button(TransferKind.oneMany.name, action: {
-                        openEditor(.transfer(.oneMany))
-                    })
-                    
-                    Button(TransferKind.manyOne.name, action: {
-                        openEditor(.transfer(.manyOne))
-                    })
-                    
-                    Button(TransferKind.manyMany.name, action: {
-                        openEditor(.transfer(.manyMany))
-                    })
-                } label: {
-                    Text("Transfer")
-                }
-            } label: {
+            TransactionMenu(selection: $transKind) {
                 Label("Add", systemImage: "plus")
             }
         }
@@ -203,14 +124,6 @@ struct LedgerTable: View {
         }
         
         GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)
-        
-        if shouldShowPopoutButton {
-            ToolbarItem(id: "popout", placement: .primaryAction) {
-                Button(action: popout) {
-                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                }
-            }
-        }
         
 #if os(iOS)
         ToolbarItem(id: "editIOS", placement: .primaryAction) {

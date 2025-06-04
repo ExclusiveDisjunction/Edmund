@@ -23,77 +23,7 @@ struct GeneralCommands : Commands {
             
             Divider()
             
-            Menu {
-                Text("Basic Templates")
-                    .disabled(true)
-                
-                Button(TransactionKind.simple.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.simple)
-                })
-                Button(TransactionKind.composite.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.composite)
-                })
-#if os(macOS)
-                Button(TransactionKind.grouped.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.grouped)
-                })
-#endif
-                Button(TransactionKind.creditCard.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.creditCard)
-                }).disabled(true).help("futureRelease")
-                
-                Divider()
-                
-                Text("Bill Payments").disabled(true)
-                
-                Button(BillsKind.bill.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.billPay(.bill))
-                })
-                Button(BillsKind.subscription.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.billPay(.subscription))
-                })
-                Button(BillsKind.utility.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.utilityPay)
-                })
-                
-                Divider()
-                
-                Text("Income").disabled(true)
-                
-                Button(TransactionKind.payday.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.payday)
-                }).disabled(true).help("futureRelease")
-                Button(TransactionKind.personalLoan.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.personalLoan)
-                })
-                Button(TransactionKind.miscIncome.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.miscIncome)
-                })
-                
-                Button(TransactionKind.refund.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.refund)
-                })
-                
-                Divider()
-                
-                Text("Transfers").disabled(true)
-                
-                Button(TransferKind.oneOne.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.transfer(.oneOne))
-                })
-                
-                Button(TransferKind.oneMany.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.transfer(.oneMany))
-                })
-                
-                Button(TransferKind.manyOne.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.transfer(.manyOne))
-                })
-                
-                Button(TransferKind.manyMany.name, action: {
-                    openWindow(id: "transactionEditor", value: TransactionKind.transfer(.manyMany))
-                })
-            } label: {
+            TransactionMenu {
                 Text("Transaction Templates")
             }
             

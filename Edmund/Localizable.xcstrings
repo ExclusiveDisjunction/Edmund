@@ -213,6 +213,9 @@
     "Availiable Credit" : {
 
     },
+    "Availiable Limit:" : {
+
+    },
     "Avg. Pay:" : {
 
     },
@@ -266,9 +269,6 @@
     "Basic" : {
 
     },
-    "Basic Templates" : {
-
-    },
     "Batch Transactions" : {
 
     },
@@ -304,9 +304,6 @@
           }
         }
       }
-    },
-    "Bill Payments" : {
-
     },
     "Bills" : {
       "extractionState" : "manual",
@@ -427,6 +424,12 @@
     "Category:" : {
 
     },
+    "Closer look" : {
+
+    },
+    "Closer Look" : {
+
+    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -491,6 +494,9 @@
         }
       }
     },
+    "Credit Limit:" : {
+
+    },
     "Credit Limit: %@" : {
       "comment" : "Credit Limit: (Number)"
     },
@@ -506,6 +512,9 @@
           }
         }
       }
+    },
+    "Current Balance:" : {
+
     },
     "Customize" : {
 
@@ -697,6 +706,9 @@
 
     },
     "Expected Balance" : {
+
+    },
+    "Expected Balance:" : {
 
     },
     "Expired Bill" : {
@@ -1090,6 +1102,9 @@
           }
         }
       }
+    },
+    "Name:" : {
+
     },
     "negativeAmount" : {
       "localizations" : {
@@ -1546,6 +1561,9 @@
     "Status" : {
 
     },
+    "Status:" : {
+
+    },
     "Styles" : {
       "localizations" : {
         "de" : {
@@ -1718,9 +1736,6 @@
         }
       }
     },
-    "Transfers" : {
-
-    },
     "Two Months" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1813,6 +1828,9 @@
         }
       }
     },
+    "Variance:" : {
+
+    },
     "Version %@" : {
       "comment" : "App version. This has the format \"Version: (Number).(Number)\""
     },
@@ -1881,9 +1899,6 @@
     },
     "Written by Hollan Sellars (ExDisj)" : {
 
-    },
-    "x" : {
-      "shouldTranslate" : false
     },
     "Year" : {
       "extractionState" : "manual",

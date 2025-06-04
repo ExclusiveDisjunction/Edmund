@@ -9,38 +9,12 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-@Observable
-class CreditCardRow : Identifiable {
-    init(account: Account, balance: Decimal) {
-        self.id = UUID();
-        self.account = account;
-        self.avalibleCredit = .init(rawValue: account.creditLimit ?? .nan);
-        self.balance = balance
-    }
-    
-    let id: UUID
-    let account: Account;
-    var name: String {
-        account.name
-    }
-    var avalibleCredit: CurrencyValue;
-    var creditLimit: Decimal {
-        account.creditLimit ?? .nan
-    }
-    let balance: Decimal;
-
-    var expectedBalance: Decimal {
-        creditLimit - avalibleCredit.rawValue
-    }
-    var variance: Decimal {
-        balance - expectedBalance
-    }
-}
-
 struct CreditCardHelper: View {
     @Query private var accounts: [Account];
     @State private var manual: Bool = false;
     @State private var rows: [CreditCardRow] = [];
+    @State private var inspecting: CreditCardRow?;
+    @State private var selection: CreditCardRow.ID?; //Only used to let the user select a row
     
     private var shouldShowPopoutButton: Bool {
 #if os(macOS)
@@ -74,40 +48,74 @@ struct CreditCardHelper: View {
     }
     
     @ViewBuilder
+    var refreshButton : some View {
+        Button(action: refresh) {
+            Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+        }
+    }
+    
+    @ViewBuilder
     var expanded: some View {
-        Table($rows) {
-            TableColumn("Account") { $row in
+        Table(rows, selection: $selection) {
+            TableColumn("Account") { row in
                 Text(row.name)
             }
-            TableColumn("Credit Limit") { $row in
+            TableColumn("Credit Limit") { row in
                 Text(row.creditLimit, format: .currency(code: currencyCode))
             }
-            TableColumn("Availiable Credit") { $row in
+            TableColumn("Availiable Credit") { row in
                 CurrencyField(row.avalibleCredit)
             }
-            TableColumn("Expected Balance") { $row in
+            TableColumn("Expected Balance") { row in
                 Text(row.expectedBalance, format: .currency(code: currencyCode))
             }
-            TableColumn("Current Balance") { $row in
+            TableColumn("Current Balance") { row in
                 Text(row.balance, format: .currency(code: currencyCode))
             }
-            TableColumn("Variance") { $row in
+            TableColumn("Variance") { row in
                 Text(row.variance, format: .currency(code: currencyCode))
             }
-            TableColumn("Status") { $row in
-                Text(row.variance == 0 ? "Balanced" : row.variance > 0 ? "Over" : "Under")
+            TableColumn("Status") { row in
+                BalanceStatusText(data: row.variance)
             }
-        }.contextMenu {
-            Button(action: refresh) {
-                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+        }.contextMenu(forSelectionType: CreditCardRow.ID.self) { selection in
+            refreshButton
+
+            if let id = selection.first, let row = rows.first(where: { $0.id == id } ), selection.count == 1 {
+                Button("Closer look", action: {
+                    inspecting = row
+                })
             }
         }
     }
     
     @ViewBuilder
     var compact: some View {
-        List($rows) { $row in
+        List(rows, selection: $selection) { row in
+            HStack {
+                Text(row.name)
+                Spacer()
+                BalanceStatusText(data: row.variance)
+            }.swipeActions(edge: .trailing) {
+                Button(action: {
+                    inspecting = row;
+                }) {
+                    Label("Edit", systemImage: "pencil")
+                }.tint(.green)
+                    .buttonStyle(.bordered)
+            }.onTapGesture(count: 2) {
+                self.inspecting = row;
+            }
+        }.contextMenu(forSelectionType: CreditCardRow.ID.self ){ selection in
+            refreshButton
             
+            if let id = selection.first, let row = rows.first(where: { $0.id == id } ), selection.count == 1{
+                Button(action: {
+                    inspecting = row;
+                }) {
+                    Label("Edit", systemImage: "pencil")
+                }
+            }
         }
     }
 
@@ -123,7 +131,7 @@ struct CreditCardHelper: View {
                             showCreditCardHelperTooltip = false
                         }
                     }) {
-                        Text("x")
+                        Image(systemName: "x.square")
                     }
                     .buttonStyle(.borderless)
                     .foregroundStyle(.red)
@@ -140,12 +148,6 @@ struct CreditCardHelper: View {
             .task { refresh() }
             .navigationTitle("Credit Card Helper")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: refresh) {
-                        Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-                    }
-                }
-                
                 if shouldShowPopoutButton {
                     ToolbarItem(placement: .primaryAction) {
                         Button(action: popout) {
@@ -153,6 +155,13 @@ struct CreditCardHelper: View {
                         }
                     }
                 }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    refreshButton
+                }
+            }.sheet(item: $inspecting) { row in
+                CreditCardRowEditor(over: row, isSheet: true)
+                    .padding()
             }
     }
 }

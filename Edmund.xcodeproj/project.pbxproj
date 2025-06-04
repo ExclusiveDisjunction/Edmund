@@ -89,6 +89,9 @@
 			membershipExceptions = (
 				Info.plist,
 			);
+			platformFiltersByRelativePath = {
+				Views/Ledger/Transaction/BatchTransactions.swift = (macos, );
+			};
 			target = DD34E6012D99D21D009E3875 /* Edmund */;
 		};
 		DDE78CBC2DE5141E0040A55A /* Exceptions for "EdmundCore" folder in "EdmundCore" target */ = {

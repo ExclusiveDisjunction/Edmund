@@ -151,9 +151,11 @@ struct AllBillsViewEdit : View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
+        /*
         ToolbarItem(id: "query", placement: .secondaryAction) {
             QueryButton(provider: query)
         }
+         */ // This requires a better support for the button. Causes an exception when pressed. Include in a search menu?
         
         ToolbarItem(id: "graph", placement: .secondaryAction) {
             Button(action: toggle_inspector) {
@@ -173,15 +175,14 @@ struct AllBillsViewEdit : View {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
             }
         }
-        ToolbarItem(id: "newWindow", placement: openWindowPlacement) {
+        
+        ToolbarItem(id: "newWindow", placement: .primaryAction) {
             Button(action: {
                 openWindow(id: "bills")
             }) {
                 Label("Open in new Window", systemImage: "rectangle.badge.plus")
             }
         }
-        
-        GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
         
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
@@ -201,7 +202,10 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+        if horizontalSizeClass != .compact {
+            GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+            GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .view, placement: .primaryAction)
+        }
         
         GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
         
@@ -307,7 +311,7 @@ struct AllBillsViewEdit : View {
         }.sheet(isPresented: $showingChart) {
             chartView
         }.padding()
-            .toolbarRole(.editor)
+            .toolbarRole(.automatic)
             .navigationTitle("Bills")
             .onChange(of: query.hashValue, refresh)
             .onChange(of: showExpiredBills, refresh)

@@ -78,6 +78,7 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             .init("Credit Card")
         ])
     }()
+    public static let exampleCreditAccount: Account = .init("Credit", creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] );
 }
 @Model
 public final class SubAccount : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, TransactionHolder {

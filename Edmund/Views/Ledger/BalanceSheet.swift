@@ -151,6 +151,14 @@ struct BalanceSheet: View {
     
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
+        if shouldShowPopoutButton {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: popout) {
+                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
+                }
+            }
+        }
+        
         ToolbarItem(placement: .primaryAction) {
             ControlGroup {
                 Button(action: collapseAll) {
@@ -165,14 +173,6 @@ struct BalanceSheet: View {
         ToolbarItem(placement: .primaryAction) {
             Button(action: refresh) {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-            }
-        }
-        
-        if shouldShowPopoutButton {
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: popout) {
-                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                }
             }
         }
     }

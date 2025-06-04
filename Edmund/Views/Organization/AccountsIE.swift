@@ -90,12 +90,9 @@ struct AccountsIE : View {
                 
                 GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
                 
-                GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning)
-                
-                ToolbarItem(placement: .primaryAction) {
-                    
-                }
+                GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
             }.task { refresh() }
+            .toolbarRole(.editor)
             .sheet(item: $inspecting.value) { item in
                 if let account = item.target as? Account {
                     ElementEditor(account, adding: inspecting.mode == .add)
