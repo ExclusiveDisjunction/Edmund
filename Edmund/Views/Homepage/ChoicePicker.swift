@@ -13,7 +13,7 @@ enum WidgetChoice: Int, CaseIterable, Identifiable, Codable {
          detailedBalances = 2,
          spendingGraph = 3,
          moneyGraph = 4,
-         payday = 5,
+         //payday = 5,
          none = 6
     
     var name: LocalizedStringKey {
@@ -23,7 +23,7 @@ enum WidgetChoice: Int, CaseIterable, Identifiable, Codable {
             case .detailedBalances: "Detailed Balances"
             case .spendingGraph:    "Spending Graph"
             case .moneyGraph:       "Balances Graph"
-            case .payday:           "Payday Info"
+            //case .payday:           "Payday Info"
             case .none:             "None"
         }
     }

@@ -68,7 +68,6 @@ struct BillPayment : TransactionEditorProtocol {
     @State private var selected: Bill? = nil;
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
-    @State private var editing: Bill? = nil;
     private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
@@ -101,7 +100,6 @@ struct BillPayment : TransactionEditorProtocol {
                     HStack {
                         Text(selected?.amount ?? Decimal(), format: .currency(code: currencyCode))
                             .padding(.trailing)
-                        Button("Edit Bill", action: { editing = selected } ).disabled(selected == nil)
                         
                         Spacer()
                     }
@@ -129,8 +127,6 @@ struct BillPayment : TransactionEditorProtocol {
                         Spacer()
                     }
                 }
-            }.sheet(item: $editing) { bill in
-                ElementEditor(bill, adding: false)
             }
         })
     }
@@ -139,5 +135,4 @@ struct BillPayment : TransactionEditorProtocol {
 #Preview {
     BillPayment(kind: .subscription)
         .modelContainer(Containers.debugContainer)
-        .padding()
 }

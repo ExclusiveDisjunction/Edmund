@@ -151,11 +151,9 @@ struct AllBillsViewEdit : View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
-        /*
         ToolbarItem(id: "query", placement: .secondaryAction) {
             QueryButton(provider: query)
         }
-         */ // This requires a better support for the button. Causes an exception when pressed. Include in a search menu?
         
         ToolbarItem(id: "graph", placement: .secondaryAction) {
             Button(action: toggle_inspector) {

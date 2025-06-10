@@ -5,7 +5,15 @@
       "shouldTranslate" : false
     },
     "..." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "..."
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "(No information)" : {
 
@@ -14,7 +22,7 @@
 
     },
     "/" : {
-
+      "shouldTranslate" : false
     },
     "%@, %@" : {
       "localizations" : {

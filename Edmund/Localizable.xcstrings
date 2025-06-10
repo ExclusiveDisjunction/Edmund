@@ -4,6 +4,9 @@
     "" : {
       "shouldTranslate" : false
     },
+    "..." : {
+
+    },
     "(no account)" : {
 
     },
@@ -626,9 +629,6 @@
         }
       }
     },
-    "Edit Bill" : {
-
-    },
     "Edmund" : {
       "localizations" : {
         "de" : {
@@ -919,6 +919,9 @@
     "James Larson" : {
       "shouldTranslate" : false
     },
+    "Job:" : {
+
+    },
     "Jobs" : {
 
     },
@@ -1157,6 +1160,9 @@
     "No Information" : {
 
     },
+    "No job selected" : {
+
+    },
     "noCategories" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1269,9 +1275,6 @@
 
     },
     "Payday" : {
-
-    },
-    "Payday Info" : {
 
     },
     "Paying:" : {
@@ -1916,6 +1919,9 @@
           }
         }
       }
+    },
+    "Year:" : {
+
     }
   },
   "version" : "1.0"

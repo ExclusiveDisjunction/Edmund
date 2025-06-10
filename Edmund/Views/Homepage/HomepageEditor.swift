@@ -54,7 +54,7 @@ struct HomepageEditor : View {
     @AppStorage("sectorA") private var sectorA: MinorHomepageOrder = .half;
     @AppStorage("sectorB") private var sectorB: MinorHomepageOrder = .full;
     @AppStorage("sectorA1") private var sectorA1: WidgetChoice = .bills;
-    @AppStorage("sectorA2") private var sectorA2: WidgetChoice = .payday;
+    @AppStorage("sectorA2") private var sectorA2: WidgetChoice = .moneyGraph;
     @AppStorage("sectorB1") private var sectorB1: WidgetChoice = .simpleBalances;
     @AppStorage("sectorB2") private var sectorB2: WidgetChoice = .spendingGraph;
     

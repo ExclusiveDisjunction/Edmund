@@ -36,8 +36,9 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             .balance,
             .bills,
             .budget,
-            .org,
-            .pay
+            .jobs,
+            .org
+            //.pay
         ]
     }
     /// The children of a specific top level element. This is `nil` for all other elements.
