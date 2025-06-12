@@ -48,6 +48,7 @@ public struct ElementInspector<T> : View where T: InspectableElement {
     }
 }
 
+/*
 public class EditUndoWrapper<T> where T: EditableElement {
     public init(item: T, snapshot: T.Snapshot) {
         self.item = item
@@ -55,6 +56,7 @@ public class EditUndoWrapper<T> where T: EditableElement {
     }
     
     public weak var item: T?;
+    
     public let snapshot: T.Snapshot;
     
     public func update(context: ModelContext) {
@@ -63,6 +65,7 @@ public class EditUndoWrapper<T> where T: EditableElement {
         }
     }
 }
+ */
 
 /// A high level abstraction over element edting. If `T` is an `EditableElement`, then it will load the editing view, and handle the layout/closing/saving actions for the process.
 public struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
@@ -85,35 +88,48 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     private let adding: Bool;
     @Bindable private var editing: T.Snapshot;
     @State private var editHash: Int;
+    @State private var alertData: [ValidationFailure]?;
     @State private var showAlert: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.dismiss) private var dismiss;
     
     /// Determines if the specified edit is allowed, and shows the error otherwise.
     private func validate() -> Bool {
-        let result = editing.validate();
-        showAlert = !result
-        
-        return result
+        let result = editing.validate(unique: uniqueEngine);
+        if result.isEmpty {
+            alertData = nil;
+            showAlert = false;
+            return true;
+        }
+        else {
+            alertData = result;
+            showAlert = true;
+            return false;
+        }
     }
     /// Applies the data to the specified data.
     private func apply() {
         if adding {
             modelContext.insert(data)
+            /*
             undoManager?.registerUndo(withTarget: data, handler: { item in
                 modelContext.delete(item)
             });
+             */
         }
         else {
             let previous = T.Snapshot(data);
+            /*
             undoManager?.registerUndo(withTarget: EditUndoWrapper(item: data, snapshot: previous), handler: { wrapper in
                 wrapper.update(context: modelContext)
             })
+             */
         }
         
-        editing.apply(data, context: modelContext)
+        editing.apply(data, context: modelContext, unique: uniqueEngine)
     }
     /// Run when the `Save` button is pressed. This will validate & apply the data (if it is valid).
     private func submit() {
@@ -158,7 +174,12 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
                     showAlert = false
                 })
             }, message: {
-                Text("Please correct fields outlined with red.")
+                VStack {
+                    Text("The following errors have been found:")
+                    ForEach(alertData ?? [], id: \.id) { data in
+                        data.display
+                    }
+                }
             })
     }
 }
@@ -206,10 +227,12 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @State private var mode: InspectionMode;
     @StateObject private var editing: EditingManifest<T>;
     @State private var showAlert: Bool = false;
+    @State private var alertData: [ValidationFailure]?;
     @State private var warningConfirm: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.dismiss) private var dismiss;
     
     /// Determines if the mode is currently editing.
@@ -219,36 +242,48 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     
     /// If in edit mode, it will determine if the input is valid. It will show an error otherwise.
     private func validate() -> Bool {
-        let result = editing.snapshot?.validate() ?? true
-        showAlert = !result
+        if let snapshot = editing.snapshot {
+            let result = snapshot.validate(unique: uniqueEngine);
+            if !result.isEmpty {
+                alertData = result;
+                showAlert = true;
+                return false;
+            }
+        }
         
-        return result
+        showAlert = false;
+        alertData = nil;
+        return true
     }
     /// Modifies the attached data to the editing snapshot, if edit mode is active.
     private func apply() {
         if let editing = editing.snapshot {
-            undoManager?.beginUndoGrouping()
+            //undoManager?.beginUndoGrouping()
             
             if mode == .add {
                 modelContext.insert(data)
+                /*
                 undoManager?.registerUndo(withTarget: data, handler: { item in
                     modelContext.delete(item)
                 });
                 
                 undoManager?.setActionName("Add")
+                 */
             }
             else {
                 let previous = T.Snapshot(data);
+                /*
                 undoManager?.registerUndo(withTarget: EditUndoWrapper(item: data, snapshot: previous), handler: { wrapper in
                     wrapper.update(context: modelContext)
                 })
                 
                 undoManager?.setActionName("Edit")
+                 */
             }
             
-            editing.apply(data, context: modelContext)
+            editing.apply(data, context: modelContext, unique: uniqueEngine)
             
-            undoManager?.endUndoGrouping()
+            //undoManager?.endUndoGrouping()
         }
     }
     /// Validates, applies and dismisses, if the validation passes.
@@ -333,7 +368,12 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                     showAlert = false
                 })
             }, message: {
-                Text("Please correct fields outlined with red.")
+                VStack {
+                    Text("The following errors have been found:")
+                    ForEach(alertData ?? [], id: \.id) { data in
+                        data.display
+                    }
+                }
             })
             .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $warningConfirm) {
                 Button("Save", action: {

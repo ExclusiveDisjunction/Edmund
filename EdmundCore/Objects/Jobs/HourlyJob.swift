@@ -91,6 +91,10 @@ public final class HourlyJobSnapshot : Identifiable, Equatable, Hashable, Elemen
     public var taxRate: Decimal;
     
     public func validate() -> Bool {
+        let company  = self.company.trimmingCharacters(in: .whitespaces);
+        let position = self.position.trimmingCharacters(in: .whitespaces);
+        
+        
         !self.company.trimmingCharacters(in: .whitespaces).isEmpty && !self.position.trimmingCharacters(in: .whitespaces).isEmpty  && hourlyRate >= 0 && taxRate >= 0.0 && taxRate < 1.0;
     }
     
