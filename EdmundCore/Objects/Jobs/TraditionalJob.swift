@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// A basis for all jobs that Edmund supports.
-public protocol JobBase : PersistentModel, InspectableElement, EditableElement {
+public protocol JobBase : PersistentModel, InspectableElement, EditableElement, Identifiable<String> {
     /// The amount of money taken out as taxes.
     var taxRate: Decimal { get set }
     /// The average gross (pre-tax) amount.

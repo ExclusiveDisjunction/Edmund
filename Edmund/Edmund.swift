@@ -19,6 +19,14 @@ struct EdmundApp: App {
 #endif
         
         self.categories = .init(container.mainContext)
+        
+        if let allData = try? RegistryData(container.mainContext) {
+            uniqueEngine = .init(allData)
+        }
+        else {
+            print("Unable to extract information out of the main context, setting the unique engine to default.")
+            uniqueEngine = .init();
+        }
          
         /*
 #if os(iOS)
@@ -31,6 +39,7 @@ struct EdmundApp: App {
     
     var container: ModelContainer;
     var categories: CategoriesContext?;
+    var uniqueEngine: UniqueEngine;
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
     var colorScheme: ColorScheme? {
@@ -46,6 +55,7 @@ struct EdmundApp: App {
             MainView()
                 .preferredColorScheme(colorScheme)
                 .environment(\.categoriesContext, categories)
+                .environment(\.uniqueEngine, uniqueEngine)
         }.commands {
             GeneralCommands()
         }
@@ -62,6 +72,7 @@ struct EdmundApp: App {
             NavigationStack {
                 LedgerTable()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         
@@ -76,6 +87,7 @@ struct EdmundApp: App {
             NavigationStack {
                 AllBillsViewEdit()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         
@@ -83,6 +95,7 @@ struct EdmundApp: App {
             NavigationStack {
                 BudgetIE()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         
@@ -97,6 +110,7 @@ struct EdmundApp: App {
             NavigationStack {
                 AccountsIE()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         
@@ -104,6 +118,7 @@ struct EdmundApp: App {
             NavigationStack {
                 CategoriesIE()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         
@@ -148,6 +163,7 @@ struct EdmundApp: App {
             NavigationStack {
                 AllJobsViewEdit()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         
@@ -156,6 +172,7 @@ struct EdmundApp: App {
             NavigationStack {
                 AllExpiredBillsVE()
                     .preferredColorScheme(colorScheme)
+                    .environment(\.uniqueEngine, uniqueEngine)
             }
         }.modelContainer(container)
         

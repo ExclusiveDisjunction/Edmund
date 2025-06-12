@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-public protocol BillBase : Identifiable, AnyObject, NamedInspectableElement, NamedEditableElement {
+public protocol BillBase : Identifiable<String>, AnyObject, NamedInspectableElement, NamedEditableElement {
     /// The name of the bill.
     var name: String { get set }
     /// The start date of the bill. This is used to compute the upcoming dates.

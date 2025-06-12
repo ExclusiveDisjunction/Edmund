@@ -135,7 +135,7 @@ struct AllBillsViewEdit : View {
             TableColumn("Set-Aside Cost") { wrapper in
                 Text((wrapper.data.isExpired ? Decimal() : wrapper.data.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
             }
-        }.contextMenu(forSelectionType: Bill.ID.self) { selection in
+        }.contextMenu(forSelectionType: BillBaseWrapper.ID.self) { selection in
             SelectionContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
