@@ -10,7 +10,7 @@ import Foundation
 
 /// A hourly job taken at a company
 @Model
-public final class HourlyJob : Identifiable, InspectableElement, EditableElement, TraditionalJob {
+public final class HourlyJob : Identifiable, InspectableElement, EditableElement, UniqueElement, TraditionalJob {
     public typealias InspectorView = HourlyJobInspect
     public typealias EditView = HourlyJobEdit
     public typealias Snapshot = HourlyJobSnapshot
@@ -20,12 +20,11 @@ public final class HourlyJob : Identifiable, InspectableElement, EditableElement
         self.init(company: "", position: "", hourlyRate: 0.0, avgHours: 0.0, taxRate: 0.0)
     }
     /// Creates the hourly job with specific values.
-    public init(company: String, position: String, hourlyRate: Decimal, avgHours: Decimal, taxRate: Decimal, id: UUID = UUID()) {
+    public init(company: String, position: String, hourlyRate: Decimal, avgHours: Decimal, taxRate: Decimal) {
         self.company = company
         self.position = position
         self.hourlyRate = hourlyRate
         self.avgHours = avgHours
-        self.id = id
         self.taxRate = taxRate
     }
     
@@ -39,7 +38,9 @@ public final class HourlyJob : Identifiable, InspectableElement, EditableElement
         )
     }
     
-    public var id: UUID;
+    public var id: String {
+        "\(company).\(position)"
+    }
     public var company: String;
     public var position: String;
     /// The amount per hour the individual obtains (ex. 20$ per hour)
@@ -50,6 +51,10 @@ public final class HourlyJob : Identifiable, InspectableElement, EditableElement
     
     public var grossAmount : Decimal {
         hourlyRate * avgHours
+    }
+    
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Company"), .init(name: "Position") ]
     }
 }
 

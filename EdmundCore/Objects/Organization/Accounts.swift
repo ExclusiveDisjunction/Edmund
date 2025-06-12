@@ -26,7 +26,7 @@ public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
 }
 
 @Model
-public final class Account : Identifiable, Hashable, BoundPairParent, NamedEditableElement, NamedInspectableElement {
+public final class Account : Identifiable, Hashable, BoundPairParent, NamedEditableElement, NamedInspectableElement, UniqueElement {
     public typealias EditView = AccountEdit;
     public typealias Snapshot = AccountSnapshot;
     public typealias InspectorView = AccountInspect;
@@ -85,11 +85,14 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             add:      "Add Account"
         )
     }
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Name") ]
+    }
     
     public static let exampleAccounts: [Account] = {
         [
             exampleAccount,
-            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.425, location: "Chase", children: [
+            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
                 .init("Main"),
                 .init("Reserved"),
                 .init("Rent")
@@ -117,7 +120,7 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
     public static let exampleCreditAccount: Account = .init("Credit", creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] );
 }
 @Model
-public final class SubAccount : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, TransactionHolder {
+public final class SubAccount : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, UniqueElement, TransactionHolder {
     public typealias EditView = NamedPairChildEdit<SubAccount>
     public typealias Snapshot = NamedPairChildSnapshot<SubAccount>;
     public typealias InspectorView = SimpleElementInspect<SubAccount>;
@@ -157,6 +160,9 @@ public final class SubAccount : BoundPair, Equatable, NamedEditableElement, Name
             edit:     "Edit Sub Account",
             add:      "Add Sub Account"
         )
+    }
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Parent Name", optional: true), .init(name: "Name") ]
     }
     
     public static var exampleSubAccount: SubAccount {

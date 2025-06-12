@@ -9,7 +9,7 @@ import SwiftData
 import Foundation
 
 @Model
-public final class SalariedJob : Identifiable, InspectableElement, EditableElement, TraditionalJob {
+public final class SalariedJob : Identifiable, InspectableElement, EditableElement, UniqueElement, TraditionalJob {
     public typealias InspectorView = SalariedJobInspector;
     public typealias EditView = SalariedJobEdit;
     public typealias Snapshot = SalariedJobSnapshot;
@@ -17,12 +17,11 @@ public final class SalariedJob : Identifiable, InspectableElement, EditableEleme
     public convenience init() {
         self.init(company: "", position: "", grossAmount: 0.0, taxRate: 0.0)
     }
-    public init(company: String, position: String, grossAmount: Decimal, taxRate: Decimal, id: UUID = UUID()) {
+    public init(company: String, position: String, grossAmount: Decimal, taxRate: Decimal) {
         self.company = company
         self.position = position
         self.grossAmount = grossAmount
         self.taxRate = taxRate
-        self.id = id
     }
     
     public static var typeDisplay: TypeTitleStrings {
@@ -35,13 +34,18 @@ public final class SalariedJob : Identifiable, InspectableElement, EditableEleme
         )
     }
     
-    public var id: UUID;
+    public var id: String {
+        "\(company).\(position)"
+    }
     public var company: String;
     public var position: String;
     public var grossAmount: Decimal;
     public var taxRate: Decimal;
+    
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Company"), .init(name: "Position") ]
+    }
 }
-
 
 @Observable
 public final class SalariedJobSnapshot : ElementSnapshot {

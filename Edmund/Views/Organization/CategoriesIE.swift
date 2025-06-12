@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct CategoryTableRow : Identifiable {
+struct CategoryTableRow : Identifiable, Parentable {
     init(subCategory: SubCategory) {
         self.id = UUID();
         self.target = subCategory;
@@ -34,7 +34,7 @@ struct CategoriesIE : View {
     @State private var selection = Set<CategoryTableRow.ID>();
     @State private var cache: [CategoryTableRow] = [];
     
-    @Bindable private var inspecting = InspectionManifest<CategoryTableRow>();
+    @Bindable private var inspecting = ParentInspectionManifest<CategoryTableRow>();
     @Bindable private var delete = DeletingManifest<CategoryTableRow>();
     @Bindable private var warning = WarningManifest();
     
@@ -60,8 +60,8 @@ struct CategoriesIE : View {
         VStack {
             List(cache, children: \.children, selection: $selection) { acc in
                 Text(acc.name)
-            }.contextMenu(forSelectionType: AccountTableRow.ID.self) {
-                SelectionContextMenu($0, data: cache, inspect: inspecting, delete: delete, warning: warning, canView: false)
+            }.contextMenu(forSelectionType: CategoryTableRow.ID.self) { selection in
+                SelectionContextMenu(selection, data: cache, inspect: inspecting, delete: delete, warning: warning)
             }
         }.padding()
             .navigationTitle("Categories")
@@ -81,8 +81,11 @@ struct CategoriesIE : View {
             
                 GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
                 
+                GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .view, placement: .primaryAction)
+                
                 GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
             }.task { refresh() }
+            .onChange(of: categories, { _, _ in refresh() })
             .sheet(item: $inspecting.value) { item in
                 if let category = item.target as? EdmundCore.Category {
                     ElementEditor(category, adding: inspecting.mode == .add)

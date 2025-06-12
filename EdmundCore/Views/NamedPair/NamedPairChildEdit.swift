@@ -61,7 +61,7 @@ public struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P:
     public var body: some View {
         Grid {
             GridRow {
-                Text(C.typeDisplay.singular)
+                Text("Parent")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 Picker("", selection: $snapshot.parent) {

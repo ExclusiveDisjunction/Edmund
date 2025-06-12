@@ -497,9 +497,6 @@
     "Credit Limit:" : {
 
     },
-    "Credit Limit: %@" : {
-      "comment" : "Credit Limit: (Number)"
-    },
     "Currency" : {
 
     },
@@ -894,6 +891,9 @@
         }
       }
     },
+    "Interest" : {
+
+    },
     "internalError" : {
       "localizations" : {
         "en" : {
@@ -938,6 +938,9 @@
           }
         }
       }
+    },
+    "Kind:" : {
+
     },
     "Kyle Lawrence" : {
       "shouldTranslate" : false
@@ -1154,10 +1157,19 @@
         }
       }
     },
+    "No credit limit" : {
+
+    },
     "No Information" : {
 
     },
+    "No interest" : {
+
+    },
     "No job selected" : {
+
+    },
+    "No location" : {
 
     },
     "noCategories" : {

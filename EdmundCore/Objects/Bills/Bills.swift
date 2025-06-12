@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 @Model
-public final class Bill : BillBase, NamedEditableElement, NamedInspectableElement {
+public final class Bill : BillBase, NamedEditableElement, NamedInspectableElement, UniqueElement {
     public typealias EditView = BillEdit
     public typealias InspectorView = BillInspect
     public typealias Snapshot = BillSnapshot
@@ -18,14 +18,13 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     public convenience init(kind: BillsKind) {
         self.init(name: "", kind: kind, amount: 0, company: "", start: Date.now)
     }
-    public convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
-        self.init(name: sub, kind: .subscription,  amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
+    public convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
+        self.init(name: sub, kind: .subscription,  amount: amount, company: company, location: location, start: start, end: end, period: period)
     }
-    public convenience init(bill: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
-        self.init(name: bill, kind: .bill, amount: amount, company: company, location: location, start: start, end: end, period: period, id: id)
+    public convenience init(bill: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
+        self.init(name: bill, kind: .bill, amount: amount, company: company, location: location, start: start, end: end, period: period)
     }
-    public init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
-        self.id = id
+    public init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
         self.name = name
         self.amount = amount
         self.startDate = start
@@ -36,7 +35,9 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
         self.rawPeriod = period.rawValue
     }
     
-    public var id: UUID = UUID()
+    public var id: String {
+        "\(name).\(company).\(location ?? "")"
+    }
     public var name: String = "";
     public var amount: Decimal = 0.0;
     public var startDate: Date = Date.now;
@@ -58,6 +59,9 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
             edit:     "Edit Bill",
             add:      "Add Bill"
         )
+    }
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
     }
     
     public var kind: BillsKind {

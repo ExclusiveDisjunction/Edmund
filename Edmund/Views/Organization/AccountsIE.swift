@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 struct AccountsIE : View {
-    @Query private var accounts: [Account];
+    @Query(sort: [SortDescriptor(\Account.name, order: .forward)] ) private var accounts: [Account];
     @State private var selection = Set<Account.ID>();
     
     @Bindable private var inspecting = InspectionManifest<Account>();
@@ -24,7 +24,16 @@ struct AccountsIE : View {
     @ViewBuilder
     private var compact: some View {
         List(accounts, selection: $selection) { account in
-            
+            HStack {
+                Text(account.name)
+                Spacer()
+                Text("Kind:")
+                Text(account.kind.display)
+            }.swipeActions(edge: .trailing) {
+                SingularContextMenu(account, inspect: inspecting, remove: delete, asSlide: true)
+            }
+        }.contextMenu(forSelectionType: Account.ID.self) { selection in
+            SelectionContextMenu(selection, data: accounts, inspect: inspecting, delete: delete, warning: warning)
         }
     }
     
@@ -32,8 +41,38 @@ struct AccountsIE : View {
     private var expanded: some View {
         Table(accounts, selection: $selection) {
             TableColumn("Name", value: \.name)
-            
-            
+            TableColumn("Kind") { account in
+                Text(account.kind.display)
+            }
+            TableColumn("Credit Limit") { account in
+                if let limit = account.creditLimit {
+                    Text(limit, format: .currency(code: currencyCode))
+                }
+                else {
+                    Text("No credit limit")
+                        .italic()
+                }
+            }
+            TableColumn("Interest") { account in
+                if let interest = account.interest {
+                    Text(interest, format: .percent.precision(.fractionLength(3)))
+                }
+                else {
+                    Text("No interest")
+                        .italic()
+                }
+            }
+            TableColumn("Location") { account in
+                if let location = account.location {
+                    Text(location)
+                }
+                else {
+                    Text("No location")
+                        .italic()
+                }
+            }
+        }.contextMenu(forSelectionType: Account.ID.self) { selection in
+            SelectionContextMenu(selection, data: accounts, inspect: inspecting, delete: delete, warning: warning)
         }
     }
     
@@ -49,30 +88,21 @@ struct AccountsIE : View {
             .navigationTitle("Accounts")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button("Account") {
-                            inspecting.open(.init(account: .init()), mode: .add)
-                        }
-                        Button("Sub Account") {
-                            inspecting.open(.init(subAccount: .init()), mode: .add)
-                        }
-                    } label: {
+                    Button(action: {
+                        inspecting.open(.init(), mode: .add)
+                    }) {
                         Label("Add", systemImage: "plus")
                     }
                 }
                 
-                GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+                GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+                GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .view, placement: .primaryAction)
                 
-                GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
-            }.task { refresh() }
+                GeneralDeleteToolbarButton(on: accounts, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
+            }
             .toolbarRole(.editor)
             .sheet(item: $inspecting.value) { item in
-                if let account = item.target as? Account {
-                    ElementEditor(account, adding: inspecting.mode == .add)
-                }
-                else if let subAccount = item.target as? SubAccount {
-                    ElementEditor(subAccount, adding: inspecting.mode == .add)
-                }
+                ElementIE(item, mode: inspecting.mode)
             }
             .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: {
@@ -82,7 +112,7 @@ struct AccountsIE : View {
                 Text((warning.warning ?? .noneSelected).message )
             })
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting) {
-                AbstractDeletingActionConfirm(delete, delete: deleteFromModel, post: refresh)
+                DeletingActionConfirm(delete)
             }
     }
 }

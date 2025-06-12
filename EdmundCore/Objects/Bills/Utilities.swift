@@ -10,7 +10,7 @@ import SwiftData;
 import Foundation;
 
 @Model
-public final class Utility: BillBase, NamedInspectableElement, NamedEditableElement {
+public final class Utility: BillBase, NamedInspectableElement, NamedEditableElement, UniqueElement {
     public typealias InspectorView = UtilityInspect
     public typealias EditView = UtilityEdit
     public typealias Snapshot = UtilitySnapshot
@@ -18,8 +18,7 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
     public convenience init() {
         self.init("", amounts: [], company: "", start: Date.now)
     }
-    public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly, id: UUID = UUID()) {
-        self.id = id
+    public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
         self.name = name
         self.startDate = start
         self.endDate = end
@@ -29,7 +28,9 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
         self.location = location
     }
     
-    public var id: UUID = UUID();
+    public var id: String {
+        "\(name).\(company).\(location ?? "")"
+    }
     public var name: String = "";
     public var startDate: Date = Date.now;
     public var endDate: Date? = nil;
@@ -66,6 +67,9 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
             edit:     "Edit Utility",
             add:      "Add Utility"
         )
+    }
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
     }
     
     public static let exampleUtility: [Utility] = {
