@@ -29,17 +29,6 @@ struct LedgerTable: View {
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private var shouldShowPopoutButton: Bool {
-#if os(macOS)
-        return true
-#else
-        if #available(iOS 16.0, *) {
-            return UIDevice.current.userInterfaceIdiom == .pad
-        }
-        return false
-#endif
-    }
-    
     private func popout() {
         openWindow(id: "ledger")
     }
@@ -103,14 +92,6 @@ struct LedgerTable: View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
-        if shouldShowPopoutButton {
-            ToolbarItem(id: "popout", placement: .primaryAction) {
-                Button(action: popout) {
-                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                }
-            }
-        }
-        
         ToolbarItem(id: "add", placement: .primaryAction) {
             TransactionMenu(selection: $transKind) {
                 Label("Add", systemImage: "plus")

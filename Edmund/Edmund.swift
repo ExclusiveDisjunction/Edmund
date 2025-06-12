@@ -51,23 +51,102 @@ struct EdmundApp: App {
         }
         .modelContainer(container)
         
-        WindowGroup("Ledger", id: "ledger") {
+        WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
+            NavigationStack {
+                Homepage()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.ledger.rawValue, id: PageDestinations.ledger.key) {
             NavigationStack {
                 LedgerTable()
                     .preferredColorScheme(colorScheme)
             }
         }.modelContainer(container)
         
-        WindowGroup("Balance Sheet", id: "balanceSheet") {
+        WindowGroup(PageDestinations.balance.rawValue, id: PageDestinations.balance.key) {
             NavigationStack {
                 BalanceSheet()
                     .preferredColorScheme(colorScheme)
             }
         }.modelContainer(container)
         
-        WindowGroup("Bills", id: "bills") {
+        WindowGroup(PageDestinations.bills.rawValue, id: PageDestinations.bills.key) {
             NavigationStack {
                 AllBillsViewEdit()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
+            NavigationStack {
+                BudgetIE()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.org.rawValue, id: PageDestinations.org.key) {
+            NavigationStack {
+                OrganizationHome()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.accounts.rawValue, id: PageDestinations.accounts.key) {
+            NavigationStack {
+                AccountsIE()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.categories.rawValue, id: PageDestinations.categories.key) {
+            NavigationStack {
+                CategoriesIE()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.credit.rawValue, id: PageDestinations.credit.key) {
+            NavigationStack {
+                CreditCardHelper()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.audit.rawValue, id: PageDestinations.audit.key) {
+            NavigationStack {
+                BalanceVerifier()
+                    .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        /* For the next version, tee hee
+        WindowGroup(PageDestinations.pay.rawValue, id: PageDestinations.pay.key) {
+            NavigationStack {
+                
+                .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.paychecks.rawValue, id: PageDestinations.paychecks.key) {
+            NavigationStack {
+                
+                .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        
+        WindowGroup(PageDestinations.taxes.rawValue, id: PageDestinations.taxes.key) {
+            NavigationStack {
+                
+                .preferredColorScheme(colorScheme)
+            }
+        }.modelContainer(container)
+        */
+        
+        WindowGroup(PageDestinations.jobs.rawValue, id: PageDestinations.jobs.key) {
+            NavigationStack {
+                AllJobsViewEdit()
                     .preferredColorScheme(colorScheme)
             }
         }.modelContainer(container)
@@ -112,10 +191,5 @@ struct EdmundApp: App {
             HelpView()
                 .preferredColorScheme(colorScheme)
         }
-        
-        WindowGroup("Credit Helper", id: "creditHelper") {
-            CreditCardHelper()
-                .preferredColorScheme(colorScheme)
-        }.modelContainer(container)
     }
 }

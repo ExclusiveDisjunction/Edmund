@@ -484,9 +484,6 @@
     "Credit Card Transactions" : {
 
     },
-    "Credit Helper" : {
-
-    },
     "Credit Limit" : {
       "localizations" : {
         "pl" : {
@@ -1434,17 +1431,6 @@
     "Remove" : {
 
     },
-    "Removing this information will remove all associated transactions. Do you wish to continue?" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achtung! Wenn Sie diese Informationen entfernen, werden alle damit verbundenen Transaktionen gelöscht. Möchten Sie fortfahren?"
-          }
-        }
-      }
-    },
     "Repayment" : {
 
     },
@@ -1835,7 +1821,7 @@
 
     },
     "Version %@" : {
-      "comment" : "App version. This has the format \"Version: (Number).(Number)\""
+      "comment" : "App version. This has the format \"Version: (Number).(Number)\" Example: \"Version 1.0\""
     },
     "Vertical Split" : {
 

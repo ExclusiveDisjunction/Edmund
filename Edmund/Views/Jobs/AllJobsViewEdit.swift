@@ -112,6 +112,8 @@ struct AllJobsViewEdit : View {
             GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspect, warning: warning, role: .view, placement: .primaryAction)
         }
         
+        GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: deleting, warning: warning, placement: .primaryAction)
+        
         #if os(iOS)
         ToolbarItem(id: "editButton", placement: .primaryAction) {
             EditButton()

@@ -21,11 +21,11 @@ public struct LedgerEntryEdit : ElementEditorView {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
-    private let labelMinWidth: CGFloat = 60;
-    private let labelMaxWidth: CGFloat = 70;
+    private let labelMinWidth: CGFloat = 70;
+    private let labelMaxWidth: CGFloat = 80;
 #else
     private let labelMinWidth: CGFloat = 80;
-    private let labelMaxWidth: CGFloat = 85;
+    private let labelMaxWidth: CGFloat = 90;
 #endif
     
     public var body: some View {

@@ -103,8 +103,8 @@ public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: Rand
             handle = .init(provider: provider)
         }) {
             Label("Sort & Filter", systemImage: "line.3.horizontal.decrease.circle")
-        }.popover(item: $handle) { item in
-            QueryPopout(provider: item.provider)
+        }.sheet(item: $handle) { item in
+            QueryPopout(provider: item.provider, isSheet: true)
         }
     }
 }
@@ -112,22 +112,37 @@ public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: Rand
 /// The popout used by `QueryButton<T>`.
 public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
     @Bindable public var provider: QueryManifest<T>;
+    let isSheet: Bool;
+    
+    @Environment(\.dismiss) private var dismiss;
     
     public var body: some View {
-        Form {
-            Section(header: Text("Sorting").font(.headline)) {
-                Picker("Sort By", selection: $provider.sorting) {
-                    ForEach(T.SortType.allCases, id: \.id) { sort in
-                        Text(sort.toString).tag(sort)
+        VStack {
+            Form {
+                Section(header: Text("Sorting").font(.headline)) {
+                    Picker("Sort By", selection: $provider.sorting) {
+                        ForEach(T.SortType.allCases, id: \.id) { sort in
+                            Text(sort.toString).tag(sort)
+                        }
                     }
+                    
+                    Toggle(provider.sorting.ascendingQuestion, isOn: $provider.ascending)
                 }
                 
-                Toggle(provider.sorting.ascendingQuestion, isOn: $provider.ascending)
+                Section(header: Text("Filters").font(.headline)) {
+                    ForEach($provider.filter) { $filter in
+                        Toggle(filter.filter.pluralName, isOn: $filter.isIncluded)
+                    }
+                }
             }
             
-            Section(header: Text("Filters").font(.headline)) {
-                ForEach($provider.filter) { $filter in
-                    Toggle(filter.filter.pluralName, isOn: $filter.isIncluded)
+            Spacer()
+            
+            if isSheet {
+                HStack {
+                    Spacer()
+                    Button("Ok", action: { dismiss() } )
+                        .buttonStyle(.borderedProminent)
                 }
             }
         }.padding()
@@ -139,5 +154,6 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
 
 #Preview {
     let provider = QueryManifest<BillBaseWrapper>(.name);
-    QueryPopout(provider: provider).modelContainer(Containers.debugContainer)
+    QueryPopout(provider: provider, isSheet: false)
+        .modelContainer(Containers.debugContainer)
 }

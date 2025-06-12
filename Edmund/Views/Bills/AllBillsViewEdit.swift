@@ -25,12 +25,6 @@ struct AllBillsViewEdit : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
     
-    #if os(iOS)
-    private let openWindowPlacement: ToolbarItemPlacement = .topBarLeading
-    #else
-    private let openWindowPlacement: ToolbarItemPlacement = .automatic
-    #endif
-    
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
@@ -103,7 +97,7 @@ struct AllBillsViewEdit : View {
                 Text(showcasePeriod.perName)
             }.swipeActions(edge: .trailing) {
                 SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-            }//.onTapGesture(count: 2, perform: doubleTap)
+            }
         }
     }
     @ViewBuilder
@@ -173,15 +167,7 @@ struct AllBillsViewEdit : View {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
             }
         }
-        
-        ToolbarItem(id: "newWindow", placement: .primaryAction) {
-            Button(action: {
-                openWindow(id: "bills")
-            }) {
-                Label("Open in new Window", systemImage: "rectangle.badge.plus")
-            }
-        }
-        
+    
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
                 Button("Bill", action: {

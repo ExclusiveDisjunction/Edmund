@@ -1,6 +1,6 @@
 //
-//  ContentView.swift
-//  ui-demo
+//  MainView.swift
+//  Edmund
 //
 //  Created by Hollan on 11/3/24.
 //
@@ -52,6 +52,29 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     
     var id: Self { self }
     
+    var key: String {
+        switch self {
+            case .home: "homepage"
+                
+            case .ledger: "ledger"
+            case .balance: "balanceSheet"
+                
+            case .bills: "bills"
+                
+            case .org: "organization"
+            case .accounts: "accounts"
+            case .categories: "categories"
+            case .credit: "creditHelper"
+            case .audit: "auditHelper"
+                
+            case .jobs: "jobs"
+            case .budget: "budget"
+            case .pay: "pay"
+            case .paychecks: "paychecks"
+            case .taxes: "taxes"
+        }
+    }
+    
     /// The specified view used to store the data.
     @ViewBuilder
     var view : some View {
@@ -80,6 +103,16 @@ struct MainView: View {
     @State private var allowedPages = PageDestinations.topLevel;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.openWindow) private var openWindow;
+    
+    private static let allowPopouts: Bool = {
+#if os(macOS)
+        true
+#else
+        if #available(iOS 16.0, *) { UIDevice.current.userInterfaceIdiom == .pad } 
+        else { false }
+#endif
+    }()
     
     var body: some View {
         NavigationSplitView {
@@ -90,7 +123,17 @@ struct MainView: View {
                     .backgroundStyle(.background.secondary)
                 
                 List(allowedPages, children: \.children, selection: $page) { page in
-                    Text(page.rawValue)
+                    if Self.allowPopouts {
+                        Text(page.rawValue)
+                            .contextMenu {
+                                Button("Open in new Window", action: {
+                                    openWindow(id: page.key)
+                                })
+                            }
+                    }
+                    else {
+                        Text(page.rawValue)
+                    }
                 }
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {

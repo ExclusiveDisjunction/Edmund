@@ -11,23 +11,11 @@ import EdmundCore
 
 /// A top level view to display all accounts, their balances, and then the sub balances within.
 struct BalanceSheet: View {
-    private var shouldShowPopoutButton: Bool {
-#if os(macOS)
-        return true
-#else
-        if #available(iOS 16.0, *) {
-            return UIDevice.current.userInterfaceIdiom == .pad
-        }
-        return false
-#endif
-    }
-    
     @Query private var accounts: [Account];
     
     @State private var computed: [ComplexBalance]? = nil;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    @Environment(\.openWindow) private var openWindow;
     
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -59,9 +47,6 @@ struct BalanceSheet: View {
                 }
             }
         }
-    }
-    private func popout() {
-        openWindow(id: "balanceSheet")
     }
     
     /// The view for each sub account
@@ -151,14 +136,6 @@ struct BalanceSheet: View {
     
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        if shouldShowPopoutButton {
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: popout) {
-                    Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                }
-            }
-        }
-        
         ToolbarItem(placement: .primaryAction) {
             ControlGroup {
                 Button(action: collapseAll) {

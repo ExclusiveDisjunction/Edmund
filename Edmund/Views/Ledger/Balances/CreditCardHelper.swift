@@ -16,17 +16,6 @@ struct CreditCardHelper: View {
     @State private var inspecting: CreditCardRow?;
     @State private var selection: CreditCardRow.ID?; //Only used to let the user select a row
     
-    private var shouldShowPopoutButton: Bool {
-#if os(macOS)
-        return true
-#else
-        if #available(iOS 16.0, *) {
-            return UIDevice.current.userInterfaceIdiom == .pad
-        }
-        return false
-#endif
-    }
-    
     @Environment(\.openWindow) private var openWindow;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
@@ -42,9 +31,6 @@ struct CreditCardHelper: View {
                 balance: bal.value.1 - bal.value.0
             )
         }
-    }
-    private func popout() {
-        openWindow(id: "creditHelper")
     }
     
     @ViewBuilder
@@ -148,14 +134,6 @@ struct CreditCardHelper: View {
             .task { refresh() }
             .navigationTitle("Credit Card Helper")
             .toolbar {
-                if shouldShowPopoutButton {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button(action: popout) {
-                            Label("Open in new Window", systemImage: "rectangle.badge.plus")
-                        }
-                    }
-                }
-                
                 ToolbarItem(placement: .primaryAction) {
                     refreshButton
                 }
