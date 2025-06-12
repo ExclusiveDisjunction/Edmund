@@ -9,54 +9,56 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-public enum NamedPairKind : Int, Equatable {
-    case account = 0
-    case category = 1
-    
-    public var name: LocalizedStringKey {
-        switch self {
-            case .account: "Account"
-            case .category: "Category"
-        }
-    }
-    public var subName: LocalizedStringKey {
-        switch self {
-            case .account: "Sub Account"
-            case .category: "Sub Category"
-        }
-    }
-    public var addName: LocalizedStringKey {
-        switch self {
-            case .account: "Add Account"
-            case .category: "Add Category"
-        }
-    }
-    public var addSubName: LocalizedStringKey {
-        switch self {
-            case .account: "Add Sub Account"
-            case .category: "Add Sub Category"
-        }
-    }
+/*
+ public enum NamedPairKind : Int, Equatable {
+ case account = 0
+ case category = 1
+ 
+ public var name: LocalizedStringKey {
+ switch self {
+ case .account: "Account"
+ case .category: "Category"
+ }
+ }
+ public var subName: LocalizedStringKey {
+ switch self {
+ case .account: "Sub Account"
+ case .category: "Sub Category"
+ }
+ }
+ public var addName: LocalizedStringKey {
+ switch self {
+ case .account: "Add Account"
+ case .category: "Add Category"
+ }
+ }
+ public var addSubName: LocalizedStringKey {
+ switch self {
+ case .account: "Add Sub Account"
+ case .category: "Add Sub Category"
+ }
+ }
+ }
+ */
+
+public protocol PairBasis : Identifiable, PersistentModel, Hashable, Equatable, EditableElement, InspectableElement {
+    var name: String { get set }
 }
 
-public protocol BoundPairParent : Identifiable, PersistentModel {
+public protocol BoundPairParent : PairBasis {
     associatedtype C: BoundPair;
     
     init();
     
-    var name: String { get set }
     var children: [C]? { get set }
-    static var kind: NamedPairKind { get}
 }
-public protocol BoundPair : Identifiable, PersistentModel, Hashable, Equatable {
+public protocol BoundPair : PairBasis {
     associatedtype P: BoundPairParent;
     
     init();
     init(parent: P?);
     
     var parent: P? { get set }
-    var name: String { get set }
-    static var kind: NamedPairKind { get }
 }
 public extension BoundPair {
     func eqByName(_ rhs: any BoundPair) -> Bool {
@@ -85,39 +87,3 @@ public extension Array where Element: BoundPairParent {
         return foundParent.children?.first(where: {$0.name == child } )
     }
 }
-
-/*
- struct UnboundNamedPair : NamedPair {
- init(_ parent: String = "", _ child: String = "") {
- self.name = parent;
- self.sub_name = child;
- }
- init(from: any NamedPair) {
- self.name = from.parent_name;
- self.sub_name = from.child_name;
- }
- 
- private var name: String;
- private var sub_name: String;
- 
- static func ==(lhs: UnboundNamedPair, rhs: UnboundNamedPair) -> Bool{
- lhs.name == rhs.name && rhs.sub_name == rhs.sub_name
- }
- func hash(into hasher: inout Hasher) {
- hasher.combine(name);
- hasher.combine(sub_name);
- }
- 
- var id: UUID = UUID();
- var parent_name: String {
- get { name }
- set(v) { name = v }
- }
- var child_name: String {
- get { sub_name }
- set(v) { sub_name = v }
- }
- static var kind: NamedPairKind { .nondetermined }
- 
- }
- */

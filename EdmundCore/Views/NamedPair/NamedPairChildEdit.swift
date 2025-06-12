@@ -61,17 +61,26 @@ public struct NamedPairChildEdit<C> : ElementEditorView where C: BoundPair, C.P:
     public var body: some View {
         Grid {
             GridRow {
-                Text(C.kind.name).frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                Picker(C.kind.name, selection: $snapshot.parent) {
-                    Text("None").tag(nil as C.P?)
+                Text(C.typeDisplay.singular)
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                Picker("", selection: $snapshot.parent) {
+                    Text("None")
+                        .tag(nil as C.P?)
+                    
                     ForEach(parents, id: \.id) { parent in
-                        Text(parent.name).tag(parent as C.P?)
+                        Text(parent.name)
+                            .tag(parent as C.P?)
                     }
                 }.labelsHidden()
             }
             GridRow {
-                Text("Name").frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                TextField("Name", text: $snapshot.name).labelsHidden().textFieldStyle(.roundedBorder)
+                Text("Name")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                TextField("Name", text: $snapshot.name)
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
             }
         }
     }

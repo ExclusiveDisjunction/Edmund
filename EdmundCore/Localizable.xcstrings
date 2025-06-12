@@ -116,6 +116,9 @@
     "Cancel" : {
 
     },
+    "Cash" : {
+
+    },
     "Categories" : {
 
     },
@@ -123,6 +126,12 @@
 
     },
     "Category:" : {
+
+    },
+    "Certificate of Deposit" : {
+
+    },
+    "Checking" : {
 
     },
     "childrenError" : {
@@ -152,6 +161,9 @@
       }
     },
     "Credit" : {
+
+    },
+    "Credit Limit:" : {
 
     },
     "Credit:" : {
@@ -247,6 +259,9 @@
     "Has End Date:" : {
 
     },
+    "Has Interest:" : {
+
+    },
     "Has Location:" : {
 
     },
@@ -294,6 +309,9 @@
     },
     "Inspect Utility" : {
 
+    },
+    "Interest:" : {
+      "comment" : "Money interest"
     },
     "Kind" : {
 
@@ -376,7 +394,16 @@
     "No Category" : {
 
     },
+    "No credit limit" : {
+
+    },
     "No end date" : {
+
+    },
+    "No interest" : {
+
+    },
+    "No location" : {
 
     },
     "No Location" : {
@@ -443,6 +470,9 @@
     "Save" : {
 
     },
+    "Savings" : {
+
+    },
     "Semi-Anually" : {
 
     },
@@ -478,6 +508,9 @@
 
     },
     "Sub Accounts" : {
+
+    },
+    "Sub Accounts:" : {
 
     },
     "Sub Categories" : {
@@ -524,6 +557,9 @@
 
     },
     "Transactions" : {
+
+    },
+    "Trust Fund" : {
 
     },
     "Two Months" : {

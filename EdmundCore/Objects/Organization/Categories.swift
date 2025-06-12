@@ -15,7 +15,7 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
     public typealias Snapshot = SimpleElementSnapshot<Category>
     public typealias InspectorView = SimpleElementInspect<Category>
     
-    public required init() {
+    public init() {
         self.name = ""
         self.children = []
     }
@@ -24,17 +24,16 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
         self.children = children;
     }
     
-    public static func ==(lhs: Category, rhs: Category) -> Bool {
-        lhs.name == rhs.name
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
-    
     public var id: String { name }
     public var name: String = "";
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent) public var children: [SubCategory]? = nil;
+    
+    public static func ==(lhs: Category, rhs: Category) -> Bool {
+        lhs.name == rhs.name
+    }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
 
     public static var typeDisplay : TypeTitleStrings {
         .init(
@@ -45,8 +44,6 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
             add:      "Add Category"
         )
     }
-    
-    public static var kind: NamedPairKind { .category }
     
     public static let exampleCategories: [Category] = {
         [
@@ -81,10 +78,6 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
             .init("Bills")
         ])
     }()
-    
-    public var isEmpty: Bool {
-        name.isEmpty
-    }
 }
 @Model
 public final class SubCategory : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, TransactionHolder {
@@ -92,17 +85,11 @@ public final class SubCategory : BoundPair, Equatable, NamedEditableElement, Nam
     public typealias Snapshot = NamedPairChildSnapshot<SubCategory>;
     public typealias InspectorView = SimpleElementInspect<SubCategory>;
     
-    public required init() {
-        self.parent = nil
-        self.name = ""
-        self.id = UUID()
-        self.transactions = []
+    public convenience init() {
+        self.init("")
     }
-    public required init(parent: Category?) {
-        self.parent = parent
-        self.name = ""
-        self.id = UUID()
-        self.transactions = []
+    public convenience init(parent: Category?) {
+        self.init("", parent: parent)
     }
     public init(_ name: String, parent: Category? = nil, id: UUID = UUID(), transactions: [LedgerEntry] = []) {
         self.parent = parent
@@ -110,6 +97,11 @@ public final class SubCategory : BoundPair, Equatable, NamedEditableElement, Nam
         self.id = id
         self.transactions = transactions
     }
+    
+    public var id: UUID = UUID();
+    public var name: String = "";
+    @Relationship public var parent: Category? = nil;
+    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) public var transactions: [LedgerEntry]? = nil;
     
     public static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
         lhs.id == rhs.id
@@ -119,11 +111,6 @@ public final class SubCategory : BoundPair, Equatable, NamedEditableElement, Nam
         hasher.combine(name)
     }
     
-    public var id: UUID = UUID();
-    public var name: String = "";
-    @Relationship public var parent: Category? = nil;
-    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category) public var transactions: [LedgerEntry]? = nil;
-    
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Sub Category",
@@ -132,14 +119,6 @@ public final class SubCategory : BoundPair, Equatable, NamedEditableElement, Nam
             edit:     "Edit Sub Category",
             add:      "Add Sub Category"
         )
-    }
-
-    public var isEmpty: Bool {
-        parent?.isEmpty ?? false || name.isEmpty
-    }
-    
-    public static var kind: NamedPairKind {
-        get { .category }
     }
     
     static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills"))
