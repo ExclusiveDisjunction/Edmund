@@ -15,7 +15,7 @@ struct AccountsIE : View {
     
     @Bindable private var inspecting = InspectionManifest<Account>();
     @Bindable private var delete = DeletingManifest<Account>();
-    @Bindable private var warning = WarningManifest();
+    @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     

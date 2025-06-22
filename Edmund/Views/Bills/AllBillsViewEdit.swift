@@ -20,7 +20,7 @@ struct AllBillsViewEdit : View {
     @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name);
     @Bindable private var inspect: InspectionManifest<BillBaseWrapper> = .init();
     @Bindable private var deleting: DeletingManifest<BillBaseWrapper> = .init();
-    @Bindable private var warning = WarningManifest()
+    @Bindable private var warning = SelectionWarningManifest()
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;

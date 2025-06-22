@@ -88,7 +88,7 @@ public struct Containers {
             }
             
             let account = SubAccount("", parent: .init(""))
-            let category = SubCategory("", parent: .init(""))
+            let category = SubCategory("", parent: .init("", children: []))
             
             result.mainContext.insert(account)
             result.mainContext.insert(category)

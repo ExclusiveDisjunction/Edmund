@@ -9,6 +9,35 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+/// A quick overview of a property used to uniqueley identify a`UniqueElement`.
+public struct ElementIdentifer : Identifiable, Equatable {
+    public init(name: LocalizedStringKey, optional: Bool = false, id: UUID = UUID()) {
+        self.id = id;
+        self.name = name
+        self.optional = optional
+    }
+    
+    public var id: UUID;
+    /// The name of the property. For example, 'Name'.
+    public var name: LocalizedStringKey;
+    /// If this type is optional or not. If it is optional, that means the value can be ommited from the owning type.
+    public var optional: Bool;
+    
+    public static func == (lhs: ElementIdentifer, rhs: ElementIdentifer) -> Bool {
+        lhs.name == rhs.name && lhs.optional == rhs.optional
+    }
+}
+
+/// A protocol that determines if an element is unique.
+/// For the unique pattern to work, the type must implement this protocol.
+public protocol UniqueElement: Identifiable {
+    /// A list of properties used to identify the data as unique.
+    /// When an error about uniqueness is presented, the UI will include these values.
+    static var identifiers: [ElementIdentifer] { get }
+    
+    func removeFromEngine(unique: UniqueEngine) -> Bool;
+}
+
 /// A struct that allows for the access of all unique elements out of a modelContext in a safe way.
 public struct RegistryData {
     /// Extracts the required information out of the `context`, running on the main thread.
@@ -45,9 +74,33 @@ public struct RegistryData {
     public let allJobs: [any TraditionalJob];
 }
 
+/// A specific lightweight action to instruct the `UniqueEngine` to perform some action.
+public enum UniqueEngineAction {
+    /// Instructs the engine to determine that ID is taken.
+    case validate
+    //// Instructs the engine to reserve that ID
+    case insert
+    /// Instructs the engine to de-reserve that ID
+    case remove
+}
+
+/// An error that occurs when the unique engine cannot validate a claim to an ID, but was assumed to be a free value.
+public struct UniqueFailueError<T> : Error where T: Sendable, T: Hashable {
+    /// The ID that was taken already
+    public let value: T
+    
+    /// A description of what happened
+    public var description: String {
+        "A uniqueness check failed for identifier \(value)"
+    }
+    public var localizedDescription: LocalizedStringKey {
+        "The uniqueness constraint failed for this value. Please cancel the edit and try again."
+    }
+}
+
 /// An environment safe class that can be used to enforce the uniqueness amongts different objects of the same type.
 @Observable
-public class UniqueEngine {
+public final class UniqueEngine {
     /// Creates the engine with empty sets.
     public init() {
         self.accounts = .init();
@@ -69,124 +122,60 @@ public class UniqueEngine {
     }
     
     /// The taken account IDs.
-    public var accounts: Set<String>;
+    private var accounts: Set<Account.ID>;
     /// The taken sub account IDs.
-    public var subAccounts: Set<String>;
+    private var subAccounts: Set<SubAccount.ID>;
     /// The taken category IDs.
-    public var categories: Set<String>;
+    private var categories: Set<EdmundCore.Category.ID>;
     /// The taken sub category IDs.
-    public var subCategories: Set<String>;
+    private var subCategories: Set<SubCategory.ID>;
     /// The taken bills & utilities IDs.
-    public var allBills: Set<String>;
+    private var allBills: Set<BillBaseID>;
     /// The taken hourly & salaried job IDs.
-    public var allJobs: Set<String>;
+    private var allJobs: Set<TraditionalJobID>;
     
-    /// Registers the item into a set if its not already contained.
-    /// - Parameters:
-    ///     - set: The set to modify
-    ///     - new: The new value to register
-    /// - Returns:
-    ///     - `true` if the element was not in the set, `false` otherwise. If it was not previously contained, it will be contained after this function completes.
-    private static func registerInto<T>(_ set: inout Set<T>, _ new: T) -> Bool where T: Hashable{
-        guard !set.contains(new) else {
-            return false;
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    private static func perform<T>(id: T, set: inout Set<T>, action: UniqueEngineAction) -> Bool where T: Hashable {
+        switch action {
+            case .insert:   set.insert(id).inserted
+            case .validate: set.contains(id)
+            case .remove:   set.remove(id) != nil
         }
-        
-        set.insert(new);
-        return true;
-    }
-    private static func deregisterInto<T>(_ set: inout Set<T>, _ id: T) where T: Hashable {
-        set.remove(id);
     }
     
-    // Checks if the ID for an account is ok. If this returns false, it is already taken.
-    public func checkAccount(_ id: String) -> Bool {
-        !accounts.contains(id)
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    public func account(id: Account.ID, action: UniqueEngineAction) -> Bool {
+        Self.perform(id: id, set: &accounts, action: action)
     }
-    // Checks if the ID for a sub account is ok. If this returns false, it is already taken.
-    public func checkSubAccount(_ id: String) -> Bool {
-        !subAccounts.contains(id)
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    public func subAccount(id: SubAccount.ID, action: UniqueEngineAction) -> Bool {
+        Self.perform(id: id, set: &subAccounts, action: action)
     }
-    
-    // Checks if the ID for a category is ok. If this returns false, it is already taken.
-    public func checkCategory(_ id: String) -> Bool {
-        !categories.contains(id)
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    public func category(id: EdmundCore.Category.ID, action: UniqueEngineAction) -> Bool {
+        Self.perform(id: id, set: &categories, action: action)
     }
-    // Checks if the ID for a sub category is ok. If this returns false, it is already taken.
-    public func checkSubCategory(_ id: String) -> Bool {
-        !subCategories.contains(id)
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    public func subCategory(id: SubCategory.ID, action: UniqueEngineAction) -> Bool {
+        Self.perform(id: id, set: &subCategories, action: action)
     }
-    
-    // Checks if the ID for a bill or utility is ok. If this returns false, it is already taken.
-    public func checkBill(_ id: String) -> Bool {
-        !allBills.contains(id)
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    public func bill(id: BillBaseID, action: UniqueEngineAction) -> Bool {
+        Self.perform(id: id, set: &allBills, action: action)
     }
-    // Checks if the ID for a hourly or salaried job is ok. If this returns false, it is already taken.
-    public func checkJob(_ id: String) -> Bool {
-        !allJobs.contains(id)
-    }
-
-    
-    /// Registers an account ID.
-    public func registerAccount(_ new: String) -> Bool {
-        Self.registerInto(&accounts, new)
-    }
-    /// Registers a sub account ID.
-    public func registerSubAccount(_ new: String) -> Bool {
-        Self.registerInto(&subAccounts, new)
-    }
-    
-    /// Registers a category ID.
-    public func registerCategory(_ new: String) -> Bool {
-        Self.registerInto(&categories, new)
-    }
-    /// Registers a sub category ID.
-    public func registerSubCategory(_ new: String) -> Bool {
-        Self.registerInto(&subCategories, new)
-    }
-    
-    /// Registers a bill/utility ID.
-    public func registerBill(_ new: String) -> Bool {
-        Self.registerInto(&allBills, new)
-    }
-    /// Registers a hourly / salaried job ID.
-    public func registerJob(_ new: String) -> Bool {
-        Self.registerInto(&allJobs, new)
-    }
-    
-    /// De-registers an account ID.
-    public func deregisterAccount(_ id: String) {
-        Self.deregisterInto(&accounts, id)
-    }
-    /// De-registers a sub account ID.
-    public func deregisterSubAccount(_ id: String) {
-        Self.deregisterInto(&subAccounts, id)
-    }
-    
-    /// De-registers a category ID.
-    public func deregisterCategory(_ id: String) {
-        Self.deregisterInto(&categories, id)
-    }
-    /// De-registers a sub category ID.
-    public func deregisterSubCategory(_ id: String) {
-        Self.deregisterInto(&subCategories, id)
-    }
-    
-    /// De-registers a bill/utility ID.
-    public func deregisterBill(_ id: String) {
-        Self.deregisterInto(&allBills, id)
-    }
-    /// De-registers a hourly / salaried job ID.
-    public func deregisterJob(_ id: String) {
-        Self.deregisterInto(&allJobs, id)
+    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
+    public func job(id: TraditionalJobID, action: UniqueEngineAction) -> Bool {
+        Self.perform(id: id, set: &allJobs, action: action)
     }
 }
 
+/// The key used to store the `UniqueEngine` in `EnvironmentValues`.
 private struct UniqueEngineKey: EnvironmentKey {
     static let defaultValue: UniqueEngine = .init();
 }
 
 public extension EnvironmentValues {
+    /// A global value for the unique engine. This will always exist.
     var uniqueEngine: UniqueEngine {
         get { self[UniqueEngineKey.self] }
         set { self[UniqueEngineKey.self] = newValue }

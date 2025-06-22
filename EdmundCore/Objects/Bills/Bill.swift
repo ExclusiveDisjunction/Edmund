@@ -15,15 +15,20 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     public typealias InspectorView = BillInspect
     public typealias Snapshot = BillSnapshot
     
+    /// Creates the bill based on a specific kind.
     public convenience init(kind: BillsKind) {
         self.init(name: "", kind: kind, amount: 0, company: "", start: Date.now)
     }
+    /// Creates a subscription kind bill, with specified values.
     public convenience init(sub: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
         self.init(name: sub, kind: .subscription,  amount: amount, company: company, location: location, start: start, end: end, period: period)
     }
+    /// Creates a bill kind, with specified values
     public convenience init(bill: String, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
         self.init(name: bill, kind: .bill, amount: amount, company: company, location: location, start: start, end: end, period: period)
     }
+    /// Creates a bill while filling in all fields.
+    /// Note that it is undefined behavior if kind is `.utility`.
     public init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
         self.name = name
         self.amount = amount
@@ -35,8 +40,8 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
         self.rawPeriod = period.rawValue
     }
     
-    public var id: String {
-        "\(name).\(company).\(location ?? "")"
+    public var id: BillBaseID {
+        .init(name: name, company: company, location: location)
     }
     public var name: String = "";
     public var amount: Decimal = 0.0;
@@ -45,24 +50,12 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     public var company: String = "";
     public var location: String? = nil;
     public var notes: String = "";
-    public var destination: SubAccount? = nil;
     public var autoPay: Bool = true;
     
+    /// The internal raw value used to store the kind.
     public var rawKind: Int = 0;
+    /// The internal raw value used to store the period.
     private var rawPeriod: Int = 0;
-    
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Bill",
-            plural:   "Bills",
-            inspect:  "Inspect Bill",
-            edit:     "Edit Bill",
-            add:      "Add Bill"
-        )
-    }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
-    }
     
     public var kind: BillsKind {
         get {
@@ -83,12 +76,30 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
         }
     }
     
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Bill",
+            plural:   "Bills",
+            inspect:  "Inspect Bill",
+            edit:     "Edit Bill",
+            add:      "Add Bill"
+        )
+    }
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
+    }
+    public func removeFromEngine(unique: UniqueEngine) -> Bool {
+        unique.bill(id: self.id, action: .remove)
+    }
+    
+    /// A list of filler data for bills that have already expired.
     static let exampleExpiredBills: [Bill] = {
         [
             .init(sub: "Bitwarden Premium",      amount: 9.99,  company: "Bitwarden", start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
             .init(sub: "Spotify Premium Family", amount: 16.99, company: "Spotify",   start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
         ]
     }()
+    /// Examples of subscriptions that can be used on the UI.
     static let exampleSubscriptions: [Bill] = {
         [
             .init(sub: "Apple Music",     amount: 5.99, company: "Apple",   start: Date.fromParts(2025, 3, 2)!,  end: nil),
@@ -96,6 +107,7 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
             .init(sub: "YouTube Premium", amount: 9.99, company: "YouTube", start: Date.fromParts(2024, 11, 7)!, end: nil)
         ]
     }()
+    /// Examples of bill kind bills that can be used on UI.
     static let exampleActualBills: [Bill] = {
         [
             .init(bill: "Student Loan",  amount: 56,  company: "FAFSA",       start: Date.fromParts(2025, 3, 2)!,  end: nil),
@@ -104,54 +116,50 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
         ]
     }()
     
+    /// A collection of all bills used to show filler UI data.
     static let exampleBills: [Bill] = {
-        var result: [Bill] = [];
-        result.append(contentsOf: exampleExpiredBills)
-        result.append(contentsOf: exampleSubscriptions)
-        result.append(contentsOf: exampleActualBills)
-        
-        return result
+        exampleExpiredBills + exampleSubscriptions + exampleActualBills
     }()
 }
 
+/// The snapshot type for `Bill`.
 @Observable
-public final class BillSnapshot : BillBaseSnapshotKind {
+public final class BillSnapshot : BillBaseSnapshot, ElementSnapshot {
     public init(_ from: Bill) {
-        self.id = UUID();
-        self.base = .init(from)
         self.amount = .init(rawValue: from.amount)
         self.kind = from.kind
+        
+        super.init(from)
     }
     
-    public var id: UUID;
-    public var base: BillBaseSnapshot;
+    /// The cost of the bill/subscription
     public var amount: CurrencyValue;
+    /// The kind. This will be constrained to be either `.subscription` or `.bill`.
     public var kind: BillsKind;
     
-    public func validate() -> Bool {
-        let top_result = self.base.isValid
+    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        var topResult = super.validate(unique: unique);
         
-        if self.amount < 0 {
-            self.base.errors.insert(.amount)
-        }
+        if amount.rawValue < 0 { topResult.append(.negativeAmount("Amount")) }
+        if kind == .utility { topResult.append(.invalidInput("Kind")) }
         
-        return self.amount >= 0 && top_result
+        return topResult
     }
-    
-    public func apply(_ to: Bill, context: ModelContext) {
-        base.apply(to)
+    public func apply(_ to: Bill, context: ModelContext, unique: UniqueEngine) throws (UniqueFailueError<BillBaseID>) {
+        try super.apply(to: to, unique: unique)
+        
         to.amount = amount.rawValue
         to.kind = kind
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(base)
+    public override func hash(into hasher: inout Hasher) {
         hasher.combine(amount)
         hasher.combine(kind)
+        super.hash(into: &hasher)
     }
     
     public static func ==(lhs: BillSnapshot, rhs: BillSnapshot) -> Bool {
-        lhs.base == rhs.base && lhs.amount == rhs.amount && lhs.kind == rhs.kind
+        (lhs as BillBaseSnapshot) == (rhs as BillBaseSnapshot) && lhs.amount == rhs.amount && lhs.kind == rhs.kind
     }
 }
 

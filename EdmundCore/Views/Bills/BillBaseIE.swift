@@ -104,7 +104,6 @@ struct BillBaseEditor : View {
     var body: some View {
         GridRow {
             Text("Name:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                .foregroundStyle(editing.errors.contains(.name) ? Color.red : Color.primary)
             
             TextField("Name", text: $editing.name)
                 .textFieldStyle(.roundedBorder)
@@ -115,7 +114,6 @@ struct BillBaseEditor : View {
         GridRow {
             Text("Start Date:")
                 .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                .foregroundStyle(editing.errors.contains(.dates) ? Color.red : Color.primary)
             
             HStack {
                 DatePicker("", selection: $editing.startDate, displayedComponents: .date)
@@ -137,7 +135,6 @@ struct BillBaseEditor : View {
             GridRow {
                 Text("End Date:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    .foregroundStyle(editing.errors.contains(.dates) ? Color.red : Color.primary)
                 
                 HStack {
                     DatePicker("End", selection: $editing.endDate, displayedComponents: .date)
@@ -153,7 +150,6 @@ struct BillBaseEditor : View {
         GridRow {
             Text("Company:")
                 .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                .foregroundStyle(editing.errors.contains(.company) ? Color.red : Color.primary)
             
             TextField("Company", text: $editing.company)
                 .textFieldStyle(.roundedBorder)
@@ -173,7 +169,6 @@ struct BillBaseEditor : View {
             GridRow {
                 Text("Location:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    .foregroundStyle(editing.errors.contains(.location) ? Color.red : Color.primary)
                 
                 TextField("Location", text: $editing.location)
                     .textFieldStyle(.roundedBorder)

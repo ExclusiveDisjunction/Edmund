@@ -49,22 +49,11 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
 }
 
 protocol TransactionEditorProtocol : View {
-    func apply() -> Bool;
-}
-
-private struct CategoriesContextKey: EnvironmentKey {
-    static let defaultValue: CategoriesContext? = nil
-}
-
-extension EnvironmentValues {
-    public var categoriesContext: CategoriesContext? {
-        get { self[CategoriesContextKey.self] }
-        set { self[CategoriesContextKey.self] = newValue }
-    }
+    func apply() -> [ValidationFailure]?;
 }
 
 struct TransactionEditorFrame<Content, WarningKind> : View where Content: View, WarningKind: WarningBasis {
-    init(_ kind: TransactionKind, warning: BaseWarningManifest<WarningKind>, apply: @escaping () -> Bool, @ViewBuilder content: @escaping () -> Content) {
+    init(_ kind: TransactionKind, warning: ValidationWarningManifest, apply: @escaping () -> [ValidationFailure]?, @ViewBuilder content: @escaping () -> Content) {
         self.kind = kind;
         self.apply = apply;
         self.warning = warning;
@@ -72,14 +61,17 @@ struct TransactionEditorFrame<Content, WarningKind> : View where Content: View, 
     }
     
     let kind: TransactionKind;
-    private let apply: () -> Bool;
+    private let apply: () -> [ValidationFailure]?;
     private let content: () -> Content;
-    @Bindable private var warning: BaseWarningManifest<WarningKind>;
+    @Bindable private var warning: ValidationWarningManifest;
     
     @Environment(\.dismiss) private var dismiss;
     
     private func submit() {
-        if apply() {
+        if let error = apply() {
+            warning.warning = .init(error)
+        }
+        else {
             dismiss()
         }
     }
@@ -104,7 +96,7 @@ struct TransactionEditorFrame<Content, WarningKind> : View where Content: View, 
             .alert("Error", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: { warning.isPresented = false } )
             }, message: {
-                Text(warning.message ?? "internalError")
+                warning.content
             })
     }
 }

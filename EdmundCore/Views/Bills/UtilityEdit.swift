@@ -31,15 +31,12 @@ public struct UtilityEdit : View, ElementEditorView {
     
     public var body: some View {
         Grid {
-            BillBaseEditor(editing: snapshot.base, minWidth: minWidth, maxWidth: maxWidth)
+            BillBaseEditor(editing: snapshot, minWidth: minWidth, maxWidth: maxWidth)
             
             GridRow {
                 VStack {
                     Text("Price:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                        .foregroundStyle(
-                            snapshot.base.errors.contains(.children) || snapshot.base.errors.contains(.amount) ? .red : .primary
-                        )
                     Spacer()
                 }
                 
@@ -59,7 +56,7 @@ public struct UtilityEdit : View, ElementEditorView {
             
             Divider()
             
-            LongTextEditWithLabel(value: $snapshot.base.notes, minWidth: minWidth, maxWidth: maxWidth)
+            LongTextEditWithLabel(value: $snapshot.notes, minWidth: minWidth, maxWidth: maxWidth)
         }.sheet(isPresented: $showingSheet) {
             UtilityEntriesEdit(snapshot: snapshot)
         }

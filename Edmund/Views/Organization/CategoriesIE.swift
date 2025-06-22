@@ -36,7 +36,7 @@ struct CategoriesIE : View {
     
     @Bindable private var inspecting = ParentInspectionManifest<CategoryTableRow>();
     @Bindable private var delete = DeletingManifest<CategoryTableRow>();
-    @Bindable private var warning = WarningManifest();
+    @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     

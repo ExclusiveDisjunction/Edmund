@@ -29,14 +29,11 @@ public struct BillEdit : View, ElementEditorView {
     
     public var body: some View {
         Grid {
-            BillBaseEditor(editing: snapshot.base, minWidth: minWidth, maxWidth: maxWidth)
+            BillBaseEditor(editing: snapshot, minWidth: minWidth, maxWidth: maxWidth)
             
             GridRow {
                 Text("Amount:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    .foregroundStyle(
-                        snapshot.base.errors.contains(.amount) ? .red : .primary
-                    )
                 
                 CurrencyField(snapshot.amount)
             }
@@ -44,9 +41,6 @@ public struct BillEdit : View, ElementEditorView {
             GridRow {
                 Text("Kind:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    .foregroundStyle(
-                        snapshot.base.errors.contains(.amount) ? .red : .primary
-                    )
                 
                 HStack {
                     Picker("", selection: $snapshot.kind) {

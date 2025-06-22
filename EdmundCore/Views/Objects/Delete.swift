@@ -11,9 +11,8 @@ import SwiftData
 /// An observable class that provides deleting confrimation dialog abstraction. It includes a member, `isDeleting`, which can be bound. This value will become `true` when the internal list is not `nil` and not empty.
 @Observable
 public class DeletingManifest<T> where T: Identifiable {
-    public init() {
-        
-    }
+    public init() { }
+    
     /// The objects to delete.
     public var action: [T]?;
     /// A bindable value that returns true when the `action` is not `nil` and the list is not empty.
@@ -43,7 +42,7 @@ public class DeletingManifest<T> where T: Identifiable {
     }
     
     /// Removes all elements in `on` that are in `selection`, showing a warning if a failure occurs.
-    public func deleteSelected(_ selection: Set<T.ID>, on: [T], warning: WarningManifest) where T: Identifiable {
+    public func deleteSelected(_ selection: Set<T.ID>, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
         guard !selection.isEmpty else { warning.warning = .noneSelected; return }
         
         let targets = on.filter { selection.contains($0.id) }
@@ -52,7 +51,7 @@ public class DeletingManifest<T> where T: Identifiable {
         self.action = targets
     }
     /// Removes one element from `on` that matches the id `selection`, showing a warning if a failure occurs.
-    public func deleteSelected(_ selection: T.ID, on: [T], warning: WarningManifest) where T: Identifiable {
+    public func deleteSelected(_ selection: T.ID, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
         deleteSelected([selection], on: on, warning: warning)
     }
 }
@@ -75,7 +74,16 @@ public struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
     private var deleting: DeletingManifest<T>;
     private let delete: (T, ModelContext) -> Void;
     private let postAction: (() -> Void)?;
+    
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.modelContext) private var modelContext;
+    
+    @ViewBuilder
+    private var cancelButton: some View {
+        Button("Cancel", role: .cancel) {
+            deleting.isDeleting = false
+        }
+    }
     
     public var body: some View {
         if let deleting = deleting.action {
@@ -91,9 +99,27 @@ public struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
             }
         }
         
-        Button("Cancel", role: .cancel) {
-            deleting.isDeleting = false
+        cancelButton
+    }
+}
+extension AbstractDeletingActionConfirm where T: UniqueElement {
+    @ViewBuilder
+    public var body: some View {
+        if let deleting = deleting.action {
+            Button("Delete") {
+                for data in deleting {
+                    let _ = data.removeFromEngine(unique: uniqueEngine)
+                    delete(data, self.modelContext)
+                }
+                
+                self.deleting.isDeleting  = false
+                if let post = postAction {
+                    post()
+                }
+            }
         }
+        
+        cancelButton
     }
 }
 
@@ -129,7 +155,7 @@ public struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T
     ///     - delete: The `DeletingManifest<T>` used to signal the intent to remove elements.
     ///     - warning: The warning manifest used to signal mistakes.
     ///     - placement: A customization of where the delete button should go.
-    public init(on: [T], selection: Binding<Set<T.ID>>, delete: DeletingManifest<T>, warning: WarningManifest, placement: ToolbarItemPlacement = .automatic) {
+    public init(on: [T], selection: Binding<Set<T.ID>>, delete: DeletingManifest<T>, warning: SelectionWarningManifest, placement: ToolbarItemPlacement = .automatic) {
         self.on = on;
         self._selection = selection;
         self.delete = delete
@@ -139,7 +165,7 @@ public struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T
     
     private let on: [T];
     private let delete: DeletingManifest<T>;
-    private let warning: WarningManifest;
+    private let warning: SelectionWarningManifest;
     private let placement: ToolbarItemPlacement;
     @Binding private var selection: Set<T.ID>;
     

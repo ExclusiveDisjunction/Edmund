@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+/// Represents the different kind of accounts for more dynamic choices on the UI.
 public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
     case credit, checking, savings, cd, trust, cash
     
@@ -25,6 +26,7 @@ public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
     }
 }
 
+/// Represents a location to store money, via the use of inner sub-accounts.
 @Model
 public final class Account : Identifiable, Hashable, BoundPairParent, NamedEditableElement, NamedInspectableElement, UniqueElement {
     public typealias EditView = AccountEdit;
@@ -44,8 +46,12 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
     }
     
     public var id: String { name }
+    /// The account's name. This must be unique. This can be simple like "Checking", or more elaborate like "Chase Savings"
     public var name: String = "";
+    /// The credit limit stored within the system. It will only be provided and active if the account kind is `.credit`.
     private var rawCreditLimit: Decimal? = nil;
+    /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
+    /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
     public var creditLimit: Decimal? {
         get {
             self.kind == .credit ? rawCreditLimit : nil
@@ -56,9 +62,13 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             self.rawCreditLimit = newValue
         }
     }
+    /// An optional interest value
     public var interest: Decimal? = nil;
+    /// An optional description of where the account is physically
     public var location: String? = nil;
+    /// The kind of account, used to make swift data happy.
     private var rawKind: Int = AccountKind.checking.rawValue;
+    /// The account kind
     public var kind: AccountKind {
         get {
             .init(rawValue: rawKind)!
@@ -67,7 +77,9 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             self.rawKind = newValue.rawValue
         }
     }
-    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent) public var children: [SubAccount]? = nil;
+    /// The children for this account. Money is not held in the account itself, it is held in the sub accounts.
+    @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent)
+    public var children: [SubAccount]? = nil;
     
     public static func == (lhs: Account, rhs: Account) -> Bool {
         lhs.name == rhs.name
@@ -88,7 +100,11 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
     public static var identifiers: [ElementIdentifer] {
         [ .init(name: "Name") ]
     }
+    public func removeFromEngine(unique: UniqueEngine) -> Bool {
+        unique.account(id: self.id, action: .remove)
+    }
     
+    /// A list of template data to use on the UI.
     public static let exampleAccounts: [Account] = {
         [
             exampleAccount,
@@ -107,6 +123,7 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             ])
         ]
     }()
+    /// A singular account to display on the UI.
     public static let exampleAccount: Account = {
         .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001, children: [
             .init("DI"),
@@ -117,60 +134,11 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             .init("Credit Card")
         ])
     }()
-    public static let exampleCreditAccount: Account = .init("Credit", creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] );
-}
-@Model
-public final class SubAccount : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, UniqueElement, TransactionHolder {
-    public typealias EditView = NamedPairChildEdit<SubAccount>
-    public typealias Snapshot = NamedPairChildSnapshot<SubAccount>;
-    public typealias InspectorView = SimpleElementInspect<SubAccount>;
-    
-    public convenience init() {
-        self.init("")
-    }
-    public convenience init(parent: Account?) {
-        self.init("", parent: parent)
-    }
-    public init(_ name: String, parent: Account? = nil, transactions: [LedgerEntry] = []) {
-        self.name = name
-        self.parent = parent
-        self.transactions = transactions
-    }
-    
-    public static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
-        lhs.id == rhs.id
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(parent)
-    }
-    
-    public var id: String {
-        "\(self.parent_name ?? "").\(self.name)"
-    }
-    public var name: String = "";
-    @Relationship public var parent: Account? = nil;
-    @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account) public var transactions: [LedgerEntry]? = nil;
-    
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Sub Account",
-            plural:   "Sub Accounts",
-            inspect:  "Inspect Sub Account",
-            edit:     "Edit Sub Account",
-            add:      "Add Sub Account"
-        )
-    }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Parent Name", optional: true), .init(name: "Name") ]
-    }
-    
-    public static var exampleSubAccount: SubAccount {
-        .init("DI", parent: .init("Checking"))
-    }
+    /// A singular account that is setup like a credit card.
+    public static let exampleCreditAccount: Account = .init("Credit", kind: .credit, creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] );
 }
 
-
+/// The snapshot type for `Account`.
 @Observable
 public final class AccountSnapshot : ElementSnapshot {
     public typealias Host = Account
@@ -184,39 +152,49 @@ public final class AccountSnapshot : ElementSnapshot {
         self.location = from.location ?? String();
         self.kind = from.kind;
     }
-    
+
+    /// The account's name
     public var name: String;
+    /// True if the kind is `.credit`.
     public var hasCreditLimit: Bool {
         self.kind == .credit
     }
+    /// The current credit limit.
     public var creditLimit: CurrencyValue;
+    /// If the account has interest or not
     public var hasInterest: Bool;
+    /// The interest value
     public var interest: Decimal;
+    /// If the account has a location value
     public var hasLocation: Bool;
+    /// The location
     public var location: String;
+    /// The account's kind
     public var kind: AccountKind;
     
-    public func validate() -> Bool {
-        guard !self.name.trimmingCharacters(in: .whitespaces).isEmpty else {
-            return false;
+    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        var result: [ValidationFailure] = [];
+        
+        let name = self.name.trimmingCharacters(in: .whitespaces);
+        if name.isEmpty { result.append(.empty("Name")) }
+        else if !unique.account(id: name, action: .validate) { result.append(.unique(Account.identifiers)) }
+        
+        if hasCreditLimit && creditLimit.rawValue < 0 { result.append(.negativeAmount("Credit Limit")) }
+        if hasInterest {
+            if interest < 0 { result.append(.negativeAmount("Interest")) }
+            else if interest > 1 { result.append(.tooLargeAmount("Interest")) }
         }
         
-        if hasCreditLimit && creditLimit.rawValue < 0 {
-            return false;
-        }
+        if hasLocation && location.trimmingCharacters(in: .whitespaces).isEmpty { result.append(.empty("Location")) }
         
-        if hasInterest && interest < 0 {
-            return false;
-        }
-        
-        if hasLocation && location.trimmingCharacters(in: .whitespaces).isEmpty {
-            return false;
-        }
-        
-        return true;
+        return result
     }
-    public func apply(_ to: Account, context: ModelContext) {
-        to.name = self.name.trimmingCharacters(in: .whitespaces)
+    public func apply(_ to: Account, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<Account.ID>) {
+        let name = self.name.trimmingCharacters(in: .whitespaces)
+        
+        if !unique.account(id: name, action: .insert) { throw UniqueFailueError(value: name) }
+        
+        to.name = name
         to.creditLimit = self.hasCreditLimit ? self.creditLimit.rawValue : nil;
         to.interest = self.hasInterest ? self.interest : nil;
         to.location = self.hasLocation ? self.location : nil;

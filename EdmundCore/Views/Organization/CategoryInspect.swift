@@ -1,22 +1,21 @@
 //
-//  SimpleElementInspect.swift
+//  CategoryInspect.swift
 //  Edmund
 //
-//  Created by Hollan Sellars on 4/21/25.
+//  Created by Hollan Sellars on 6/21/25.
 //
 
-import SwiftUI;
-import SwiftData;
+import SwiftUI
 
-/// A simple `InspectorView` that can be used just to display the name of a `NamedInspectableElement`.
-public struct SimpleElementInspect<T> : ElementInspectorView where T: NamedInspectableElement {
-    public typealias For = T;
+/// The inspector view for `Category`.
+public struct CategoryInspect : ElementInspectorView {
+    public typealias For = EdmundCore.Category;
     
-    public init(_ data: T) {
+    public init(_ data: Category) {
         self.data = data;
     }
     
-    private var data: T;
+    private var data: Category;
     
 #if os(macOS)
     private let minWidth: CGFloat = 60;
@@ -36,4 +35,8 @@ public struct SimpleElementInspect<T> : ElementInspectorView where T: NamedInspe
             Spacer()
         }
     }
+}
+
+#Preview {
+    ElementInspector(data: Category.exampleCategory)
 }

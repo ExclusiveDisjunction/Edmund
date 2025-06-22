@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// A basis for all jobs that Edmund supports.
-public protocol JobBase : PersistentModel, InspectableElement, EditableElement, Identifiable<String> {
+public protocol JobBase : PersistentModel, InspectableElement, EditableElement, Identifiable {
     /// The amount of money taken out as taxes.
     var taxRate: Decimal { get set }
     /// The average gross (pre-tax) amount.
@@ -22,8 +22,40 @@ public extension JobBase {
     }
 }
 
+/// An identifer that can be used for any `TraditionalJob`.
+public struct TraditionalJobID : Hashable, Equatable, RawRepresentable {
+    public init(company: String, position: String) {
+        self.company = company
+        self.position = position
+    }
+    public init?(rawValue: String) {
+        let split = rawValue.split(separator: ".").map { $0.trimmingCharacters(in: .whitespaces) };
+        guard split.count == 2 else { return nil }
+        guard !split[0].isEmpty && !split[1].isEmpty else { return nil }
+        
+        self.company = split[0];
+        self.position = split[1];
+    }
+    
+    /// The company the job is with
+    public let company: String;
+    /// The position/title that you work as
+    public let position: String;
+    public var rawValue: String {
+        "\(company).\(position)"
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(company)
+        hasher.combine(position)
+    }
+    public static func ==(lhs: TraditionalJobID, rhs: TraditionalJobID) -> Bool {
+        lhs.company == rhs.company && lhs.position == rhs.position
+    }
+}
+
 /// Represents a job that takes place at a company, meaning that there is a company and position that you work.
-public protocol TraditionalJob : JobBase {
+public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
     /// The company that is being worked for
     var company: String { get set}
     /// The role that the individual works.
@@ -40,4 +72,87 @@ public struct TraditionalJobWrapper : Identifiable {
     /// The targeted data
     public var data: any TraditionalJob;
     public var id: UUID;
+}
+
+@Observable
+public class JobSnapshot : Hashable, Equatable {
+    public init() {
+        self.taxRate = 0.00;
+    }
+    public init<T>(_ from: T) where T: JobBase {
+        self.taxRate = from.taxRate;
+    }
+    
+    public var taxRate: Decimal;
+    
+    public func validate() -> [ValidationFailure] {
+        if taxRate < 0      { return [.negativeAmount("Tax Rate")] }
+        else if taxRate > 1 { return [.tooLargeAmount("Tax Rate")] }
+        else                { return [] }
+    }
+    internal func apply<T>(_ to: T) where T: JobBase {
+        to.taxRate = self.taxRate
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(taxRate)
+    }
+    public static func == (lhs: JobSnapshot, rhs: JobSnapshot) -> Bool {
+        lhs.taxRate == rhs.taxRate
+    }
+}
+
+@Observable
+public class TraditionalJobSnapshot : JobSnapshot {
+    public override init() {
+        self.company = "";
+        self.position = "";
+        
+        super.init()
+    }
+    public init<T>(_ from: T) where T: TraditionalJob {
+        self.company = from.company
+        self.position = from.position
+        
+        super.init(from)
+    }
+    
+    public var company: String;
+    public var position: String;
+    
+    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        let company = self.company.trimmingCharacters(in: .whitespaces)
+        let position = self.position.trimmingCharacters(in: .whitespaces)
+        let id = TraditionalJobID(company: company, position: position)
+        
+        var result = super.validate()
+        
+        if !unique.job(id: id, action: .validate) { result.append(.unique(HourlyJob.identifiers)) }
+        
+        if company.isEmpty { result.append(.empty("Company")) }
+        if position.isEmpty { result.append(.empty("Position")) }
+        
+        return result
+    }
+    internal func apply<T>(_ to: T, unique: UniqueEngine) throws(UniqueFailueError<TraditionalJobID>) where T: TraditionalJob {
+        let company = self.company.trimmingCharacters(in: .whitespaces)
+        let position = self.position.trimmingCharacters(in: .whitespaces)
+        let id = TraditionalJobID(company: company, position: position)
+        
+        guard unique.job(id: id, action: .insert) else { throw .init(value: id) }
+        
+        to.company = company
+        to.position = position
+        
+        super.apply(to)
+    }
+    
+    public override func hash(into hasher: inout Hasher) {
+        hasher.combine(company)
+        hasher.combine(position)
+        super.hash(into: &hasher)
+    }
+    public static func ==(lhs: TraditionalJobSnapshot, rhs: TraditionalJobSnapshot) -> Bool {
+        (lhs as JobSnapshot) == (rhs as JobSnapshot) && lhs.company == rhs.company && lhs.position == rhs.position
+    }
 }

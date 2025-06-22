@@ -54,7 +54,7 @@ public class InspectionManifest<T> {
     public var value: T?
     
     /// If the `selection` contains only one id, and it resolves to a `T` value, it will open it with the specified `mode`. Otherwise, it will omit a warning.
-    public func inspectSelected(_ selection: Set<T.ID>, mode: InspectionMode, on: [T], warning: WarningManifest) where T: Identifiable {
+    public func inspectSelected(_ selection: Set<T.ID>, mode: InspectionMode, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
         guard !selection.isEmpty else { warning.warning = .noneSelected; return }
         guard selection.count == 1 else { warning.warning = .tooMany; return }
         
@@ -112,7 +112,7 @@ public class ParentInspectionManifest<T> : InspectionManifest<T> where T: Parent
         return nil;
     }
     
-    public override func inspectSelected(_ selection: Set<T.ID>, mode: InspectionMode, on: [T], warning: WarningManifest) {
+    public override func inspectSelected(_ selection: Set<T.ID>, mode: InspectionMode, on: [T], warning: SelectionWarningManifest) {
         guard !selection.isEmpty else { warning.warning = .noneSelected; return }
         guard let first = selection.first, selection.count == 1 else { warning.warning = .tooMany; return }
         
@@ -138,7 +138,7 @@ public struct GeneralIEToolbarButton<T> : CustomizableToolbarContent where T: Id
     ///     - warning: The `WarningManifest`used to singal errors to the parent view.
     ///     - role: The kind of button this should be. This should never be `InspectionMode.add`. It will define what kind of signal this will send to the `InspectionManifest<T>`, and what the label/icon will be.
     ///     - placement: The placement of the toolbar button.
-    public init(on: [T], selection: Binding<Set<T.ID>>, inspect: InspectionManifest<T>, warning: WarningManifest, role: InspectionMode, placement: ToolbarItemPlacement = .automatic) {
+    public init(on: [T], selection: Binding<Set<T.ID>>, inspect: InspectionManifest<T>, warning: SelectionWarningManifest, role: InspectionMode, placement: ToolbarItemPlacement = .automatic) {
         self.on = on;
         self._selection = selection;
         self.inspect = inspect
@@ -149,7 +149,7 @@ public struct GeneralIEToolbarButton<T> : CustomizableToolbarContent where T: Id
     
     private let on: [T];
     private let inspect: InspectionManifest<T>;
-    private let warning: WarningManifest;
+    private let warning: SelectionWarningManifest;
     private let role: InspectionMode
     private var placement: ToolbarItemPlacement = .automatic
     @Binding private var selection: Set<T.ID>;

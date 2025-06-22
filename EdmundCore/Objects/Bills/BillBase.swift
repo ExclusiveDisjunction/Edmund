@@ -9,8 +9,45 @@ import SwiftData
 import SwiftUI
 import Foundation
 
+/// An identifier that can be used for any `BillBase`.
+public struct BillBaseID : Hashable, Equatable, RawRepresentable {
+    public init(name: String, company: String, location: String?) {
+        self.name = name
+        self.company = company
+        self.location = location
+    }
+    public init?(rawValue: String) {
+        let split = rawValue.split(separator: ".").map { $0.trimmingCharacters(in: .whitespaces) };
+        guard split.count == 3 else { return nil }
+        guard !split[0].isEmpty && !split[1].isEmpty else { return nil } //The last part can be empty
+        
+        self.name = split[0]
+        self.company = split[1]
+        self.location = split[2].isEmpty ? nil : split[2]
+    }
+    
+    /// The name of the bill
+    public let name: String;
+    /// The name of the company the bill comes from
+    public let company: String;
+    /// An optional location where that bill origionates. Think an electric bill.
+    public let location: String?;
+    public var rawValue: String {
+        "\(name).\(company).\(location ?? String())"
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(company)
+        hasher.combine(location)
+    }
+    public static func ==(lhs: BillBaseID, rhs: BillBaseID) -> Bool {
+        lhs.name == rhs.name && lhs.company == rhs.company && lhs.location == rhs.location
+    }
+}
+
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-public protocol BillBase : Identifiable<String>, AnyObject, NamedInspectableElement, NamedEditableElement {
+public protocol BillBase : Identifiable<BillBaseID>, AnyObject, NamedInspectableElement, NamedEditableElement {
     /// The name of the bill.
     var name: String { get set }
     /// The start date of the bill. This is used to compute the upcoming dates.
@@ -107,44 +144,6 @@ public extension BillBase {
     func pricePer(_ period: TimePeriods) -> Decimal {
         self.amount * self.period.conversionFactor(period)
     }
-    
-    /// Determines if the values stored in the class are valid.
-    var isValid: Bool {
-        var list = Set<InvalidBillFields>();
-        return Self.validate(name: name, startDate: startDate, endDate: endDate, company: company, location: location, invalid: &list)
-    }
-    /// Determines if the passed values are valid. If any field is invalid, this will return `false`, and `invalid` will include the invalid fields.
-    static func validate(name: String, startDate: Date, endDate: Date?, company: String, location: String?, invalid: inout Set<InvalidBillFields>) -> Bool {
-        invalid.removeAll()
-        
-        if name.isEmpty { invalid.insert(.name) }
-        if company.isEmpty { invalid.insert(.company) }
-        if location?.isEmpty ?? false { invalid.insert(.location) }
-        if let endDate = endDate {
-            if startDate >= endDate { invalid.insert(.dates) }
-        }
-        
-        return invalid.isEmpty
-    }
-    
-    /// Updates the values from a specific other instance.
-    func update(_ from: any BillBase) {
-        self.name = from.name
-        self.startDate = from.startDate
-        self.endDate = from.endDate
-        self.period = from.period
-    }
-    /// Updates the value from a snapshot value.
-    func update(_ from: BillBaseSnapshot) {
-        self.name = from.name
-        self.startDate = from.startDate
-        self.endDate = from.hasEndDate ? from.endDate : nil
-        self.period = from.period
-        self.company = from.company
-        self.location = from.hasLocation ? from.location : nil
-        self.notes = from.notes
-        self.autoPay = from.autoPay
-    }
 }
 /// Since SwiftUI does not allow direct access of `any BillBase`, this will allow for defined, identifable access.
 /// Use this structure to store `any BillBase`, allowing for selection, inspection, and abstract deleting.
@@ -173,7 +172,7 @@ public struct BillBaseWrapper : Identifiable, Queryable {
 
 /// The snapshot for `any BillBase`. This is used inside `BillSnapshot` and `UtilitySnapshot` to simplify the process.
 @Observable
-public class BillBaseSnapshot: Identifiable, Hashable, Equatable {
+public class BillBaseSnapshot: Hashable, Equatable {
     /// Constructs a snapshot around an instance of a `BillBase`.
     init<T>(_ from: T) where T: BillBase {
         self.name = from.name
@@ -186,31 +185,67 @@ public class BillBaseSnapshot: Identifiable, Hashable, Equatable {
         self.location = from.location ?? String()
         self.notes = from.notes
         self.autoPay = from.autoPay;
-        self.id = UUID()
     }
     
-    public var id: UUID;
+    /// The name of the bill
     public var name: String;
+    /// The bill's start date
     public var startDate: Date;
     /// When true, the snapshot will fill the `endDate` property to the `self.endDate` value. However, if false, `endDate` will be `nil`.
     public var hasEndDate: Bool;
+    /// The bill's end date
     public var endDate: Date;
+    /// The bill's period
     public var period: TimePeriods;
+    /// The company the bill is with
     public var company: String;
     /// When true, the snapshot will fill the `location` property to the `self.location` value. However, if false, `location` will be `nil`. 
     public var hasLocation: Bool;
+    /// The location of the bill (like apartment)
     public var location: String;
+    /// Any notes about the bill
     public var notes: String;
+    /// If the bill has autopay setup or not
     public var autoPay: Bool;
     
-    /// The errors present in the snapshot.
-    internal var errors = Set<InvalidBillFields>();
-    
-    /// Determines if the current values are valid.
-    public var isValid: Bool {
-        Bill.validate(name: name, startDate: startDate, endDate: hasEndDate ? endDate : nil, company: company, location: hasLocation ? location : nil, invalid: &errors)
+    /// Validates the bill with its current information.
+    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        var result: [ValidationFailure] = []
+        
+        let name = name.trimmingCharacters(in: .whitespaces)
+        let company = company.trimmingCharacters(in: .whitespaces)
+        let location = location.trimmingCharacters(in: .whitespaces)
+        let id = BillBaseID(name: name, company: company, location: hasLocation ? location : nil)
+        
+        if !unique.bill(id: id, action: .validate) { result.append(.unique(Bill.identifiers)) }
+        
+        if name.isEmpty { result.append(.empty("Name")) }
+        if company.isEmpty { result.append(.empty("Company")) }
+        if hasLocation && location.isEmpty { result.append(.empty("Location")) }
+        
+        if hasEndDate && endDate < startDate { result.append(.invalidInput("End Date")) }
+        
+        return result;
     }
-    
+    /// Applies data to a specific `BillBase` instance.
+    internal func apply<T>(to: T, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) where T: BillBase {
+        let name = name.trimmingCharacters(in: .whitespaces)
+        let company = company.trimmingCharacters(in: .whitespaces)
+        let location = location.trimmingCharacters(in: .whitespaces)
+        let id = BillBaseID(name: name, company: company, location: hasLocation ? location : nil)
+        
+        guard unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+        
+        to.name = name
+        to.company = company
+        to.location = hasLocation ? location : nil
+        to.startDate = startDate
+        to.endDate = hasEndDate ? endDate : nil
+        to.period = period
+        to.notes = notes
+        to.autoPay = autoPay
+    }
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
         hasher.combine(startDate)
@@ -224,15 +259,6 @@ public class BillBaseSnapshot: Identifiable, Hashable, Equatable {
     public static func ==(lhs: BillBaseSnapshot, rhs: BillBaseSnapshot) -> Bool {
         lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.endDate == rhs.endDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.location == rhs.location && lhs.notes == rhs.notes && lhs.autoPay == rhs.autoPay
     }
-
-    public func apply<T>(_ to: T) where T: BillBase {
-        to.update(self)
-    }
-}
-
-/// A protocol that enforces that `BillSnapshot` and `UtilitySnapshot` are both `ElementSnapshot`, and contain an instance of `BillBaseSnapshot` for simplification.
-public protocol BillBaseSnapshotKind : ElementSnapshot {
-    var base: BillBaseSnapshot { get }
 }
 
 /// A type used to store information about an upcoming bill. This is computed from a specific date, and will showcase the bills basic information.

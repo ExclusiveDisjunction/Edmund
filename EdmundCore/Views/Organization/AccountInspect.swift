@@ -18,7 +18,7 @@ public struct AccountInspect : View, ElementInspectorView {
     
     private var data: Account;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    @State private var selectedChild: String?;
+    @State private var selectedChild: SubAccount.ID?;
     
 #if os(macOS)
     private let labelMinWidth: CGFloat = 80;

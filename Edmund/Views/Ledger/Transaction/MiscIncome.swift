@@ -28,38 +28,43 @@ struct MiscIncome: TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError")
-            return false
+            return [.internalError]
         }
         
-        guard let destination = account, !person.isEmpty else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+        var result: [ValidationFailure] = [];
+        
+        let person = person.trimmingCharacters(in: .whitespaces)
+        if person.isEmpty {
+            result.append(.empty("Person"))
         }
         
-        guard amount > 0 else {
-            warning.warning = .init(message: "negativeAmount")
-            return false;
+        if amount < 0 {
+            result.append(.negativeAmount("Amount"))
         }
-    
-        let name = "Misc. Income from \(person)";
-        let company = "Bank";
-        let category = categories.payments.gift;
         
-        let transaction = LedgerEntry(
-            name: name,
-            credit: amount,
-            debit: 0,
-            date: date,
-            location: company,
-            category: category,
-            account: destination
-        );
-        modelContext.insert(transaction);
-        
-        return true;
+        if let destination = account {
+            let name = "Misc. Income from \(person)";
+            let company = "Bank";
+            let category = categories.payments.gift;
+            
+            let transaction = LedgerEntry(
+                name: name,
+                credit: amount,
+                debit: 0,
+                date: date,
+                location: company,
+                category: category,
+                account: destination
+            );
+            modelContext.insert(transaction);
+            return nil;
+        }
+        else {
+            result.append(.empty("Account"))
+            return result;
+        }
     }
 
     var body: some View {

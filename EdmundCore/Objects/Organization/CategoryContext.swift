@@ -6,6 +6,7 @@
 //
 
 import SwiftData
+import SwiftUI
 
 public protocol CategoriesHolderBasis {
     init?(context: ModelContext, from: Category?)
@@ -167,4 +168,15 @@ public class CategoriesContext {
     public var accountControl: AccountControlCategories;
     public var payments: PaymentsCategories;
     public var bills: BillPaymentsCategories;
+}
+
+private struct CategoriesContextKey: EnvironmentKey {
+    static let defaultValue: CategoriesContext? = nil
+}
+
+extension EnvironmentValues {
+    public var categoriesContext: CategoriesContext? {
+        get { self[CategoriesContextKey.self] }
+        set { self[CategoriesContextKey.self] = newValue }
+    }
 }

@@ -15,7 +15,7 @@ struct AllJobsViewEdit : View {
     
     @Bindable private var inspect: InspectionManifest<TraditionalJobWrapper> = .init();
     @Bindable private var deleting: DeletingManifest<TraditionalJobWrapper> = .init();
-    @Bindable private var warning = WarningManifest();
+    @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;

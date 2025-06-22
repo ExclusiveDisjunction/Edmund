@@ -28,8 +28,10 @@ public protocol TypeTitled {
     static var typeDisplay : TypeTitleStrings { get }
 }
 
+public protocol ElementBase : AnyObject, Identifiable, TypeTitled { }
+
 /// Represents a data type that can be inspected with a dedicated view.
-public protocol InspectableElement : AnyObject, Identifiable, TypeTitled {
+public protocol InspectableElement : ElementBase {
     /// The associated view that can be used to inspect the properties of the object.
     associatedtype InspectorView: ElementInspectorView where InspectorView.For == Self;
 }
@@ -39,7 +41,7 @@ public protocol NamedInspectableElement : InspectableElement {
     var name: String { get }
 }
 /// Represents a data type that can be editied with a dedicated view.
-public protocol EditableElement : AnyObject, Identifiable, TypeTitled {
+public protocol EditableElement : ElementBase {
     /// The associated view that can be used to edit the properties of the object.
     associatedtype EditView: ElementEditorView where EditView.For == Self;
     /// An observable class that is used to hold editable values of the object.
@@ -51,73 +53,6 @@ public protocol NamedEditableElement : EditableElement {
     var name: String { get set }
 }
 
-public enum ValidationFailure: Identifiable {
-    case unique([ElementIdentifer])
-    case empty(LocalizedStringKey)
-    case negativeAmount(LocalizedStringKey)
-    case tooLargeAmount(LocalizedStringKey)
-    case tooSmallAmount(LocalizedStringKey)
-    case invalidInput(LocalizedStringKey)
-    
-    public var id: Int {
-        switch self {
-            case .unique(_): 1
-            case .empty(_): 2
-            case .negativeAmount(_): 3
-            case .tooLargeAmount(_): 4
-            case .tooSmallAmount(_): 5
-            case .invalidInput(_): 6
-        }
-    }
-    
-    @ViewBuilder
-    public var display: some View {
-        switch self {
-            case .unique(let elements):
-                if let first = elements.first, elements.count == 1 {
-                    HStack {
-                        Text(first.name)
-                        Text("must be unique", comment: "[property] must be unique")
-                    }
-                }
-                else {
-                    VStack {
-                        Text("The following properties must be unique together:")
-                        ForEach(elements, id: \.id) { element in
-                            Text("\t")
-                            Text(element.name)
-                        }
-                    }
-                }
-            case .empty(let key):
-                HStack {
-                    Text(key)
-                    Text("is empty")
-                }
-            case .negativeAmount(let key):
-                HStack {
-                    Text(key)
-                    Text("cannot be negative")
-                }
-            case .tooLargeAmount(let key):
-                HStack {
-                    Text(key)
-                    Text("is too large")
-                }
-            case .tooSmallAmount(let key):
-                HStack {
-                    Text(key)
-                    Text("is too small")
-                }
-            case .invalidInput(let key):
-                HStack {
-                    Text(key)
-                    Text("is invalid")
-                }
-        }
-    }
-}
-
 /// Represents a class that can be used to hold the values of an element for editing.
 public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
     /// The data type this holds data for.
@@ -127,7 +62,9 @@ public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Ide
     init(_ from: Host);
     
     /// Sets the host's values to the current values.
-    func apply(_ to: Host, context: ModelContext, unique: UniqueEngine);
+    /// This is allowed to throw `UniqueFailureError<Host.ID>` if registering in the unique engine fails.
+    /// This should not happen in good practice, but must be explored just in case.
+    func apply(_ to: Host, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<Host.ID>);
     /// Determines if the current values are acceptable to display to the user.
     func validate(unique: UniqueEngine) -> [ValidationFailure];
 }

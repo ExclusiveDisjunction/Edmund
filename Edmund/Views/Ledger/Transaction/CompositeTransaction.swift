@@ -49,17 +49,14 @@ struct CompositeTransaction : TransactionEditorProtocol {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     func computeWorking() -> Decimal? {
-        let split = working.split(separator: ",");
-        let trimmed = split.map { $0.trimmingCharacters(in: .whitespaces) };
+        let split = working.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.map { $0.isEmpty ? Decimal() : Decimal(string: $0) };
         
-        guard !trimmed.isEmpty else {
-            return 0.0;
+        guard !split.isEmpty else {
+            return Decimal()
         }
         
-        let trans = trimmed.map({ $0.isEmpty ? Decimal() : Decimal(string: $0) } );
-        
         var result: Decimal = 0;
-        for item in trans {
+        for item in split {
             guard let item = item else {
                 return nil;
             }

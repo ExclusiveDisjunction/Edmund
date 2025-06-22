@@ -17,19 +17,21 @@ struct BatchTransactions: TransactionEditorProtocol {
     private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     func apply() -> Bool {
         var result: [LedgerEntry] = [];
         for snapshot in snapshots {
-            if !snapshot.validate() {
+            let validation = snapshot.validate(unique: uniqueEngine);
+            if !validation.isEmpty {
                 warning.warning = .init(message: "emptyFields")
                 return false;
             }
             
             let entry = LedgerEntry();
-            snapshot.apply(entry, context: modelContext)
+            snapshot.apply(entry, context: modelContext, unique: uniqueEngine)
             
             result.append(entry)
         }

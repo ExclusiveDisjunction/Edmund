@@ -10,7 +10,7 @@ import Foundation
 
 /// A hourly job taken at a company
 @Model
-public final class HourlyJob : Identifiable, InspectableElement, EditableElement, UniqueElement, TraditionalJob {
+public final class HourlyJob : InspectableElement, EditableElement, UniqueElement, TraditionalJob {
     public typealias InspectorView = HourlyJobInspect
     public typealias EditView = HourlyJobEdit
     public typealias Snapshot = HourlyJobSnapshot
@@ -28,18 +28,8 @@ public final class HourlyJob : Identifiable, InspectableElement, EditableElement
         self.taxRate = taxRate
     }
     
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Hourly Job",
-            plural:   "Hourly Jobs",
-            inspect:  "Inspect Hourly Job",
-            edit:     "Edit Hourly Job",
-            add:      "Add Hourly Job"
-        )
-    }
-    
-    public var id: String {
-        "\(company).\(position)"
+    public var id: TraditionalJobID {
+        .init(company: company, position: position)
     }
     public var company: String;
     public var position: String;
@@ -53,59 +43,66 @@ public final class HourlyJob : Identifiable, InspectableElement, EditableElement
         hourlyRate * avgHours
     }
     
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Hourly Job",
+            plural:   "Hourly Jobs",
+            inspect:  "Inspect Hourly Job",
+            edit:     "Edit Hourly Job",
+            add:      "Add Hourly Job"
+        )
+    }
     public static var identifiers: [ElementIdentifer] {
         [ .init(name: "Company"), .init(name: "Position") ]
+    }
+    public func removeFromEngine(unique: UniqueEngine) -> Bool {
+        unique.job(id: self.id, action: .remove)
     }
 }
 
 @Observable
-public final class HourlyJobSnapshot : Identifiable, Equatable, Hashable, ElementSnapshot {
-    public init() {
-        self.company = "";
-        self.position = ""
+public final class HourlyJobSnapshot : TraditionalJobSnapshot, ElementSnapshot {
+    public override init() {
         self.hourlyRate = .init(rawValue: 0.0);
         self.avgHours = 0.0;
-        self.taxRate = 0.0;
+        
+        super.init()
     }
     public init(_ from: HourlyJob) {
-        self.company = from.company
-        self.position = from.position
         self.hourlyRate = .init(rawValue: from.hourlyRate)
         self.avgHours = from.avgHours
-        self.taxRate = from.taxRate;
-    }
-    public func apply(_ to: HourlyJob, context: ModelContext) {
-        to.company = self.company
-        to.position = self.position
-        to.avgHours = self.avgHours
-        to.hourlyRate = self.hourlyRate.rawValue
-        to.taxRate = self.taxRate
+        
+        super.init(from)
     }
     
     public typealias Host = HourlyJob
     
-    public var company: String;
-    public var position: String;
+    /// The hourly rate of the job
     public var hourlyRate: CurrencyValue;
+    /// The average number of hours the job has
     public var avgHours: Decimal;
-    public var taxRate: Decimal;
     
-    public func validate() -> Bool {
-        let company  = self.company.trimmingCharacters(in: .whitespaces);
-        let position = self.position.trimmingCharacters(in: .whitespaces);
+    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        var result = super.validate(unique: unique);
         
+        if hourlyRate < 0 { result.append(.negativeAmount("Hourly Rate")) }
+        if avgHours < 0 { result.append(.negativeAmount("Average Hours")) }
         
-        !self.company.trimmingCharacters(in: .whitespaces).isEmpty && !self.position.trimmingCharacters(in: .whitespaces).isEmpty  && hourlyRate >= 0 && taxRate >= 0.0 && taxRate < 1.0;
+        return result;
+    }
+    public func apply(_ to: HourlyJob, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<TraditionalJobID>) {
+        try super.apply(to, unique: unique)
+        
+        to.hourlyRate = hourlyRate.rawValue
+        to.avgHours = avgHours
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(company)
-        hasher.combine(position)
+    public override func hash(into hasher: inout Hasher) {
         hasher.combine(hourlyRate)
         hasher.combine(avgHours)
-        hasher.combine(taxRate)
+        super.hash(into: &hasher)
     }
     public static func == (lhs: HourlyJobSnapshot, rhs: HourlyJobSnapshot) -> Bool {
-        lhs.company == rhs.company && lhs.position == rhs.position && lhs.hourlyRate == rhs.hourlyRate && lhs.avgHours == rhs.avgHours && lhs.taxRate == rhs.taxRate
+        (lhs as TraditionalJobSnapshot) == (rhs as TraditionalJobSnapshot) && lhs.hourlyRate == rhs.hourlyRate && lhs.avgHours == rhs.avgHours
     }
 }

@@ -15,7 +15,7 @@ struct AllExpiredBillsVE : View {
     @Bindable private var query: QueryManifest<BillBaseWrapper> = .init(.name)
     @Bindable private var inspect: InspectionManifest<BillBaseWrapper> = .init()
     @Bindable private var deleting: DeletingManifest<BillBaseWrapper> = .init()
-    @Bindable private var warning: WarningManifest = .init()
+    @Bindable private var warning: SelectionWarningManifest = .init()
     @State private var selection: Set<BillBaseWrapper.ID> = [];
     
     @Environment(\.modelContext) private var modelContext;

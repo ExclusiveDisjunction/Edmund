@@ -80,7 +80,7 @@ public struct SelectionContextMenu<T> : View where T: Identifiable {
     /// A handle for deleting objects.
     private let delete: DeletingManifest<T>;
     /// The warning manifest used for alerting about errors.
-    private let warning: WarningManifest;
+    private let warning: SelectionWarningManifest;
     /// The selection provided by the context menu.
     private let selection: Set<T.ID>;
     /// When true, the  "Inspect" menu option is provided.
@@ -95,7 +95,7 @@ public struct SelectionContextMenu<T> : View where T: Identifiable {
     ///     - delete: The `DeletingManifest<T>` used to signal to the parent view that the element is being removed.
     ///     - warning: The `WarningManifest` used to signal to the parent view that something is wrong.
     ///     - canView: When true, inspection is allowed.
-    public init(_ sel: Set<T.ID>, data: [T], inspect: InspectionManifest<T>, delete: DeletingManifest<T>, warning: WarningManifest, canView: Bool = true) {
+    public init(_ sel: Set<T.ID>, data: [T], inspect: InspectionManifest<T>, delete: DeletingManifest<T>, warning: SelectionWarningManifest, canView: Bool = true) {
         self.selection = sel
         self.data = data
         self.inspect = inspect

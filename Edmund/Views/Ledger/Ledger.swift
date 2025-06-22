@@ -12,13 +12,13 @@ import EdmundCore;
 struct LedgerTable: View {
     @Query(sort: [
         SortDescriptor(\LedgerEntry.date, order: .reverse),
-        SortDescriptor(\LedgerEntry.added_on, order: .reverse)
+        SortDescriptor(\LedgerEntry.addedOn, order: .reverse)
     ]) var data: [LedgerEntry];
     
     @State private var selected = Set<LedgerEntry.ID>();
     @State private var transKind: TransactionKind?;
     
-    @Bindable private var warning: WarningManifest = .init();
+    @Bindable private var warning: SelectionWarningManifest = .init();
     @Bindable private var inspect: InspectionManifest<LedgerEntry> = .init();
     @Bindable private var deleting: DeletingManifest<LedgerEntry> = .init();
     

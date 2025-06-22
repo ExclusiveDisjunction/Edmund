@@ -75,7 +75,7 @@ public struct LedgerEntryInspect : ElementInspectorView {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
-                    Text(target.added_on.formatted(date: .abbreviated, time: .shortened))
+                    Text(target.addedOn.formatted(date: .abbreviated, time: .shortened))
                     Spacer()
                 }
             }
