@@ -101,7 +101,7 @@ struct LedgerTable: View {
         if horizontalSizeClass != .compact {
             GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
             
-            GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .view, placement: .primaryAction)
+            GeneralIEToolbarButton(on: data, selection: $selected, inspect: inspect, warning: warning, role: .inspect, placement: .primaryAction)
         }
         
         GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)

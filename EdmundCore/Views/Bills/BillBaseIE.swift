@@ -11,7 +11,7 @@ import SwiftUI
 /// A collection of common rows used for `BillInspect` and `UtilityInspect`, specifically for inspection.
 struct BillBaseInspect : View {
     /// The target value to inspect
-    var target: any BillBase
+    var target: BillBase
     /// The minimum column width used by the labels.
     let minWidth: CGFloat;
     /// The maximum column width used by the labels.

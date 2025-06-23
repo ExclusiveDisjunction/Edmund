@@ -109,7 +109,7 @@ struct AllJobsViewEdit : View {
         if horizontalSizeClass != .compact {
             GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
             
-            GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspect, warning: warning, role: .view, placement: .primaryAction)
+            GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspect, warning: warning, role: .inspect, placement: .primaryAction)
         }
         
         GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: deleting, warning: warning, placement: .primaryAction)

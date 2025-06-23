@@ -17,9 +17,9 @@ public struct AccountInspect : View, ElementInspectorView {
     }
     
     private var data: Account;
+    @State private var showSubAccounts = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    @State private var selectedChild: SubAccount.ID?;
-    
+        
 #if os(macOS)
     private let labelMinWidth: CGFloat = 80;
     private let labelMaxWidth: CGFloat = 90;
@@ -30,97 +30,92 @@ public struct AccountInspect : View, ElementInspectorView {
     
     public var body: some View {
         ScrollView {
-            VStack {
-                Grid {
-                    GridRow {
-                        Text("Name:")
-                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                        
-                        HStack {
-                            Text(data.name)
-                            Spacer()
-                        }
-                    }
+            Grid {
+                GridRow {
+                    Text("Name:")
+                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                     
-                    GridRow {
-                        Text("Kind:")
-                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                        
-                        HStack {
-                            Text(data.kind.display)
-                            Spacer()
-                        }
-                    }
-                    
-                    GridRow {
-                        Text("Credit Limit:")
-                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                        
-                        HStack {
-                            if let creditLimit = data.creditLimit {
-                                Text(creditLimit, format: .currency(code: currencyCode))
-                            }
-                            else {
-                                Text("No credit limit")
-                                    .italic()
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    
-                    GridRow {
-                        Text("Interest:")
-                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                        
-                        HStack {
-                            if let interest = data.interest {
-                                Text(interest, format: .percent.precision(.fractionLength(3)))
-                            }
-                            else {
-                                Text("No interest")
-                                    .italic()
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    
-                    GridRow {
-                        Text("Location:")
-                            .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                        
-                        HStack {
-                            if let location = data.location {
-                                Text(location)
-                            }
-                            else {
-                                Text("No location")
-                                    .italic()
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    
-                    if data.children != nil {
-                        Divider()
-                        
-                        GridRow {
-                            Text("Sub Accounts:")
-                                .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                            
-                            Text("")
-                        }
+                    HStack {
+                        Text(data.name)
+                        Spacer()
                     }
                 }
                 
-                if let children = data.children {
-                    Table(children, selection: $selectedChild) {
-                        TableColumn("Name", value: \.name)
+                GridRow {
+                    Text("Kind:")
+                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(data.kind.display)
+                        Spacer()
                     }
-                    .frame(minHeight: 200)
                 }
+                
+                GridRow {
+                    Text("Credit Limit:")
+                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        if let creditLimit = data.creditLimit {
+                            Text(creditLimit, format: .currency(code: currencyCode))
+                        }
+                        else {
+                            Text("No credit limit")
+                                .italic()
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Interest:")
+                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        if let interest = data.interest {
+                            Text(interest, format: .percent.precision(.fractionLength(3)))
+                        }
+                        else {
+                            Text("No interest")
+                                .italic()
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Location:")
+                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        if let location = data.location {
+                            Text(location)
+                        }
+                        else {
+                            Text("No location")
+                                .italic()
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("")
+                    
+                    HStack {
+                        Button("Sub Accounts") {
+                            showSubAccounts = true;
+                        }
+                        Spacer()
+                    }
+                    
+                }
+            }.sheet(isPresented: $showSubAccounts) {
+                SubAccountsInspect(children: data.children)
+                    .padding()
             }
         }
     }

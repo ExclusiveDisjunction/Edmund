@@ -153,7 +153,7 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
 }
 
 #Preview {
-    let provider = QueryManifest<BillBaseWrapper>(.name);
+    let provider = QueryManifest<BillBase>(.name);
     QueryPopout(provider: provider, isSheet: false)
         .modelContainer(Containers.debugContainer)
 }

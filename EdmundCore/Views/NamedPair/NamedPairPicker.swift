@@ -36,7 +36,7 @@ public struct NamedPairPicker<C> : View where C: BoundPair, C: PersistentModel, 
                     .tag(nil as C?)
                 
                 if let parent = selectedParent {
-                    ForEach(parent.children ?? [], id: \.id) { child in
+                    ForEach(parent.children, id: \.id) { child in
                         Text(child.name)
                             .tag(child as C?)
                     }

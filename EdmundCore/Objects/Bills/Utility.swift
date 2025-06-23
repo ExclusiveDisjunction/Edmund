@@ -11,7 +11,7 @@ import Foundation;
 
 /// Represents a variable-cost bill
 @Model
-public final class Utility: BillBase, NamedInspectableElement, NamedEditableElement, UniqueElement {
+public final class Utility: BillBase, NamedInspectableElement, NamedEditableElement {
     public typealias InspectorView = UtilityInspect
     public typealias EditView = UtilityEdit
     public typealias Snapshot = UtilitySnapshot
@@ -22,34 +22,16 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
     }
     /// Creates the utility with all fields
     public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
-        self.name = name
-        self.startDate = start
-        self.endDate = end
-        self.rawPeriod = period.rawValue
         self.children = amounts
-        self.company = company
-        self.location = location
+        
+        super.init(name: name, startDate: start, endDate: end, period: period, company: company, location: location)
     }
     
-    public var id: BillBaseID {
-        .init(name: name, company: company, location: location)
-    }
-    public var name: String = "";
-    public var startDate: Date = Date.now;
-    public var endDate: Date? = nil;
-    public var company: String = "";
-    public var location: String? = nil;
-    public var notes: String = "";
-    public var destination: SubAccount? = nil;
-    public var autoPay: Bool = true;
-    
-    /// The period as a raw value
-    private var rawPeriod: Int = 0;
     /// The associated instances of being charged for this bill
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent)
     public var children: [UtilityEntry]? = nil;
     
-    public var amount: Decimal {
+    public override var amount: Decimal {
         if let children = children {
             children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
         }
@@ -57,12 +39,8 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
             Decimal.nan
         }
     }
-    public var kind: BillsKind {
+    public override var kind: BillsKind {
         .utility
-    }
-    public var period: TimePeriods {
-        get { TimePeriods(rawValue: rawPeriod)! }
-        set { rawPeriod = newValue.rawValue }
     }
     
     public static var typeDisplay : TypeTitleStrings {
@@ -73,12 +51,6 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
             edit:     "Edit Utility",
             add:      "Add Utility"
         )
-    }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
-    }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.bill(id: self.id, action: .remove)
     }
     
     /// Example utilities that can be used to show UI filler.

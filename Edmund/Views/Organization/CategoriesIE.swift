@@ -20,7 +20,7 @@ struct CategoryTableRow : Identifiable, Parentable {
         self.id = UUID();
         self.target = category;
         self.name = category.name;
-        self.children = category.children?.map { Self(subCategory: $0) }
+        self.children = category.children.map { Self(subCategory: $0) }
     }
     
     let target: any InspectableElement
@@ -81,7 +81,7 @@ struct CategoriesIE : View {
             
                 GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
                 
-                GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .view, placement: .primaryAction)
+                GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
                 
                 GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
             }.task { refresh() }

@@ -55,7 +55,7 @@ public struct BoundPairChildEdit<T> : ElementEditorView where T: BoundPair, T.Sn
 }
 
 #Preview {
-    let child = Account.exampleAccounts[0].children![0]
+    let child = Account.exampleAccounts[0].children[0]
     
     ElementEditor(child, adding: false).modelContainer(Containers.debugContainer)
 }

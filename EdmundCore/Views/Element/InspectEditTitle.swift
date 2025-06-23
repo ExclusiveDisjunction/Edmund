@@ -9,7 +9,7 @@ import SwiftUI
 
 /// A simplification of the title used for the various Inspector and Editor views.
 public struct InspectEditTitle<T> : View where T: TypeTitled {
-    public init(mode: InspectionMode = .view) {
+    public init(mode: InspectionMode = .inspect) {
         self.mode = mode
     }
     

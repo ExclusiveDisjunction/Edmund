@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 public enum BillsKind : Int, Filterable, Equatable, Codable, Hashable {
-    public typealias On = BillBaseWrapper
+    public typealias On = BillBase
     
     case subscription = 0
     case bill = 1
@@ -33,8 +33,8 @@ public enum BillsKind : Int, Filterable, Equatable, Codable, Hashable {
         }
     }
     
-    public func accepts(_ val: BillBaseWrapper) -> Bool {
-        val.data.kind == self
+    public func accepts(_ val: BillBase) -> Bool {
+        val.kind == self
     }
     
     public static func <(lhs: BillsKind, rhs: BillsKind) -> Bool {
@@ -45,7 +45,7 @@ public enum BillsKind : Int, Filterable, Equatable, Codable, Hashable {
     }
 }
 public enum BillsSort : Sortable {
-    public typealias On = BillBaseWrapper;
+    public typealias On = BillBase;
     
     case name, amount, kind
     
@@ -65,11 +65,11 @@ public enum BillsSort : Sortable {
         }
     }
     
-    public func compare(_ lhs: BillBaseWrapper, _ rhs: BillBaseWrapper, _ ascending: Bool) -> Bool {
+    public func compare(_ lhs: BillBase, _ rhs: BillBase, _ ascending: Bool) -> Bool {
         switch self {
-            case .name: ascending ? lhs.data.name < rhs.data.name : lhs.data.name > rhs.data.name
-            case .amount: ascending ? lhs.data.amount > rhs.data.amount : lhs.data.amount < rhs.data.amount
-            case .kind: ascending ? lhs.data.kind < rhs.data.kind : lhs.data.kind > rhs.data.kind
+            case .name: ascending ? lhs.name < rhs.name : lhs.name > rhs.name
+            case .amount: ascending ? lhs.amount > rhs.amount : lhs.amount < rhs.amount
+            case .kind: ascending ? lhs.kind < rhs.kind : lhs.kind > rhs.kind
         }
     }
 }
