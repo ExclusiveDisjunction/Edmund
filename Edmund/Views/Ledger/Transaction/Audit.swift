@@ -12,22 +12,19 @@ struct Audit: TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
     @State private var date: Date = .now;
     @State private var amount: Decimal = 0;
-    private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> Bool {
-        guard let account = account else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+    func apply() -> [ValidationFailure]? {
+        guard let categories = categoriesContext else {
+            return [.internalError]
         }
         
-        guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError")
-            return false
+        guard let account = account else {
+            return [.empty("Account")]
         }
         
         let transaction = LedgerEntry(
@@ -41,11 +38,11 @@ struct Audit: TransactionEditorProtocol {
         );
         
         modelContext.insert(transaction);
-        return true;
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.audit, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.audit, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Account:")

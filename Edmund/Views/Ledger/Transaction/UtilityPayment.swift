@@ -11,15 +11,16 @@ import EdmundCore;
 
 struct UtilityPayment : TransactionEditorProtocol {
     @Query private var utilities: [Utility];
+    
     @Environment(\.categoriesContext) private var categoriesContext;
     @Environment(\.modelContext) private var modelContext;
     
     @State private var selected: Utility?;
     @State private var account: SubAccount?;
-    @State private var amount: Decimal = 0.0;
     @State private var date: Date = .now;
     @State private var doStore: Bool = true;
     @State private var cache: [Utility] = [];
+    @Bindable private var amount: CurrencyValue = .init();
     private var warning = StringWarningManifest();
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -28,21 +29,20 @@ struct UtilityPayment : TransactionEditorProtocol {
         cache = utilities.filter { !$0.isExpired }.sorted(by: { $0.name < $1.name } )
     }
     
-    func apply() -> Bool {
-        guard let target = selected, let account = account else {
-            print("Aborting because the target \(selected == nil) or account \(account == nil) is nil ")
-            warning.warning = .init(message: "Please fill in all fields");
-            return false;
-        }
-        
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError");
-            return false;
+            return [.internalError]
         }
         
+        let amount = amount.rawValue;
         guard amount >= 0 else {
-            warning.warning = .init(message: "The amount cannot be negative");
-            return false;
+            return [.negativeAmount("Amount")]
+        }
+        guard let target = selected else {
+            return [.empty("Selected Utility")]
+        }
+        guard let account = account else {
+            return [.empty("Account")]
         }
         
         let transaction = LedgerEntry(
@@ -64,7 +64,7 @@ struct UtilityPayment : TransactionEditorProtocol {
             modelContext.insert(entry);
         }
         
-        return true;
+        return nil;
     }
     
 #if os(macOS)
@@ -76,48 +76,36 @@ struct UtilityPayment : TransactionEditorProtocol {
 #endif
     
     var body: some View {
-        TransactionEditorFrame(.utilityPay, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.utilityPay, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("For Utility:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        Picker("Utility", selection: $selected) {
-                            Text("Select One", comment: "Select One utility").tag(nil as Utility?)
-                            ForEach(cache, id: \.id) { utility in
-                                Text(utility.name).tag(utility)
-                            }
-                        }.labelsHidden()
-                        Spacer()
-                    }
+                    Picker("Utility", selection: $selected) {
+                        Text("Select One", comment: "Select One utility").tag(nil as Utility?)
+                        ForEach(cache, id: \.id) { utility in
+                            Text(utility.name).tag(utility)
+                        }
+                    }.labelsHidden()
                 }
+                
                 Divider()
+                
                 GridRow {
                     Text("Amount:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        TextField("Amount", value: $amount, format: .currency(code: currencyCode))
-                            .textFieldStyle(.roundedBorder)
-#if os(iOS)
-                            .keyboardType(.decimalPad)
-#endif
-
-                        
-                        Spacer()
-                    }
+                    CurrencyField(amount)
                 }
+                
                 GridRow {
                     Text("From:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        NamedPairPicker($account)
-                        
-                        Spacer()
-                    }
+                    NamedPairPicker($account)
                 }
+                
                 GridRow {
                     Text("Date:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
@@ -131,6 +119,7 @@ struct UtilityPayment : TransactionEditorProtocol {
                         Spacer()
                     }
                 }
+                
                 GridRow {
                     Text("Save Datapoint:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
@@ -138,6 +127,8 @@ struct UtilityPayment : TransactionEditorProtocol {
                     HStack {
                         Toggle("Save", isOn: $doStore)
                             .labelsHidden()
+                        
+                        TooltipButton("When this is on, Edmund will automatically record this transaction in the Utility's data points.")
                         
                         Spacer()
                     }

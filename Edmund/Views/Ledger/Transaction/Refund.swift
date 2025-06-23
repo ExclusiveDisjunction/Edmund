@@ -12,10 +12,9 @@ import EdmundCore
 struct Refund : TransactionEditorProtocol {
     @State private var company: String = "";
     @State private var reason: String = "";
-    @State private var amount: Decimal = 0;
     @State private var date: Date = Date.now;
     @State private var account: SubAccount? = nil;
-    private var warning = StringWarningManifest();
+    @Bindable private var amount: CurrencyValue = .init();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
@@ -30,25 +29,32 @@ struct Refund : TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError")
-            return false
+            return [.internalError]
+        }
+        
+        let company = company.trimmingCharacters(in: .whitespaces)
+        let reason = reason.trimmingCharacters(in: .whitespaces)
+        let amount = amount.rawValue;
+        
+        var result: [ValidationFailure] = [];
+        if company.isEmpty {
+            result.append(.empty("Company"))
+        }
+        if reason.isEmpty {
+            result.append(.empty("Reason"))
+        }
+        if amount < 0 {
+            result.append(.negativeAmount("Amount"))
         }
         
         guard let destination = account else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+            return result + [.empty("Account")]
         }
         
-        guard !company.isEmpty && !reason.isEmpty else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
-        }
-        
-        guard amount >= 0 else {
-            warning.warning = .init(message: "negativeAmount")
-            return false;
+        guard result.isEmpty else {
+            return result
         }
         
         let transaction = LedgerEntry(
@@ -62,11 +68,11 @@ struct Refund : TransactionEditorProtocol {
         );
         
         modelContext.insert(transaction);
-        return true;
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.refund, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.refund, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Company:")
@@ -80,11 +86,7 @@ struct Refund : TransactionEditorProtocol {
                     Text("Amount")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
-                        .textFieldStyle(.roundedBorder)
-#if os(iOS)
-                        .keyboardType(.decimalPad)
-#endif
+                    CurrencyField(amount)
                 }
                 
                 GridRow {

@@ -52,11 +52,11 @@ protocol TransactionEditorProtocol : View {
     func apply() -> [ValidationFailure]?;
 }
 
-struct TransactionEditorFrame<Content, WarningKind> : View where Content: View, WarningKind: WarningBasis {
-    init(_ kind: TransactionKind, warning: ValidationWarningManifest, apply: @escaping () -> [ValidationFailure]?, @ViewBuilder content: @escaping () -> Content) {
+struct TransactionEditorFrame<Content> : View where Content: View {
+    init(_ kind: TransactionKind, apply: @escaping () -> [ValidationFailure]?, @ViewBuilder content: @escaping () -> Content) {
         self.kind = kind;
         self.apply = apply;
-        self.warning = warning;
+        self.warning = .init();
         self.content = content;
     }
     

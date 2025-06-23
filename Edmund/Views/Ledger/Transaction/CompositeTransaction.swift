@@ -40,11 +40,14 @@ struct CompositeTransaction : TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    private var warning = StringWarningManifest();
     @State private var mode: Mode = .debit;
     @State private var working: String = "";
+    
     @Bindable private var snapshot = LedgerEntrySnapshot();
+    
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -67,18 +70,17 @@ struct CompositeTransaction : TransactionEditorProtocol {
         return result;
     }
     
-    func apply() -> Bool {
-        guard snapshot.validate() else {
-            warning.warning = .init(message: "Please fix all fields.");
-            return false;
+    func apply() -> [ValidationFailure]? {
+        let snapshotResult = snapshot.validate(unique: uniqueEngine)
+        guard snapshotResult.isEmpty else {
+            return snapshotResult
         }
         
         let newTrans = LedgerEntry();
-        snapshot.apply(newTrans, context: modelContext);
+        snapshot.apply(newTrans, context: modelContext, unique: uniqueEngine);
         
         guard let total = computeWorking() else {
-            warning.warning = .init(message: "Please ensure that the elements are numbers separated by commas.");
-            return false;
+            return [.invalidInput("Costs")]
         }
         
         if mode == .debit {
@@ -89,11 +91,11 @@ struct CompositeTransaction : TransactionEditorProtocol {
         }
         
         modelContext.insert(newTrans)
-        return true
+        return nil;
     }
     
     var body : some View {
-        TransactionEditorFrame(.composite, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.composite, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Memo:")
@@ -155,19 +157,13 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     Text("Expression:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    TextField("", text: $working)
-                        .textFieldStyle(.roundedBorder)
-                    #if os(iOS)
-                        .keyboardType(.decimalPad)
-                    #endif
-                }
-                
-                GridRow {
-                    Text("")
                     HStack {
-                        Text("Please enter the values, separated by commas (',')")
-                            .italic()
-                        Spacer()
+                        TextField("", text: $working)
+                            .textFieldStyle(.roundedBorder)
+#if os(iOS)
+                            .keyboardType(.decimalPad)
+#endif
+                        TooltipButton("Type in numbers, separated by commas. Values are added up.")
                     }
                 }
                 

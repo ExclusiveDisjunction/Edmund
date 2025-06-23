@@ -81,7 +81,7 @@ public class ValidationWarningManifest: BaseWarningManifest<ValidationWarning> {
     public var content: some View {
         if let warning = self.warning {
             VStack {
-                Text("The following errors are present:")
+                Text("Please ensure all fields are filled in and no negative values are used.")
                 ForEach(warning.warnings, id: \.id) { warning in
                     warning.display
                 }

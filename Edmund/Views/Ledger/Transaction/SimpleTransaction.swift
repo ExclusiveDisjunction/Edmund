@@ -11,24 +11,25 @@ import EdmundCore
 
 struct SimpleTransaction : TransactionEditorProtocol {
     private var snapshot = LedgerEntrySnapshot();
-    private var warning = StringWarningManifest();
+    
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.modelContext) private var modelContext;
     
-    func apply() -> Bool {
-        guard snapshot.validate() else {
-            warning.warning = .init(message: "Please fix all fields.");
-            return false;
+    func apply() -> [ValidationFailure]? {
+        let result = snapshot.validate(unique: uniqueEngine)
+        guard result.isEmpty else {
+            return result;
         }
         
         let newTrans = LedgerEntry();
-        snapshot.apply(newTrans, context: modelContext);
+        snapshot.apply(newTrans, context: modelContext, unique: uniqueEngine);
         
         modelContext.insert(newTrans);
-        return true;
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.simple, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.simple, apply: apply, content: {
             LedgerEntry.EditView(snapshot)
         })
     }

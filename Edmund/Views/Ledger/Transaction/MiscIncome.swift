@@ -10,10 +10,9 @@ import EdmundCore
 
 struct MiscIncome: TransactionEditorProtocol {
     @State private var person: String = "";
-    @State private var amount: Decimal = 0;
+    @Bindable private var amount: CurrencyValue = .init();
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
-    private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
@@ -51,7 +50,7 @@ struct MiscIncome: TransactionEditorProtocol {
             
             let transaction = LedgerEntry(
                 name: name,
-                credit: amount,
+                credit: amount.rawValue,
                 debit: 0,
                 date: date,
                 location: company,
@@ -68,7 +67,7 @@ struct MiscIncome: TransactionEditorProtocol {
     }
 
     var body: some View {
-        TransactionEditorFrame(.miscIncome, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.miscIncome, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Date:")
@@ -84,13 +83,7 @@ struct MiscIncome: TransactionEditorProtocol {
                     Text("Amount:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    TextField("Amount", value: $amount, format: .currency(code: currencyCode))
-                        .labelsHidden()
-                        .textFieldStyle(.roundedBorder)
-#if os(iOS)
-                        .keyboardType(.decimalPad)
-#endif
-
+                    CurrencyField(amount)
                 }
                 
                 GridRow {

@@ -9,14 +9,12 @@ import SwiftUI
 import EdmundCore
 
 struct PaydayEditor : TransactionEditorProtocol {
-    var warning = StringWarningManifest();
-    
-    func apply() -> Bool {
-        fatalError("Not implemented")
+    func apply() -> [ValidationFailure]? {
+        return [.internalError]
     }
     
     var body: some View {
-        TransactionEditorFrame(.payday, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.payday, apply: apply, content: {
             Text("Work in progress")
         })
     }

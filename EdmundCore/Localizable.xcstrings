@@ -4,6 +4,9 @@
     "" : {
       "shouldTranslate" : false
     },
+    "\t" : {
+
+    },
     "..." : {
       "localizations" : {
         "en" : {
@@ -16,6 +19,9 @@
       "shouldTranslate" : false
     },
     "(No information)" : {
+
+    },
+    "(No Parent)" : {
 
     },
     "(No parent), %@" : {
@@ -116,6 +122,9 @@
     "Cancel" : {
 
     },
+    "cannot be negative" : {
+
+    },
     "Cash" : {
 
     },
@@ -161,6 +170,9 @@
       }
     },
     "Credit" : {
+
+    },
+    "Credit Limit" : {
 
     },
     "Credit Limit:" : {
@@ -229,7 +241,13 @@
     "End" : {
 
     },
+    "End Date" : {
+
+    },
     "End Date:" : {
+
+    },
+    "Entries" : {
 
     },
     "Error" : {
@@ -245,6 +263,9 @@
 
     },
     "Gross / Net -> Tax Rate" : {
+
+    },
+    "Gross Amount" : {
 
     },
     "Gross Pay" : {
@@ -272,6 +293,9 @@
 
     },
     "Hourly Jobs" : {
+
+    },
+    "Hourly Rate" : {
 
     },
     "Hourly Rate:" : {
@@ -310,8 +334,26 @@
     "Inspect Utility" : {
 
     },
+    "Interest" : {
+
+    },
     "Interest:" : {
       "comment" : "Money interest"
+    },
+    "internalError" : {
+
+    },
+    "is empty" : {
+
+    },
+    "is invalid" : {
+
+    },
+    "is too large" : {
+
+    },
+    "is too small" : {
+
     },
     "Kind" : {
 
@@ -355,6 +397,9 @@
     },
     "Monthly" : {
 
+    },
+    "must be unique" : {
+      "comment" : "[property] must be unique"
     },
     "Name" : {
 
@@ -409,6 +454,9 @@
     "No Location" : {
 
     },
+    "No warnings to report" : {
+
+    },
     "noItems" : {
       "localizations" : {
         "en" : {
@@ -437,7 +485,7 @@
     "Parent Name" : {
 
     },
-    "Please correct fields outlined with red." : {
+    "Please ensure all fields are filled in and no negative values are used." : {
 
     },
     "Position" : {
@@ -541,6 +589,18 @@
 
     },
     "Tax Rate:" : {
+
+    },
+    "The following errors are present:" : {
+
+    },
+    "The following properties must be unique together:" : {
+
+    },
+    "The uniqueness constraint failed for this value. Please cancel the edit and try again." : {
+
+    },
+    "There are one or more errors with the data inputted." : {
 
     },
     "There are unsaved changes, do you wish to continue?" : {

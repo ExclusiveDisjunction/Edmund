@@ -24,17 +24,7 @@ public enum ValidationFailure: Identifiable {
     ///Happens when there is an internal expection that failed
     case internalError
     
-    public var id: Int {
-        switch self {
-            case .unique(_): 1
-            case .empty(_): 2
-            case .negativeAmount(_): 3
-            case .tooLargeAmount(_): 4
-            case .tooSmallAmount(_): 5
-            case .invalidInput(_): 6
-            case .internalError: 7
-        }
-    }
+    public var id: UUID { UUID() }
     
     /// A view that displays what went wrong with the validation failure.
     @ViewBuilder
@@ -82,6 +72,27 @@ public enum ValidationFailure: Identifiable {
                     Text("is invalid")
                 }
             case .internalError: Text("internalError")
+        }
+    }
+}
+
+/// An exception for `ValidationFailure` values.
+public struct ValidationException : Error {
+    public init(_ data: [ValidationFailure]) {
+        self.data = data
+    }
+    
+    /// The failures to present
+    public let data: [ValidationFailure];
+    
+    /// A simple view to encapsulate what has gone wrong.
+    @ViewBuilder
+    public var body: some View {
+        VStack {
+            Text("The following errors are present:")
+            ForEach(data, id: \.id) { warning in
+                warning.display
+            }
         }
     }
 }

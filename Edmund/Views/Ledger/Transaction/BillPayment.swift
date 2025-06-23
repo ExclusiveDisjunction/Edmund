@@ -10,11 +10,31 @@ import SwiftData
 import EdmundCore
 
 struct BillPayment : TransactionEditorProtocol {
-    init(kind: BillsKind) {
+    init(kind: BillsKind)  {
         self.kind = kind;
         
         _bills = Query(filter: BillPayment.predicate(kind: kind), sort: \Bill.name)
     }
+    
+    @Query private var bills: [Bill];
+    
+    private let kind: BillsKind;
+    @State private var selected: Bill? = nil;
+    @State private var date: Date = .now;
+    @State private var account: SubAccount? = nil;
+    
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.categoriesContext) private var categoriesContext;
+    
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+#if os(macOS)
+    let minWidth: CGFloat = 60;
+    let maxWidth: CGFloat = 70;
+#else
+    let minWidth: CGFloat = 70;
+    let maxWidth: CGFloat = 80;
+#endif
     
     private static func predicate(kind: BillsKind) -> Predicate<Bill> {
         let distantFuture = Date.distantFuture;
@@ -25,15 +45,17 @@ struct BillPayment : TransactionEditorProtocol {
         }
     }
     
-    func apply() -> Bool {
-        guard let target = selected, let account = account else {
-            warning.warning = .init(message: "Please fill in all fields");
-            return false;
+    func apply() -> [ValidationFailure]? {
+        guard let categories = categoriesContext else {
+            return [.internalError]
         }
         
-        guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError");
-            return false;
+        guard let target = selected else {
+            return [.empty("Target")]
+        }
+        
+        guard let account = account else {
+            return [.empty("Account")]
         }
         
         let amount = target.amount;
@@ -51,32 +73,11 @@ struct BillPayment : TransactionEditorProtocol {
         );
         
         modelContext.insert(trans);
-        return true;
+        return nil;
     }
     
-#if os(macOS)
-    let minWidth: CGFloat = 60;
-    let maxWidth: CGFloat = 70;
-#else
-    let minWidth: CGFloat = 70;
-    let maxWidth: CGFloat = 80;
-#endif
-    
-    @Query private var bills: [Bill];
-    
-    private let kind: BillsKind;
-    @State private var selected: Bill? = nil;
-    @State private var date: Date = .now;
-    @State private var account: SubAccount? = nil;
-    private var warning = StringWarningManifest();
-    
-    @Environment(\.modelContext) private var modelContext;
-    @Environment(\.categoriesContext) private var categoriesContext;
-    
-    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    
     var body: some View {
-        TransactionEditorFrame(.billPay(kind), warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.billPay(kind), apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Paying:")

@@ -10,19 +10,17 @@ import SwiftData
 import EdmundCore
 
 struct CreditCardTrans: TransactionEditorProtocol {
-    private var warning = StringWarningManifest();
-    
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> Bool {
-        fatalError("not implemented")
+    func apply() -> [ValidationFailure]? {
+        return [.internalError]
     }
     
     var body: some View {
-        TransactionEditorFrame(.creditCard, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.creditCard, apply: apply, content: {
             Text("Work in Progress")
         })
     }

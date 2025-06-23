@@ -12,25 +12,30 @@ struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;
     @State private var account: SubAccount? = nil
     @State private var data: [ManyTableEntry] = [.init()];
-    private var warning = StringWarningManifest();
 
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "noCategories")
-            return false
+            return [.internalError]
         }
         
         guard let source = account else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+            return [.empty("Account")]
         }
         
-        var firstTrans = [
+        let subTrans: [LedgerEntry]
+        do {
+            subTrans = try data.createTransactions(transfer_into: true, categories)
+        }
+        catch let e {
+            return e.data
+        }
+        
+        modelContext.insert(
             LedgerEntry(
                 name: source.name + " to Various",
                 credit: 0,
@@ -40,22 +45,16 @@ struct OneManyTransfer : TransactionEditorProtocol {
                 category: categories.accountControl.transfer,
                 account: source
             )
-        ];
-        guard let new = data.createTransactions(transfer_into: true, categories) else {
-            warning.warning = .init(message: "missingAccount");
-            return false;
-        }
+        );
         
-        firstTrans.append(contentsOf: new);
-        
-        for transaction in firstTrans {
+        for transaction in subTrans {
             modelContext.insert(transaction)
         }
-        return true;
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.transfer(.oneMany), warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.transfer(.oneMany), apply: apply, content: {
             VStack {
                 HStack {
                     Text("Source:", comment: "Account source")

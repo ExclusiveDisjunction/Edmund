@@ -12,27 +12,27 @@ struct ManyOneTransfer : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
     @State private var date: Date = .now;
     @State private var data: [ManyTableEntry] = [.init()];
-    private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError")
-            return false
+            return [.internalError]
         }
         
         guard let destination = account else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+            return [.empty("Account")]
         }
         
-        guard var firstTrans = data.createTransactions(transfer_into: false, categories) else {
-            warning.warning = .init(message: "missingAccount");
-            return false;
+        var firstTrans: [LedgerEntry];
+        do {
+            firstTrans = try data.createTransactions(transfer_into: false, categories)
+        }
+        catch let e {
+            return e.data
         }
         
         firstTrans.append(
@@ -50,11 +50,11 @@ struct ManyOneTransfer : TransactionEditorProtocol {
         for transaction in firstTrans {
             modelContext.insert(transaction)
         }
-        return true;
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.transfer(.manyOne), warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.transfer(.manyOne), apply: apply, content: {
             VStack {
                 Grid {
                     GridRow {

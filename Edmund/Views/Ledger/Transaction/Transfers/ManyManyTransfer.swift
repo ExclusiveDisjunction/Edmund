@@ -9,47 +9,52 @@ import SwiftUI;
 import EdmundCore
 
 struct ManyManyTransfer : TransactionEditorProtocol {
-    
     @State private var top: [ManyTableEntry] = [.init()];
     @State private var bottom: [ManyTableEntry] = [.init()];
-    private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "noCategories")
-            return false
+            return [.internalError]
         }
         
-        guard top.amount == bottom.amount else {
-            warning.warning = .init(message: "Please ensure that the top total matches the bottom total")
-            return false;
+        var result: [ValidationFailure] = [];
+        let topAmount = top.amount, bottomAmount = bottom.amount;
+        if topAmount != bottomAmount {
+            if topAmount > bottomAmount {
+                result.append(.tooLargeAmount("Top Total"))
+                result.append(.tooSmallAmount("Bottom Total"))
+            }
+            else {
+                result.append(.tooSmallAmount("Top Total"))
+                result.append(.tooLargeAmount("Bottom Total"))
+            }
         }
         
-        guard var data = top.createTransactions(transfer_into: false, categories) else {
-            warning.warning = .init(message: "missingAccount");
-            return false;
+        let topData: [LedgerEntry], bottomData: [LedgerEntry];
+        do {
+            topData = try top.createTransactions(transfer_into: false, categories);
+            bottomData = try bottom.createTransactions(transfer_into: false, categories);
         }
-        guard let bottomData = bottom.createTransactions(transfer_into: true, categories) else {
-            warning.warning = .init(message: "missingAccount");
-            return false;
+        catch let e {
+            return result + e.data;
         }
         
-        data.append(contentsOf: bottomData);
+        let totalData = topData + bottomData
         
-        for transaction in data {
+        for transaction in totalData {
             modelContext.insert(transaction);
         }
         
-        return true;
+        return nil;
     }
     
     var body : some View {
-        TransactionEditorFrame(.transfer(.manyMany), warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.transfer(.manyMany), apply: apply, content: {
             VStack {
                 HStack {
                     Text("Take from").italic().bold()

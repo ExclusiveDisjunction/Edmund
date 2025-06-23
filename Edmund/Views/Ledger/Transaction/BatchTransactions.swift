@@ -14,20 +14,20 @@ struct BatchTransactions: TransactionEditorProtocol {
     @State private var snapshots: [LedgerEntrySnapshot] = [.init()];
     @State private var selection: Set<LedgerEntrySnapshot.ID> = .init();
     @State private var enableDates: Bool = true;
-    private var warning = StringWarningManifest();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.uniqueEngine) private var uniqueEngine;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         var result: [LedgerEntry] = [];
+        var errors: [ValidationFailure] = [];
         for snapshot in snapshots {
             let validation = snapshot.validate(unique: uniqueEngine);
-            if !validation.isEmpty {
-                warning.warning = .init(message: "emptyFields")
-                return false;
+            guard validation.isEmpty else {
+                errors.append(contentsOf: validation)
+                continue;
             }
             
             let entry = LedgerEntry();
@@ -35,11 +35,15 @@ struct BatchTransactions: TransactionEditorProtocol {
             
             result.append(entry)
         }
+        
+        guard errors.isEmpty else {
+            return errors;
+        }
 
         for item in result {
             modelContext.insert(item)
         }
-        return true;
+        return nil;
     }
     private func add_trans() {
         withAnimation {
@@ -48,7 +52,7 @@ struct BatchTransactions: TransactionEditorProtocol {
     }
     
     var body: some View {
-        TransactionEditorFrame(.grouped, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.grouped, apply: apply, content: {
             VStack {
                 Button(action: add_trans) {
                     Label("Add", systemImage: "plus")

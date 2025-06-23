@@ -18,10 +18,9 @@ struct PersonalLoan: TransactionEditorProtocol {
     
     @State private var mode = Mode.loan;
     @State private var person: String = "";
-    @State private var amount: Decimal = 0;
     @State private var date: Date = Date.now;
     @State private var account: SubAccount?;
-    private var warning = StringWarningManifest();
+    @Bindable private var amount: CurrencyValue = .init();
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
@@ -36,25 +35,30 @@ struct PersonalLoan: TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
-            warning.warning = .init(message: "internalError")
-            return false
+            return [.internalError]
+        }
+        
+        var result: [ValidationFailure] = [];
+        
+        let person = person.trimmingCharacters(in: .whitespaces)
+        let amount = amount.rawValue;
+        
+        if person.isEmpty {
+            result.append(.empty("Person"))
+        }
+        
+        if amount < 0 {
+            result.append(.negativeAmount("Amount"))
         }
         
         guard let destination = account else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+            return result + [.empty("Account")]
         }
         
-        guard !person.isEmpty else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
-        }
-    
-        guard amount >= 0 else {
-            warning.warning = .init(message: "negativeAmount")
-            return false;
+        guard result.isEmpty else {
+            return result
         }
         
         let name = switch mode {
@@ -73,11 +77,11 @@ struct PersonalLoan: TransactionEditorProtocol {
         );
         
         modelContext.insert(transaction);
-        return true;
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.personalLoan, warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.personalLoan, apply: apply, content: {
             Grid {
                 GridRow {
                     Text("Mode:")
@@ -95,12 +99,7 @@ struct PersonalLoan: TransactionEditorProtocol {
                     Text("Amount:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    TextField("", value: $amount, format: .currency(code: currencyCode))
-                        .textFieldStyle(.roundedBorder)
-#if os(iOS)
-                        .keyboardType(.decimalPad)
-#endif
-
+                    CurrencyField(amount)
                 }
                 
                 GridRow {

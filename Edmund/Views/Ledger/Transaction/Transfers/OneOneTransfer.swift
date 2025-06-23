@@ -18,7 +18,6 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
     @State private var dest: SubAccount?
     @State private var amount: Decimal = 0.0;
     @State private var date = Date.now;
-    private var warning = StringWarningManifest();
     
 #if os(macOS)
     let minWidth: CGFloat = 60;
@@ -29,18 +28,20 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
 #endif
     
     
-    func apply() -> Bool {
+    func apply() -> [ValidationFailure]? {
         guard let categories = categories else {
-            warning.warning = .init(message: "noCategories")
-            return false
+            return [.internalError]
         }
-        guard let source = src, let destination = dest else {
-            warning.warning = .init(message: "emptyFields")
-            return false;
+        
+        guard let source = src else {
+            return [.empty("Source Account")]
         }
+        guard let destination = dest else {
+            return [.empty("Destination Account")]
+        }
+        
         guard amount > 0.0 else {
-            warning.warning = .init(message: "negativeAmount")
-            return false
+            return [.negativeAmount("Amount")]
         }
         
         let trans: [LedgerEntry] = [
@@ -66,11 +67,11 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
         
         for item in trans { modelContext.insert(item) }
         
-        return true
+        return nil;
     }
     
     var body: some View {
-        TransactionEditorFrame(.transfer(.oneOne), warning: warning, apply: apply, content: {
+        TransactionEditorFrame(.transfer(.oneOne), apply: apply, content: {
             Grid() {
                 GridRow {
                     Text("Amount:")

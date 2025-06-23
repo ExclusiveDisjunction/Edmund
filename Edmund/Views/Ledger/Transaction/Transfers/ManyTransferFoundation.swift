@@ -26,10 +26,14 @@ class ManyTableEntry : Identifiable {
 
 extension [ManyTableEntry] {
     /// Takes in the current information and builds `LedgerEntry` instances from it. If `transfer_into` is true, these will be in the form of "Various to [account]"
-    func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) -> [LedgerEntry]? {
+    func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) throws(ValidationException) -> [LedgerEntry] {
         var result: [LedgerEntry] = [];
-        for entry in self {
-            guard let acc = entry.account else { return nil; }
+        var failures: [ValidationFailure] = [];
+        for (id, entry) in self.enumerated() {
+            guard let acc = entry.account else {
+                failures.append(.empty("Line \(id + 1): Account"))
+                continue;
+            }
             
             result.append(
                 .init(
@@ -42,6 +46,10 @@ extension [ManyTableEntry] {
                     account: acc
                 )
             );
+        }
+        
+        guard failures.isEmpty else {
+            throw ValidationException(failures)
         }
         
         return result;
@@ -94,30 +102,6 @@ struct ManyTransferTable : View {
                 }.tint(.green)
             }
         }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
-            /*
-             .sheet(item: $editing) { item in
-                 VStack {
-                     Grid {
-                         GridRow {
-                             Text("Amount:")
-                         }
-                         GridRow {
-                             Text("Account:")
-                             
-                             NamedPairPicker()
-                         }
-                     }
-                     
-                     Spacer()
-                     
-                     HStack {
-                         Spacer()
-                         Button("Ok", action: { editing = nil } )
-                             .buttonStyle(.borderedProminent)
-                     }
-                 }
-             }
-             */
     }
     
     @ViewBuilder
