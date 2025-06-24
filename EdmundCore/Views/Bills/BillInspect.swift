@@ -55,6 +55,6 @@ public struct BillInspect : View, ElementInspectorView {
 }
 
 #Preview {
-    ElementInspector(data: Bill.exampleNormalBills[0])
+    ElementInspector(data: Bill.exampleBills[0])
         .modelContainer(Containers.debugContainer)
 }

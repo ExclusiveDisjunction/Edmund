@@ -199,9 +199,6 @@
     "Delete" : {
 
     },
-    "deleteItemsConfirm" : {
-
-    },
     "Discard" : {
 
     },
@@ -565,6 +562,9 @@
 
     },
     "Sub Accounts" : {
+
+    },
+    "Sub Accounts:" : {
 
     },
     "Sub Categories" : {

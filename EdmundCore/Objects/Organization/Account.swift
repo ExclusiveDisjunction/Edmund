@@ -79,7 +79,7 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
     }
     /// The children for this account. Money is not held in the account itself, it is held in the sub accounts.
     @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent)
-    public var children: [SubAccount]
+    public var children: [SubAccount]? = nil;
     
     public static func == (lhs: Account, rhs: Account) -> Bool {
         lhs.name == rhs.name

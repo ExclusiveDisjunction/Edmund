@@ -47,94 +47,63 @@ public struct BillBaseID : Hashable, Equatable, RawRepresentable {
 }
 
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-@Model
-public class BillBase : Identifiable, UniqueElement {
-    public init(name: String, startDate: Date, endDate: Date? = nil, period: TimePeriods, company: String, location: String? = nil, notes: String = String(), autoPay: Bool = true) {
-        self.name = name
-        self.startDate = startDate
-        self.endDate = endDate
-        self._timePeriods = period.rawValue
-        self.company = company
-        self.location = location
-        self.notes = notes
-        self.autoPay = autoPay
-    }
-    
-    private var _timePeriods: TimePeriods.RawValue;
-    
+public protocol BillBase : Identifiable<BillBaseID>, AnyObject, NamedInspectableElement, NamedEditableElement {
     /// The name of the bill.
-    public final var name: String;
+    var name: String { get set }
     /// The start date of the bill. This is used to compute the upcoming dates.
-    public var startDate: Date;
+    var startDate: Date { get set }
     /// An optional end date for the bill. By convention, `endDate` should be after `startDate`, if a value is provided.
-    public var endDate: Date?;
+    var endDate: Date? { get set }
     /// The bill period. This represent how often it will come due.
-    public final var period: TimePeriods {
-        get { TimePeriods(rawValue: _timePeriods)! }
-        set { _timePeriods = newValue.rawValue }
-    }
+    var period: TimePeriods { get set }
     /// The kind of bill.
-    public var kind: BillsKind {
-        .bill
-    }
+    var kind: BillsKind { get }
     /// How much the bill costs each time it comes due. This may be an approximation.
-    public var amount: Decimal {
-        Decimal()
-    }
+    var amount: Decimal { get }
     /// The company that this bill is attached to.
-    public final var company: String;
+    var company: String { get set }
     /// An optional location used to uniquely identify a bill.
     /// For example, say you have an electric bill for two different apartments, but the same electric company. The bills would be indistiquishable, but this can help separate it.
-    public final var location: String?;
+    var location: String? { get set }
     /// Any associated notes about the bill.
-    public var notes: String;
+    var notes: String { get set }
     /// When true, it is known that the bill will automatically be debited to the account.
-    public var autoPay: Bool;
-    
-    public var id: BillBaseID {
-        .init(name: name, company: company, location: location)
-    }
-    
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
-    }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.bill(id: self.id, action: .remove)
-    }
-    
+    var autoPay: Bool { get set }
+}
+public extension BillBase {
     /// The number of weeks since the start date.
-    public final var weeksSinceStart: Int {
+    var weeksSinceStart: Int {
         return weeksSinceStart(from: Date.now)
     }
     /// Determines the number of weeks between `from` and the start date.
-    public final func weeksSinceStart(from: Date) -> Int {
+    func weeksSinceStart(from: Date) -> Int {
         let components = Calendar.current.dateComponents([.day], from: self.startDate, to: from)
         return (components.day ?? 0) / 7;
     }
     /// Determines how many periods have elapsed since the start date.
-    public final var periodsSinceStart: Int {
+    var periodsSinceStart: Int {
         return periodsSinceStart(from: .now)
     }
     /// Determines how many periods have elapsed between `from` and the start date.
-    public final func periodsSinceStart(from: Date) -> Int {
+    func periodsSinceStart(from: Date) -> Int {
         let weeks = weeksSinceStart(from: from);
         let periodWeeks = self.period.weeksInPeriod;
         
         return weeks / periodWeeks
     }
     /// Returns the exact (including decimal) number of periods have elapsed between `from` and the start date.
-    public final func exactPeriodsSinceStart(from: Date) -> Float {
+    func exactPeriodsSinceStart(from: Date) -> Float {
         let weeks = weeksSinceStart(from: from);
         let periodWeeks = self.period.weeksInPeriod;
         
         return Float(weeks) / Float(periodWeeks)
     }
     /// Estimates the next bill due date
-    public final var nextBillDate: Date? {
+    var nextBillDate: Date? {
         nextBillDate(from: Date.now)
     }
     /// Estimates the next bill due date based on `from`.
-    public final func nextBillDate(from: Date) -> Date? {
+    func nextBillDate(from: Date) -> Date? {
         if startDate > from {
             return startDate
         }
@@ -163,7 +132,7 @@ public class BillBase : Identifiable, UniqueElement {
         }
     }
     /// When true, the `endDate` exists, and it is in the past.
-    public final var isExpired: Bool {
+    var isExpired: Bool {
         if let endDate = endDate {
             Date.now > endDate
         }
@@ -172,16 +141,32 @@ public class BillBase : Identifiable, UniqueElement {
         }
     }
     /// Returns the price per some other time period.
-    public final func pricePer(_ period: TimePeriods) -> Decimal {
+    func pricePer(_ period: TimePeriods) -> Decimal {
         self.amount * self.period.conversionFactor(period)
     }
+}
+/// Since SwiftUI does not allow direct access of `any BillBase`, this will allow for defined, identifable access.
+/// Use this structure to store `any BillBase`, allowing for selection, inspection, and abstract deleting.
+public struct BillBaseWrapper : Identifiable, Queryable {
+    public typealias SortType = BillsSort
+    public typealias FilterType = BillsKind
+    
+    /// Creates the instance around some `BillBase` instance.
+    public init(_ data: any BillBase, id: UUID = UUID()) {
+        self.data = data
+        self.id = id
+    }
+    
+    /// The held data
+    public var data: any BillBase;
+    public var id: UUID;
     
     /// A complete list of bill examples, from `Bill` and `Utility`.
-    public static let exampleBills: [BillBase] = {
-        let bills: [BillBase] = Bill.exampleBills;
-        let utilities: [BillBase] = Utility.exampleUtility;
+    public static let exampleBills: [BillBaseWrapper] = {
+        let bills: [any BillBase] = Bill.exampleBills;
+        let utilities: [any BillBase] = Utility.exampleUtility;
         
-        return (bills + utilities)
+        return (bills + utilities).map { .init($0) }
     }()
 }
 

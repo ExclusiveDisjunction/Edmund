@@ -29,7 +29,7 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
     public var id: String { name }
     public var name: String = "";
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent)
-    public var children: [SubCategory];
+    public var children: [SubCategory]? = nil;
     
     public static func ==(lhs: Category, rhs: Category) -> Bool {
         lhs.name == rhs.name

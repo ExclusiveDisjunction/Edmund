@@ -14,7 +14,7 @@ public protocol CategoriesHolderBasis {
 }
 public extension CategoriesHolderBasis {
     static func getOrInsert(from: Category, name: String, context: ModelContext) -> SubCategory {
-        if let target = from.children.first(where: {$0.name == name } ) {
+        if let target = from.children?.first(where: {$0.name == name } ) {
             return target
         }
         else {

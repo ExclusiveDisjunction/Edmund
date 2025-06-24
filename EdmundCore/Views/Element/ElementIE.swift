@@ -57,7 +57,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         self.data = data
         self.postAction = postAction;
         self.mode = mode;
-        if mode == .inspect {
+        if mode == .view {
             self._editing = .init(wrappedValue: .init(nil))
         }
         else {
@@ -206,7 +206,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                     Button("Cancel", action: cancel).buttonStyle(.bordered)
                 }
                 
-                Button(mode == .inspect ? "Ok" : "Save", action: isEdit ? submit : cancel).buttonStyle(.borderedProminent)
+                Button(mode == .view ? "Ok" : "Save", action: isEdit ? submit : cancel).buttonStyle(.borderedProminent)
             }
         }.padding()
             .onDisappear(perform: onDismiss)

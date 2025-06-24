@@ -53,7 +53,7 @@ public struct SingularContextMenu<T> : View where T: Identifiable {
         
         if canInspect {
             Button(action: {
-                inspection.open(target, mode: .inspect)
+                inspection.open(target, mode: .view)
             }) {
                 Label("Inspect", systemImage: "info.circle")
             }.tint(asSlide ? .green : .clear)
@@ -108,7 +108,7 @@ public struct SelectionContextMenu<T> : View where T: Identifiable {
         inspect.inspectSelected(selection, mode: .edit, on: data, warning: warning)
     }
     private func handleView() {
-        inspect.inspectSelected(selection, mode: .inspect, on: data, warning: warning)
+        inspect.inspectSelected(selection, mode: .view, on: data, warning: warning)
     }
     private func handleDelete() {
         delete.deleteSelected(selection, on: data, warning: warning)

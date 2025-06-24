@@ -12,14 +12,14 @@ public enum InspectionMode : Int, Identifiable, CaseIterable {
     /// Signals the data should be edited
     case edit
     /// Signals the data should be viewed/inspected
-    case inspect
+    case view
     /// Singlas the data is being added. This is essentially `Self.edit`, but gives extra context.
     case add
     
     public var id: String {
         switch self {
             case .edit: "edit"
-            case .inspect: "view"
+            case .view: "view"
             case .add: "add"
         }
     }
@@ -27,7 +27,7 @@ public enum InspectionMode : Int, Identifiable, CaseIterable {
     public var icon: String {
         switch self {
             case .edit: "pencil"
-            case .inspect: "info.circle"
+            case .view: "info.circle"
             case .add: "exclimationmark"
         }
     }
@@ -35,7 +35,7 @@ public enum InspectionMode : Int, Identifiable, CaseIterable {
     public var display: String {
         switch self {
             case .edit: "Edit"
-            case .inspect: "Inspect"
+            case .view: "Inspect"
             case .add: "Add"
         }
     }
@@ -45,7 +45,7 @@ public enum InspectionMode : Int, Identifiable, CaseIterable {
 @Observable
 public class InspectionManifest<T> {
     public init() {
-        mode = .inspect;
+        mode = .view;
         value = nil;
     }
     /// The current mode being taken by the manifest.

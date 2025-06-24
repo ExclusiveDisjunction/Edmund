@@ -138,7 +138,7 @@ struct AllExpiredBillsVE : View {
                     }
                 }
                 
-                GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .inspect, placement: .secondaryAction)
+                GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .view, placement: .secondaryAction)
                 
                 GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
                 

@@ -56,7 +56,7 @@ public protocol BoundPairParent : PairBasis {
     /// Creates a default, empty initializer.
     init();
     
-    var children: [C] { get set }
+    var children: [C]? { get set }
 }
 
 /// A type that has a specific parent, and a name.
@@ -100,7 +100,7 @@ public extension Array where Element: BoundPairParent {
     func findPair(_ parent: String, _ child: String) -> Element.C? {
         guard let foundParent = self.first(where: {$0.name == parent } ) else { return nil }
         
-        return foundParent.children.first(where: {$0.name == child } )
+        return foundParent.children?.first(where: {$0.name == child } )
     }
 }
 

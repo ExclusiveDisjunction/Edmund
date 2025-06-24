@@ -56,7 +56,7 @@ public struct RegistryData {
         let  hourly =   try context.fetch(FetchDescriptor<HourlyJob>          ());
         let  salaried = try context.fetch(FetchDescriptor<SalariedJob>        ());
         
-        self.allBills = (bills as [BillBase]) + (utility as [BillBase]);
+        self.allBills = (bills as [any BillBase]) + (utility as [any BillBase]);
         self.allJobs =  (hourly as [any TraditionalJob]) + (salaried as [any TraditionalJob]);
     }
     
@@ -69,7 +69,7 @@ public struct RegistryData {
     /// All sub categories in the context.
     public let subCat: [SubCategory];
     /// All bills & utilities in the context.
-    public let allBills: [BillBase];
+    public let allBills: [any BillBase];
     /// All hourly & salaried jobs in the context.
     public let allJobs: [any TraditionalJob];
 }

@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 @Model
-public final class Bill : BillBase, NamedEditableElement, NamedInspectableElement {
+public final class Bill : BillBase, NamedEditableElement, NamedInspectableElement, UniqueElement {
     public typealias EditView = BillEdit
     public typealias InspectorView = BillInspect
     public typealias Snapshot = BillSnapshot
@@ -30,20 +30,52 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     /// Creates a bill while filling in all fields.
     /// Note that it is undefined behavior if kind is `.utility`.
     public init(name: String, kind: BillsKind, amount: Decimal, company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
+        self.name = name
         self.amount = amount
-        self._kind = kind.rawValue
-        
-        super.init(name: name, startDate: start, endDate: end, period: period, company: company, location: location)
+        self.startDate = start
+        self.endDate = end
+        self.company = company
+        self.location = location
+        self.rawKind = kind.rawValue
+        self.rawPeriod = period.rawValue
     }
     
-    public override var amount: Decimal = 0.0;
-    public override var kind: BillsKind {
-        get { BillsKind(rawValue: _kind)! }
-        set { _kind = newValue.rawValue }
+    public var id: BillBaseID {
+        .init(name: name, company: company, location: location)
+    }
+    public var name: String = "";
+    public var amount: Decimal = 0.0;
+    public var startDate: Date = Date.now;
+    public var endDate: Date? = nil;
+    public var company: String = "";
+    public var location: String? = nil;
+    public var notes: String = "";
+    public var autoPay: Bool = true;
+    
+    /// The internal raw value used to store the kind.
+    public var rawKind: Int = 0;
+    /// The internal raw value used to store the period.
+    private var rawPeriod: Int = 0;
+    
+    public var kind: BillsKind {
+        get {
+            BillsKind(rawValue: rawKind)!
+        }
+        set {
+            guard newValue != .utility else { return }
+            
+            self.rawKind = newValue.rawValue
+        }
+    }
+    public var period: TimePeriods {
+        get {
+            TimePeriods(rawValue: rawPeriod)!
+        }
+        set {
+            self.rawPeriod = newValue.rawValue
+        }
     }
     
-    private var _kind: Int = BillsKind.bill.rawValue
-
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Bill",
@@ -53,16 +85,22 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
             add:      "Add Bill"
         )
     }
+    public static var identifiers: [ElementIdentifer] {
+        [ .init(name: "Name"), .init(name: "Company"), .init(name: "Location", optional: true) ]
+    }
+    public func removeFromEngine(unique: UniqueEngine) -> Bool {
+        unique.bill(id: self.id, action: .remove)
+    }
     
     /// A list of filler data for bills that have already expired.
-    public static let exampleExpiredBills: [Bill] = {
+    static let exampleExpiredBills: [Bill] = {
         [
             .init(sub: "Bitwarden Premium",      amount: 9.99,  company: "Bitwarden", start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
             .init(sub: "Spotify Premium Family", amount: 16.99, company: "Spotify",   start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
         ]
     }()
     /// Examples of subscriptions that can be used on the UI.
-    public static let exampleSubscriptions: [Bill] = {
+    static let exampleSubscriptions: [Bill] = {
         [
             .init(sub: "Apple Music",     amount: 5.99, company: "Apple",   start: Date.fromParts(2025, 3, 2)!,  end: nil),
             .init(sub: "iCloud+",         amount: 2.99, company: "Apple",   start: Date.fromParts(2025, 5, 15)!, end: nil),
@@ -70,7 +108,7 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
         ]
     }()
     /// Examples of bill kind bills that can be used on UI.
-    public static let exampleActualBills: [Bill] = {
+    static let exampleActualBills: [Bill] = {
         [
             .init(bill: "Student Loan",  amount: 56,  company: "FAFSA",       start: Date.fromParts(2025, 3, 2)!,  end: nil),
             .init(bill: "Car Insurance", amount: 899, company: "The General", start: Date.fromParts(2024, 7, 25)!, end: nil, period: .semiAnually),
@@ -79,7 +117,7 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
     }()
     
     /// A collection of all bills used to show filler UI data.
-    public static let exampleNormalBills: [Bill] = {
+    static let exampleBills: [Bill] = {
         exampleExpiredBills + exampleSubscriptions + exampleActualBills
     }()
 }
