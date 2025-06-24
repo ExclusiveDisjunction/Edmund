@@ -16,7 +16,7 @@ struct BalanceResolver {
         for account in on {
             var credits: Decimal = 0.0
             var debits: Decimal = 0.0
-            guard let subAccounts = account.children else { continue }
+            let subAccounts = account.children
             
             for subAccount in subAccounts {
                 guard let transactions = subAccount.transactions else { continue }
@@ -37,7 +37,7 @@ struct BalanceResolver {
         for account in on {
             var tmpResult: [T.C: (Decimal, Decimal)] = [:]
             
-            guard let subAccounts = account.children else { continue }
+            let subAccounts = account.children
             for subAccount in subAccounts {
                 var credits: Decimal = 0
                 var debits: Decimal = 0

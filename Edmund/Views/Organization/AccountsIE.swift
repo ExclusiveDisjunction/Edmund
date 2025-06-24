@@ -96,7 +96,7 @@ struct AccountsIE : View {
                 }
                 
                 GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
-                GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .view, placement: .primaryAction)
+                GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
                 
                 GeneralDeleteToolbarButton(on: accounts, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
             }
