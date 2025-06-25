@@ -107,15 +107,19 @@ public class TraditionalJobSnapshot : JobSnapshot {
     public override init() {
         self.company = "";
         self.position = "";
+        self.oldId = .init(company: "", position: "")
         
         super.init()
     }
     public init<T>(_ from: T) where T: TraditionalJob {
         self.company = from.company
         self.position = from.position
+        self.oldId = from.id;
         
         super.init(from)
     }
+    
+    @ObservationIgnored private var oldId: TraditionalJobID;
     
     public var company: String;
     public var position: String;
@@ -127,7 +131,7 @@ public class TraditionalJobSnapshot : JobSnapshot {
         
         var result = super.validate()
         
-        if !unique.job(id: id, action: .validate) { result.append(.unique(HourlyJob.identifiers)) }
+        if oldId != id && !unique.job(id: id, action: .validate) { result.append(.unique(HourlyJob.identifiers)) }
         
         if company.isEmpty { result.append(.empty("Company")) }
         if position.isEmpty { result.append(.empty("Position")) }
@@ -139,7 +143,10 @@ public class TraditionalJobSnapshot : JobSnapshot {
         let position = self.position.trimmingCharacters(in: .whitespaces)
         let id = TraditionalJobID(company: company, position: position)
         
-        guard unique.job(id: id, action: .insert) else { throw .init(value: id) }
+        if to.id != id {
+            let _ = unique.job(id: to.id, action: .remove);
+            guard unique.job(id: id, action: .insert) else { throw .init(value: id) }
+        }
         
         to.company = company
         to.position = position

@@ -97,23 +97,30 @@ public final class CategorySnapshot: ElementSnapshot {
     
     public init() {
         self.name = ""
+        self.oldId = ""
     }
     public init(_ from: Category) {
         self.name = from.name
+        self.oldId = from.id;
     }
+    
+    @ObservationIgnored private let oldId: String;
     
     public var name: String;
     
     public func validate(unique: UniqueEngine) -> [ValidationFailure] {
         let name = name.trimmingCharacters(in: .whitespaces);
         
-        if !unique.category(id: name, action: .validate) { return [.unique(Category.identifiers)] }
+        if oldId != name && !unique.category(id: name, action: .validate) { return [.unique(Category.identifiers)] }
         else if name.isEmpty { return [.empty("Name")] }
         else { return [] }
     }
     public func apply(_ to: Category, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<String>) {
         let name = name.trimmingCharacters(in: .whitespaces)
-        guard unique.category(id: name, action: .insert) else { throw .init(value: name) }
+        
+        if to.id != name {
+            guard unique.category(id: name, action: .insert) else { throw .init(value: name) }
+        }
         
         to.name = name;
     }

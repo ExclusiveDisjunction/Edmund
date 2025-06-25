@@ -185,7 +185,10 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.location = from.location ?? String()
         self.notes = from.notes
         self.autoPay = from.autoPay;
+        self.oldId = from.id;
     }
+    
+    @ObservationIgnored private var oldId: BillBaseID;
     
     /// The name of the bill
     public var name: String;
@@ -217,7 +220,7 @@ public class BillBaseSnapshot: Hashable, Equatable {
         let location = location.trimmingCharacters(in: .whitespaces)
         let id = BillBaseID(name: name, company: company, location: hasLocation ? location : nil)
         
-        if !unique.bill(id: id, action: .validate) { result.append(.unique(Bill.identifiers)) }
+        if oldId != id && !unique.bill(id: id, action: .validate) { result.append(.unique(Bill.identifiers)) }
         
         if name.isEmpty { result.append(.empty("Name")) }
         if company.isEmpty { result.append(.empty("Company")) }

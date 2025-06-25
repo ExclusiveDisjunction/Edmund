@@ -77,11 +77,15 @@ public final class SubAccountSnapshot: ElementSnapshot, BoundPairSnapshot {
     public init() {
         self.name = "";
         self.parent = nil;
+        self.oldId = .init(parent: nil, name: "")
     }
     public init(_ from: SubAccount) {
         self.name = from.name;
         self.parent = from.parent
+        self.oldId = from.id;
     }
+    
+    @ObservationIgnored private let oldId: BoundPairID;
     
     /// The sub-account's name
     public var name: String;
@@ -94,7 +98,7 @@ public final class SubAccountSnapshot: ElementSnapshot, BoundPairSnapshot {
         let name = name.trimmingCharacters(in: .whitespaces);
         let id = BoundPairID(parent: parent?.name, name: name)
         
-        if !unique.subAccount(id: id, action: .validate) { result.append(.unique(SubAccount.identifiers)) }
+        if id != oldId && !unique.subAccount(id: id, action: .validate) { result.append(.unique(SubAccount.identifiers)) }
         if name.isEmpty { result.append(.empty("Name")) }
         if parent == nil { result.append(.empty("Account")) }
         
@@ -104,7 +108,9 @@ public final class SubAccountSnapshot: ElementSnapshot, BoundPairSnapshot {
         let name = self.name.trimmingCharacters(in: .whitespaces)
         let id = BoundPairID(parent: parent?.name, name: name)
         
-        guard unique.subAccount(id: id, action: .insert) else { throw .init(value: id) }
+        if to.id != id {
+            guard unique.subAccount(id: id, action: .insert) else { throw .init(value: id) }
+        }
         
         to.name = name
         to.parent = parent
