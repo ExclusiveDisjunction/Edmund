@@ -22,8 +22,8 @@ public struct HourlyJobEdit : View, ElementEditorView {
     private let labelMinWidth: CGFloat = 100;
     private let labelMaxWidth: CGFloat = 110;
 #else
-    private let labelMinWidth: CGFloat = 130;
-    private let labelMaxWidth: CGFloat = 140;
+    private let labelMinWidth: CGFloat = 145;
+    private let labelMaxWidth: CGFloat = 155;
 #endif
     
     public var body: some View {
@@ -86,5 +86,4 @@ public struct HourlyJobEdit : View, ElementEditorView {
 #Preview {
     ElementEditor(HourlyJob(), adding: true)
         .modelContainer(Containers.debugContainer)
-        .padding()
 }

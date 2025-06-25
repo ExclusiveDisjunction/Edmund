@@ -123,10 +123,12 @@ public struct JobTaxEstimator : View {
     
     public var body: some View {
         VStack {
-            Text("Tax Estimator")
-                .font(.title2)
-            
             HStack {
+                Text("Tax Estimator")
+                    .font(.title2)
+                
+                Spacer()
+                
                 Button(action: append) {
                     Image(systemName: "plus")
                 }.buttonStyle(.borderless)

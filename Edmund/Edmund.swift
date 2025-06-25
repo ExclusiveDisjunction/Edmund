@@ -186,12 +186,6 @@ struct EdmundApp: App {
         }.modelContainer(container)
          */
         
-        WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
-            TransactionsEditor(kind: kind.wrappedValue ?? .simple)
-                .preferredColorScheme(colorScheme)
-                .environment(\.categoriesContext, categories)
-        }.modelContainer(container)
-        
         Window("About", id: "about") {
             AboutView()
                 .preferredColorScheme(colorScheme)
@@ -202,6 +196,12 @@ struct EdmundApp: App {
                 .preferredColorScheme(colorScheme)
         }
         #endif
+        
+        WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
+            TransactionsEditor(kind: kind.wrappedValue ?? .simple)
+                .preferredColorScheme(colorScheme)
+                .environment(\.categoriesContext, categories)
+        }.modelContainer(container)
         
         WindowGroup("Help", id: "help") {
             HelpView()

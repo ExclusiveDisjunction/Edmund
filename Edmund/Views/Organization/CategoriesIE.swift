@@ -8,24 +8,24 @@
 import SwiftUI
 import SwiftData
 
-struct CategoryTableRow : Identifiable, Parentable {
+@Observable
+final class CategoryTableRow : Identifiable, Parentable {
     init(subCategory: SubCategory) {
         self.id = UUID();
         self.target = subCategory;
-        self.name = subCategory.name;
         self.children = nil;
     }
     init(category: Category) {
         self.id = UUID();
         self.target = category;
-        self.name = category.name;
         self.children = category.children.map { Self(subCategory: $0) }
     }
     
-    let target: any InspectableElement
+    var target: any PairBasis
     let id: UUID;
-    let name: String;
-    let children: [CategoryTableRow]?;
+    var newName: String = "";
+    var children: [CategoryTableRow]?;
+    var isEditing: Bool = false;
 }
 
 struct CategoriesIE : View {
@@ -55,42 +55,55 @@ struct CategoriesIE : View {
         }
     }
     
+    @ToolbarContentBuilder
+    private var catToolbar: some CustomizableToolbarContent {
+        ToolbarItem(id: "add", placement: .primaryAction) {
+            Menu {
+                Button("Category") {
+                    inspecting.open(.init(category: .init()), mode: .add)
+                }
+                Button("Sub Category") {
+                    inspecting.open(.init(subCategory: .init()), mode: .add)
+                }
+            } label: {
+                Label("Add", systemImage: "plus")
+            }
+        }
+        
+        GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+        
+        GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
+        
+        GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
+    }
+    
     var body: some View {
         VStack {
-            List(cache, children: \.children, selection: $selection) { acc in
-                Text(acc.name)
-            }.contextMenu(forSelectionType: CategoryTableRow.ID.self) { selection in
-                SelectionContextMenu(selection, data: cache, inspect: inspecting, delete: delete, warning: warning)
+            List($cache, editActions: [.delete], children: \.children, selection: $selection) { $cat in
+                if cat.isEditing{
+                    TextField("Name", text: $cat.target.name)
+                }
+                else {
+                    Text(cat.target.name)
+                }
             }
+            /*
+             .contextMenu(forSelectionType: CategoryTableRow.ID.self) { selection in
+             SelectionContextMenu(selection, data: cache, inspect: inspecting, delete: delete, warning: warning)
+             }
+             */
         }.padding()
             .navigationTitle("Categories")
             .toolbar(id: "categoriesToolbar") {
-                ToolbarItem(id: "add", placement: .primaryAction) {
-                    Menu {
-                        Button("Category") {
-                            inspecting.open(.init(category: .init()), mode: .add)
-                        }
-                        Button("Sub Category") {
-                            inspecting.open(.init(subCategory: .init()), mode: .add)
-                        }
-                    } label: {
-                        Label("Add", systemImage: "plus")
-                    }
-                }
-            
-                GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
-                
-                GeneralIEToolbarButton(on: cache, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
-                
-                GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
+                catToolbar
             }.task { refresh() }
             .onChange(of: categories, { _, _ in refresh() })
             .sheet(item: $inspecting.value) { item in
                 if let category = item.target as? Category {
-                    ElementEditor(category, adding: inspecting.mode == .add)
+                    ElementIE(category, mode: inspecting.mode)
                 }
                 else if let subCategory = item.target as? SubCategory {
-                    ElementEditor(subCategory, adding: inspecting.mode == .add)
+                    ElementIE(subCategory, mode: inspecting.mode)
                 }
             }
             .toolbarRole(.editor)

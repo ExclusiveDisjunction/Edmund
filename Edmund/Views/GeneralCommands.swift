@@ -46,6 +46,8 @@ struct GeneralCommands : Commands {
                 
             }).disabled(true)
             
+            #if os(macOS)
+            
             Divider()
             
             Menu {
@@ -61,6 +63,8 @@ struct GeneralCommands : Commands {
             } label: {
                 Text("Generate Report")
             }.disabled(true)
+            
+            #endif
         }
         
         CommandMenu("Bills") {
@@ -72,6 +76,7 @@ struct GeneralCommands : Commands {
             }.keyboardShortcut("e", modifiers: [.command, .shift])
         }
         
+        #if os(macOS)
         CommandGroup(replacing: CommandGroupPlacement.help) {
             Button("Help") {
                 openWindow(id: "help")
@@ -80,5 +85,6 @@ struct GeneralCommands : Commands {
                 openWindow(id: "about")
             }
         }
+        #endif
     }
 }
