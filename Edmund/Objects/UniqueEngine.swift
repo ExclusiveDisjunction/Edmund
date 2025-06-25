@@ -47,14 +47,14 @@ public struct RegistryData {
     ///     - Any error that the context will throw when fetching the required information.
     @MainActor
     public init(_ context: ModelContext) throws {
-        self.acc =      try context.fetch(FetchDescriptor<Account>            ());
-        self.subAcc =   try context.fetch(FetchDescriptor<SubAccount>         ());
-        self.cat =      try context.fetch(FetchDescriptor<EdmundCore.Category>());
-        self.subCat =   try context.fetch(FetchDescriptor<SubCategory>        ());
-        let  bills =    try context.fetch(FetchDescriptor<Bill>               ());
-        let  utility =  try context.fetch(FetchDescriptor<Utility>            ());
-        let  hourly =   try context.fetch(FetchDescriptor<HourlyJob>          ());
-        let  salaried = try context.fetch(FetchDescriptor<SalariedJob>        ());
+        self.acc =      try context.fetch(FetchDescriptor<Account>    ());
+        self.subAcc =   try context.fetch(FetchDescriptor<SubAccount> ());
+        self.cat =      try context.fetch(FetchDescriptor<Category>   ());
+        self.subCat =   try context.fetch(FetchDescriptor<SubCategory>());
+        let  bills =    try context.fetch(FetchDescriptor<Bill>       ());
+        let  utility =  try context.fetch(FetchDescriptor<Utility>    ());
+        let  hourly =   try context.fetch(FetchDescriptor<HourlyJob>  ());
+        let  salaried = try context.fetch(FetchDescriptor<SalariedJob>());
         
         self.allBills = (bills as [any BillBase]) + (utility as [any BillBase]);
         self.allJobs =  (hourly as [any TraditionalJob]) + (salaried as [any TraditionalJob]);
@@ -65,7 +65,7 @@ public struct RegistryData {
     /// All sub accounts in the context.
     public let subAcc: [SubAccount];
     /// All categories in the context.
-    public let cat: [EdmundCore.Category];
+    public let cat: [Category];
     /// All sub categories in the context.
     public let subCat: [SubCategory];
     /// All bills & utilities in the context.
@@ -126,7 +126,7 @@ public final class UniqueEngine {
     /// The taken sub account IDs.
     private var subAccounts: Set<SubAccount.ID>;
     /// The taken category IDs.
-    private var categories: Set<EdmundCore.Category.ID>;
+    private var categories: Set<Category.ID>;
     /// The taken sub category IDs.
     private var subCategories: Set<SubCategory.ID>;
     /// The taken bills & utilities IDs.
@@ -138,7 +138,7 @@ public final class UniqueEngine {
     private static func perform<T>(id: T, set: inout Set<T>, action: UniqueEngineAction) -> Bool where T: Hashable {
         switch action {
             case .insert:   set.insert(id).inserted
-            case .validate: set.contains(id)
+            case .validate: !set.contains(id)
             case .remove:   set.remove(id) != nil
         }
     }
@@ -152,7 +152,7 @@ public final class UniqueEngine {
         Self.perform(id: id, set: &subAccounts, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func category(id: EdmundCore.Category.ID, action: UniqueEngineAction) -> Bool {
+    public func category(id: Category.ID, action: UniqueEngineAction) -> Bool {
         Self.perform(id: id, set: &categories, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.

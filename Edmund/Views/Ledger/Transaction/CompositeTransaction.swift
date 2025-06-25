@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 import Foundation;
 
 public extension Array {

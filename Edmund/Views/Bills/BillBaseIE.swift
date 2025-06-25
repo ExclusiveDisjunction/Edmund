@@ -19,6 +19,18 @@ struct BillBaseInspect : View {
     
     var body: some View {
         GridRow {
+            Text("Name:")
+                .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            
+            HStack {
+                Text(target.name)
+                Spacer()
+            }
+        }
+        
+        Divider()
+        
+        GridRow {
             Text("Start Date:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
             HStack {
@@ -61,7 +73,7 @@ struct BillBaseInspect : View {
                     Text(location)
                 }
                 else {
-                    Text("No Location").italic()
+                    Text("No location").italic()
                 }
                 Spacer()
             }

@@ -93,7 +93,7 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
 
 @Observable
 public final class CategorySnapshot: ElementSnapshot {
-    public typealias For = EdmundCore.Category;
+    public typealias For = Category;
     
     public init() {
         self.name = ""

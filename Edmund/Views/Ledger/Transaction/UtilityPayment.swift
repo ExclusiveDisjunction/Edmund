@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData;
-import EdmundCore;
 
 struct UtilityPayment : TransactionEditorProtocol {
     @Query private var utilities: [Utility];

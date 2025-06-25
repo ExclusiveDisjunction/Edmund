@@ -46,7 +46,7 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
     }
 }
 
-/// A high level view that allows for switching between editing
+/// A high level view that allows for switching between editing and inspecting
 public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel {
     /// Opens the editor with a specific mode.
     /// - Parameters:
@@ -65,13 +65,14 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         }
     }
     
-    public var data: T;
-    public let postAction: (() -> Void)?
+    private let data: T;
+    private let postAction: (() -> Void)?
     @State private var mode: InspectionMode;
+    @State private var warningConfirm: Bool = false;
     @StateObject private var editing: EditingManifest<T>;
+    
     @Bindable private var uniqueError: StringWarningManifest = .init();
     @Bindable private var validationError: ValidationWarningManifest = .init()
-    @State private var warningConfirm: Bool = false;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;

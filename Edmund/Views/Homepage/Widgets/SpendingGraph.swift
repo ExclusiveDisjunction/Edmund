@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
 
 struct SpendingComputation: Identifiable {
     init(_ monthYear: MonthYear, _ data: [LedgerEntry]) {

@@ -5,7 +5,6 @@
 //  Created by Hollan Sellars on 6/4/25.
 //
 
-import EdmundCore
 import SwiftUI
 
 @Observable

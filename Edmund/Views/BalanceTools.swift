@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import EdmundCore
 import SwiftData
 import Charts
 
@@ -104,7 +103,7 @@ public struct TransactionResolver {
     }
 }
 
-extension Dictionary where Key: EdmundCore.NamedInspectableElement, Value == (Decimal, Decimal) {
+extension Dictionary where Key: NamedInspectableElement, Value == (Decimal, Decimal) {
     func intoSimpleBalances() -> [SimpleBalance] {
         self.map { (element, balances) in
                 .init(element.name, balances.0, balances.1)

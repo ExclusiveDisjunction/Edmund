@@ -4,11 +4,23 @@
     "" : {
       "shouldTranslate" : false
     },
-    "..." : {
+    "\t" : {
 
+    },
+    "..." : {
+      "shouldTranslate" : false
     },
     "(no account)" : {
 
+    },
+    "(No information)" : {
+
+    },
+    "(No Parent)" : {
+
+    },
+    "(No parent), %@" : {
+      "comment" : "Same as above, used in similar contexts"
     },
     "/" : {
       "localizations" : {
@@ -28,6 +40,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "/"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "%@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@"
           }
         }
       },
@@ -122,6 +145,39 @@
         }
       }
     },
+    "Add Account" : {
+
+    },
+    "Add Bill" : {
+
+    },
+    "Add Category" : {
+
+    },
+    "Add Hourly Job" : {
+
+    },
+    "Add Salaried Job" : {
+
+    },
+    "Add Sub Account" : {
+
+    },
+    "Add Sub Category" : {
+
+    },
+    "Add Transaction" : {
+
+    },
+    "Add Utility" : {
+
+    },
+    "Added On:" : {
+
+    },
+    "Alphabetical" : {
+
+    },
     "Amount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -213,14 +269,23 @@
         }
       }
     },
+    "Autopay:" : {
+
+    },
     "Availiable Credit" : {
 
     },
     "Availiable Limit:" : {
 
     },
-    "Avg. Pay:" : {
+    "Average Hours" : {
 
+    },
+    "Average Hours:" : {
+
+    },
+    "Avg. Pay:" : {
+      "comment" : "Average pay abbreviated"
     },
     "Balance" : {
       "localizations" : {
@@ -260,6 +325,9 @@
     "Balance Verifier" : {
 
     },
+    "Balance:" : {
+
+    },
     "Balanced" : {
 
     },
@@ -273,6 +341,12 @@
 
     },
     "Batch Transactions" : {
+
+    },
+    "Bi-Monthly" : {
+
+    },
+    "Bi-Weekly" : {
 
     },
     "Bill" : {
@@ -394,6 +468,12 @@
         }
       }
     },
+    "cannot be negative" : {
+
+    },
+    "Cash" : {
+
+    },
     "Categories" : {
       "localizations" : {
         "de" : {
@@ -428,6 +508,12 @@
       }
     },
     "Category:" : {
+
+    },
+    "Certificate of Deposit" : {
+
+    },
+    "Checking" : {
 
     },
     "Closer look" : {
@@ -503,6 +589,9 @@
     "Credit Limit:" : {
 
     },
+    "Credit:" : {
+
+    },
     "Currency" : {
 
     },
@@ -520,6 +609,9 @@
 
     },
     "Customize" : {
+
+    },
+    "Datapoints" : {
 
     },
     "Date" : {
@@ -570,6 +662,9 @@
         }
       }
     },
+    "Debit:" : {
+
+    },
     "Delete" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -606,6 +701,9 @@
     "Detailed Balances" : {
 
     },
+    "Discard" : {
+
+    },
     "Disclosures" : {
 
     },
@@ -613,6 +711,9 @@
 
     },
     "Display the homepage as one widget" : {
+
+    },
+    "Do not show as Accounting Style" : {
 
     },
     "Edit" : {
@@ -631,6 +732,36 @@
           }
         }
       }
+    },
+    "Edit Account" : {
+
+    },
+    "Edit Bill" : {
+
+    },
+    "Edit Category" : {
+
+    },
+    "Edit Datapoints..." : {
+
+    },
+    "Edit Hourly Job" : {
+
+    },
+    "Edit Salaried Job" : {
+
+    },
+    "Edit Sub Account" : {
+
+    },
+    "Edit Sub Category" : {
+
+    },
+    "Edit Transaction" : {
+
+    },
+    "Edit Utility" : {
+
     },
     "Edmund" : {
       "localizations" : {
@@ -652,24 +783,26 @@
     "Edmund Help" : {
 
     },
-    "emptyFields" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please fill in all fields."
-          }
-        }
-      }
-    },
     "Enable Dates" : {
+
+    },
+    "End" : {
+
+    },
+    "End Date" : {
+
+    },
+    "End Date:" : {
 
     },
     "Ended On" : {
 
     },
+    "Entries" : {
+
+    },
     "Error" : {
+      "comment" : "Used as the title of a message explaining what went wrong.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -725,9 +858,12 @@
 
     },
     "Export as PDF" : {
-
+      "shouldTranslate" : false
     },
     "Expression:" : {
+
+    },
+    "Filters" : {
 
     },
     "For Item:" : {
@@ -753,6 +889,9 @@
         }
       }
     },
+    "Frequency:" : {
+
+    },
     "From:" : {
 
     },
@@ -775,7 +914,16 @@
     "Generate Report" : {
 
     },
+    "Gross / Net -> Tax Rate" : {
+      "comment" : "Used to denote the data format. Gross Pay divided by Net Pay is the tax rate"
+    },
+    "Gross Amount" : {
+
+    },
     "Gross Pay" : {
+
+    },
+    "Gross Pay:" : {
 
     },
     "Groups:" : {
@@ -797,6 +945,15 @@
           }
         }
       }
+    },
+    "Has End Date:" : {
+
+    },
+    "Has Interest:" : {
+
+    },
+    "Has Location:" : {
+
     },
     "Help" : {
       "extractionState" : "manual",
@@ -831,6 +988,9 @@
         }
       }
     },
+    "High to Low" : {
+
+    },
     "Home" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -858,6 +1018,18 @@
 
     },
     "Hourly" : {
+
+    },
+    "Hourly Job" : {
+
+    },
+    "Hourly Jobs" : {
+
+    },
+    "Hourly Rate" : {
+
+    },
+    "Hourly Rate:" : {
 
     },
     "https://github.com/ExclusiveDisjunction/Edmund" : {
@@ -901,8 +1073,41 @@
         }
       }
     },
+    "Inspect Account" : {
+
+    },
+    "Inspect Bill" : {
+
+    },
+    "Inspect Category" : {
+
+    },
+    "Inspect Datapoints..." : {
+
+    },
+    "Inspect Hourly Job" : {
+
+    },
+    "Inspect Salaried Job" : {
+
+    },
+    "Inspect Sub Account" : {
+
+    },
+    "Inspect Sub Category" : {
+
+    },
+    "Inspect Transaction" : {
+
+    },
+    "Inspect Utility" : {
+
+    },
     "Interest" : {
 
+    },
+    "Interest:" : {
+      "comment" : "Money interest"
     },
     "internalError" : {
       "localizations" : {
@@ -914,10 +1119,19 @@
         }
       }
     },
-    "into:" : {
+    "Into:" : {
 
     },
-    "Into:" : {
+    "is empty" : {
+
+    },
+    "is invalid" : {
+
+    },
+    "is too large" : {
+
+    },
+    "is too small" : {
 
     },
     "Item" : {
@@ -976,7 +1190,7 @@
 
     },
     "Line %lld: Account" : {
-
+      "comment" : "Line #: Account"
     },
     "Loading" : {
 
@@ -1066,18 +1280,19 @@
     "Miscellaneous Income" : {
 
     },
-    "missingAccount" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An account must be selected."
-          }
-        }
-      }
-    },
     "Mode:" : {
+
+    },
+    "Money In" : {
+
+    },
+    "Money In:" : {
+
+    },
+    "Money Out" : {
+
+    },
+    "Money Out:" : {
 
     },
     "Month" : {
@@ -1097,11 +1312,14 @@
         }
       }
     },
-    "Move" : {
+    "Monthly" : {
 
     },
     "Move to" : {
 
+    },
+    "must be unique" : {
+      "comment" : "[property] must be unique"
     },
     "Name" : {
       "extractionState" : "manual",
@@ -1123,21 +1341,16 @@
     "Name:" : {
 
     },
-    "negativeAmount" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The amount cannot be negative."
-          }
-        }
-      }
+    "Net Pay" : {
+
     },
     "Net Spending" : {
 
     },
     "Next Due Date" : {
+
+    },
+    "No" : {
 
     },
     "No Account" : {
@@ -1175,6 +1388,9 @@
     "No credit limit" : {
 
     },
+    "No end date" : {
+
+    },
     "No Information" : {
 
     },
@@ -1185,6 +1401,9 @@
 
     },
     "No location" : {
+
+    },
+    "No warnings to report" : {
 
     },
     "noCategories" : {
@@ -1198,7 +1417,20 @@
         }
       }
     },
+    "noItems" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select at one item."
+          }
+        }
+      }
+    },
     "None" : {
+
+    },
+    "Notes:" : {
 
     },
     "Ok" : {
@@ -1219,6 +1451,9 @@
     },
     "on" : {
       "comment" : "$_ on [date]"
+    },
+    "On" : {
+      "comment" : "[Amount] on [Date]"
     },
     "One Section" : {
 
@@ -1292,6 +1527,12 @@
     "Over" : {
 
     },
+    "Parent" : {
+
+    },
+    "Parent Name" : {
+
+    },
     "Pay" : {
 
     },
@@ -1327,16 +1568,8 @@
     "Personal Loan" : {
 
     },
-    "Please fill in all fields" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitte füllen Sie alle Felder aus"
-          }
-        }
-      }
+    "Please ensure all fields are filled in and no negative values are used." : {
+
     },
     "Please report any translation errors." : {
 
@@ -1360,6 +1593,9 @@
     "Position" : {
 
     },
+    "Position:" : {
+      "comment" : "Job position"
+    },
     "Prefer Transaction Window" : {
 
     },
@@ -1372,6 +1608,15 @@
           }
         }
       }
+    },
+    "Price over Time" : {
+
+    },
+    "Price Over Time" : {
+
+    },
+    "Price:" : {
+
     },
     "Profile" : {
       "extractionState" : "manual",
@@ -1424,6 +1669,9 @@
         }
       }
     },
+    "Quarterly" : {
+
+    },
     "Reason" : {
 
     },
@@ -1456,6 +1704,9 @@
     "Reset Ledger" : {
 
     },
+    "Reversed Accounting Style" : {
+
+    },
     "Right Side" : {
 
     },
@@ -1463,6 +1714,12 @@
       "shouldTranslate" : false
     },
     "Salaried" : {
+
+    },
+    "Salaried Job" : {
+
+    },
+    "Salaried Jobs" : {
 
     },
     "Save" : {
@@ -1484,6 +1741,9 @@
     "Save Datapoint:" : {
 
     },
+    "Savings" : {
+
+    },
     "Scroll" : {
 
     },
@@ -1491,6 +1751,9 @@
       "comment" : "Select One bill\nSelect One utility"
     },
     "Selected Utility" : {
+
+    },
+    "Semi-Anually" : {
 
     },
     "Set-Aside Cost" : {
@@ -1545,6 +1808,15 @@
     "Simple Balances" : {
 
     },
+    "Sort & Filter" : {
+
+    },
+    "Sort By" : {
+
+    },
+    "Sorting" : {
+
+    },
     "Source" : {
 
     },
@@ -1567,6 +1839,12 @@
 
     },
     "Split the homepage vertically" : {
+
+    },
+    "Standard Accounting Style" : {
+
+    },
+    "Start Date:" : {
 
     },
     "Started On" : {
@@ -1611,6 +1889,12 @@
         }
       }
     },
+    "Sub Accounts" : {
+
+    },
+    "Sub Categories" : {
+
+    },
     "Sub Category" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1645,6 +1929,12 @@
         }
       }
     },
+    "Subscription to Utility" : {
+
+    },
+    "Subscriptions" : {
+
+    },
     "Supporting Projects" : {
 
     },
@@ -1657,16 +1947,31 @@
     "Target" : {
 
     },
+    "Tax Estimator" : {
+
+    },
     "Tax Rate" : {
 
     },
+    "Tax Rate:" : {
+
+    },
     "Taxes" : {
+
+    },
+    "The following errors are present:" : {
+
+    },
+    "The following properties must be unique together:" : {
 
     },
     "The help guides could not be loaded. Please report this issue." : {
 
     },
     "The page content could not be loaded. Please report this issue." : {
+
+    },
+    "The uniqueness constraint failed for this value. Please cancel the edit and try again." : {
 
     },
     "There are no associated transactions for this account" : {
@@ -1685,6 +1990,12 @@
         }
       }
     },
+    "There are one or more errors with the data inputted." : {
+
+    },
+    "There are unsaved changes, do you wish to continue?" : {
+
+    },
     "This app is not translated with professional translators." : {
 
     },
@@ -1696,6 +2007,16 @@
     },
     "Today" : {
 
+    },
+    "tooManyItems" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select only one item."
+          }
+        }
+      }
     },
     "Top Section" : {
 
@@ -1710,6 +2031,9 @@
 
     },
     "Topics:" : {
+
+    },
+    "Total Average Tax Rate:" : {
 
     },
     "Total:" : {
@@ -1729,6 +2053,9 @@
 
     },
     "Transaction Templates" : {
+
+    },
+    "Transactions" : {
 
     },
     "Transactions List" : {
@@ -1752,6 +2079,9 @@
           }
         }
       }
+    },
+    "Trust Fund" : {
+
     },
     "Two Months" : {
       "extractionState" : "manual",
@@ -1813,6 +2143,9 @@
 
     },
     "Use the space for two widgets" : {
+
+    },
+    "Utilities" : {
 
     },
     "Utility" : {
@@ -1891,6 +2224,9 @@
         }
       }
     },
+    "Weekly" : {
+
+    },
     "Welcome" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1941,6 +2277,9 @@
       }
     },
     "Year:" : {
+
+    },
+    "Yes" : {
 
     }
   },

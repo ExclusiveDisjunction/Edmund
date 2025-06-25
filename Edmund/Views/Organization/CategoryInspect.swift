@@ -9,7 +9,7 @@ import SwiftUI
 
 /// The inspector view for `Category`.
 public struct CategoryInspect : ElementInspectorView {
-    public typealias For = EdmundCore.Category;
+    public typealias For = Category;
     
     public init(_ data: Category) {
         self.data = data;

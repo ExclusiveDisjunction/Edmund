@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct AllExpiredBillsVE : View {
     @Query private var bills: [Bill];

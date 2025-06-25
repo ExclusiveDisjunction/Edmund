@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 
 @Observable
 class ManyTableEntry : Identifiable {
@@ -61,6 +60,7 @@ extension [ManyTableEntry] {
 }
 
 struct ManyTransferTable : View {
+    let title: LocalizedStringKey?;
     @Binding var data: [ManyTableEntry];
     @State private var editing: ManyTableEntry? = nil;
     @State private var selected = Set<ManyTableEntry.ID>();
@@ -68,8 +68,16 @@ struct ManyTransferTable : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func removeSelected() {
-        data.removeAll(where: { $0.selected} )
+    private func removeSelected(selection: Set<ManyTableEntry.ID>? = nil) {
+        let trueSelection: Set<ManyTableEntry.ID>;
+        if let selection = selection {
+            trueSelection = selection
+        }
+        else {
+            trueSelection = self.selected
+        }
+        
+        data.removeAll(where: { trueSelection.contains($0.id ) } )
     }
     
     @ViewBuilder
@@ -107,8 +115,11 @@ struct ManyTransferTable : View {
     @ViewBuilder
     private func itemContextMenu(_ selection: Set<ManyTableEntry.ID>) -> some View {
         addButton
+        
         Button(action: {
-            self.data.removeAll(where: { selection.contains($0.id) } )
+            withAnimation {
+                removeSelected(selection: selection)
+            }
         }) {
             Label("Remove", systemImage: "trash")
         }
@@ -116,17 +127,36 @@ struct ManyTransferTable : View {
     
     var body: some View {
         VStack {
-#if os(iOS)
             HStack {
-                addButton
+                if let title = self.title {
+                    Text(title)
+                        .bold()
+                }
                 
                 Spacer()
                 
+                Button(action: {
+                    withAnimation {
+                        data.append(.init())
+                    }
+                }) {
+                    Image(systemName: "plus")
+                }.buttonStyle(.borderless)
+                
+                Button(action: {
+                    withAnimation {
+                        removeSelected()
+                    }
+                }) {
+                    Image(systemName: "trash")
+                }.foregroundStyle(.red)
+                    .buttonStyle(.borderless)
+                    .disabled(selected.isEmpty)
+                
+                #if os(iOS)
                 EditButton()
+                #endif
             }
-#else
-            addButton
-#endif
             
             Table($data, selection: $selected) {
                 TableColumn("Amount") { $item in
@@ -148,7 +178,7 @@ struct ManyTransferTable : View {
         set: { data = $0 }
     );
     
-    ManyTransferTable(data: binding)
+    ManyTransferTable(title: nil, data: binding)
         .padding()
         .modelContainer(Containers.debugContainer)
 }

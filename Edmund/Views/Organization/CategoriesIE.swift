@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct CategoryTableRow : Identifiable, Parentable {
     init(subCategory: SubCategory) {
@@ -16,7 +15,7 @@ struct CategoryTableRow : Identifiable, Parentable {
         self.name = subCategory.name;
         self.children = nil;
     }
-    init(category: EdmundCore.Category) {
+    init(category: Category) {
         self.id = UUID();
         self.target = category;
         self.name = category.name;
@@ -30,7 +29,7 @@ struct CategoryTableRow : Identifiable, Parentable {
 }
 
 struct CategoriesIE : View {
-    @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
+    @Query(sort: [SortDescriptor(\Category.name, order: .forward)] ) private var categories: [Category];
     @State private var selection = Set<CategoryTableRow.ID>();
     @State private var cache: [CategoryTableRow] = [];
     
@@ -47,7 +46,7 @@ struct CategoriesIE : View {
     }
     private func deleteFromModel(data: CategoryTableRow, context: ModelContext) {
         withAnimation {
-            if let category = data.target as? EdmundCore.Category {
+            if let category = data.target as? Category {
                 context.delete(category)
             }
             else if let SubCategory = data.target as? SubCategory {
@@ -87,7 +86,7 @@ struct CategoriesIE : View {
             }.task { refresh() }
             .onChange(of: categories, { _, _ in refresh() })
             .sheet(item: $inspecting.value) { item in
-                if let category = item.target as? EdmundCore.Category {
+                if let category = item.target as? Category {
                     ElementEditor(category, adding: inspecting.mode == .add)
                 }
                 else if let subCategory = item.target as? SubCategory {

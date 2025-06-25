@@ -9,7 +9,7 @@ import SwiftUI
 
 /// The editor view for `Category`.
 public struct CategoryEdit: ElementEditorView  {
-    public typealias For = EdmundCore.Category;
+    public typealias For = Category;
     
     @Bindable private var snapshot: CategorySnapshot;
     public init(_ snapshot: CategorySnapshot){

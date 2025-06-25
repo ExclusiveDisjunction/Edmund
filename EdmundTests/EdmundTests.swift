@@ -7,7 +7,6 @@
 
 import Testing
 import Edmund
-import EdmundCore
 import Foundation
 
 struct DateEstTestCase {

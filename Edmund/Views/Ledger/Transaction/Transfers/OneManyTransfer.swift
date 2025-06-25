@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
  
 struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;
@@ -17,6 +16,14 @@ struct OneManyTransfer : TransactionEditorProtocol {
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+#if os(macOS)
+    private let minWidth: CGFloat = 45;
+    private let maxWidth: CGFloat = 55;
+#else
+    private let minWidth: CGFloat = 55;
+    private let maxWidth: CGFloat = 60;
+#endif
     
     func apply() -> [ValidationFailure]? {
         guard let categories = categoriesContext else {
@@ -56,12 +63,32 @@ struct OneManyTransfer : TransactionEditorProtocol {
     var body: some View {
         TransactionEditorFrame(.transfer(.oneMany), apply: apply, content: {
             VStack {
-                HStack {
-                    Text("Source:", comment: "Account source")
-                    NamedPairPicker($account)
+                Grid {
+                    GridRow {
+                        Text("Source:", comment: "Account source")
+                            .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                        
+                        NamedPairPicker($account)
+                    }
+                    
+                    GridRow {
+                        Text("Date:")
+                            .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                        
+                        HStack {
+                            DatePicker("", selection: $date, displayedComponents: .date)
+                                .labelsHidden()
+                            
+                            Button("Today", action: {
+                                date = .now
+                            })
+                            
+                            Spacer()
+                        }
+                    }
                 }
                 
-                ManyTransferTable(data: $data)
+                ManyTransferTable(title: nil, data: $data)
                     .frame(minHeight: 250)
                 
                 HStack {
@@ -75,16 +102,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
                     }
                 }
 
-                HStack {
-                    Text("Date:")
-                    
-                    DatePicker("", selection: $date, displayedComponents: .date)
-                        .labelsHidden()
-                    Button("Today", action: {
-                        date = .now
-                    })
-                    Spacer()
-                }
+                
                 
             }
         })

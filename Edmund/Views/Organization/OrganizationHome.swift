@@ -7,11 +7,10 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct OrganizationHome : View {
     @Query private var accounts: [Account];
-    @Query private var categories: [EdmundCore.Category];
+    @Query private var categories: [Category];
     
     var body: some View {
         HStack(spacing: 10) {

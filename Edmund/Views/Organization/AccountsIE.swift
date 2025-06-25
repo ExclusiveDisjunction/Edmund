@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct AccountsIE : View {
     @Query(sort: [SortDescriptor(\Account.name, order: .forward)] ) private var accounts: [Account];

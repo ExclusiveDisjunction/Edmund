@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct PersonalLoan: TransactionEditorProtocol {
     enum Mode : LocalizedStringKey, Identifiable, CaseIterable {

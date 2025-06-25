@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 
 struct OneOneTransfer : View, TransactionEditorProtocol {
     @Environment(\.categoriesContext) private var categories: CategoriesContext?;

@@ -69,7 +69,7 @@ public final class SubCategory : BoundPair, Equatable, NamedEditableElement, Nam
 @Observable
 public final class SubCategorySnapshot: ElementSnapshot, BoundPairSnapshot {
     public typealias Host = SubCategory;
-    public typealias Parent = EdmundCore.Category;
+    public typealias Parent = Category;
     
     public init() {
         self.name = "";
@@ -83,7 +83,7 @@ public final class SubCategorySnapshot: ElementSnapshot, BoundPairSnapshot {
     /// The sub-category's name
     public var name: String;
     /// The sub-category's parent account
-    public var parent: EdmundCore.Category?;
+    public var parent: Category?;
     
     public func validate(unique: UniqueEngine) -> [ValidationFailure] {
         var result: [ValidationFailure] = [];

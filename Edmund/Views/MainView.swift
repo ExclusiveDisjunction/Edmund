@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 /// The homepage elements that are presented to the user.
 enum PageDestinations: LocalizedStringKey, Identifiable {

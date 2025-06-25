@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 
 struct GeneralCommands : Commands {
     @Environment(\.openWindow) var openWindow;

@@ -214,20 +214,3 @@ public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable {
     
     public var id: Self { self }
 }
-
-public enum InvalidBillFields : LocalizedStringKey, CaseIterable, Identifiable {
-    case name = "Name", dates = "Start and End Dates", company = "Company", location = "Location", children = "Datapoints", amount = "Amount"
-    
-    public var description: LocalizedStringKey {
-        switch self {
-            case .name: "nameEmptyError"
-            case .dates: "startDateError"
-            case .company: "companyEmptyError"
-            case .location: "locationEmptyError"
-            case .children: "childrenError"
-            case .amount: "negAmountError"
-        }
-    }
-    
-    public var id: Self { self }
-}

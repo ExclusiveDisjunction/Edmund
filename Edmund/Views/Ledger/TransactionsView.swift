@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData;
-import EdmundCore;
 
 enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
     case simple,

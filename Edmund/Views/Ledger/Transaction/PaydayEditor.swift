@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 struct PaydayEditor : TransactionEditorProtocol {
     func apply() -> [ValidationFailure]? {

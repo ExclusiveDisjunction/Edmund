@@ -14,10 +14,6 @@ public struct SubAccountsInspect : View {
     
     @State private var selection: Set<SubAccount.ID> = .init();
     
-    @Bindable private var inspection: InspectionManifest<SubAccount> = .init();
-    @Bindable private var warning: SelectionWarningManifest = .init();
-    @Bindable private var deleting: DeletingManifest<SubAccount> = .init();
-    
     @Environment(\.dismiss) private var dismiss;
     
     public var body: some View {
@@ -28,19 +24,19 @@ public struct SubAccountsInspect : View {
                 
                 Spacer()
                 
-                Button(action: { inspection.open(.init(), mode: .add) }) {
+                Button(action: {  }) {
                     Image(systemName: "plus")
                 }.buttonStyle(.borderless)
                 
-                Button(action: { inspection.inspectSelected(selection, mode: .inspect, on: children, warning: warning) } ) {
+                Button(action: {  } ) {
                     Image(systemName: "info.circle")
                 }.buttonStyle(.borderless)
                 
-                Button(action: { inspection.inspectSelected(selection, mode: .edit, on: children, warning: warning) }) {
+                Button(action: {  }) {
                     Image(systemName: "pencil")
                 }.buttonStyle(.borderless)
                 
-                Button(action: { deleting.deleteSelected(selection, on: children, warning: warning) } ) {
+                Button(action: {  } ) {
                     Image(systemName: "trash")
                 }.foregroundStyle(.red)
                     .buttonStyle(.borderless)
@@ -54,13 +50,7 @@ public struct SubAccountsInspect : View {
                 TableColumn("Name", value: \.name)
             }.frame(minHeight: 200)
                 .contextMenu(forSelectionType: SubAccount.ID.self) { selection in
-                    SelectionContextMenu(selection, data: children, inspect: inspection, delete: deleting, warning: warning)
-                }
-                .sheet(item: $inspection.value) { target in
-                    ElementIE(target, mode: inspection.mode)
-                }
-                .confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
-                    DeletingActionConfirm(deleting)
+                    
                 }
             
             Spacer()

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 
 struct ManyManyTransfer : TransactionEditorProtocol {
     @State private var top: [ManyTableEntry] = [.init()];
@@ -56,12 +55,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
     var body : some View {
         TransactionEditorFrame(.transfer(.manyMany), apply: apply, content: {
             VStack {
-                HStack {
-                    Text("Take from").italic().bold()
-                    Spacer()
-                }
-                
-                ManyTransferTable(data: $top)
+                ManyTransferTable(title: "Take from", data: $top)
                     .frame(minHeight: 150)
                 
                 HStack {
@@ -72,12 +66,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
                 
                 Divider()
                 
-                HStack {
-                    Text("Move to").italic().bold()
-                    Spacer()
-                }
-                
-                ManyTransferTable(data: $bottom)
+                ManyTransferTable(title: "Move to", data: $bottom)
                     .frame(minHeight: 150)
                 
                 HStack {

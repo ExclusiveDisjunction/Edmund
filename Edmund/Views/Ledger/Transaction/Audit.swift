@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 struct Audit: TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;

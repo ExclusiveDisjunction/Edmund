@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 struct MiscIncome: TransactionEditorProtocol {
     @State private var person: String = "";

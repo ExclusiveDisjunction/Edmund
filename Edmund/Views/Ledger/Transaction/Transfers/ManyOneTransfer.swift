@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 
 struct ManyOneTransfer : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
@@ -58,16 +57,19 @@ struct ManyOneTransfer : TransactionEditorProtocol {
             VStack {
                 Grid {
                     GridRow {
-                        HStack {
-                            Text("Move")
-                            Text(data.amount, format: .currency(code: currencyCode))
-                            Text("into:")
-                        }
+                        Text("Amount:")
                         
                         HStack {
-                            NamedPairPicker($account)
+                            Text(data.amount, format: .currency(code: currencyCode))
+                            
                             Spacer()
                         }
+                    }
+                    
+                    GridRow {
+                        Text("Account:")
+                        
+                        NamedPairPicker($account)
                     }
                     HStack {
                         Text("Date:")
@@ -83,11 +85,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                 
                 Divider()
                 
-                HStack {
-                    Text("Amounts:").bold()
-                }
-                
-                ManyTransferTable(data: $data)
+                ManyTransferTable(title: "Amounts:", data: $data)
                     .frame(minHeight: 250)
 
             }
