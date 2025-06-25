@@ -23,9 +23,7 @@ final class CategoryTableRow : Identifiable, Parentable {
     
     var target: any PairBasis
     let id: UUID;
-    var newName: String = "";
     var children: [CategoryTableRow]?;
-    var isEditing: Bool = false;
 }
 
 struct CategoriesIE : View {
@@ -79,19 +77,12 @@ struct CategoriesIE : View {
     
     var body: some View {
         VStack {
-            List($cache, editActions: [.delete], children: \.children, selection: $selection) { $cat in
-                if cat.isEditing{
-                    TextField("Name", text: $cat.target.name)
-                }
-                else {
-                    Text(cat.target.name)
-                }
+            List(cache, children: \.children, selection: $selection) { cat in
+                Text(cat.target.name)
             }
-            /*
-             .contextMenu(forSelectionType: CategoryTableRow.ID.self) { selection in
-             SelectionContextMenu(selection, data: cache, inspect: inspecting, delete: delete, warning: warning)
-             }
-             */
+            .contextMenu(forSelectionType: CategoryTableRow.ID.self) { selection in
+                SelectionContextMenu(selection, data: cache, inspect: inspecting, delete: delete, warning: warning)
+            }
         }.padding()
             .navigationTitle("Categories")
             .toolbar(id: "categoriesToolbar") {
