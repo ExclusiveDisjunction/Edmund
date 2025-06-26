@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct BoundPairChildInspect<T> : ElementInspectorView where T: BoundPair {
+public struct BoundPairChildInspect<T> : ElementInspectorView where T: BoundPair, T: InspectableElement {
     public typealias For = T;
     
     public init(_ data: T) {

@@ -67,6 +67,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Views/Organization/Categories/CategoryEdit.swift,
+				Views/Organization/Categories/CategoryInspect.swift,
 			);
 			platformFiltersByRelativePath = {
 				Views/Ledger/Transaction/BatchTransactions.swift = (macos, );

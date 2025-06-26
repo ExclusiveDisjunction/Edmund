@@ -15,10 +15,11 @@ public protocol CategoriesHolderBasis {
 public extension CategoriesHolderBasis {
     static func getOrInsert(from: Category, name: String, context: ModelContext) -> SubCategory {
         if let target = from.children.first(where: {$0.name == name } ) {
+            target.isLocked = true;
             return target
         }
         else {
-            let result = SubCategory(name, parent: from)
+            let result = SubCategory(name, parent: from, isLocked: true)
             context.insert(result)
             
             return result
@@ -26,27 +27,30 @@ public extension CategoriesHolderBasis {
     }
 }
 
-@Observable
-public class AccountControlCategories : CategoriesHolderBasis {
-    public init(pay: SubCategory, transfer: SubCategory, audit: SubCategory) {
+public struct AccountControlCategories : CategoriesHolderBasis {
+    public init(pay: SubCategory, transfer: SubCategory, audit: SubCategory, initial: SubCategory) {
         self.pay = pay
         self.transfer = transfer
         self.audit = audit
+        self.initial = initial
     }
-    public required convenience init?(context: ModelContext, from: Category?) {
+    public init?(context: ModelContext, from: Category?) {
         if let from = from {
+            from.isLocked = true
             self.init(
                 pay: Self.getOrInsert(from: from, name: "Pay", context: context),
                 transfer: Self.getOrInsert(from: from, name: "Transfer", context: context),
-                audit: Self.getOrInsert(from: from, name: "Audit", context: context)
+                audit: Self.getOrInsert(from: from, name: "Audit", context: context),
+                initial: Self.getOrInsert(from: from, name: "Initial", context: context)
             )
         }
         else {
-            let parent = Category(Self.name)
+            let parent = Category(Self.name, isLocked: true)
             self.init(
-                pay: .init("Pay", parent: parent),
-                transfer: .init("Transfer", parent: parent),
-                audit: .init("Audit", parent: parent)
+                pay: .init("Pay", parent: parent, isLocked: true),
+                transfer: .init("Transfer", parent: parent, isLocked: true),
+                audit: .init("Audit", parent: parent, isLocked: true),
+                initial: .init("Initial", parent: parent, isLocked: true)
             )
             context.insert(parent)
         }
@@ -57,10 +61,10 @@ public class AccountControlCategories : CategoriesHolderBasis {
     public let pay: SubCategory;
     public let transfer: SubCategory;
     public let audit: SubCategory;
+    public let initial: SubCategory;
 }
 
-@Observable
-public class PaymentsCategories : CategoriesHolderBasis {
+public struct PaymentsCategories : CategoriesHolderBasis {
     public init(loan: SubCategory, repayment: SubCategory, refund: SubCategory, gift: SubCategory, interest: SubCategory) {
         self.loan = loan
         self.repayment = repayment
@@ -68,8 +72,9 @@ public class PaymentsCategories : CategoriesHolderBasis {
         self.gift = gift
         self.interest = interest
     }
-    public required convenience init?(context: ModelContext, from: Category?) {
+    public init?(context: ModelContext, from: Category?) {
         if let from = from {
+            from.isLocked = true
             self.init(
                 loan: Self.getOrInsert(from: from, name: "Loan", context: context),
                 repayment: Self.getOrInsert(from: from, name: "Repayment", context: context),
@@ -79,13 +84,13 @@ public class PaymentsCategories : CategoriesHolderBasis {
             )
         }
         else {
-            let parent = Category(Self.name)
+            let parent =  Category(Self.name, isLocked: true)
             self.init(
-                loan: .init("Loan"),
-                repayment: .init("Repayment"),
-                refund: .init("Refund"),
-                gift: .init("Gift"),
-                interest: .init("Interest")
+                loan: .init("Loan", isLocked: true),
+                repayment: .init("Repayment", isLocked: true),
+                refund: .init("Refund", isLocked: true),
+                gift: .init("Gift", isLocked: true),
+                interest: .init("Interest", isLocked: true)
             )
             
             parent.children = [
@@ -109,15 +114,15 @@ public class PaymentsCategories : CategoriesHolderBasis {
     public let interest: SubCategory;
 }
 
-@Observable
-public class BillPaymentsCategories : CategoriesHolderBasis{
+public struct BillPaymentsCategories : CategoriesHolderBasis{
     public init(bill: SubCategory, sub: SubCategory, utility: SubCategory) {
         self.bill = bill
         self.subscription = sub
         self.utility = utility
     }
-    public required convenience init?(context: ModelContext, from: Category?) {
+    public init?(context: ModelContext, from: Category?) {
         if let from = from {
+            from.isLocked = true
             self.init(
                 bill: Self.getOrInsert(from: from, name: "Bill", context: context),
                 sub: Self.getOrInsert(from: from, name: "Subscription", context: context),
@@ -125,11 +130,11 @@ public class BillPaymentsCategories : CategoriesHolderBasis{
             )
         }
         else {
-            let parent = Category(Self.name)
+            let parent = Category(Self.name, isLocked: true)
             self.init(
-                bill: .init("Bill"),
-                sub: .init("Subscription"),
-                utility: .init("Utility")
+                bill: .init("Bill", isLocked: true),
+                sub: .init("Subscription", isLocked: true),
+                utility: .init("Utility", isLocked: true)
             )
             
             parent.children = [
@@ -149,25 +154,22 @@ public class BillPaymentsCategories : CategoriesHolderBasis{
 }
 
 /// Provides a lookup for the basic SubCategories that are used by the program.
-@Observable
-public class CategoriesContext {
+public struct CategoriesContext {
     public init?(_ context: ModelContext) {
         guard let categories = try? context.fetch(FetchDescriptor<Category>()) else { return nil }
         
-        guard let acc = AccountControlCategories(context: context, from: categories.first(where: {$0.name == AccountControlCategories.name } ) ) else { return nil }
-        guard let payment = PaymentsCategories(context: context, from: categories.first(where: {$0.name == PaymentsCategories.name } ) ) else { return nil }
-        guard let bills = BillPaymentsCategories(context: context, from: categories.first(where: {$0.name == BillPaymentsCategories.name } ) ) else { return nil }
+        guard let acc =     AccountControlCategories(context: context, from: categories.first(where: {$0.name == AccountControlCategories.name } ) ) else { return nil }
+        guard let payment = PaymentsCategories      (context: context, from: categories.first(where: {$0.name == PaymentsCategories.name       } ) ) else { return nil }
+        guard let bills =   BillPaymentsCategories  (context: context, from: categories.first(where: {$0.name == BillPaymentsCategories.name   } ) ) else { return nil }
         
-        self.context = context
         self.accountControl = acc
         self.payments = payment
         self.bills = bills
     }
     
-    private var context: ModelContext;
-    public var accountControl: AccountControlCategories;
-    public var payments: PaymentsCategories;
-    public var bills: BillPaymentsCategories;
+    public let accountControl: AccountControlCategories;
+    public let payments: PaymentsCategories;
+    public let bills: BillPaymentsCategories;
 }
 
 private struct CategoriesContextKey: EnvironmentKey {

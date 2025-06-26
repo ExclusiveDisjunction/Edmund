@@ -11,25 +11,24 @@ import SwiftUI
 
 /// A grouping structure used to associate transactions into non-account groups.
 @Model
-public final class Category : Identifiable, Hashable, BoundPairParent, NamedInspectableElement, NamedEditableElement, UniqueElement {
-    public typealias EditView = CategoryEdit
-    public typealias Snapshot = CategorySnapshot
-    public typealias InspectorView = CategoryInspect
-    
+public final class Category : CategoryBase, BoundPairParent, UniqueElement, Equatable {
     public init() {
         self.name = ""
         self.children = []
+        self.isLocked = true
     }
     /// Creates the category with a specified name and a list of children.
-    public init(_ name: String, children: [SubCategory] = []) {
+    public init(_ name: String, children: [SubCategory] = [], isLocked: Bool = false) {
         self.name = name
         self.children = children;
+        self.isLocked = isLocked
     }
     
     public var id: String { name }
     public var name: String = "";
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent)
     public var children: [SubCategory]
+    public var isLocked: Bool;
     
     public static func ==(lhs: Category, rhs: Category) -> Bool {
         lhs.name == rhs.name
@@ -52,6 +51,18 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
     }
     public func removeFromEngine(unique: UniqueEngine) -> Bool {
         unique.category(id: self.id, action: .remove)
+    }
+    public func tryNewName(name: String, unique: UniqueEngine) -> Bool {
+        guard name != self.name else { return true }
+        
+        return unique.category(id: name, action: .validate)
+    }
+    public func setNewName(name: String, unique: UniqueEngine) {
+        guard name != self.name else { return }
+        
+        let _ = unique.category(id: self.name, action: .remove);
+        let _ = unique.category(id: name, action: .insert);
+        self.name = name;
     }
     
     /// A list of categories that can be used to display filler data.
@@ -84,51 +95,9 @@ public final class Category : Identifiable, Hashable, BoundPairParent, NamedInsp
     /// A singular category that can be used to display filler data.
     public static let exampleCategory: Category = {
         .init("Bills", children: [
-            .init("Utilities"),
-            .init("Subscriptions"),
-            .init("Bills")
+            .init("Utility"),
+            .init("Subscription"),
+            .init("Bill")
         ])
     }()
-}
-
-@Observable
-public final class CategorySnapshot: ElementSnapshot {
-    public typealias For = Category;
-    
-    public init() {
-        self.name = ""
-        self.oldId = ""
-    }
-    public init(_ from: Category) {
-        self.name = from.name
-        self.oldId = from.id;
-    }
-    
-    @ObservationIgnored private let oldId: String;
-    
-    public var name: String;
-    
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        let name = name.trimmingCharacters(in: .whitespaces);
-        
-        if oldId != name && !unique.category(id: name, action: .validate) { return [.unique(Category.identifiers)] }
-        else if name.isEmpty { return [.empty("Name")] }
-        else { return [] }
-    }
-    public func apply(_ to: Category, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<String>) {
-        let name = name.trimmingCharacters(in: .whitespaces)
-        
-        if to.id != name {
-            guard unique.category(id: name, action: .insert) else { throw .init(value: name) }
-        }
-        
-        to.name = name;
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
-    public static func ==(lhs: CategorySnapshot, rhs: CategorySnapshot) -> Bool {
-        lhs.name == rhs.name
-    }
 }

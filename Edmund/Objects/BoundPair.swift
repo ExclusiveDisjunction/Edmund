@@ -43,7 +43,7 @@ public struct BoundPairID : Hashable, Equatable, RawRepresentable {
 }
 
 /// Represents a basis used between bound pair parents and bound pairs.
-public protocol PairBasis : Identifiable, PersistentModel, Hashable, Equatable, EditableElement, InspectableElement {
+public protocol PairBasis : Identifiable, PersistentModel, Hashable, Equatable {
     /// The name of the element
     var name: String { get set }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-public struct BoundPairChildEdit<T> : ElementEditorView where T: BoundPair, T.Snapshot: BoundPairSnapshot {
+public struct BoundPairChildEdit<T> : ElementEditorView where T: BoundPair, T: EditableElement, T.Snapshot: BoundPairSnapshot {
     public typealias For = T;
     
     public init(_ data: T.Snapshot) {
