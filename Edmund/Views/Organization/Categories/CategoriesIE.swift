@@ -8,29 +8,6 @@
 import SwiftUI
 import SwiftData
 
-@Observable
-final class CategoryTableRow : Identifiable, Parentable {
-    init(subCategory: SubCategory) {
-        self.id = UUID();
-        self.target = subCategory;
-        self.children = nil;
-        self.name = subCategory.name;
-    }
-    init(category: Category) {
-        self.id = UUID();
-        self.target = category;
-        self.children = category.children.map { Self(subCategory: $0) }
-        self.name = category.name;
-    }
-    
-    var target: any CategoryBase
-    let id: UUID;
-    var name: String;
-    var children: [CategoryTableRow]?;
-    var isEditing: Bool = false;
-    var attempts: CGFloat = 0;
-}
-
 struct CategoriesIE : View {
     @Query(sort: [SortDescriptor(\Category.name, order: .forward)] ) private var categories: [Category];
     
@@ -38,9 +15,6 @@ struct CategoriesIE : View {
     @State private var cache: [CategoryTableRow] = [];
     @State private var addingCategory: Bool = false;
     @State private var addingSubCategory: Bool = false;
-    
-    @State private var editingParent: Category?;
-    @State private var tmpName: String = "";
     
     @Bindable private var delete = DeletingManifest<CategoryTableRow>();
     @Bindable private var warning = SelectionWarningManifest();
@@ -60,62 +34,20 @@ struct CategoriesIE : View {
             }
         }
     }
-    private func submitFor(_ cat: CategoryTableRow) {
-        let name = cat.name.trimmingCharacters(in: .whitespaces);
+    private func deletePress() {
+        let items = cache.filter { !$0.target.isLocked && selection.contains($0.id) }
         
-        if !name.isEmpty && cat.target.tryNewName(name: name, unique: uniqueEngine) {
-            cat.target.setNewName(name: name, unique: uniqueEngine);
-            cat.isEditing = false;
+        guard !items.isEmpty else {
+            warning.warning = .noneSelected;
+            return;
         }
-        else {
-            withAnimation(.default) {
-                cat.attempts += 1;
-            }
-        }
+        
+        delete.action = items;
     }
     
-    private static let lockedWarning: LocalizedStringKey = "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted.";
-    
     var body: some View {
-        VStack {
-            List($cache, children: \.children, selection: $selection) { $cat in
-                Text(cat.target.name)
-                    .onTapGesture(count: 2) {
-                        if !cat.target.isLocked {
-                            cat.isEditing = true
-                        }
-                    }
-                    .popover(isPresented: $cat.isEditing) {
-                        HStack {
-                            Text("Name:")
-                                .frame(width: 50)
-                            TextField("", text: $cat.name)
-                                .textFieldStyle(.roundedBorder)
-                                .onSubmit{
-                                    submitFor(cat)
-                                }
-                                .onDisappear {
-                                    cat.name = cat.target.name
-                                }
-                                .modifier(ShakeEffect(animatableData: CGFloat(cat.attempts)))
-                        }.padding()
-                    }.contextMenu {
-                        Button(action: {
-                            cat.isEditing = true
-                        }) {
-                            Label("Edit", systemImage: "pencil")
-                        }.disabled(cat.target.isLocked)
-                            .help(cat.target.isLocked ? Self.lockedWarning : "")
-                        
-                        Button(action: {
-                            delete.action = [cat]
-                        }) {
-                            Label("Delete", systemImage: "trash")
-                        }.disabled(cat.target.isLocked)
-                            .foregroundStyle(.red)
-                            .help(cat.target.isLocked ? Self.lockedWarning : "")
-                    }
-            }
+        List($cache, children: \.children, selection: $selection) { $cat in
+            CategoryTableRowEdit($cat, delete: delete)
         }.padding()
             .navigationTitle("Categories")
             .task { refresh() }
@@ -139,22 +71,13 @@ struct CategoriesIE : View {
                 }
                 
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        let items = cache.filter { !$0.target.isLocked && selection.contains($0.id) }
-                        
-                        guard !items.isEmpty else {
-                            warning.warning = .noneSelected;
-                            return;
-                        }
-                        
-                        delete.action = items;
-                    }) {
+                    Button(action: deletePress) {
                         Label("Delete", systemImage: "trash")
                             .foregroundStyle(.red)
                     }
                 }
             }
-            .sheet(isPresented: $addingCategory, onDismiss: { tmpName = ""} ) {
+            .sheet(isPresented: $addingCategory) {
                 CategoryAdder()
             }
             .sheet(isPresented: $addingSubCategory) {

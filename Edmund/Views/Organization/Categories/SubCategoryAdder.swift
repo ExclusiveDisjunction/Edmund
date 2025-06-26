@@ -34,9 +34,8 @@ struct SubCategoryAdder : View {
         
         if let parent = parent {
             let target = SubCategory(parent: parent)
-            if target.tryNewName(name: name, unique: uniqueEngine) {
+            if !name.isEmpty && target.tryNewName(name: name, unique: uniqueEngine) {
                 target.setNewName(name: name, unique: uniqueEngine)
-                print("name accepted, value: \(target.id)")
                 modelContext.insert(target)
                 
                 dismiss()
