@@ -15,7 +15,7 @@ public final class Category : CategoryBase, BoundPairParent, UniqueElement, Equa
     public init() {
         self.name = ""
         self.children = []
-        self.isLocked = true
+        self.isLocked = false
     }
     /// Creates the category with a specified name and a list of children.
     public init(_ name: String, children: [SubCategory] = [], isLocked: Bool = false) {

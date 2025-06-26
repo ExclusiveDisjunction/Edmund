@@ -59,10 +59,46 @@ extension [ManyTableEntry] {
     }
 }
 
+struct ManyTableEntryEditor : View {
+    init(_ data: Binding<ManyTableEntry>) {
+        self._data = data;
+    }
+    
+    @Binding var data: ManyTableEntry;
+    @Environment(\.dismiss) private var dismiss;
+    
+    var body: some View {
+        VStack {
+            Grid {
+                GridRow {
+                    Text("Amount:")
+                    
+                    CurrencyField(data.amount)
+                }
+                
+                GridRow {
+                    Text("Account:")
+                    
+                    NamedPairPicker($data.account)
+                }
+            }
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                
+                Button("Ok", action: { dismiss() } )
+                    .buttonStyle(.borderedProminent)
+            }
+        }.padding()
+    }
+}
+
 struct ManyTransferTable : View {
     let title: LocalizedStringKey?;
     @Binding var data: [ManyTableEntry];
-    @State private var editing: ManyTableEntry? = nil;
+    @State private var editing: Binding<ManyTableEntry>? = nil;
     @State private var selected = Set<ManyTableEntry.ID>();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -93,21 +129,38 @@ struct ManyTransferTable : View {
     
     @ViewBuilder
     private var compact: some View {
-        List(data, selection: $selected) { item in
+        List($data, selection: $selected) { $item in
             HStack {
+                CurrencyField(item.amount)
+                
+                Spacer()
+                
+                NamedPairPicker($item.account)
+                /*
                 Text(item.amount.rawValue, format: .currency(code: currencyCode))
+                
+                Spacer()
+                
                 if let account = item.account {
                     CompactNamedPairInspect(account)
                 }
                 else {
                     Text("No Account").italic()
                 }
-            }.swipeActions(edge: .leading) {
-                Button(action: {
-                    editing = item
-                }) {
-                    Image(systemName: "pencil")
-                }.tint(.green)
+                */
+            }
+        }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
+    }
+    
+    @ViewBuilder
+    private var fullSize: some View {
+        Table($data, selection: $selected) {
+            TableColumn("Amount") { $item in
+                CurrencyField(item.amount)
+            }
+            
+            TableColumn("Account") { $item in
+                NamedPairPicker($item.account)
             }
         }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
     }
@@ -158,15 +211,12 @@ struct ManyTransferTable : View {
                 #endif
             }
             
-            Table($data, selection: $selected) {
-                TableColumn("Amount") { $item in
-                    CurrencyField(item.amount)
-                }
-                
-                TableColumn("Account") { $item in
-                    NamedPairPicker($item.account)
-                }
-            }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
+            if horizontalSizeClass == .compact {
+                compact
+            }
+            else {
+                fullSize
+            }
         }
     }
 }

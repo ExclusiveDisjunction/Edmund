@@ -716,6 +716,9 @@
     "Do not show as Accounting Style" : {
 
     },
+    "Done" : {
+
+    },
     "Edit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -746,9 +749,6 @@
 
     },
     "Edit Hourly Job" : {
-
-    },
-    "Edit Name" : {
 
     },
     "Edit Salaried Job" : {
@@ -1574,6 +1574,9 @@
     "Please ensure all fields are filled in and no negative values are used." : {
 
     },
+    "Please ensure that you select at least one non-locked element." : {
+
+    },
     "Please report any translation errors." : {
 
     },
@@ -1586,6 +1589,9 @@
           }
         }
       }
+    },
+    "Please select only one element." : {
+
     },
     "Please submit an issue on GitHub, or contact the developer at exdisj@icloud.com" : {
 

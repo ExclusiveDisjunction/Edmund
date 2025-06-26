@@ -63,7 +63,7 @@ struct CategoriesIE : View {
     private func submitFor(_ cat: CategoryTableRow) {
         let name = cat.name.trimmingCharacters(in: .whitespaces);
         
-        if cat.target.tryNewName(name: name, unique: uniqueEngine) {
+        if !name.isEmpty && cat.target.tryNewName(name: name, unique: uniqueEngine) {
             cat.target.setNewName(name: name, unique: uniqueEngine);
             cat.isEditing = false;
         }
@@ -75,26 +75,6 @@ struct CategoriesIE : View {
     }
     
     private static let lockedWarning: LocalizedStringKey = "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted.";
-    
-    
-    @ToolbarContentBuilder
-    private var catToolbar: some CustomizableToolbarContent {
-        ToolbarItem(id: "add", placement: .primaryAction) {
-            Menu {
-                Button("Category", action: {
-                    addingCategory = true
-                })
-                
-                Button("Sub Category", action: {
-                    addingSubCategory = true
-                })
-            } label: {
-                Label("Add", systemImage: "plus")
-            }
-        }
-        
-        GeneralDeleteToolbarButton(on: cache, selection: $selection, delete: delete, warning: warning)
-    }
     
     var body: some View {
         VStack {
@@ -108,6 +88,7 @@ struct CategoriesIE : View {
                     .popover(isPresented: $cat.isEditing) {
                         HStack {
                             Text("Name:")
+                                .frame(width: 50)
                             TextField("", text: $cat.name)
                                 .textFieldStyle(.roundedBorder)
                                 .onSubmit{
@@ -142,8 +123,36 @@ struct CategoriesIE : View {
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting) {
                 AbstractDeletingActionConfirm(delete, delete: deleteFromModel, post: refresh)
             }
-            .toolbar(id: "categoriesToolbar") {
-                catToolbar
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Button("Category", action: {
+                            addingCategory = true
+                        })
+                        
+                        Button("Sub Category", action: {
+                            addingSubCategory = true
+                        })
+                    } label: {
+                        Label("Add", systemImage: "plus")
+                    }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        let items = cache.filter { !$0.target.isLocked && selection.contains($0.id) }
+                        
+                        guard !items.isEmpty else {
+                            warning.warning = .noneSelected;
+                            return;
+                        }
+                        
+                        delete.action = items;
+                    }) {
+                        Label("Delete", systemImage: "trash")
+                            .foregroundStyle(.red)
+                    }
+                }
             }
             .sheet(isPresented: $addingCategory, onDismiss: { tmpName = ""} ) {
                 CategoryAdder()
@@ -151,28 +160,16 @@ struct CategoriesIE : View {
             .sheet(isPresented: $addingSubCategory) {
                 SubCategoryAdder()
             }
-        /*
-            
-            .toolbar(id: "categoriesToolbar") {
-                catToolbar
-            }
-            .sheet(item: $inspecting.value) { item in
-                if let category = item.target as? Category {
-                    ElementIE(category, mode: inspecting.mode)
-                }
-                else if let subCategory = item.target as? SubCategory {
-                    ElementIE(subCategory, mode: inspecting.mode)
-                }
-            }
-            .toolbarRole(.editor)
             .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: {
                     warning.isPresented = false
                 })
             }, message: {
-                Text((warning.warning ?? .noneSelected).message )
+                switch warning.warning ?? .noneSelected {
+                    case .noneSelected: Text("Please ensure that you select at least one non-locked element.")
+                    case .tooMany: Text("Please select only one element.")
+                }
             })
-                     */
     }
 }
 

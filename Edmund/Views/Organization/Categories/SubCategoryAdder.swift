@@ -29,7 +29,6 @@ struct SubCategoryAdder : View {
 #endif
     
     private func submit() {
-        print("submit called")
         let name = name.trimmingCharacters(in: .whitespaces)
         
         
