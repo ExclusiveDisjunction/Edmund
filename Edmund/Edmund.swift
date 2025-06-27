@@ -92,7 +92,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
-                BudgetIE()
+                BudgetInspect()
                     .preferredColorScheme(colorScheme)
                     .environment(\.uniqueEngine, uniqueEngine)
             }

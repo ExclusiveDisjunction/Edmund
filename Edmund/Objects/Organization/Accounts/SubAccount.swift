@@ -37,6 +37,15 @@ public final class SubAccount : BoundPair, Equatable, NamedEditableElement, Name
     @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account)
     public var transactions: [LedgerEntry]? = nil;
     
+    @Relationship(deleteRule: .nullify, inverse: \BudgetInstance.depositTo)
+    public var budgetInstances: [BudgetInstance] = [];
+    @Relationship(deleteRule: .nullify, inverse: \AmountDevotion.account)
+    public var amountDevotions: [AmountDevotion] = [];
+    @Relationship(deleteRule: .nullify, inverse: \PercentDevotion.account)
+    public var percentDevotions: [PercentDevotion] = [];
+    @Relationship(deleteRule: .nullify, inverse: \RemainderDevotion.account)
+    public var remainderDevotions: [RemainderDevotion] = [];
+    
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Sub Account",
@@ -109,6 +118,7 @@ public final class SubAccountSnapshot: ElementSnapshot, BoundPairSnapshot {
         let id = BoundPairID(parent: parent?.name, name: name)
         
         if to.id != id {
+            let _ = unique.subAccount(id: to.id, action: .remove);
             guard unique.subAccount(id: id, action: .insert) else { throw .init(value: id) }
         }
         

@@ -131,7 +131,10 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             .init("Health"),
             .init("Groceries"),
             .init("Pay"),
-            .init("Credit Card")
+            .init("Credit Card"),
+            .init("Personal"),
+            .init("Taxes"),
+            .init("Bills")
         ])
     }()
     /// A singular account that is setup like a credit card.
@@ -151,8 +154,11 @@ public final class AccountSnapshot : ElementSnapshot {
         self.hasLocation = from.location != nil;
         self.location = from.location ?? String();
         self.kind = from.kind;
+        self.oldName = from.name;
     }
 
+    private let oldName: String;
+    
     /// The account's name
     public var name: String;
     /// True if the kind is `.credit`.
@@ -177,7 +183,7 @@ public final class AccountSnapshot : ElementSnapshot {
         
         let name = self.name.trimmingCharacters(in: .whitespaces);
         if name.isEmpty { result.append(.empty("Name")) }
-        else if !unique.account(id: name, action: .validate) { result.append(.unique(Account.identifiers)) }
+        else if name != oldName && !unique.account(id: name, action: .validate) { result.append(.unique(Account.identifiers)) }
         
         if hasCreditLimit && creditLimit.rawValue < 0 { result.append(.negativeAmount("Credit Limit")) }
         if hasInterest {
@@ -192,7 +198,10 @@ public final class AccountSnapshot : ElementSnapshot {
     public func apply(_ to: Account, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<Account.ID>) {
         let name = self.name.trimmingCharacters(in: .whitespaces)
         
-        if !unique.account(id: name, action: .insert) { throw UniqueFailueError(value: name) }
+        if name != to.name {
+            let _ = unique.account(id: to.name, action: .remove);
+            guard unique.account(id: name, action: .insert) else { throw UniqueFailueError(value: name) }
+        }
         
         to.name = name
         to.creditLimit = self.hasCreditLimit ? self.creditLimit.rawValue : nil;

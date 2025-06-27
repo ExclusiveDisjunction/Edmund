@@ -23,7 +23,11 @@ public struct Containers {
                 Utility.self,
                 UtilityEntry.self,
                 HourlyJob.self,
-                SalariedJob.self
+                SalariedJob.self,
+                BudgetInstance.self,
+                AmountDevotion.self,
+                PercentDevotion.self,
+                RemainderDevotion.self
             ]
         )
     }()
@@ -48,7 +52,7 @@ public struct Containers {
             for category in categories {
                 result.mainContext.insert(category)
             }
-
+            
             //We make our own manual LedgerEntry
             let ledger = LedgerEntry.exampleEntries(acc: accounts, cat: categories)
             
@@ -69,6 +73,16 @@ public struct Containers {
             result.mainContext.insert(HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15))
             
             result.mainContext.insert(SalariedJob(company: "Winn Dixie", position: "Customer Service Manager", grossAmount: 850, taxRate: 0.25))
+            
+            let accPay = accounts.findPair("Checking", "Pay")!
+            let accBills = accounts.findPair("Checking", "Bills")!
+            let accGroc = accounts.findPair("Checking", "Groceries")!
+            let personal = accounts.findPair("Checking", "Personal")!
+            let taxes = accounts.findPair("Checking", "Taxes")!
+            let main = accounts.findPair("Savings", "Main")!
+            
+            result.mainContext.insert(BudgetInstance.exampleBudget(pay: accPay, bills: accBills, groceries: accGroc, personal: personal, taxes: taxes, main: main))
+            
             
             return result
         } catch {

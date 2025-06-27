@@ -151,6 +151,9 @@
     "Add Bill" : {
 
     },
+    "Add Budget" : {
+
+    },
     "Add Category" : {
 
     },
@@ -252,6 +255,9 @@
           }
         }
       }
+    },
+    "Ascending" : {
+
     },
     "Audit" : {
       "localizations" : {
@@ -425,6 +431,12 @@
         }
       }
     },
+    "Budget Search" : {
+
+    },
+    "Budget:" : {
+
+    },
     "Budgeting Period" : {
       "localizations" : {
         "pl" : {
@@ -549,6 +561,9 @@
 
     },
     "Composite Transaction" : {
+
+    },
+    "Computed Amount" : {
 
     },
     "Costs" : {
@@ -692,7 +707,16 @@
         }
       }
     },
+    "Deposit Account" : {
+
+    },
+    "Deposit Into:" : {
+
+    },
     "Deposit:" : {
+
+    },
+    "Destination" : {
 
     },
     "Destination Account" : {
@@ -714,6 +738,9 @@
 
     },
     "Do not show as Accounting Style" : {
+
+    },
+    "Donation" : {
 
     },
     "Done" : {
@@ -740,6 +767,9 @@
 
     },
     "Edit Bill" : {
+
+    },
+    "Edit Budget" : {
 
     },
     "Edit Category" : {
@@ -917,6 +947,9 @@
     "Generate Report" : {
 
     },
+    "Gift" : {
+
+    },
     "Gross / Net -> Tax Rate" : {
       "comment" : "Used to denote the data format. Gross Pay divided by Net Pay is the tax rate"
     },
@@ -1050,7 +1083,13 @@
     "Income" : {
 
     },
+    "Income Kind:" : {
+
+    },
     "Income Report" : {
+
+    },
+    "Income:" : {
 
     },
     "Individual Spending" : {
@@ -1171,6 +1210,18 @@
     },
     "Kyle Lawrence" : {
       "shouldTranslate" : false
+    },
+    "Last Edited" : {
+
+    },
+    "Last modified:" : {
+
+    },
+    "Last Updated" : {
+
+    },
+    "Last Viewed" : {
+
     },
     "Ledger" : {
       "extractionState" : "manual",
@@ -1539,6 +1590,9 @@
     "Pay" : {
 
     },
+    "Pay Amount" : {
+
+    },
     "Paychecks" : {
 
     },
@@ -1572,6 +1626,9 @@
 
     },
     "Please ensure all fields are filled in and no negative values are used." : {
+
+    },
+    "Please ensure that the name is not empty, the income is not negative, and an account is selected." : {
 
     },
     "Please ensure that you select at least one non-locked element." : {
@@ -1754,6 +1811,9 @@
 
     },
     "Scroll" : {
+
+    },
+    "Select a budget to begin" : {
 
     },
     "Select One" : {
@@ -2046,6 +2106,9 @@
 
     },
     "Total Average Tax Rate:" : {
+
+    },
+    "Total Income:" : {
 
     },
     "Total:" : {

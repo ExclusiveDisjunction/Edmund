@@ -37,7 +37,7 @@ Due to the smaller screen, not as much information can be displayed on this scre
 
 To display in-depth details, simply swipe from right to left on a transaction. There will be three buttons:
 1. Delete (red, trash): Remove that transaction
-2. Edit (green, pencil): Edit that transaction
-3. Inspect (blue, "i" in circle): See all transaction details
+2. Edit (blue, pencil): Edit that transaction
+3. Inspect (green, "i" in circle): See all transaction details
 
 To select more than one transaction, press the "Edit" button in the toolbar. Click the check-boxes next to each transaction. 

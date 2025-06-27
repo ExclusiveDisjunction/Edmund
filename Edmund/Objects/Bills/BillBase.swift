@@ -237,7 +237,11 @@ public class BillBaseSnapshot: Hashable, Equatable {
         let location = location.trimmingCharacters(in: .whitespaces)
         let id = BillBaseID(name: name, company: company, location: hasLocation ? location : nil)
         
-        guard unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+        if id != to.id {
+            let _ = unique.bill(id: to.id, action: .remove);
+            guard unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+        }
+        
         
         to.name = name
         to.company = company
