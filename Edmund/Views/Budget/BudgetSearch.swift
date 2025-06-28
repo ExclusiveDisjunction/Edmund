@@ -129,8 +129,7 @@ struct BudgetSearch : View {
 #if os(macOS)
             .width(160)
 #endif
-        }.searchable(text: $query.criteria.query)
-            //.frame(minHeight: 250)
+        }.frame(minHeight: 250)
     }
     
     @ViewBuilder
@@ -143,8 +142,7 @@ struct BudgetSearch : View {
             }.swipeActions(edge: .trailing) {
                 
             }
-        }.searchable(text: $query.criteria.query)
-            .frame(minHeight: 250)
+        }.frame(minHeight: 250)
     }
     
     var body: some View {
@@ -153,6 +151,32 @@ struct BudgetSearch : View {
                 Text("Budget Search")
                     .font(.title2)
                 Spacer()
+            }
+            
+            HStack {
+                Text("Search:")
+                TextField("", text: $query.criteria.query)
+                    .textFieldStyle(.roundedBorder)
+                
+                Button(action: {
+                    showPopover = true
+                }) {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                }.buttonStyle(.borderless)
+                    .popover(isPresented: $showPopover) {
+                        Form {
+                            Section {
+                                Toggle("Ascending", isOn: $query.criteria.ascending)
+                                
+                                Picker("Sort By", selection: $query.criteria.sortBy) {
+                                    ForEach(BudgetSortField.allCases, id: \.id) { field in
+                                        Text(field.display).tag(field)
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                    }
             }
             
             if horizontalSizeClass == .compact {
@@ -172,34 +196,9 @@ struct BudgetSearch : View {
             .onAppear {
                 query.update(budgets)
             }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        showPopover = true
-                    }) {
-                        Label("Sort & Filter", systemImage: "line.3.horizontal.decrease.circle")
-                    }.popover(isPresented: $showPopover) {
-                        Form {
-                            Section {
-                                Toggle("Ascending", isOn: $query.criteria.ascending)
-                                
-                                Picker("Sort By", selection: $query.criteria.sortBy) {
-                                    ForEach(BudgetSortField.allCases, id: \.id) { field in
-                                        Text(field.display).tag(field)
-                                    }
-                                }
-                            }
-                        }
-                        .padding()
-                    }
-                }
+            .onChange(of: query.criteria.hashValue) { _, _ in
+                query.update(budgets)
             }
-        
-        /*
-         .onChange(of: query.criteria.hashValue) { _, _ in
-         query.update(budgets)
-         }
-         */
     }
 }
 

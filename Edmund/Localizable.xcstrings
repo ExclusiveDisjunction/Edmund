@@ -56,6 +56,16 @@
       },
       "shouldTranslate" : false
     },
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
     "About" : {
 
     },
@@ -197,6 +207,9 @@
           }
         }
       }
+    },
+    "Amount Free:" : {
+      "comment" : "This in context is the amount of money left from the income of the budget, minus all devotions. This is similar to variance."
     },
     "Amount Kind:" : {
 
@@ -563,9 +576,6 @@
     "Composite Transaction" : {
 
     },
-    "Computed Amount" : {
-
-    },
     "Costs" : {
 
     },
@@ -723,6 +733,12 @@
 
     },
     "Detailed Balances" : {
+
+    },
+    "Devotion" : {
+
+    },
+    "Devotions Chart" : {
 
     },
     "Discard" : {
@@ -950,6 +966,9 @@
     "Gift" : {
 
     },
+    "Graph" : {
+
+    },
     "Gross / Net -> Tax Rate" : {
       "comment" : "Used to denote the data format. Gross Pay divided by Net Pay is the tax rate"
     },
@@ -960,6 +979,9 @@
 
     },
     "Gross Pay:" : {
+
+    },
+    "Group" : {
 
     },
     "Groups:" : {
@@ -1395,6 +1417,9 @@
     "Name:" : {
 
     },
+    "Need" : {
+
+    },
     "Net Pay" : {
 
     },
@@ -1602,6 +1627,9 @@
     "Paying:" : {
 
     },
+    "Percentage" : {
+
+    },
     "Person" : {
 
     },
@@ -1761,6 +1789,9 @@
     "Refund" : {
 
     },
+    "Remainder" : {
+
+    },
     "Remove" : {
 
     },
@@ -1811,6 +1842,12 @@
 
     },
     "Scroll" : {
+
+    },
+    "Search Budgets" : {
+
+    },
+    "Search:" : {
 
     },
     "Select a budget to begin" : {
@@ -2263,6 +2300,9 @@
       "comment" : "App version. This has the format \"Version: (Number).(Number)\" Example: \"Version 1.0\""
     },
     "Vertical Split" : {
+
+    },
+    "Want" : {
 
     },
     "Warning" : {
