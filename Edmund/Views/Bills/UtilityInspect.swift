@@ -10,7 +10,7 @@ import SwiftData
 
 public typealias For = Utility;
 
-public struct UtilityInspect : View, ElementInspectorView {
+public struct UtilityInspect : View {
     @Bindable public var bill: Utility;
     @State private var showingSheet = false;
     @State private var showingChart = false;

@@ -9,9 +9,7 @@ import SwiftUI
 import SwiftData
 
 /// The edit view for Bills. 
-public struct BillEdit : View, ElementEditorView {
-    public typealias For = Bill;
-    
+public struct BillEdit : View {
     @Bindable private var snapshot: BillSnapshot;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     

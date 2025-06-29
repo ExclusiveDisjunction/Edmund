@@ -8,9 +8,7 @@
 import SwiftUI
 
 /// The edit view for Hourly Jobs. 
-public struct HourlyJobEdit : View, ElementEditorView {
-    public typealias For = HourlyJob
-    
+public struct HourlyJobEdit : View {
     public init(_ data: HourlyJobSnapshot) {
         self.snapshot = data
     }

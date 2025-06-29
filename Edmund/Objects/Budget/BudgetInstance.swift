@@ -9,33 +9,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-public final class BudgetUpdateRecord<T> where T: DevotionBase {
-    public init(_ devotion: T) {
-        self.devotion = devotion
-        self.visisted = false
-    }
-    
-    public var devotion: T;
-    public var visisted: Bool;
-    
-    public static func updateOrInsert(_ snap: T.Snapshot, old: Dictionary<T.ID, BudgetUpdateRecord<T>>, modelContext: ModelContext?, list: inout [T]) where T: PersistentModel {
-        let new: T;
-        if let target = old[snap.id] {
-            target.devotion.update(snap)
-            target.visisted = true
-            
-            new = target.devotion
-        }
-        else {
-            new = T()
-            new.update(snap)
-            modelContext?.insert(new)
-        }
-        
-        list.append(new)
-    }
-}
-
 public enum IncomeKind: Int, CaseIterable, Identifiable {
     case pay
     case gift
@@ -51,8 +24,22 @@ public enum IncomeKind: Int, CaseIterable, Identifiable {
     }
 }
 
+extension BudgetInstance : EditableElement, InspectableElement {
+    public typealias EditView = BudgetEditor
+    public typealias InspectView = BudgetInspect;
+    
+    public func makeInspectView() -> some View {
+        BudgetInspect(data: self)
+    }
+    public static func makeEditView(_ snap: Snapshot) -> BudgetEditor {
+        BudgetEditor(snap)
+    }
+}
+
 @Model
-public final class BudgetInstance : Identifiable {
+public final class BudgetInstance : Identifiable, SnapshotableElement, DefaultableElement {
+    public typealias Snapshot = BudgetInstanceSnapshot;
+    
     public convenience init() {
         self.init(name: "", amount: 0, kind: .pay)
     }
@@ -114,8 +101,8 @@ public final class BudgetInstance : Identifiable {
     @MainActor
     public func apply(_ snap: BudgetInstanceSnapshot) {
         // These types are UUID -> (Devotion, Bool). The bool determines if this value was updated at all from the previous system. If it was not, they will be deleted at the end.
-        let oldAmounts = Dictionary(uniqueKeysWithValues: self.amounts.map { ($0.id, BudgetUpdateRecord($0)) })
-        let oldPercents = Dictionary(uniqueKeysWithValues: self.percents.map { ($0.id, BudgetUpdateRecord($0) ) })
+        let oldAmounts = Dictionary(uniqueKeysWithValues: self.amounts.map { ($0.id, ChildUpdateRecord($0)) })
+        let oldPercents = Dictionary(uniqueKeysWithValues: self.percents.map { ($0.id, ChildUpdateRecord($0) ) })
         
         // All old & new elements will be added to this list. That way
         var newAmounts: [AmountDevotion] = [];

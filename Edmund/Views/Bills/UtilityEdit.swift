@@ -10,9 +10,7 @@ import SwiftUI
 import SwiftData
 
 /// The edit view for Utilities.
-public struct UtilityEdit : View, ElementEditorView {
-    public typealias For = Utility;
-    
+public struct UtilityEdit : View {
     @Bindable public var snapshot: UtilitySnapshot;
     @State private var showingSheet = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";

@@ -144,6 +144,28 @@ public extension BillBase {
     func pricePer(_ period: TimePeriods) -> Decimal {
         self.amount * self.period.conversionFactor(period)
     }
+    
+    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) {
+        let name = snap.name.trimmingCharacters(in: .whitespaces)
+        let company = snap.company.trimmingCharacters(in: .whitespaces)
+        let location = snap.location.trimmingCharacters(in: .whitespaces)
+        let id = BillBaseID(name: name, company: company, location: snap.hasLocation ? location : nil)
+        
+        if id != self.id {
+            let _ = unique.bill(id: self.id, action: .remove);
+            guard unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+        }
+        
+        
+        self.name = name
+        self.company = company
+        self.location = snap.hasLocation ? location : nil
+        self.startDate = startDate
+        self.endDate = snap.hasEndDate ? endDate : nil
+        self.period = period
+        self.notes = notes
+        self.autoPay = autoPay
+    }
 }
 /// Since SwiftUI does not allow direct access of `any BillBase`, this will allow for defined, identifable access.
 /// Use this structure to store `any BillBase`, allowing for selection, inspection, and abstract deleting.
@@ -173,6 +195,19 @@ public struct BillBaseWrapper : Identifiable, Queryable {
 /// The snapshot for `any BillBase`. This is used inside `BillSnapshot` and `UtilitySnapshot` to simplify the process.
 @Observable
 public class BillBaseSnapshot: Hashable, Equatable {
+    public init() {
+        self.oldId = .init(name: "", company: "", location: nil)
+        self.name = ""
+        self.startDate = .now
+        self.hasEndDate = false
+        self.endDate = .now
+        self.period = .monthly
+        self.company = ""
+        self.hasLocation = false
+        self.location = ""
+        self.notes = ""
+        self.autoPay = true
+    }
     /// Constructs a snapshot around an instance of a `BillBase`.
     init<T>(_ from: T) where T: BillBase {
         self.name = from.name
@@ -229,28 +264,6 @@ public class BillBaseSnapshot: Hashable, Equatable {
         if hasEndDate && endDate < startDate { result.append(.invalidInput("End Date")) }
         
         return result;
-    }
-    /// Applies data to a specific `BillBase` instance.
-    internal func apply<T>(to: T, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) where T: BillBase {
-        let name = name.trimmingCharacters(in: .whitespaces)
-        let company = company.trimmingCharacters(in: .whitespaces)
-        let location = location.trimmingCharacters(in: .whitespaces)
-        let id = BillBaseID(name: name, company: company, location: hasLocation ? location : nil)
-        
-        if id != to.id {
-            let _ = unique.bill(id: to.id, action: .remove);
-            guard unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
-        }
-        
-        
-        to.name = name
-        to.company = company
-        to.location = hasLocation ? location : nil
-        to.startDate = startDate
-        to.endDate = hasEndDate ? endDate : nil
-        to.period = period
-        to.notes = notes
-        to.autoPay = autoPay
     }
 
     public func hash(into hasher: inout Hasher) {

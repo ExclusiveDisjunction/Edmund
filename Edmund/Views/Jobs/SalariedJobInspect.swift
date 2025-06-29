@@ -9,10 +9,8 @@ import SwiftUI
 import SwiftData
 
 /// The edit view for Salaried Jobs. 
-public struct SalariedJobInspector : ElementInspectorView {
-    public typealias For = SalariedJob
-    
-    public init(_ data: Self.For) {
+public struct SalariedJobInspector : View {
+    public init(_ data: SalariedJob) {
         self.data = data
     }
     

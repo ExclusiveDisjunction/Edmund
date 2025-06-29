@@ -8,9 +8,7 @@
 import SwiftUI
 
 /// The inspection view for Hourly Jobs. 
-public struct HourlyJobInspect : View, ElementInspectorView {
-    public typealias For = HourlyJob
-    
+public struct HourlyJobInspect : View {
     public init(_ data: HourlyJob) {
         self.data = data
     }

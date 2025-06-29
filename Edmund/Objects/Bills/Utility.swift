@@ -81,6 +81,38 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
         unique.bill(id: self.id, action: .remove)
     }
     
+    public func makeSnapshot() -> UtilitySnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> UtilitySnapshot {
+        .init()
+    }
+    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) {
+        try self.updateFromBase(snap: from, unique: unique)
+        
+        let old = Dictionary(uniqueKeysWithValues: self.children?.map { ($0.id, ChildUpdateRecord($0) ) } ?? [] )
+        var new: [UtilityEntry] = [];
+        
+        for newChild in from.children {
+            // Since the UtilitySnapshot never throws, this will also never throw
+            try! ChildUpdateRecord.updateOrInsert(newChild, old: old, modelContext: modelContext, unique: unique, list: &new)
+        }
+        
+        let notUpdated = old.values.filter { !$0.visisted }
+        for item in notUpdated {
+            modelContext?.delete(item.data)
+        }
+        
+        self.children = new;
+    }
+    
+    public func makeInspectView() -> UtilityInspect {
+        UtilityInspect(self)
+    }
+    public static func makeEditView(_ snap: UtilitySnapshot) -> UtilityEdit {
+        UtilityEdit(snap)
+    }
+    
     /// Example utilities that can be used to show UI filler.
     public static let exampleUtility: [Utility] = {
         [
@@ -124,74 +156,14 @@ public final class Utility: BillBase, NamedInspectableElement, NamedEditableElem
     }()
 }
 
-/// A specific charged instance of a utility's costs.
-@Model
-public final class UtilityEntry: Identifiable, Hashable, Equatable {
-    public init(_ date: Date, _ amount: Decimal, id: UUID = UUID()) {
-        self.date = date
-        self.amount = amount
-        self.id = id
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(date)
-        hasher.combine(amount)
-    }
-    public static func ==(lhs: UtilityEntry, rhs: UtilityEntry) -> Bool {
-        lhs.date == rhs.date && lhs.amount == rhs.amount
-    }
-    
-    public var id: UUID = UUID()
-    /// The date that the charge occured on
-    public var date: Date = Date.now;
-    /// How much the bill cost
-    public var amount: Decimal = 0;
-    /// The parent utility that this is associated with
-    @Relationship
-    public var parent: Utility? = nil;
-}
-
-/// The snapshot for `UtilityEntry`
-@Observable
-public class UtilityEntrySnapshot: Identifiable, Hashable, Equatable {
-    /// Creates a blank instance of a snapshot.
-    public convenience init() {
-        self.init(amount: 0, date: .now)
-    }
-    /// Fills in data from a `UtilityEntry`
-    public convenience init(_ from: UtilityEntry) {
-        self.init(amount: from.amount, date: from.date)
-    }
-    /// Constructs this instance around specific values.
-    public init(amount: Decimal, date: Date, id: UUID = UUID()) {
-        self.id = id
-        self.amount = .init(rawValue: amount)
-        self.date = date
-    }
-    
-    public var id: UUID;
-    /// The associated amount
-    public var amount: CurrencyValue;
-    /// The date this occured on
-    public var date: Date;
-    
-    /// If the amount is valid
-    public var isValid: Bool {
-        amount >= 0
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(amount)
-        hasher.combine(date)
-    }
-    public static func ==(lhs: UtilityEntrySnapshot, rhs: UtilityEntrySnapshot) -> Bool {
-        lhs.amount == rhs.amount && lhs.date == rhs.date
-    }
-}
-
 /// The snapshot class used for `Utility`.
 @Observable
 public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
+    public override init() {
+        self.children = []
+        
+        super.init()
+    }
     public init(_ from: Utility) {
         self.children = from.children?.map { UtilityEntrySnapshot($0) } ?? []
         
@@ -220,20 +192,7 @@ public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
     }
     
     public func apply(_ to: Utility, context: ModelContext, unique: UniqueEngine) throws (UniqueFailueError<BillBaseID>) {
-        try super.apply(to: to, unique: unique)
         
-        if to.children.hashValue != children.hashValue {
-            guard let oldChildren = to.children else { return ;}
-            for child in oldChildren {
-                context.delete(child)
-            }
-            
-            let children = children.map { UtilityEntry($0.date, $0.amount.rawValue) }
-            for child in children {
-                context.insert(child)
-            }
-            to.children = children
-        }
     }
     
     public override func hash(into hasher: inout Hasher) {

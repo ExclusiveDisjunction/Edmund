@@ -9,9 +9,7 @@ import SwiftUI
 import SwiftData
 
 /// The inspect view for Ledger Entries.
-public struct LedgerEntryInspect : ElementInspectorView {
-    public typealias For = LedgerEntry;
-    
+public struct LedgerEntryInspect : View {
     public init(_ data: LedgerEntry) {
         self.target = data;
     }

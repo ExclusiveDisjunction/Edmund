@@ -9,9 +9,7 @@ import SwiftUI
 import SwiftData
 
 /// The inspect view for Bills. 
-public struct BillInspect : View, ElementInspectorView {
-    public typealias For = Bill;
-    
+public struct BillInspect : View {
     private var data: Bill;
     public init(_ data: Bill) {
         self.data = data;

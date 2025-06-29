@@ -9,9 +9,7 @@ import SwiftUI
 import SwiftData
 
 /// The edit view for Account.
-public struct AccountEdit : View, ElementEditorView {
-    public typealias For = Account;
-    
+public struct AccountEdit : View {
     public init(_ data: AccountSnapshot) {
         self.snapshot = data
     }

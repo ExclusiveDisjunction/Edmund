@@ -12,14 +12,12 @@ import SwiftData
 public struct SalariedJobHelper : View {
     
     public var body: some View {
-        
+        Text("Uh oh")
     }
 }
 
 /// The edit view for Salaried Jobs.
-public struct SalariedJobEdit : ElementEditorView {
-    public typealias For = SalariedJob;
-    
+public struct SalariedJobEdit : View {
     public init(_ snapshot: SalariedJobSnapshot) {
         self.snapshot = snapshot;
     }

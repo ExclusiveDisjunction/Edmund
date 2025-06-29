@@ -37,7 +37,7 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
     @Published var hash: Int;
     
     func openWith(_ data: T) {
-        self.snapshot = .init(data)
+        self.snapshot = data.makeSnapshot()
         self.hash = self.snapshot!.hashValue
     }
     func reset() {
@@ -61,7 +61,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             self._editing = .init(wrappedValue: .init(nil))
         }
         else {
-            self._editing = .init(wrappedValue: .init(T.Snapshot(data)))
+            self._editing = .init(wrappedValue: .init( mode == .add ? T.makeBlankSnapshot() : data.makeSnapshot()))
         }
     }
     
@@ -123,7 +123,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             }
             
             do {
-                try editing.apply(data, context: modelContext, unique: uniqueEngine)
+                try data.update(editing, unique: uniqueEngine)
             }
             catch let e {
                 uniqueError.warning = .init(e.localizedDescription);
@@ -192,10 +192,10 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             Divider()
             
             if let editing = editing.snapshot {
-                T.EditView(editing)
+                T.makeEditView(editing)
             }
             else {
-                T.InspectorView(data)
+                data.makeInspectView()
             }
             
             Spacer()

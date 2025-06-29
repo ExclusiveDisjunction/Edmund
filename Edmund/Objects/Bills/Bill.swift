@@ -92,6 +92,26 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
         unique.bill(id: self.id, action: .remove)
     }
     
+    public func makeSnapshot() -> BillSnapshot {
+        BillSnapshot(self)
+    }
+    public static func makeBlankSnapshot() -> BillSnapshot {
+        BillSnapshot()
+    }
+    public func update(_ from: BillSnapshot, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) {
+        try self.updateFromBase(snap: from, unique: unique)
+        
+        self.amount = from.amount.rawValue
+        self.kind   = from.kind
+    }
+    
+    public func makeInspectView() -> BillInspect {
+        BillInspect(self)
+    }
+    public static func makeEditView(_ snap: BillSnapshot) -> BillEdit {
+        BillEdit(snap)
+    }
+    
     /// A list of filler data for bills that have already expired.
     static let exampleExpiredBills: [Bill] = {
         [
@@ -125,6 +145,12 @@ public final class Bill : BillBase, NamedEditableElement, NamedInspectableElemen
 /// The snapshot type for `Bill`.
 @Observable
 public final class BillSnapshot : BillBaseSnapshot, ElementSnapshot {
+    public override init() {
+        self.amount = .init()
+        self.kind = .bill
+        
+        super.init()
+    }
     public init(_ from: Bill) {
         self.amount = .init(rawValue: from.amount)
         self.kind = from.kind
@@ -144,12 +170,6 @@ public final class BillSnapshot : BillBaseSnapshot, ElementSnapshot {
         if kind == .utility { topResult.append(.invalidInput("Kind")) }
         
         return topResult
-    }
-    public func apply(_ to: Bill, context: ModelContext, unique: UniqueEngine) throws (UniqueFailueError<BillBaseID>) {
-        try super.apply(to: to, unique: unique)
-        
-        to.amount = amount.rawValue
-        to.kind = kind
     }
     
     public override func hash(into hasher: inout Hasher) {
