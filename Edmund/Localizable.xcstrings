@@ -170,6 +170,9 @@
     "Add Hourly Job" : {
 
     },
+    "Add new" : {
+
+    },
     "Add Salaried Job" : {
 
     },
@@ -444,6 +447,9 @@
         }
       }
     },
+    "Budget Editor" : {
+
+    },
     "Budget Search" : {
 
     },
@@ -574,6 +580,9 @@
 
     },
     "Composite Transaction" : {
+
+    },
+    "Copy from another" : {
 
     },
     "Costs" : {
@@ -723,6 +732,9 @@
     "Deposit Into:" : {
 
     },
+    "Deposit to:" : {
+
+    },
     "Deposit:" : {
 
     },
@@ -736,6 +748,9 @@
 
     },
     "Devotion" : {
+
+    },
+    "Devotions" : {
 
     },
     "Devotions Chart" : {
@@ -915,6 +930,12 @@
     "Filters" : {
 
     },
+    "Finalize" : {
+
+    },
+    "Finalized" : {
+
+    },
     "For Item:" : {
 
     },
@@ -984,6 +1005,9 @@
     "Group" : {
 
     },
+    "Group:" : {
+
+    },
     "Groups:" : {
 
     },
@@ -1029,6 +1053,9 @@
           }
         }
       }
+    },
+    "Hide Finalized" : {
+
     },
     "Hide Graph" : {
       "localizations" : {
@@ -1234,9 +1261,6 @@
       "shouldTranslate" : false
     },
     "Last Edited" : {
-
-    },
-    "Last modified:" : {
 
     },
     "Last Updated" : {
@@ -1746,6 +1770,9 @@
         }
       }
     },
+    "Properties" : {
+
+    },
     "Quarter" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2251,10 +2278,16 @@
     "Upcoming Bills" : {
 
     },
+    "Use Remainder:" : {
+
+    },
     "Use the space for only one widget" : {
 
     },
     "Use the space for two widgets" : {
+
+    },
+    "Used Amount:" : {
 
     },
     "Utilities" : {
@@ -2322,6 +2355,9 @@
         }
       }
     },
+    "Warning! Finalizing a budget will apply transactions to the ledger. Do you want to continue?" : {
+
+    },
     "Week" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2358,6 +2394,9 @@
           }
         }
       }
+    },
+    "When this is on, any remaining balance not used by other devotions will be used here." : {
+
     },
     "When this is on, Edmund will automatically record this transaction in the Utility's data points." : {
 

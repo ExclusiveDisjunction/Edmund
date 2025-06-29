@@ -8,16 +8,18 @@
 import SwiftUI
 import SwiftData
 
-struct BudgetInspect : View {
-    @Query private var budgetInstances: [BudgetInstance];
+struct AllBudgetsInspect : View {
+    @Query(sort: [SortDescriptor(\BudgetInstance.name, order: .forward)]) private var budgetInstances: [BudgetInstance];
     @State private var selectedBudgetID: BudgetInstance.ID?;
     @State private var selectedBudget: BudgetInstance?;
     @State private var selectedDevotions: Set<AnyDevotion.ID> = .init();
     @State private var editingBudget: BudgetInstance?;
     
+    @State private var showInspector: Bool = false;
     @State private var isSearching: Bool = false;
     @State private var isAdding: Bool = false;
     @State private var showGraph: Bool = false;
+    @State private var finalizeWarning: Bool = false;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -29,6 +31,9 @@ struct BudgetInspect : View {
             case .percent(let p): p.amount * budget.amount
             case .remainder(_): budget.remainderValue
         }
+    }
+    private func apply(_ budget: BudgetInstance) {
+        fatalError()
     }
     
     @ViewBuilder
@@ -80,6 +85,61 @@ struct BudgetInspect : View {
         }
     }
     
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        if let budget = selectedBudget {
+            ToolbarItem(placement: .secondaryAction) {
+                Button(action: {
+                    showGraph = true
+                }) {
+                    Label("Graph", systemImage: "chart.pie")
+                }
+            }
+            
+            ToolbarItem(placement: .secondaryAction) {
+                Button(action: {
+                    editingBudget = budget
+                }) {
+                    Label("Edit Budget", systemImage: "pencil")
+                }
+            }
+            
+            ToolbarItem(placement: .secondaryAction) {
+                Button(action: {
+                    finalizeWarning = true
+                }) {
+                    Label("Finalize", systemImage: "checkmark")
+                }
+            }
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                Button(action: {
+                    isAdding = true;
+                }) {
+                    Text("Add new")
+                }
+                
+                Button(action: {
+                    fatalError()
+                }) {
+                    Text("Copy from another")
+                }
+            } label: {
+                Label("Add Budget", systemImage: "plus")
+            }
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: {
+                isSearching = true;
+            }) {
+                Label("Search Budgets", systemImage: "magnifyingglass")
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
             HStack {
@@ -88,14 +148,9 @@ struct BudgetInspect : View {
                 Picker("", selection: $selectedBudgetID) {
                     Text("None")
                         .tag(nil as BudgetInstance.ID?)
-                    ForEach(budgetInstances, id: \.id) { budget in
-                        HStack {
-                            Text(budget.name)
-                            Text(budget.amount, format: .currency(code: currencyCode))
-                            Spacer()
-                            Text("Last modified:")
-                            Text(budget.lastUpdated.formatted(date: .abbreviated, time: .omitted))
-                        }.tag(budget.id)
+                    ForEach(budgetInstances, id: \.id) {
+                        Text($0.name).tag($0.id)
+                            .strikethrough($0.isFinalized)
                     }
                 }.labelsHidden()
                 
@@ -147,66 +202,12 @@ struct BudgetInspect : View {
                     selectedBudget = new
                 }
             }
-            .toolbar {
-                if let budget = selectedBudget {
-                    ToolbarItem(placement: .secondaryAction) {
-                        Button(action: {
-                            showGraph = true
-                        }) {
-                            if horizontalSizeClass == .compact {
-                                Image(systemName: "chart.pie")
-                            }
-                            else {
-                                Label("Graph", systemImage: "chart.pie")
-                            }
-                        }
-                    }
-                    
-                    ToolbarItem(placement: .primaryAction) {
-                        Button(action: {
-                            editingBudget = budget
-                        }) {
-                            if horizontalSizeClass == .compact {
-                                Image(systemName: "pencil")
-                            }
-                            else {
-                                Label("Edit Budget", systemImage: "pencil")
-                            }
-                        }
-                    }
-                }
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button(action: {
-                            isAdding = true;
-                        }) {
-                            Text("Add new")
-                        }
-                        
-                        Button(action: {
-                            fatalError()
-                        }) {
-                            Text("Copy from another")
-                        }
-                    } label: {
-                        Label("Add Budget", systemImage: "plus")
-                    }
-                }
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        isSearching = true;
-                    }) {
-                        Label("Search Budgets", systemImage: "magnifyingglass")
-                    }
-                }
-            }
+            .toolbar(content: toolbarContent)
             .sheet(item: $editingBudget) { budget in
-                
+                BudgetEditor(budget)
             }
             .sheet(isPresented: $isSearching) {
-                BudgetSearch(result: $selectedBudgetID)
+                AllBudgetsSearch(result: $selectedBudgetID)
             }
             .sheet(isPresented: $isAdding) {
                 BudgetAddView($selectedBudgetID)
@@ -222,11 +223,25 @@ struct BudgetInspect : View {
                     }
                 }
             }
-        
+            .confirmationDialog("Warning! Finalizing a budget will apply transactions to the ledger. Do you want to continue?", isPresented: $finalizeWarning, titleVisibility: .visible) {
+                Button("Ok", action: {
+                    if let budget = selectedBudget {
+                        apply(budget)
+                    }
+                    else {
+                        print("Note: Budget finalize was called, but the budget was not selected.")
+                    }
+                })
+                
+                Button("Cancel", role: .cancel, action: { finalizeWarning = false })
+            }
+            .inspector(isPresented: $showInspector) {
+                
+            }
     }
 }
 
 #Preview {
-    BudgetInspect()
+    AllBudgetsInspect()
         .modelContainer(Containers.debugContainer)
 }

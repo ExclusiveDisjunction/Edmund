@@ -83,7 +83,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .ledger: LedgerTable()
             case .balance: BalanceSheet()
             
-            case .budget: BudgetInspect()
+            case .budget: AllBudgetsInspect()
                 
             case .bills: AllBillsViewEdit()
                 

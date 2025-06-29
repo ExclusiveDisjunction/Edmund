@@ -71,6 +71,7 @@ public final class BudgetInstance : Identifiable {
     public var id: UUID;
     public var name: String;
     public var amount: Decimal;
+    public var isFinalized: Bool = false;
     private var _kind: IncomeKind.RawValue;
     public var kind: IncomeKind {
         get {
@@ -205,10 +206,21 @@ public final class BudgetInstance : Identifiable {
 }
 
 @Observable
-public final class BudgetInstanceSnapshot {
+public final class BudgetInstanceSnapshot : Hashable, Equatable {
+    init() {
+        self.name = ""
+        self.amount = .init()
+        self.kind = .pay
+        self.depositTo = nil
+        self.devotions = []
+        self.hasRemainder = true
+        self.remainder = .init()
+    }
     init(_ from: BudgetInstance) {
         self.name = from.name;
         self.amount = .init(rawValue: from.amount)
+        self.kind = from.kind
+        self.depositTo = from.depositTo
         self.devotions = from.amounts.map { .amount(.init($0)) } + from.percents.map { .percent(.init($0)) }
         if let remainder = from.remainder {
             self.remainder = .init(remainder)
@@ -222,21 +234,42 @@ public final class BudgetInstanceSnapshot {
     
     public var name: String;
     public var amount: CurrencyValue;
-    public var devotions: [DevotionSnapshot];
+    public var kind: IncomeKind;
+    public var depositTo: SubAccount?;
+    public var devotions: [AnyDevotionSnapshot];
     public var hasRemainder: Bool;
-    public var remainder: RemainderDevotionSnapshot;
+    public var remainder: DevotionSnapshotBase;
     
-}
-public enum DevotionSnapshot : Identifiable {
-    case amount(AmountDevotionSnapshot)
-    case percent(PercentDevotionSnapshot)
+    private var moneyLeftDirect: Decimal {
+        let raw = amount.rawValue;
+        return raw - devotions.reduce(Decimal(), { $0 + $1.amount(raw) } )
+    }
+    public var remainderValue: Decimal {
+        hasRemainder ? moneyLeftDirect : 0
+    }
+    public var moneyLeft: Decimal {
+        hasRemainder ? 0 : moneyLeftDirect
+    }
     
-    public var id: UUID {
-        switch self {
-            case .amount(let a): a.id
-            case .percent(let p): p.id
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(amount)
+        hasher.combine(kind)
+        hasher.combine(depositTo)
+        hasher.combine(devotions)
+        hasher.combine(hasRemainder)
+        hasher.combine(remainder)
+    }
+    public static func ==(lhs: BudgetInstanceSnapshot, rhs: BudgetInstanceSnapshot) -> Bool {
+        let start = lhs.name == rhs.name && lhs.amount == rhs.amount && lhs.kind == rhs.kind && lhs.depositTo == rhs.depositTo && lhs.devotions == rhs.devotions && lhs.hasRemainder == rhs.hasRemainder;
+        if lhs.hasRemainder && rhs.hasRemainder {
+            return start && lhs.remainder == rhs.remainder
+        }
+        else {
+            return start
         }
     }
+    
 }
 
 public enum DevotionGroup : Int, Identifiable, CaseIterable {
@@ -262,8 +295,8 @@ public enum DevotionGroup : Int, Identifiable, CaseIterable {
     public var id: Self { self }
 }
 
-public protocol DevotionBase : Identifiable<UUID> {
-    associatedtype Snapshot: Identifiable<UUID>
+public protocol DevotionBase : AnyObject, PersistentModel, Identifiable<UUID> {
+    associatedtype Snapshot: Identifiable<UUID>, Hashable, Equatable
     
     init()
     
@@ -286,7 +319,6 @@ public enum AnyDevotion : Identifiable {
             case .remainder(let r): r.id
         }
     }
-    
     public var name: String {
         get {
             switch self {
@@ -337,6 +369,109 @@ public enum AnyDevotion : Identifiable {
     }
 }
 
+@Observable
+public class DevotionSnapshotBase : Identifiable, Hashable, Equatable {
+    public init() {
+        self.id = UUID()
+        self.name = ""
+        self.group = .want
+        self.account = nil
+    }
+    public init<T>(_ from: T) where T: DevotionBase {
+        self.id = from.id;
+        self.name = from.name
+        self.group = from.group
+        self.account = from.account
+    }
+    
+    public let id: UUID;
+    public var name: String;
+    public var group: DevotionGroup;
+    public var account: SubAccount?;
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(group)
+        hasher.combine(account)
+    }
+    public static func ==(lhs: DevotionSnapshotBase, rhs: DevotionSnapshotBase) -> Bool {
+        lhs.name == rhs.name && lhs.group == rhs.group && lhs.account == rhs.account
+    }
+}
+public enum AnyDevotionSnapshot : Identifiable, Hashable, Equatable {
+    case amount(AmountDevotionSnapshot)
+    case percent(PercentDevotionSnapshot)
+    
+    public var id: UUID {
+        switch self {
+            case .amount(let a): a.id
+            case .percent(let p): p.id
+        }
+    }
+    public var name: String {
+        get {
+            switch self {
+                case .amount(let a): a.name
+                case .percent(let p): p.name
+            }
+        }
+        set {
+            switch self {
+                case .amount(let a): a.name = newValue
+                case .percent(let p): p.name = newValue
+            }
+        }
+    }
+    public var account: SubAccount? {
+        get {
+            switch self {
+                case .amount(let a): a.account
+                case .percent(let p): p.account
+            }
+        }
+        set {
+            switch self {
+                case .amount(let a): a.account = newValue
+                case .percent(let p): p.account = newValue
+            }
+        }
+    }
+    public func amount(_ total: Decimal) -> Decimal {
+        switch self {
+            case .amount(let a): a.amount.rawValue
+            case .percent(let p): p.amount.rawValue * total
+        }
+    }
+    public var group: DevotionGroup {
+        get {
+            switch self {
+                case .amount(let a): a.group
+                case .percent(let p): p.group
+            }
+        }
+        set {
+            switch self {
+                case .amount(let a): a.group = newValue
+                case .percent(let p): p.group = newValue
+            }
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+            case .amount(let a): hasher.combine(a)
+            case .percent(let p): hasher.combine(p)
+        }
+    }
+    public static func ==(lhs: AnyDevotionSnapshot, rhs: AnyDevotionSnapshot) -> Bool {
+        switch (lhs, rhs) {
+            case (.amount(let a), .amount(let b)): a == b
+            case (.percent(let a), .percent(let b)): a == b
+            default: false
+        }
+    }
+}
+
 @Model
 public final class AmountDevotion : DevotionBase  {
     public convenience init() {
@@ -375,23 +510,29 @@ public final class AmountDevotion : DevotionBase  {
         self.name = snap.name
         self.amount = snap.amount.rawValue
         self.account = snap.account
+        self.group = snap.group
     }
 }
 @Observable
-public final class AmountDevotionSnapshot : Identifiable {
+public final class AmountDevotionSnapshot : DevotionSnapshotBase {
+    public override init() {
+        self.amount = .init()
+        super.init()
+    }
     public init(_ from: AmountDevotion) {
-        self.name = from.name;
         self.amount = .init(rawValue: from.amount)
-        self.account = from.account;
-        self.id = from.id
-        self.group = from.group
+        super.init(from)
     }
     
-    public var id: UUID;
-    public var name: String;
     public var amount: CurrencyValue;
-    public var account: SubAccount?;
-    public var group: DevotionGroup;
+    
+    public override func hash(into hasher: inout Hasher) {
+        hasher.combine(amount)
+        super.hash(into: &hasher)
+    }
+    public static func ==(lhs: AmountDevotionSnapshot, rhs: AmountDevotionSnapshot) -> Bool {
+        (lhs as DevotionSnapshotBase == rhs as DevotionSnapshotBase) && lhs.amount == rhs.amount
+    }
 }
 
 @Model
@@ -432,23 +573,29 @@ public final class PercentDevotion : DevotionBase {
         self.name = snap.name;
         self.amount = snap.amount.rawValue
         self.account = snap.account
+        self.group = snap.group
     }
 }
 @Observable
-public final class PercentDevotionSnapshot : Identifiable {
+public final class PercentDevotionSnapshot : DevotionSnapshotBase {
+    public override init() {
+        self.amount = .init()
+        super.init()
+    }
     public init(_ from: PercentDevotion) {
-        self.name = from.name;
         self.amount = .init(rawValue: from.amount)
-        self.account = from.account;
-        self.id = from.id
-        self.group = from.group
+        super.init(from)
     }
     
-    public var id: UUID;
-    public var name: String;
     public var amount: PercentValue;
-    public var account: SubAccount?;
-    public var group: DevotionGroup;
+    
+    public override func hash(into hasher: inout Hasher) {
+        hasher.combine(amount)
+        super.hash(into: &hasher)
+    }
+    public static func ==(lhs: PercentDevotionSnapshot, rhs: PercentDevotionSnapshot) -> Bool {
+        (lhs as DevotionSnapshotBase == rhs as DevotionSnapshotBase) && lhs.amount == rhs.amount
+    }
 }
 
 @Model
@@ -480,31 +627,12 @@ public final class RemainderDevotion : DevotionBase {
     @Relationship
     public var account: SubAccount?;
     
-    public func makeSnapshot() -> RemainderDevotionSnapshot {
+    public func makeSnapshot() -> DevotionSnapshotBase {
         .init(self)
     }
-    public func update(_ snap: RemainderDevotionSnapshot) {
+    public func update(_ snap: DevotionSnapshotBase) {
         self.name = snap.name
         self.account = snap.account
+        self.group = snap.group
     }
-}
-@Observable
-public final class RemainderDevotionSnapshot : Identifiable {
-    public init() {
-        self.name = ""
-        self.account = nil;
-        self.id = UUID()
-        self.group = .want
-    }
-    public init(_ from: RemainderDevotion) {
-        self.name = from.name;
-        self.account = from.account;
-        self.id = from.id
-        self.group = from.group
-    }
-    
-    public var name: String;
-    public var account: SubAccount?;
-    public var group: DevotionGroup;
-    public var id: UUID;
 }

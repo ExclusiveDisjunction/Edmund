@@ -39,15 +39,17 @@ public enum BudgetSortField : CaseIterable, Identifiable {
 
 @Observable
 public class BudgetSearchCriteria: Hashable, Equatable {
-    public init(query: String = "", sortBy: BudgetSortField = .name, ascending: Bool = true) {
+    public init(query: String = "", sortBy: BudgetSortField = .name, ascending: Bool = true, hideFinalized: Bool = true) {
         self.query = query
         self.sortBy = sortBy
         self.ascending = ascending
+        self.hideFinalized = hideFinalized
     }
     
     public var query: String
     public var sortBy: BudgetSortField
     public var ascending: Bool
+    public var hideFinalized: Bool
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(query)
@@ -71,12 +73,16 @@ public class BudgetSearchVM {
     
     public func update(_ data: [BudgetInstance]) {
         let queryStr = self.criteria.query.trimmingCharacters(in: .whitespaces).lowercased()
-        let filtered: [BudgetInstance];
+        var filtered: [BudgetInstance];
         if queryStr.isEmpty {
             filtered = data
         }
         else {
             filtered = data.filter { $0.query(queryStr) }
+        }
+        
+        if criteria.hideFinalized {
+            filtered = filtered.filter { !$0.isFinalized }
         }
         
         self._cache = criteria.sortBy.sorted(data: filtered, asc: criteria.ascending)
@@ -87,7 +93,7 @@ public class BudgetSearchVM {
     }
 }
 
-struct BudgetSearch : View {
+struct AllBudgetsSearch : View {
     init(result: Binding<BudgetInstance.ID?>) {
         self._result = result
         self.query = .init()
@@ -108,6 +114,11 @@ struct BudgetSearch : View {
     private var fullSized: some View {
         Table(query.cache, selection: $result) {
             TableColumn("Name", value: \.name)
+            if !query.criteria.hideFinalized {
+                TableColumn("Finalized") { (budget: BudgetInstance) in
+                    Text(budget.isFinalized ? "Yes" : "No")
+                }
+            }
             TableColumn("Pay Amount") { budget in
                 Text(budget.amount, format: .currency(code: currencyCode))
             }
@@ -167,6 +178,7 @@ struct BudgetSearch : View {
                         Form {
                             Section {
                                 Toggle("Ascending", isOn: $query.criteria.ascending)
+                                Toggle("Hide Finalized", isOn: $query.criteria.hideFinalized)
                                 
                                 Picker("Sort By", selection: $query.criteria.sortBy) {
                                     ForEach(BudgetSortField.allCases, id: \.id) { field in
@@ -206,7 +218,7 @@ struct BudgetSearch : View {
     var id: UUID? = UUID();
     let binding = Binding(get: { id }, set: { id = $0 } )
     NavigationStack {
-        BudgetSearch(result: binding)
+        AllBudgetsSearch(result: binding)
             .modelContainer(Containers.debugContainer)
     }
 }
