@@ -56,9 +56,10 @@ public final class BudgetInstance : Identifiable {
     public convenience init() {
         self.init(name: "", amount: 0, kind: .pay)
     }
-    public init(name: String, amount: Decimal, kind: IncomeKind, account: SubAccount? = nil, lastViewed: Date = .now, lastUpdated: Date = .now, amounts: [AmountDevotion] = [], percents: [PercentDevotion] = [], remainder: RemainderDevotion? = nil) {
+    public init(name: String, amount: Decimal, kind: IncomeKind, depositTo: SubAccount? = nil, lastViewed: Date = .now, lastUpdated: Date = .now, amounts: [AmountDevotion] = [], percents: [PercentDevotion] = [], remainder: RemainderDevotion? = nil) {
         self.name = name
         self.amount = amount
+        self.depositTo = depositTo
         self._kind = kind.rawValue
         self.lastViewed = lastViewed
         self.lastUpdated = lastUpdated
@@ -189,7 +190,7 @@ public final class BudgetInstance : Identifiable {
     }
     
     public static func exampleBudget(pay: SubAccount, bills: SubAccount, groceries: SubAccount, personal: SubAccount, taxes: SubAccount, main: SubAccount) -> BudgetInstance {
-        let result = BudgetInstance(name: "Example Budget", amount: 450, kind: .pay)
+        let result = BudgetInstance(name: "Example Budget", amount: 450, kind: .pay, depositTo: pay)
         
         result.amounts = [
             .init(name: "Bills", amount: 250.56, account: bills, group: .need),
@@ -202,6 +203,14 @@ public final class BudgetInstance : Identifiable {
         result.remainder = .init(name: "Savings", account: main, group: .savings)
         
         return result
+    }
+    
+    @MainActor
+    public static func getExampleBudget() -> BudgetInstance {
+        let container = Containers.debugContainer;
+        let item = (try! container.mainContext.fetch(FetchDescriptor<BudgetInstance>())).first!
+        
+        return item;
     }
 }
 

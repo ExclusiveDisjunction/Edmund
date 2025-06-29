@@ -8,6 +8,26 @@
 import SwiftUI
 import SwiftData
 
+struct BudgetIE : View {
+    var data: BudgetInstance;
+    var snapshot: BudgetInstanceSnapshot?;
+    var hash: Int;
+    
+    private var isEditing: Bool {
+        snapshot != nil
+    }
+    private var unsavedChanges: Bool {
+        snapshot != nil && hash != snapshot?.hashValue
+    }
+    
+    var body: some View {
+        VStack {
+            
+        }.interactiveDismissDisabled(unsavedChanges)
+            
+    }
+}
+
 struct AllBudgetsInspect : View {
     @Query(sort: [SortDescriptor(\BudgetInstance.name, order: .forward)]) private var budgetInstances: [BudgetInstance];
     @State private var selectedBudgetID: BudgetInstance.ID?;
@@ -203,9 +223,6 @@ struct AllBudgetsInspect : View {
                 }
             }
             .toolbar(content: toolbarContent)
-            .sheet(item: $editingBudget) { budget in
-                BudgetEditor(budget)
-            }
             .sheet(isPresented: $isSearching) {
                 AllBudgetsSearch(result: $selectedBudgetID)
             }

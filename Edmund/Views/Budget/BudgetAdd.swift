@@ -48,7 +48,7 @@ struct BudgetAddView : View {
         let name = name.trimmingCharacters(in: .whitespaces)
         guard let account = deposit else { return false }
         
-        let new = BudgetInstance(name: name, amount: amount.rawValue, kind: kind, account: account)
+        let new = BudgetInstance(name: name, amount: amount.rawValue, kind: kind, depositTo: account)
         modelContext.insert(new)
         if let binding = id {
             binding.wrappedValue = new.id;
