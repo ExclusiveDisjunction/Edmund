@@ -8,14 +8,14 @@
 import SwiftUI
 import SwiftData
 
-struct BudgetEditor : View {
-    init(_ snap: BudgetInstanceSnapshot) {
+public struct BudgetEdit : View {
+    public init(_ snap: BudgetInstanceSnapshot) {
         self.snapshot = snap;
     }
     
     @Bindable private var snapshot: BudgetInstanceSnapshot;
     
-    var body: some View {
+    public var body: some View {
         TabView {
             BudgetPropertiesEditor(snapshot: snapshot)
                 .tabItem {
@@ -38,6 +38,6 @@ struct BudgetEditor : View {
 }
 
 #Preview {
-    BudgetEditor(.init(BudgetInstance.getExampleBudget()))
+    BudgetEdit(.init(BudgetInstance.getExampleBudget()))
         .modelContainer(Containers.debugContainer)
 }

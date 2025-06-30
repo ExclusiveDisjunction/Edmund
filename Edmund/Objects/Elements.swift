@@ -1,13 +1,12 @@
 //
-//  Found.swift
+//  Elements.swift
 //  Edmund
 //
-//  Created by Hollan Sellars on 4/21/25.
+//  Created by Hollan Sellars on 6/29/25.
 //
 
-import Foundation;
-import SwiftUI;
-import SwiftData;
+import SwiftUI
+import EdmundCore
 
 /// A type wrapping the display information for a specific data type.
 public struct TypeTitleStrings {
@@ -28,19 +27,13 @@ public protocol TypeTitled {
     static var typeDisplay : TypeTitleStrings { get }
 }
 
-/// Represents a common functionality between elements.
-public protocol ElementBase : AnyObject, Identifiable, TypeTitled { }
-
-public protocol DefaultableElement {
-    init()
-}
-
 /// Represents a data type that can be inspected with a dedicated view.
 public protocol InspectableElement : ElementBase {
     /// The associated view that can be used to inspect the properties of the object.
     associatedtype InspectorView: View;
     
     /// Creates a view that shows all properties of the current element.
+    @MainActor
     @ViewBuilder
     func makeInspectView() -> InspectorView;
 }
@@ -50,25 +43,6 @@ public protocol NamedInspectableElement : InspectableElement {
     var name: String { get }
 }
 
-/// Represents a data type that can be "snapshoted" and updated from that snapshot at a later time.
-public protocol SnapshotableElement : ElementBase, PersistentModel {
-    associatedtype Snapshot : ElementSnapshot;
-    
-    /// Creates a snapshot of the current element
-    func makeSnapshot() -> Snapshot;
-    /// Creates a snapshot that can be used for adding a blank element.
-    static func makeBlankSnapshot() -> Snapshot;
-    /// Sets the element's properties to the values in the snapshot.
-    /// This is allowed to throw `UniqueFailureError<Host.ID>` if registering in the unique engine fails.
-    /// This should not happen in good practice, but must be explored just in case.
-    func update(_ from: Snapshot, unique: UniqueEngine) throws(UniqueFailueError<Self.ID>);
-}
-/// Represents a class that can be used to hold the values of an element for editing.
-public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
-    /// Determines if the current values are acceptable to display to the user.
-    func validate(unique: UniqueEngine) -> [ValidationFailure];
-}
-
 /// Represents a data type that can be editied with a dedicated view.
 public protocol EditableElement : ElementBase, SnapshotableElement {
     /// The associated view that can be used to edit the properties of the object.
@@ -76,6 +50,7 @@ public protocol EditableElement : ElementBase, SnapshotableElement {
     
     /// Creates a view that shows all properties of the element, allowing for editing.
     /// This works off of the snapshot of the element, not the element itself.
+    @MainActor
     @ViewBuilder
     static func makeEditView(_ snap: Self.Snapshot) -> EditView;
 }

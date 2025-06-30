@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 /// An identifier that can be used for any `BillBase`.
-public struct BillBaseID : Hashable, Equatable, RawRepresentable {
+public struct BillBaseID : Hashable, Equatable, RawRepresentable, Sendable {
     public init(name: String, company: String, location: String?) {
         self.name = name
         self.company = company
@@ -47,13 +47,15 @@ public struct BillBaseID : Hashable, Equatable, RawRepresentable {
 }
 
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-public protocol BillBase : Identifiable<BillBaseID>, AnyObject, NamedInspectableElement, NamedEditableElement {
+public protocol BillBase : Identifiable<BillBaseID>, AnyObject, UniqueElement, SnapshotableElement {
     /// The name of the bill.
     var name: String { get set }
     /// The start date of the bill. This is used to compute the upcoming dates.
     var startDate: Date { get set }
     /// An optional end date for the bill. By convention, `endDate` should be after `startDate`, if a value is provided.
     var endDate: Date? { get set }
+    /// The next due date of the bill
+    var nextDueDate: Date? { get }
     /// The bill period. This represent how often it will come due.
     var period: TimePeriods { get set }
     /// The kind of bill.
@@ -71,65 +73,34 @@ public protocol BillBase : Identifiable<BillBaseID>, AnyObject, NamedInspectable
     var autoPay: Bool { get set }
 }
 public extension BillBase {
-    /// The number of weeks since the start date.
-    var weeksSinceStart: Int {
-        return weeksSinceStart(from: Date.now)
-    }
-    /// Determines the number of weeks between `from` and the start date.
-    func weeksSinceStart(from: Date) -> Int {
-        let components = Calendar.current.dateComponents([.day], from: self.startDate, to: from)
-        return (components.day ?? 0) / 7;
-    }
-    /// Determines how many periods have elapsed since the start date.
-    var periodsSinceStart: Int {
-        return periodsSinceStart(from: .now)
-    }
-    /// Determines how many periods have elapsed between `from` and the start date.
-    func periodsSinceStart(from: Date) -> Int {
-        let weeks = weeksSinceStart(from: from);
-        let periodWeeks = self.period.weeksInPeriod;
+    func computeNextDueDate(relativeTo: Date = .now) -> Date? {
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone.current
         
-        return weeks / periodWeeks
-    }
-    /// Returns the exact (including decimal) number of periods have elapsed between `from` and the start date.
-    func exactPeriodsSinceStart(from: Date) -> Float {
-        let weeks = weeksSinceStart(from: from);
-        let periodWeeks = self.period.weeksInPeriod;
-        
-        return Float(weeks) / Float(periodWeeks)
-    }
-    /// Estimates the next bill due date
-    var nextBillDate: Date? {
-        nextBillDate(from: Date.now)
-    }
-    /// Estimates the next bill due date based on `from`.
-    func nextBillDate(from: Date) -> Date? {
-        if startDate > from {
-            return startDate
-        }
-        else {
-            let exact = exactPeriodsSinceStart(from: from);
-            
-            let nextDate: Date;
-            if exact == floorf(exact) { //Exact number of periods, meaning that the result is the current date.
-                nextDate = from;
-            }
-            else {
-                let duration = self.period.asDuration * (periodsSinceStart(from: from) + 1);
-                guard let computed = duration + startDate else {
-                    return nil;
-                }
-                
-                nextDate = computed
-            }
-            
-            if nextDate <= (endDate ?? Date.distantFuture) {
-                return nextDate
-            }
-            else {
+        guard startDate <= relativeTo else {
+            if let end = endDate, startDate > end {
                 return nil
             }
+            
+            return startDate
         }
+        
+        var nextDate = startDate
+        var interval = period.asComponents
+        
+        while nextDate <= relativeTo {
+            if let advanced = calendar.date(byAdding: interval, to: nextDate) {
+                nextDate = advanced
+            } else {
+                return nil 
+            }
+        }
+        
+        if let end = endDate, nextDate > end {
+            return nil
+        }
+        
+        return nextDate
     }
     /// When true, the `endDate` exists, and it is in the past.
     var isExpired: Bool {
@@ -152,8 +123,10 @@ public extension BillBase {
         let id = BillBaseID(name: name, company: company, location: snap.hasLocation ? location : nil)
         
         if id != self.id {
-            let _ = unique.bill(id: self.id, action: .remove);
-            guard unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+            Task {
+                let _ = await unique.bill(id: self.id, action: .remove);
+                guard await unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+            }
         }
         
         

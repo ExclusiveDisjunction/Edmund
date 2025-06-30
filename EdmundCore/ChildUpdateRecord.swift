@@ -17,6 +17,7 @@ class ChildUpdateRecord<T> where T: Identifiable, T: SnapshotableElement, T.ID =
     public var data: T;
     public var visisted: Bool;
     
+    @MainActor
     public static func updateOrInsert(_ snap: T.Snapshot, old: Dictionary<T.ID, ChildUpdateRecord<T>>, modelContext: ModelContext?, unique: UniqueEngine, list: inout [T]) throws(UniqueFailueError<T.ID>) where T: PersistentModel, T: DefaultableElement {
         let new: T;
         if let target = old[snap.id] {

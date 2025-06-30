@@ -24,18 +24,6 @@ public enum IncomeKind: Int, CaseIterable, Identifiable {
     }
 }
 
-extension BudgetInstance : EditableElement, InspectableElement {
-    public typealias EditView = BudgetEditor
-    public typealias InspectView = BudgetInspect;
-    
-    public func makeInspectView() -> some View {
-        BudgetInspect(data: self)
-    }
-    public static func makeEditView(_ snap: Snapshot) -> BudgetEditor {
-        BudgetEditor(snap)
-    }
-}
-
 @Model
 public final class BudgetInstance : Identifiable, SnapshotableElement, DefaultableElement {
     public typealias Snapshot = BudgetInstanceSnapshot;
@@ -71,6 +59,7 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
     }
     public var lastUpdated: Date;
     public var lastViewed: Date;
+    
     @Relationship
     public var depositTo: SubAccount?;
     @Relationship(deleteRule: .cascade, inverse: \AmountDevotion.parent)
@@ -98,8 +87,13 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
         }
     }
     
-    @MainActor
-    public func apply(_ snap: BudgetInstanceSnapshot) {
+    public func makeSnapshot() -> BudgetInstanceSnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> BudgetInstanceSnapshot {
+        .init()
+    }
+    public func update(_ snap: BudgetInstanceSnapshot, unique: UniqueEngine) {
         // These types are UUID -> (Devotion, Bool). The bool determines if this value was updated at all from the previous system. If it was not, they will be deleted at the end.
         let oldAmounts = Dictionary(uniqueKeysWithValues: self.amounts.map { ($0.id, ChildUpdateRecord($0)) })
         let oldPercents = Dictionary(uniqueKeysWithValues: self.percents.map { ($0.id, ChildUpdateRecord($0) ) })
@@ -109,7 +103,7 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
         var newPercents: [PercentDevotion] = [];
         
         if let oldRemainder = self.remainder, snap.hasRemainder {
-            oldRemainder.update(snap.remainder)
+            oldRemainder.update(snap.remainder, unique: unique)
         }
         else if let oldRemainder = self.remainder, !snap.hasRemainder {
             modelContext?.delete(oldRemainder)
@@ -117,18 +111,19 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
         }
         else if snap.hasRemainder && self.remainder == nil {
             let new = RemainderDevotion()
-            new.update(snap.remainder)
+            new.update(snap.remainder, unique: unique)
             
             self.remainder = new
             modelContext?.insert(new)
         } // At this point, there is no remainder in the snapshot, and the current remainder is nil, so nothing to do with it.
         
+        // Note that try! is ok because these devotions do not throw.
         for devotion in snap.devotions {
             switch devotion {
                 case .amount(let amount):
-                    BudgetUpdateRecord.updateOrInsert(amount, old: oldAmounts, modelContext: modelContext, list: &newAmounts)
+                    try! ChildUpdateRecord.updateOrInsert(amount, old: oldAmounts, modelContext: modelContext, unique: unique, list: &newAmounts)
                 case .percent(let percent):
-                    BudgetUpdateRecord.updateOrInsert(percent, old: oldPercents, modelContext: modelContext, list: &newPercents)
+                    try! ChildUpdateRecord.updateOrInsert(percent, old: oldPercents, modelContext: modelContext, unique: unique, list: &newPercents)
             }
         }
         
@@ -137,10 +132,10 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
         let filteredPercents = oldPercents.values.filter { !$0.visisted }
         
         for amount in filteredAmounts {
-            modelContext?.delete(amount.devotion)
+            modelContext?.delete(amount.data)
         }
         for percent in filteredPercents {
-            modelContext?.delete(percent.devotion)
+            modelContext?.delete(percent.data)
         }
         
         // Assign parents to the new & old elements
@@ -201,9 +196,21 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
     }
 }
 
+extension BudgetInstance : EditableElement, InspectableElement {
+    public typealias EditView = BudgetEdit
+    public typealias InspectView = BudgetInspect;
+    
+    public func makeInspectView() -> some View {
+        BudgetInspect(data: self)
+    }
+    public static func makeEditView(_ snap: Snapshot) -> BudgetEdit {
+        BudgetEdit(snap)
+    }
+}
+
 @Observable
-public final class BudgetInstanceSnapshot : Hashable, Equatable {
-    init() {
+public final class BudgetInstanceSnapshot : Hashable, Equatable, ElementSnapshot {
+    public init() {
         self.name = ""
         self.amount = .init()
         self.kind = .pay
@@ -212,7 +219,7 @@ public final class BudgetInstanceSnapshot : Hashable, Equatable {
         self.hasRemainder = true
         self.remainder = .init()
     }
-    init(_ from: BudgetInstance) {
+    public init(_ from: BudgetInstance) {
         self.name = from.name;
         self.amount = .init(rawValue: from.amount)
         self.kind = from.kind
@@ -245,6 +252,10 @@ public final class BudgetInstanceSnapshot : Hashable, Equatable {
     }
     public var moneyLeft: Decimal {
         hasRemainder ? 0 : moneyLeftDirect
+    }
+    
+    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        fatalError()
     }
     
     public func hash(into hasher: inout Hasher) {
@@ -291,17 +302,10 @@ public enum DevotionGroup : Int, Identifiable, CaseIterable {
     public var id: Self { self }
 }
 
-public protocol DevotionBase : AnyObject, PersistentModel, Identifiable<UUID> {
-    associatedtype Snapshot: Identifiable<UUID>, Hashable, Equatable
-    
-    init()
-    
+public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElement, DefaultableElement  {
     var name: String { get set }
     var account: SubAccount? { get set }
     var group: DevotionGroup { get set }
-    
-    func makeSnapshot() -> Self.Snapshot;
-    func update(_ snap: Self.Snapshot)
 }
 public enum AnyDevotion : Identifiable {
     case amount(AmountDevotion)
@@ -366,7 +370,7 @@ public enum AnyDevotion : Identifiable {
 }
 
 @Observable
-public class DevotionSnapshotBase : Identifiable, Hashable, Equatable {
+public class DevotionSnapshotBase : Identifiable, Hashable, Equatable, ElementSnapshot {
     public init() {
         self.id = UUID()
         self.name = ""
@@ -384,6 +388,10 @@ public class DevotionSnapshotBase : Identifiable, Hashable, Equatable {
     public var name: String;
     public var group: DevotionGroup;
     public var account: SubAccount?;
+    
+    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        fatalError()
+    }
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
@@ -469,7 +477,7 @@ public enum AnyDevotionSnapshot : Identifiable, Hashable, Equatable {
 }
 
 @Model
-public final class AmountDevotion : DevotionBase  {
+public final class AmountDevotion : DevotionBase {
     public convenience init() {
         self.init(name: "", amount: 0)
     }
@@ -502,8 +510,11 @@ public final class AmountDevotion : DevotionBase  {
     public func makeSnapshot() -> AmountDevotionSnapshot {
         .init(self)
     }
-    public func update(_ snap: AmountDevotionSnapshot) {
-        self.name = snap.name
+    public static func makeBlankSnapshot() -> AmountDevotionSnapshot {
+        .init()
+    }
+    public func update(_ snap: AmountDevotionSnapshot, unique: UniqueEngine) {
+        self.name = snap.name.trimmingCharacters(in: .whitespaces)
         self.amount = snap.amount.rawValue
         self.account = snap.account
         self.group = snap.group
@@ -521,6 +532,10 @@ public final class AmountDevotionSnapshot : DevotionSnapshotBase {
     }
     
     public var amount: CurrencyValue;
+    
+    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        fatalError()
+    }
     
     public override func hash(into hasher: inout Hasher) {
         hasher.combine(amount)
@@ -565,8 +580,11 @@ public final class PercentDevotion : DevotionBase {
     public func makeSnapshot() -> PercentDevotionSnapshot {
         .init(self)
     }
-    public func update(_ snap: PercentDevotionSnapshot) {
-        self.name = snap.name;
+    public static func makeBlankSnapshot() -> PercentDevotionSnapshot {
+        .init()
+    }
+    public func update(_ snap: PercentDevotionSnapshot, unique: UniqueEngine) {
+        self.name = snap.name.trimmingCharacters(in: .whitespaces)
         self.amount = snap.amount.rawValue
         self.account = snap.account
         self.group = snap.group
@@ -584,6 +602,10 @@ public final class PercentDevotionSnapshot : DevotionSnapshotBase {
     }
     
     public var amount: PercentValue;
+    
+    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        fatalError()
+    }
     
     public override func hash(into hasher: inout Hasher) {
         hasher.combine(amount)
@@ -626,8 +648,11 @@ public final class RemainderDevotion : DevotionBase {
     public func makeSnapshot() -> DevotionSnapshotBase {
         .init(self)
     }
-    public func update(_ snap: DevotionSnapshotBase) {
-        self.name = snap.name
+    public static func makeBlankSnapshot() -> DevotionSnapshotBase {
+        .init()
+    }
+    public func update(_ snap: DevotionSnapshotBase, unique: UniqueEngine) {
+        self.name = snap.name.trimmingCharacters(in: .whitespaces)
         self.account = snap.account
         self.group = snap.group
     }

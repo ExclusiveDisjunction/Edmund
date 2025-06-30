@@ -8,10 +8,10 @@
 import SwiftUI
 import SwiftData
 
-struct BudgetInspect : View {
-    var data: BudgetInstance
+public struct BudgetInspect : View {
+    public var data: BudgetInstance
     
-    var body: some View {
+    public var body: some View {
         TabView {
             BudgetPropertiesInspect(data: data)
                 .tabItem {

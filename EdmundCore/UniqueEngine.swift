@@ -9,33 +9,10 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-/// A quick overview of a property used to uniqueley identify a`UniqueElement`.
-public struct ElementIdentifer : Identifiable, Equatable {
-    public init(name: LocalizedStringKey, optional: Bool = false, id: UUID = UUID()) {
-        self.id = id;
-        self.name = name
-        self.optional = optional
-    }
-    
-    public var id: UUID;
-    /// The name of the property. For example, 'Name'.
-    public var name: LocalizedStringKey;
-    /// If this type is optional or not. If it is optional, that means the value can be ommited from the owning type.
-    public var optional: Bool;
-    
-    public static func == (lhs: ElementIdentifer, rhs: ElementIdentifer) -> Bool {
-        lhs.name == rhs.name && lhs.optional == rhs.optional
-    }
-}
-
 /// A protocol that determines if an element is unique.
 /// For the unique pattern to work, the type must implement this protocol.
 public protocol UniqueElement: Identifiable {
-    /// A list of properties used to identify the data as unique.
-    /// When an error about uniqueness is presented, the UI will include these values.
-    static var identifiers: [ElementIdentifer] { get }
-    
-    func removeFromEngine(unique: UniqueEngine) -> Bool;
+    func removeFromEngine(unique: UniqueEngine) async -> Bool;
 }
 
 /// A struct that allows for the access of all unique elements out of a modelContext in a safe way.
@@ -99,8 +76,7 @@ public struct UniqueFailueError<T> : Error where T: Sendable, T: Hashable {
 }
 
 /// An environment safe class that can be used to enforce the uniqueness amongts different objects of the same type.
-@Observable
-public final class UniqueEngine {
+public actor UniqueEngine {
     /// Creates the engine with empty sets.
     public init() {
         self.accounts = .init();
@@ -112,13 +88,29 @@ public final class UniqueEngine {
     }
     /// Creates the engine with data from a `ModelContext`.
     /// This will fill all sets with the currently taken IDs.
+    @MainActor
     public init(_ data: RegistryData) {
-        self.accounts = Set(data.acc.map { $0.id })
-        self.subAccounts = Set(data.subAcc.map { $0.id })
-        self.categories = Set(data.cat.map { $0.id } )
-        self.subCategories = Set(data.subCat.map { $0.id } )
-        self.allBills = Set(data.allBills.map { $0.id } )
-        self.allJobs = Set(data.allJobs.map { $0.id } )
+        self.init()
+        
+        let accounts      = Set(data.acc.map { $0.id })
+        let subAccounts   = Set(data.subAcc.map { $0.id })
+        let categories    = Set(data.cat.map { $0.id } )
+        let subCategories = Set(data.subCat.map { $0.id } )
+        let allBills      = Set(data.allBills.map { $0.id } )
+        let allJobs       = Set(data.allJobs.map { $0.id } )
+        
+        Task {
+            await self.setValues(accounts: accounts, subAccounts: subAccounts, categories: categories, subCategories: subCategories, bills: allBills, jobs: allJobs)
+        }
+    }
+    
+    private func setValues(accounts: Set<Account.ID>, subAccounts: Set<SubAccount.ID>, categories: Set<Category.ID>, subCategories: Set<SubCategory.ID>, bills: Set<BillBaseID>, jobs: Set<TraditionalJobID>) async {
+        self.accounts      = accounts
+        self.subAccounts   = subAccounts
+        self.categories    = categories
+        self.subCategories = subCategories
+        self.allBills      = bills
+        self.allJobs       = jobs
     }
     
     /// The taken account IDs.
@@ -144,27 +136,27 @@ public final class UniqueEngine {
     }
     
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func account(id: Account.ID, action: UniqueEngineAction) -> Bool {
+    public func account(id: Account.ID, action: UniqueEngineAction) async -> Bool {
         Self.perform(id: id, set: &accounts, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func subAccount(id: SubAccount.ID, action: UniqueEngineAction) -> Bool {
+    public func subAccount(id: SubAccount.ID, action: UniqueEngineAction) async -> Bool {
         Self.perform(id: id, set: &subAccounts, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func category(id: Category.ID, action: UniqueEngineAction) -> Bool {
+    public func category(id: Category.ID, action: UniqueEngineAction) async -> Bool {
         Self.perform(id: id, set: &categories, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func subCategory(id: SubCategory.ID, action: UniqueEngineAction) -> Bool {
+    public func subCategory(id: SubCategory.ID, action: UniqueEngineAction) async -> Bool {
         Self.perform(id: id, set: &subCategories, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func bill(id: BillBaseID, action: UniqueEngineAction) -> Bool {
+    public func bill(id: BillBaseID, action: UniqueEngineAction) async -> Bool {
         Self.perform(id: id, set: &allBills, action: action)
     }
     /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func job(id: TraditionalJobID, action: UniqueEngineAction) -> Bool {
+    public func job(id: TraditionalJobID, action: UniqueEngineAction) async -> Bool {
         Self.perform(id: id, set: &allJobs, action: action)
     }
 }

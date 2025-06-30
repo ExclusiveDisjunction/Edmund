@@ -6,57 +6,7 @@
 //
 
 import SwiftUI
-
-@Observable
-public final class PercentValue : Comparable, Equatable, Hashable, RawRepresentable {
-    public typealias RawValue = Decimal;
-    
-    public init(rawValue: Decimal = 0.0) {
-        self.rawValue = rawValue;
-        self.raw = "";
-    }
-    
-    public var rawValue: Decimal;
-    fileprivate var raw: String;
-    
-    public static func <(lhs: PercentValue, rhs: PercentValue) -> Bool {
-        lhs.rawValue < rhs.rawValue
-    }
-    public static func <(lhs: PercentValue, rhs: Decimal) -> Bool {
-        lhs.rawValue < rhs
-    }
-    public static func <=(lhs: PercentValue, rhs: Decimal) -> Bool {
-        lhs.rawValue <= rhs
-    }
-    public static func >(lhs: PercentValue, rhs: Decimal) -> Bool {
-        lhs.rawValue > rhs
-    }
-    public static func >=(lhs: PercentValue, rhs: Decimal) -> Bool {
-        lhs.rawValue >= rhs
-    }
-    public static func ==(lhs: PercentValue, rhs: Decimal) -> Bool {
-        lhs.rawValue == rhs
-    }
-    public static func !=(lhs: PercentValue, rhs: Decimal) -> Bool {
-        lhs.rawValue != rhs
-    }
-    public static func ==(lhs: PercentValue, rhs: PercentValue) -> Bool {
-        lhs.rawValue == rhs.rawValue
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
-        hasher.combine(raw)
-    }
-    
-    /// Converts the internal `rawValue` into a displayable string.
-    fileprivate func format() {
-        let formatter = NumberFormatter();
-        formatter.numberStyle = .percent;
-        formatter.maximumFractionDigits = 3;
-        formatter.minimumFractionDigits = 0;
-        self.raw = formatter.string(from: rawValue as NSDecimalNumber) ?? "";
-    }
-}
+import EdmundCore
 
 public struct PercentField : View {
     public init(_ on: PercentValue) {

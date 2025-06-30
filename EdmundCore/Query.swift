@@ -40,4 +40,6 @@ public protocol Queryable {
     associatedtype SortType: Sortable where SortType.On == Self
     /// The type used for filtering
     associatedtype FilterType: Filterable where FilterType.On == Self
+    
+    
 }
