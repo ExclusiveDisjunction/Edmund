@@ -149,8 +149,12 @@ public class TraditionalJobSnapshot : JobSnapshot {
         let id = TraditionalJobID(company: company, position: position)
         
         if to.id != id {
-            let _ = unique.job(id: to.id, action: .remove);
-            guard unique.job(id: id, action: .insert) else { throw .init(value: id) }
+            let oldId = to.id;
+            Task {
+                guard await unique.swapId(key: .init((any TraditionalJob).self), oldId: oldId, newId: id) else {
+                    throw UniqueFailueError(value: id)
+                }
+            }
         }
         
         to.company = company

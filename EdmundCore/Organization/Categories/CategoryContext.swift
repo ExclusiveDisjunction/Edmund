@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 public protocol CategoriesHolderBasis {
+    @MainActor
     init?(context: ModelContext, from: Category?)
     static var name: String { get }
 }
@@ -34,7 +35,8 @@ public struct AccountControlCategories : CategoriesHolderBasis {
         self.audit = audit
         self.initial = initial
     }
-    public init?(context: ModelContext, from: Category?) {
+    @MainActor
+    public init(context: ModelContext, from: Category?) {
         if let from = from {
             from.isLocked = true
             self.init(
@@ -72,7 +74,9 @@ public struct PaymentsCategories : CategoriesHolderBasis {
         self.gift = gift
         self.interest = interest
     }
-    public init?(context: ModelContext, from: Category?) {
+    
+    @MainActor
+    public init(context: ModelContext, from: Category?) {
         if let from = from {
             from.isLocked = true
             self.init(
@@ -114,13 +118,15 @@ public struct PaymentsCategories : CategoriesHolderBasis {
     public let interest: SubCategory;
 }
 
-public struct BillPaymentsCategories : CategoriesHolderBasis{
+public struct BillPaymentsCategories : CategoriesHolderBasis {
     public init(bill: SubCategory, sub: SubCategory, utility: SubCategory) {
         self.bill = bill
         self.subscription = sub
         self.utility = utility
     }
-    public init?(context: ModelContext, from: Category?) {
+    
+    @MainActor
+    public init(context: ModelContext, from: Category?) {
         if let from = from {
             from.isLocked = true
             self.init(
@@ -155,12 +161,13 @@ public struct BillPaymentsCategories : CategoriesHolderBasis{
 
 /// Provides a lookup for the basic SubCategories that are used by the program.
 public struct CategoriesContext {
-    public init?(_ context: ModelContext) {
-        guard let categories = try? context.fetch(FetchDescriptor<Category>()) else { return nil }
+    @MainActor
+    public init(_ context: ModelContext) throws {
+        let categories = try context.fetch(FetchDescriptor<Category>())
         
-        guard let acc =     AccountControlCategories(context: context, from: categories.first(where: {$0.name == AccountControlCategories.name } ) ) else { return nil }
-        guard let payment = PaymentsCategories      (context: context, from: categories.first(where: {$0.name == PaymentsCategories.name       } ) ) else { return nil }
-        guard let bills =   BillPaymentsCategories  (context: context, from: categories.first(where: {$0.name == BillPaymentsCategories.name   } ) ) else { return nil }
+        let acc     = AccountControlCategories(context: context, from: categories.first(where: {$0.name == AccountControlCategories.name } ) )
+        let payment = PaymentsCategories      (context: context, from: categories.first(where: {$0.name == PaymentsCategories.name       } ) )
+        let bills   = BillPaymentsCategories  (context: context, from: categories.first(where: {$0.name == BillPaymentsCategories.name   } ) )
         
         self.accountControl = acc
         self.payments = payment
@@ -173,7 +180,9 @@ public struct CategoriesContext {
 }
 
 private struct CategoriesContextKey: EnvironmentKey {
-    static let defaultValue: CategoriesContext? = nil
+    static var defaultValue: CategoriesContext? {
+        nil
+    }
 }
 
 extension EnvironmentValues {

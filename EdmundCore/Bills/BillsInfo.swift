@@ -18,7 +18,7 @@ public enum StrictBillsKind : Int, Equatable, Hashable, Codable, Identifiable {
 }
 
 @frozen
-public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable {
+public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable, Filterable {
     public typealias On = BillBaseWrapper
     
     case bill = 0
@@ -32,7 +32,7 @@ public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable {
     }
 }
 
-public enum BillsSort : Int, Identifiable, CaseIterable {
+public enum BillsSort : Int, Identifiable, CaseIterable, Sortable {
     case name, amount, kind
     
     public var id: Self { self }

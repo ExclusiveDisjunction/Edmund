@@ -50,6 +50,30 @@ public final class Bill : BillBase, SnapshotableElement, UniqueElement {
     public var notes: String = "";
     public var autoPay: Bool = true;
     
+    @Transient
+    private var _nextDueDate: Date? = nil;
+    @Transient
+    private var _oldHash: Int = 0;
+    public var nextDueDate: Date? {
+        var hasher = Hasher()
+        hasher.combine(startDate)
+        hasher.combine(endDate)
+        hasher.combine(period)
+        let computedHash = hasher.finalize()
+        let lastHash = _oldHash
+        
+        _oldHash = computedHash
+        
+        if let nextDueDate = _nextDueDate, computedHash == lastHash {
+            return nextDueDate
+        }
+        else {
+            let result = self.computeNextDueDate()
+            _nextDueDate = result;
+            return result;
+        }
+    }
+    
     /// The internal raw value used to store the kind.
     public var _kind: StrictBillsKind.RawValue;
     /// The internall raw value used to store the period.

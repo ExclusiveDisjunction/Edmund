@@ -51,6 +51,9 @@ public final class SalariedJob : Identifiable, InspectableElement, EditableEleme
     public func removeFromEngine(unique: UniqueEngine) -> Bool {
         unique.job(id: self.id, action: .remove)
     }
+    
+    @MainActor
+    public static let exampleJob: SalariedJob = SalariedJob(company: "Winn Dixie", position: "Customer Service Manager", grossAmount: 850, taxRate: 0.25);
 }
 
 /// The snapshot value for `SalariedJob`

@@ -49,7 +49,7 @@ public protocol PairBasis : Identifiable, PersistentModel, Hashable, Equatable {
 }
 
 /// Represents a type that parents a `BoundPair` value.
-public protocol BoundPairParent : PairBasis {
+public protocol BoundPairParent : PairBasis, Identifiable<String> {
     /// The child type that this type parents.
     associatedtype C: BoundPair;
     

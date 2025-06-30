@@ -41,6 +41,30 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement 
     public var destination: SubAccount? = nil;
     public var autoPay: Bool = true;
     
+    @Transient
+    private var _nextDueDate: Date? = nil;
+    @Transient
+    private var _oldHash: Int = 0;
+    public var nextDueDate: Date? {
+        var hasher = Hasher()
+        hasher.combine(startDate)
+        hasher.combine(endDate)
+        hasher.combine(period)
+        let computedHash = hasher.finalize()
+        let lastHash = _oldHash
+        
+        _oldHash = computedHash
+     
+        if let nextDueDate = _nextDueDate, computedHash == lastHash {
+            return nextDueDate
+        }
+        else {
+            let result = self.computeNextDueDate()
+            _nextDueDate = result;
+            return result;
+        }
+    }
+    
     /// The period as a raw value
     private var rawPeriod: Int = 0;
     /// The associated instances of being charged for this bill
@@ -61,10 +85,6 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement 
     public var period: TimePeriods {
         get { TimePeriods(rawValue: rawPeriod)! }
         set { rawPeriod = newValue.rawValue }
-    }
-    
-    public func removeFromEngine(unique: UniqueEngine) async -> Bool {
-        await unique.bill(id: self.id, action: .remove)
     }
     
     public func makeSnapshot() -> UtilitySnapshot {
@@ -162,6 +182,9 @@ public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
     }
     
     public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
+        if let topResult = super.validate(unique: unique) else {
+            return topResult;
+        }
         var topResult = super.validate(unique: unique);
         
         let childrenResult = children.map { $0.validate(unique: unique) }.reduce([], +)

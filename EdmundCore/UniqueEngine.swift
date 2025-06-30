@@ -11,12 +11,10 @@ import SwiftData
 
 /// A protocol that determines if an element is unique.
 /// For the unique pattern to work, the type must implement this protocol.
-public protocol UniqueElement: Identifiable where Self.ID: Sendable {
-    func removeFromEngine(unique: UniqueEngine) async -> Bool;
-}
+public protocol UniqueElement: Identifiable where Self.ID: Sendable { }
 
 /// A struct that allows for the access of all unique elements out of a modelContext in a safe way.
-public struct RegistryData {
+public struct UniqueContext {
     /// Extracts the required information out of the `context`, running on the main thread.
     /// - Parameters:
     ///     - context: The `ModelContext` to extract information from.
@@ -84,7 +82,7 @@ public actor UniqueEngine {
     /// Creates the engine with data from a `ModelContext`.
     /// This will fill all sets with the currently taken IDs.
     @MainActor
-    public init(_ data: RegistryData) {
+    public init(_ data: UniqueContext) {
         self.init()
         
         let allSets = [

@@ -171,11 +171,18 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
         formatter.string(from: lastViewed).lowercased().contains(criteria)
     }
     
-    public static func exampleBudget(pay: SubAccount, bills: SubAccount, groceries: SubAccount, personal: SubAccount, taxes: SubAccount, main: SubAccount) -> BudgetInstance {
+    public static func exampleBudget(acc: inout BoundPairTree<Account>) -> BudgetInstance {
+        let pay       = acc.getOrInsert(parent: "Checking", child: "Pay"      )
+        let bills     = acc.getOrInsert(parent: "Checking", child: "Bills"    )
+        let groceries = acc.getOrInsert(parent: "Checking", child: "Groceries")
+        let personal  = acc.getOrInsert(parent: "Checking", child: "Personal" )
+        let taxes     = acc.getOrInsert(parent: "Checking", child: "Taxes"    )
+        let main      = acc.getOrInsert(parent: "Savings",  child: "Main"     )
+        
         let result = BudgetInstance(name: "Example Budget", amount: 450, kind: .pay, depositTo: pay)
         
         result.amounts = [
-            .init(name: "Bills", amount: 250.56, account: bills, group: .need),
+            .init(name: "Bills", amount: 137.50, account: bills, group: .need),
             .init(name: "Groceries", amount: 100, account: groceries, group: .need),
             .init(name: "Personal", amount: 30, account: personal, group: .want)
         ]

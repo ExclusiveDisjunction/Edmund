@@ -156,9 +156,20 @@ public struct BillBaseWrapper : Identifiable, Queryable {
     public var data: any BillBase;
     public var id: UUID;
     
+    public static func sort(_ data: [BillBaseWrapper], using: BillsSort, order: SortOrder) -> [BillBaseWrapper] {
+        switch using {
+            case .amount: data.sorted(using: KeyPathComparator(\.data.amount, order: order))
+            case .kind:   data.sorted(using: KeyPathComparator(\.data.kind,   order: order))
+            case .name:   data.sorted(using: KeyPathComparator(\.data.name,   order: order))
+        }
+    }
+    public static func filter(_ data: [BillBaseWrapper], using: Set<BillsKind>) -> [BillBaseWrapper] {
+        data.filter { using.contains($0.data.kind) }
+    }
+    
     /// A complete list of bill examples, from `Bill` and `Utility`.
     @MainActor
-    public static let exampleBills: [BillBaseWrapper] = (Bill.exampleBills as [any BillBase]) + (Utility.exampleUtility as [any BillBase])
+    public static let exampleBills: [BillBaseWrapper] = Bill.exampleBills.map { .init($0) } + Utility.exampleUtility.map { .init($0) }
 }
 
 /// The snapshot for `any BillBase`. This is used inside `BillSnapshot` and `UtilitySnapshot` to simplify the process.
@@ -216,23 +227,21 @@ public class BillBaseSnapshot: Hashable, Equatable {
     public var autoPay: Bool;
     
     /// Validates the bill with its current information.
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        var result: [ValidationFailure] = []
-        
+    public func validate(unique: UniqueEngine) async -> ValidationFailure? {
         let name = name.trimmingCharacters(in: .whitespaces)
         let company = company.trimmingCharacters(in: .whitespaces)
         let location = location.trimmingCharacters(in: .whitespaces)
         let id = BillBaseID(name: name, company: company, location: hasLocation ? location : nil)
         
-        if oldId != id && !unique.bill(id: id, action: .validate) { result.append(.unique(Bill.identifiers)) }
+        if oldId != id {
+            guard await unique.isIdOpen(key: .init((any BillBase).self), id: id) else { return .unique }
+        }
         
-        if name.isEmpty { result.append(.empty("Name")) }
-        if company.isEmpty { result.append(.empty("Company")) }
-        if hasLocation && location.isEmpty { result.append(.empty("Location")) }
+        guard !name.isEmpty && !company.isEmpty else { return .empty }
+        if hasLocation && location.isEmpty { return .empty }
+        if hasEndDate && endDate < startDate { return .invalidInput }
         
-        if hasEndDate && endDate < startDate { result.append(.invalidInput("End Date")) }
-        
-        return result;
+        return nil;
     }
 
     public func hash(into hasher: inout Hasher) {

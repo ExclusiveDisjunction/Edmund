@@ -7,25 +7,161 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
+
+public struct LoadedApp {
+    public let container: ModelContainer;
+    public let unique: UniqueEngine;
+    public let categories: CategoriesContext;
+}
+
+public enum AppLoadErrorKind : Sendable {
+    case modelContainer
+    case unique
+    case categories
+}
+public struct AppLoadError : Error, Sendable {
+    public let with: AppLoadErrorKind;
+    public let message: String;
+}
+public enum AppState {
+    case error(AppLoadError)
+    case loading
+    case loaded(LoadedApp)
+}
+
+@Observable
+public class AppLoader {
+    public init() {
+        Task {
+            await load()
+        }
+    }
+    
+    public var state: AppState = .loading
+    
+    public func load() async {
+        await MainActor.run {
+            let container: ModelContainer;
+            let uniqueContext: UniqueContext;
+            let unique: UniqueEngine;
+            let categories: CategoriesContext;
+            
+            do {
+                #if DEBUG
+                container = try Containers.debugContainer()
+                #else
+                container = try Containers.mainContainer()
+                #endif
+            }
+            catch let e {
+                withAnimation {
+                    self.state = .error(.init(with: .modelContainer, message: e.localizedDescription))
+                }
+                return;
+            }
+            
+            do {
+                uniqueContext = try UniqueContext(container.mainContext)
+            }
+            catch let e {
+                withAnimation {
+                    self.state = .error(.init(with: .unique, message: e.localizedDescription))
+                }
+                return;
+            }
+            
+            unique = UniqueEngine(uniqueContext)
+            
+            do {
+                categories = try CategoriesContext(container.mainContext)
+            }
+            catch let e {
+                withAnimation {
+                    self.state = .error(.init(with: .categories, message: e.localizedDescription))
+                }
+                return;
+            }
+            
+            let loaded = LoadedApp(container: container, unique: unique, categories: categories)
+            withAnimation {
+                self.state = .loaded(loaded)
+            }
+        }
+    }
+}
+
+struct AppErrorView : View {
+    let error: AppLoadError;
+    
+    var body: some View {
+        VStack {
+            Image(systemName: "exclamationmark.shield.fill")
+                .resizable()
+                .scaledToFit()
+            Text("Oops!")
+                .font(.title)
+            
+            Text("Edmund has hit a snag while loading, and cannot access your data.")
+            Text("Please report this issue.")
+            
+            Divider()
+            
+            Grid {
+                GridRow {
+                    Text("Error Kind:")
+                    
+                    switch error.with {
+                        case .categories: Text("The categories context cannot be loaded.")
+                        case .modelContainer: Text("The app's model container could not be loaded.")
+                        case .unique: Text("The unique engine could not be loaded.")
+                    }
+                }
+                
+                GridRow {
+                    Text("Error Message:")
+                    
+                    Text(error.message)
+                }
+            }
+        }
+    }
+}
+
+struct AppWindowGate<Content> : View where Content: View {
+    var loader: AppLoader;
+    let content: () -> Content;
+    
+    @AppStorage("themeMode") private var themeMode: ThemeMode?;
+    
+    private var colorScheme: ColorScheme? {
+        switch themeMode {
+            case .light: return .light
+            case .dark: return .dark
+            default: return nil
+        }
+    }
+    
+    var body: some View {
+        switch loader.state {
+            case .loading: Text("Please wait while Edmund loads")
+                    .preferredColorScheme(colorScheme)
+            case .error(let e): AppErrorView(error: e)
+                    .preferredColorScheme(colorScheme)
+            case .loaded(let a): self.content()
+                    .preferredColorScheme(colorScheme)
+                    .environment(\.categoriesContext, a.categories)
+                    .environment(\.uniqueEngine, a.unique)
+                    .modelContainer(a.container)
+                                    
+        }
+    }
+}
 
 @main
 struct EdmundApp: App {
     init() {
-#if DEBUG
-        self.container = Containers.debugContainer;
-#else
-        self.container = Containers.container;
-#endif
-        
-        self.categories = .init(container.mainContext)
-        
-        if let allData = try? RegistryData(container.mainContext) {
-            uniqueEngine = .init(allData)
-        }
-        else {
-            print("Unable to extract information out of the main context, setting the unique engine to default.")
-            uniqueEngine = .init();
-        }
+        self.loader = .init()
          
         /*
 #if os(iOS)
@@ -36,155 +172,130 @@ struct EdmundApp: App {
          */
     }
     
-    var container: ModelContainer;
-    var categories: CategoriesContext?;
-    var uniqueEngine: UniqueEngine;
+    var loader: AppLoader;
+    
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
-    var colorScheme: ColorScheme? {
+    private var colorScheme: ColorScheme? {
         switch themeMode {
             case .light: return .light
             case .dark: return .dark
             default: return nil
         }
     }
+    
 
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .preferredColorScheme(colorScheme)
-                .environment(\.categoriesContext, categories)
-                .environment(\.uniqueEngine, uniqueEngine)
+            AppWindowGate(loader: loader) {
+                MainView()
+            }
         }.commands {
             GeneralCommands()
         }
-        .modelContainer(container)
         
         WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
             NavigationStack {
-                Homepage()
-                    .preferredColorScheme(colorScheme)
+                AppWindowGate(loader: loader) {
+                    Homepage()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.ledger.rawValue, id: PageDestinations.ledger.key) {
             NavigationStack {
-                LedgerTable()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    LedgerTable()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.balance.rawValue, id: PageDestinations.balance.key) {
             NavigationStack {
-                BalanceSheet()
-                    .preferredColorScheme(colorScheme)
+                AppWindowGate(loader: loader) {
+                    BalanceSheet()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.bills.rawValue, id: PageDestinations.bills.key) {
             NavigationStack {
-                AllBillsViewEdit()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    AllBillsViewEdit()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
-                AllBudgetsInspect()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    AllBudgetsInspect()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.org.rawValue, id: PageDestinations.org.key) {
             NavigationStack {
-                OrganizationHome()
-                    .preferredColorScheme(colorScheme)
+                AppWindowGate(loader: loader) {
+                    OrganizationHome()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.accounts.rawValue, id: PageDestinations.accounts.key) {
             NavigationStack {
-                AccountsIE()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    AccountsIE()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.categories.rawValue, id: PageDestinations.categories.key) {
             NavigationStack {
-                CategoriesIE()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    CategoriesIE()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.credit.rawValue, id: PageDestinations.credit.key) {
             NavigationStack {
-                CreditCardHelper()
-                    .preferredColorScheme(colorScheme)
+                AppWindowGate(loader: loader) {
+                    CreditCardHelper()
+                }
             }
-        }.modelContainer(container)
+        }
         
         WindowGroup(PageDestinations.audit.rawValue, id: PageDestinations.audit.key) {
             NavigationStack {
-                BalanceVerifier()
-                    .preferredColorScheme(colorScheme)
+                AppWindowGate(loader: loader) {
+                    BalanceVerifier()
+                }
             }
-        }.modelContainer(container)
-        
-        /* For the next version, tee hee
-        WindowGroup(PageDestinations.pay.rawValue, id: PageDestinations.pay.key) {
-            NavigationStack {
-                
-                .preferredColorScheme(colorScheme)
-            }
-        }.modelContainer(container)
-        
-        WindowGroup(PageDestinations.paychecks.rawValue, id: PageDestinations.paychecks.key) {
-            NavigationStack {
-                
-                .preferredColorScheme(colorScheme)
-            }
-        }.modelContainer(container)
-        
-        WindowGroup(PageDestinations.taxes.rawValue, id: PageDestinations.taxes.key) {
-            NavigationStack {
-                
-                .preferredColorScheme(colorScheme)
-            }
-        }.modelContainer(container)
-        */
+        }
         
         WindowGroup(PageDestinations.jobs.rawValue, id: PageDestinations.jobs.key) {
             NavigationStack {
-                AllJobsViewEdit()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    AllJobsViewEdit()
+                }
             }
-        }.modelContainer(container)
+        }
+        
+        WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
+            AppWindowGate(loader: loader) {
+                TransactionsEditor(kind: kind.wrappedValue ?? .simple)
+            }
+        }
         
         #if os(macOS)
         WindowGroup("Expired Bills", id: "expiredBills") {
             NavigationStack {
-                AllExpiredBillsVE()
-                    .preferredColorScheme(colorScheme)
-                    .environment(\.uniqueEngine, uniqueEngine)
+                AppWindowGate(loader: loader) {
+                    AllExpiredBillsVE()
+                }
             }
-        }.modelContainer(container)
-        
-        /*
-        WindowGroup("Report", id: "reports", for: ReportType.self) { report in
-            if let report = report.wrappedValue {
-                ReportBase(kind: report)
-            }
-            else {
-                Text("Unexpected Error")
-            }
-        }.modelContainer(container)
-         */
+        }
         
         Window("About", id: "about") {
             AboutView()
@@ -196,12 +307,6 @@ struct EdmundApp: App {
                 .preferredColorScheme(colorScheme)
         }
         #endif
-        
-        WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
-            TransactionsEditor(kind: kind.wrappedValue ?? .simple)
-                .preferredColorScheme(colorScheme)
-                .environment(\.categoriesContext, categories)
-        }.modelContainer(container)
         
         WindowGroup("Help", id: "help") {
             HelpView()

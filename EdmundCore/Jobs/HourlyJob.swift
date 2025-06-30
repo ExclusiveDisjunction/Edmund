@@ -58,6 +58,9 @@ public final class HourlyJob : InspectableElement, EditableElement, UniqueElemen
     public func removeFromEngine(unique: UniqueEngine) -> Bool {
         unique.job(id: self.id, action: .remove)
     }
+    
+    @MainActor
+    public static let exampleJob: HourlyJob = HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15);
 }
 
 @Observable

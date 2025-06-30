@@ -24,5 +24,5 @@ public protocol Queryable {
     associatedtype FilterType: Filterable
     
     static func sort(_ data: [Self], using: SortType, order: SortOrder) -> [Self];
-    static func filter(_ data: [Self], using: FilterType) -> [Self];
+    static func filter(_ data: [Self], using: Set<FilterType>) -> [Self];
 }
