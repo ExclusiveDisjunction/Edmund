@@ -39,5 +39,5 @@ public protocol SnapshotableElement : ElementBase, PersistentModel {
 /// Represents a class that can be used to hold the values of an element for editing.
 public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
     /// Determines if the current values are acceptable to display to the user.
-    func validate(unique: UniqueEngine) -> [ValidationFailure];
+    func validate(unique: UniqueEngine) async -> ValidationFailure?
 }

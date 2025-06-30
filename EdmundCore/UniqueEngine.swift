@@ -11,7 +11,7 @@ import SwiftData
 
 /// A protocol that determines if an element is unique.
 /// For the unique pattern to work, the type must implement this protocol.
-public protocol UniqueElement: Identifiable {
+public protocol UniqueElement: Identifiable where Self.ID: Sendable {
     func removeFromEngine(unique: UniqueEngine) async -> Bool;
 }
 
@@ -79,12 +79,7 @@ public struct UniqueFailueError<T> : Error where T: Sendable, T: Hashable {
 public actor UniqueEngine {
     /// Creates the engine with empty sets.
     public init() {
-        self.accounts = .init();
-        self.subAccounts = .init();
-        self.categories = .init();
-        self.subCategories = .init();
-        self.allBills = .init();
-        self.allJobs = .init();
+        self.data = .init();
     }
     /// Creates the engine with data from a `ModelContext`.
     /// This will fill all sets with the currently taken IDs.
@@ -92,72 +87,75 @@ public actor UniqueEngine {
     public init(_ data: RegistryData) {
         self.init()
         
-        let accounts      = Set(data.acc.map { $0.id })
-        let subAccounts   = Set(data.subAcc.map { $0.id })
-        let categories    = Set(data.cat.map { $0.id } )
-        let subCategories = Set(data.subCat.map { $0.id } )
-        let allBills      = Set(data.allBills.map { $0.id } )
-        let allJobs       = Set(data.allJobs.map { $0.id } )
+        let allSets = [
+            ( ObjectIdentifier(Account.self),              Set(data.acc.map      { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier(SubAccount.self),           Set(data.subAcc.map   { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier(Category.self),             Set(data.cat.map      { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier(SubCategory.self),          Set(data.subCat.map   { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier((any BillBase).self),       Set(data.allBills.map { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier((any TraditionalJob).self), Set(data.allJobs.map  { AnyHashable($0.id) } ) )
+        ];
+        
+        let data: [ObjectIdentifier: Set<AnyHashable>] = .init(uniqueKeysWithValues: allSets)
         
         Task {
-            await self.setValues(accounts: accounts, subAccounts: subAccounts, categories: categories, subCategories: subCategories, bills: allBills, jobs: allJobs)
+            await self.setData(data: data)
         }
     }
     
-    private func setValues(accounts: Set<Account.ID>, subAccounts: Set<SubAccount.ID>, categories: Set<Category.ID>, subCategories: Set<SubCategory.ID>, bills: Set<BillBaseID>, jobs: Set<TraditionalJobID>) async {
-        self.accounts      = accounts
-        self.subAccounts   = subAccounts
-        self.categories    = categories
-        self.subCategories = subCategories
-        self.allBills      = bills
-        self.allJobs       = jobs
+    private func setData(data: Dictionary<ObjectIdentifier, Set<AnyHashable>>) async {
+        self.data = data
     }
     
-    /// The taken account IDs.
-    private var accounts: Set<Account.ID>;
-    /// The taken sub account IDs.
-    private var subAccounts: Set<SubAccount.ID>;
-    /// The taken category IDs.
-    private var categories: Set<Category.ID>;
-    /// The taken sub category IDs.
-    private var subCategories: Set<SubCategory.ID>;
-    /// The taken bills & utilities IDs.
-    private var allBills: Set<BillBaseID>;
-    /// The taken hourly & salaried job IDs.
-    private var allJobs: Set<TraditionalJobID>;
+    private var data: Dictionary<ObjectIdentifier, Set<AnyHashable>>;
     
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    private static func perform<T>(id: T, set: inout Set<T>, action: UniqueEngineAction) -> Bool where T: Hashable {
-        switch action {
-            case .insert:   set.insert(id).inserted
-            case .validate: !set.contains(id)
-            case .remove:   set.remove(id) != nil
-        }
+    /// Determines if a specific ID (presumed to be from type `T`), is not being used.
+    public func isIdOpen<T, ID>(type: T.Type, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        await self.isIdOpen(key: ObjectIdentifier(type), id: id)
+    }
+    /// Determines if a specific ID (attached to an object ID) is not being used.
+    public func isIdOpen<ID>(key: ObjectIdentifier, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        !data[key, default: .init()].contains(id)
     }
     
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func account(id: Account.ID, action: UniqueEngineAction) async -> Bool {
-        Self.perform(id: id, set: &accounts, action: action)
+    /// Determines if a specific ID (presumed to be from type `T`), is being used.
+    public func isIdTaken<T, ID>(type: T.Type, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        await self.isIdTaken(key: ObjectIdentifier(type), id: id)
     }
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func subAccount(id: SubAccount.ID, action: UniqueEngineAction) async -> Bool {
-        Self.perform(id: id, set: &subAccounts, action: action)
+    /// Determines if a specific ID (attached to an object ID) is  being used.
+    public func isIdTaken<ID>(key: ObjectIdentifier, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        data[key, default: .init()].contains(id)
     }
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func category(id: Category.ID, action: UniqueEngineAction) async -> Bool {
-        Self.perform(id: id, set: &categories, action: action)
+    
+    /// Attempts to reserve an ID for a specific type.
+    public func reserveId<T, ID>(type: T.Type, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        await self.reserveId(key: ObjectIdentifier(type), id: id)
     }
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func subCategory(id: SubCategory.ID, action: UniqueEngineAction) async -> Bool {
-        Self.perform(id: id, set: &subCategories, action: action)
+    /// Attempts to reserve an ID for a specific object ID.
+    public func reserveId<ID>(key: ObjectIdentifier, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        data[key, default: .init()].insert(id).inserted
+        // Since `inserted` will be false if the insert fails, this reserve call will also fail.
     }
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func bill(id: BillBaseID, action: UniqueEngineAction) async -> Bool {
-        Self.perform(id: id, set: &allBills, action: action)
+    
+    /// Attempts to release an ID from a type's pool.
+    @discardableResult
+    public func releaseId<T, ID>(type: T.Type, id: ID) async -> Bool where ID: Hashable, ID: Sendable  {
+        await self.releaseId(key: ObjectIdentifier(type), id: id)
     }
-    /// Performs a specific `UniqueEngineAction` on the specified ID, and returns the result.
-    public func job(id: TraditionalJobID, action: UniqueEngineAction) async -> Bool {
-        Self.perform(id: id, set: &allJobs, action: action)
+    /// Attempts to release an ID from an object ID's pool.
+    @discardableResult
+    public func releaseId<ID>(key: ObjectIdentifier, id: ID) async -> Bool where ID: Hashable, ID: Sendable  {
+        data[key, default: .init()].remove(id) != nil
+    }
+    
+    /// Releases and then attempts to obtain a new ID for a specific type.
+    public func swapId<T, ID>(type: T.Type, oldId: ID, newId: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        await self.swapId(key: ObjectIdentifier(type), oldId: oldId, newId: newId)
+    }
+    /// Releases and then attempts to obtain a new ID for a specific object ID.
+    public func swapId<ID>(key: ObjectIdentifier, oldId: ID, newId: ID) async -> Bool where ID: Hashable, ID: Sendable {
+        let _ = await self.releaseId(key: key, id: oldId)
+        return await self.reserveId(key: key, id: newId)
     }
 }
 

@@ -124,11 +124,11 @@ public extension BillBase {
         
         if id != self.id {
             Task {
-                let _ = await unique.bill(id: self.id, action: .remove);
-                guard await unique.bill(id: id, action: .insert) else { throw UniqueFailueError(value: id) }
+                guard await unique.swapId(key: .init((any BillBase).self), oldId: self.id, newId: id) else {
+                    throw UniqueFailueError(value: id)
+                }
             }
         }
-        
         
         self.name = name
         self.company = company
@@ -157,12 +157,8 @@ public struct BillBaseWrapper : Identifiable, Queryable {
     public var id: UUID;
     
     /// A complete list of bill examples, from `Bill` and `Utility`.
-    public static let exampleBills: [BillBaseWrapper] = {
-        let bills: [any BillBase] = Bill.exampleBills;
-        let utilities: [any BillBase] = Utility.exampleUtility;
-        
-        return (bills + utilities).map { .init($0) }
-    }()
+    @MainActor
+    public static let exampleBills: [BillBaseWrapper] = (Bill.exampleBills as [any BillBase]) + (Utility.exampleUtility as [any BillBase])
 }
 
 /// The snapshot for `any BillBase`. This is used inside `BillSnapshot` and `UtilitySnapshot` to simplify the process.

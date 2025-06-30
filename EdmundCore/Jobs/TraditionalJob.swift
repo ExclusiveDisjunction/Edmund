@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// A basis for all jobs that Edmund supports.
-public protocol JobBase : PersistentModel, InspectableElement, EditableElement, Identifiable {
+public protocol JobBase : PersistentModel, Identifiable {
     /// The amount of money taken out as taxes.
     var taxRate: Decimal { get set }
     /// The average gross (pre-tax) amount.
@@ -23,7 +23,7 @@ public extension JobBase {
 }
 
 /// An identifer that can be used for any `TraditionalJob`.
-public struct TraditionalJobID : Hashable, Equatable, RawRepresentable {
+public struct TraditionalJobID : Hashable, Equatable, RawRepresentable, Sendable {
     public init(company: String, position: String) {
         self.company = company
         self.position = position
@@ -85,10 +85,11 @@ public class JobSnapshot : Hashable, Equatable {
     
     public var taxRate: Decimal;
     
-    public func validate() -> [ValidationFailure] {
-        if taxRate < 0      { return [.negativeAmount("Tax Rate")] }
-        else if taxRate > 1 { return [.tooLargeAmount("Tax Rate")] }
-        else                { return [] }
+    public func validate() -> ValidationFailure? {
+        if taxRate < 0      { return .negativeAmount }
+        else if taxRate > 1 { return .tooLargeAmount }
+        
+        return nil
     }
     internal func apply<T>(_ to: T) where T: JobBase {
         to.taxRate = self.taxRate
@@ -124,19 +125,23 @@ public class TraditionalJobSnapshot : JobSnapshot {
     public var company: String;
     public var position: String;
     
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
+    public func validate(unique: UniqueEngine) async -> ValidationFailure? {
         let company = self.company.trimmingCharacters(in: .whitespaces)
         let position = self.position.trimmingCharacters(in: .whitespaces)
         let id = TraditionalJobID(company: company, position: position)
         
-        var result = super.validate()
+        if let topResult = super.validate() {
+            return topResult
+        }
         
-        if oldId != id && !unique.job(id: id, action: .validate) { result.append(.unique(HourlyJob.identifiers)) }
+        if oldId == id {
+            let idOpen = await unique.isIdOpen(key: .init((any TraditionalJob).self), id: id)
+            guard idOpen else { return .unique }
+        }
         
-        if company.isEmpty { result.append(.empty("Company")) }
-        if position.isEmpty { result.append(.empty("Position")) }
+        guard !company.isEmpty || !position.isEmpty else { return .empty }
         
-        return result
+        return nil
     }
     internal func apply<T>(_ to: T, unique: UniqueEngine) throws(UniqueFailueError<TraditionalJobID>) where T: TraditionalJob {
         let company = self.company.trimmingCharacters(in: .whitespaces)
