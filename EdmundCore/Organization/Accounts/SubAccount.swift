@@ -5,15 +5,13 @@
 //  Created by Hollan Sellars on 6/20/25.
 //
 
-import SwiftUI
+import Foundation
 import SwiftData
 
 /// Represents a sub-section under an account for transaction grouping.
 @Model
-public final class SubAccount : BoundPair, Equatable, NamedEditableElement, NamedInspectableElement, UniqueElement, TransactionHolder {
-    public typealias EditView = BoundPairChildEdit<SubAccount>
+public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, TransactionHolder {
     public typealias Snapshot = SubAccountSnapshot;
-    public typealias InspectorView = BoundPairChildInspect<SubAccount>;
     
     public convenience init() {
         self.init("")
@@ -46,21 +44,27 @@ public final class SubAccount : BoundPair, Equatable, NamedEditableElement, Name
     @Relationship(deleteRule: .nullify, inverse: \RemainderDevotion.account)
     public var remainderDevotions: [RemainderDevotion] = [];
     
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Sub Account",
-            plural:   "Sub Accounts",
-            inspect:  "Inspect Sub Account",
-            edit:     "Edit Sub Account",
-            add:      "Add Sub Account"
-        )
+    public func makeSnapshot() -> SubAccountSnapshot {
+        .init(self)
     }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Parent Name", optional: true), .init(name: "Name") ]
+    public static func makeBlankSnapshot() -> SubAccountSnapshot {
+        .init()
     }
-
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.subAccount(id: self.id, action: .remove)
+    public func update(_ from: SubAccountSnapshot, unique: UniqueEngine) throws (UniqueFailureError<BoundPairID>) {
+        let name = from.name.trimmingCharacters(in: .whitespaces)
+        let id = BoundPairID(parent: parent?.name, name: name)
+        
+        if self.id != id {
+            Task {
+                let result = await unique.swapId(key: .init(SubAccount.self), oldId: self.id, newId: id)
+                guard result else {
+                    throw UniqueFailureError(value: id)
+                }
+            }
+        }
+        
+        self.name = name
+        self.parent = parent
     }
     
     public static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
@@ -79,10 +83,7 @@ public final class SubAccount : BoundPair, Equatable, NamedEditableElement, Name
 
 /// The snapshot type for `SubAccount`.
 @Observable
-public final class SubAccountSnapshot: ElementSnapshot, BoundPairSnapshot {
-    public typealias Host = SubAccount;
-    public typealias Parent = Account;
-    
+public final class SubAccountSnapshot: ElementSnapshot {
     public init() {
         self.name = "";
         self.parent = nil;
@@ -101,29 +102,19 @@ public final class SubAccountSnapshot: ElementSnapshot, BoundPairSnapshot {
     /// The sub-account's parent account
     public var parent: Account?;
     
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        var result: [ValidationFailure] = [];
-        
+    public func validate(unique: UniqueEngine) async -> ValidationFailure? {
         let name = name.trimmingCharacters(in: .whitespaces);
         let id = BoundPairID(parent: parent?.name, name: name)
         
-        if id != oldId && !unique.subAccount(id: id, action: .validate) { result.append(.unique(SubAccount.identifiers)) }
-        if name.isEmpty { result.append(.empty("Name")) }
-        if parent == nil { result.append(.empty("Account")) }
-        
-        return result;
-    }
-    public func apply(_ to: SubAccount, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<BoundPairID>) {
-        let name = self.name.trimmingCharacters(in: .whitespaces)
-        let id = BoundPairID(parent: parent?.name, name: name)
-        
-        if to.id != id {
-            let _ = unique.subAccount(id: to.id, action: .remove);
-            guard unique.subAccount(id: id, action: .insert) else { throw .init(value: id) }
+        if oldId != id {
+            guard await unique.isIdOpen(key: .init(SubAccount.self), id: id) else {
+                return .unique
+            }
         }
         
-        to.name = name
-        to.parent = parent
+        guard !name.isEmpty && parent != nil else { return .empty }
+        
+        return nil;
     }
     
     public func hash(into hasher: inout Hasher) {

@@ -61,6 +61,27 @@ public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
     /// The role that the individual works.
     var position: String  { get set }
 }
+internal extension TraditionalJob {
+    func updateBase(_ snap: TraditionalJobSnapshot, unique: UniqueEngine) throws (UniqueFailureError<TraditionalJobID>) {
+        self.taxRate = snap.taxRate
+        
+        let company = snap.company.trimmingCharacters(in: .whitespaces)
+        let position = snap.position.trimmingCharacters(in: .whitespaces)
+        let id = TraditionalJobID(company: company, position: position)
+        
+        if id != self.id {
+            Task {
+                let couldSwap = await unique.swapId(key: .init((any TraditionalJob).self), oldId: self.id, newId: id)
+                guard couldSwap else {
+                    throw UniqueFailureError(value: id)
+                }
+            }
+        }
+        
+        self.company = company
+        self.position = position
+    }
+}
 
 /// Holds an `any TraditionalJob` for use in UI code & logic.
 public struct TraditionalJobWrapper : Identifiable {
@@ -90,9 +111,6 @@ public class JobSnapshot : Hashable, Equatable {
         else if taxRate > 1 { return .tooLargeAmount }
         
         return nil
-    }
-    internal func apply<T>(_ to: T) where T: JobBase {
-        to.taxRate = self.taxRate
     }
     
     public func hash(into hasher: inout Hasher) {
@@ -142,25 +160,6 @@ public class TraditionalJobSnapshot : JobSnapshot {
         guard !company.isEmpty || !position.isEmpty else { return .empty }
         
         return nil
-    }
-    internal func apply<T>(_ to: T, unique: UniqueEngine) throws(UniqueFailueError<TraditionalJobID>) where T: TraditionalJob {
-        let company = self.company.trimmingCharacters(in: .whitespaces)
-        let position = self.position.trimmingCharacters(in: .whitespaces)
-        let id = TraditionalJobID(company: company, position: position)
-        
-        if to.id != id {
-            let oldId = to.id;
-            Task {
-                guard await unique.swapId(key: .init((any TraditionalJob).self), oldId: oldId, newId: id) else {
-                    throw UniqueFailueError(value: id)
-                }
-            }
-        }
-        
-        to.company = company
-        to.position = position
-        
-        super.apply(to)
     }
     
     public override func hash(into hasher: inout Hasher) {

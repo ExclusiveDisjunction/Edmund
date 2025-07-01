@@ -116,7 +116,7 @@ public extension BillBase {
         self.amount * self.period.conversionFactor(period)
     }
     
-    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) {
+    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) throws(UniqueFailureError<BillBaseID>) {
         let name = snap.name.trimmingCharacters(in: .whitespaces)
         let company = snap.company.trimmingCharacters(in: .whitespaces)
         let location = snap.location.trimmingCharacters(in: .whitespaces)
@@ -125,7 +125,7 @@ public extension BillBase {
         if id != self.id {
             Task {
                 guard await unique.swapId(key: .init((any BillBase).self), oldId: self.id, newId: id) else {
-                    throw UniqueFailueError(value: id)
+                    throw UniqueFailureError(value: id)
                 }
             }
         }

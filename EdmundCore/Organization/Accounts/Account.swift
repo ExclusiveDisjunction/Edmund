@@ -7,31 +7,18 @@
 
 import Foundation
 import SwiftData
-import SwiftUI
 
 /// Represents the different kind of accounts for more dynamic choices on the UI.
 public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
     case credit, checking, savings, cd, trust, cash
     
     public var id: Self { self }
-    public var display: LocalizedStringKey {
-        switch self {
-            case .credit: "Credit"
-            case .checking: "Checking"
-            case .savings: "Savings"
-            case .cd: "Certificate of Deposit"
-            case .trust: "Trust Fund"
-            case .cash: "Cash"
-        }
-    }
 }
 
 /// Represents a location to store money, via the use of inner sub-accounts.
 @Model
-public final class Account : Identifiable, Hashable, BoundPairParent, NamedEditableElement, NamedInspectableElement, UniqueElement {
-    public typealias EditView = AccountEdit;
+public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement {
     public typealias Snapshot = AccountSnapshot;
-    public typealias InspectorView = AccountInspect;
     
     public convenience init() {
         self.init("")
@@ -88,43 +75,52 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
         hasher.combine(name)
     }
     
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Account",
-            plural:   "Accounts",
-            inspect:  "Inspect Account",
-            edit:     "Edit Account",
-            add:      "Add Account"
-        )
+    public func makeSnapshot() -> AccountSnapshot {
+        .init(self)
     }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Name") ]
+    public static func makeBlankSnapshot() -> AccountSnapshot {
+        .init()
     }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.account(id: self.id, action: .remove)
+    public func update(_ from: AccountSnapshot, unique: UniqueEngine) throws(UniqueFailureError<String>) {
+        let name = from.name.trimmingCharacters(in: .whitespaces)
+        
+        if name != self.name {
+            Task {
+                let result = await unique.swapId(key: .init(Account.self), oldId: self.name, newId: name)
+                guard result else {
+                    throw UniqueFailureError(value: name)
+                }
+            }
+        }
+        
+        self.name = name
+        self.kind = from.kind
+        self.rawCreditLimit = from.hasCreditLimit ? from.creditLimit.rawValue : nil;
+        self.interest = from.hasInterest ? from.interest.rawValue : nil;
+        self.location = from.hasLocation ? from.location : nil;
     }
     
     /// A list of template data to use on the UI.
-    public static let exampleAccounts: [Account] = {
-        [
-            exampleAccount,
-            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
-                .init("Main"),
-                .init("Reserved"),
-                .init("Rent")
-            ]),
-            .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One", children: [
-                .init("DI"),
-                .init("Groceries")
-            ]),
-            .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist", children: [
-                .init("DI"),
-                .init("Groceries")
-            ])
-        ]
-    }()
+    @MainActor
+    public static let exampleAccounts: [Account] = [
+        exampleAccount,
+        .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
+            .init("Main"),
+            .init("Reserved"),
+            .init("Rent")
+        ]),
+        .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One", children: [
+            .init("DI"),
+            .init("Groceries")
+        ]),
+        .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist", children: [
+            .init("DI"),
+            .init("Groceries")
+        ])
+    ]
     /// A singular account to display on the UI.
-    public static let exampleAccount: Account = {
+    @MainActor
+    public static let exampleAccount: Account =
         .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001, children: [
             .init("DI"),
             .init("Gas"),
@@ -136,21 +132,30 @@ public final class Account : Identifiable, Hashable, BoundPairParent, NamedEdita
             .init("Taxes"),
             .init("Bills")
         ])
-    }()
+    
     /// A singular account that is setup like a credit card.
+    @MainActor
     public static let exampleCreditAccount: Account = .init("Credit", kind: .credit, creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] );
 }
 
 /// The snapshot type for `Account`.
 @Observable
 public final class AccountSnapshot : ElementSnapshot {
-    public typealias Host = Account
-    
+    public init() {
+        self.oldName = ""
+        self.name = ""
+        self.creditLimit = .init()
+        self.hasInterest = false
+        self.interest = .init()
+        self.hasLocation = false
+        self.location = ""
+        self.kind = .checking
+    }
     public init(_ from: Account) {
         self.name = from.name;
         self.creditLimit = CurrencyValue(rawValue: from.creditLimit ?? Decimal());
         self.hasInterest = from.interest != nil;
-        self.interest = from.interest ?? .init();
+        self.interest = .init(rawValue: from.interest ?? 0)
         self.hasLocation = from.location != nil;
         self.location = from.location ?? String();
         self.kind = from.kind;
@@ -170,7 +175,7 @@ public final class AccountSnapshot : ElementSnapshot {
     /// If the account has interest or not
     public var hasInterest: Bool;
     /// The interest value
-    public var interest: Decimal;
+    public var interest: PercentValue;
     /// If the account has a location value
     public var hasLocation: Bool;
     /// The location
@@ -178,36 +183,34 @@ public final class AccountSnapshot : ElementSnapshot {
     /// The account's kind
     public var kind: AccountKind;
     
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        var result: [ValidationFailure] = [];
-        
+    public func validate(unique: UniqueEngine) async -> ValidationFailure? {
         let name = self.name.trimmingCharacters(in: .whitespaces);
-        if name.isEmpty { result.append(.empty("Name")) }
-        else if name != oldName && !unique.account(id: name, action: .validate) { result.append(.unique(Account.identifiers)) }
+        guard !name.isEmpty else { return .empty }
+        if oldName != name {
+            guard await unique.isIdOpen(key: .init(Account.self), id: name) else {
+                return .unique
+            }
+        }
         
-        if hasCreditLimit && creditLimit.rawValue < 0 { result.append(.negativeAmount("Credit Limit")) }
+        if hasCreditLimit && creditLimit < 0 { return .negativeAmount }
         if hasInterest {
-            if interest < 0 { result.append(.negativeAmount("Interest")) }
-            else if interest > 1 { result.append(.tooLargeAmount("Interest")) }
+            if interest < 0 { return .negativeAmount }
+            else if interest > 1 { return .tooLargeAmount }
         }
         
-        if hasLocation && location.trimmingCharacters(in: .whitespaces).isEmpty { result.append(.empty("Location")) }
+        if hasLocation && location.trimmingCharacters(in: .whitespaces).isEmpty { return .empty }
         
-        return result
+        return nil
     }
-    public func apply(_ to: Account, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<Account.ID>) {
-        let name = self.name.trimmingCharacters(in: .whitespaces)
-        
-        if name != to.name {
-            let _ = unique.account(id: to.name, action: .remove);
-            guard unique.account(id: name, action: .insert) else { throw UniqueFailueError(value: name) }
-        }
-        
-        to.name = name
-        to.creditLimit = self.hasCreditLimit ? self.creditLimit.rawValue : nil;
-        to.interest = self.hasInterest ? self.interest : nil;
-        to.location = self.hasLocation ? self.location : nil;
-        to.kind = self.kind
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.name)
+        hasher.combine(self.creditLimit)
+        hasher.combine(self.hasInterest)
+        hasher.combine(self.interest)
+        hasher.combine(self.hasLocation)
+        hasher.combine(self.location)
+        hasher.combine(self.kind)
     }
     
     public static func == (lhs: AccountSnapshot, rhs: AccountSnapshot) -> Bool {
@@ -229,14 +232,5 @@ public final class AccountSnapshot : ElementSnapshot {
         }
         
         return true;
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(self.name)
-        hasher.combine(self.creditLimit)
-        hasher.combine(self.hasInterest)
-        hasher.combine(self.interest)
-        hasher.combine(self.hasLocation)
-        hasher.combine(self.location)
-        hasher.combine(self.kind)
     }
 }

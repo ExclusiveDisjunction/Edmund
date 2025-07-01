@@ -10,9 +10,7 @@ import Foundation
 
 /// A hourly job taken at a company
 @Model
-public final class HourlyJob : InspectableElement, EditableElement, UniqueElement, TraditionalJob {
-    public typealias InspectorView = HourlyJobInspect
-    public typealias EditView = HourlyJobEdit
+public final class HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
     public typealias Snapshot = HourlyJobSnapshot
     
     /// Creates the hourly job with default values for adding.
@@ -43,20 +41,17 @@ public final class HourlyJob : InspectableElement, EditableElement, UniqueElemen
         hourlyRate * avgHours
     }
     
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Hourly Job",
-            plural:   "Hourly Jobs",
-            inspect:  "Inspect Hourly Job",
-            edit:     "Edit Hourly Job",
-            add:      "Add Hourly Job"
-        )
+    public func makeSnapshot() -> HourlyJobSnapshot {
+        .init(self)
     }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Company"), .init(name: "Position") ]
+    public static func makeBlankSnapshot() -> HourlyJobSnapshot {
+        .init()
     }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.job(id: self.id, action: .remove)
+    public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) throws(UniqueFailureError<TraditionalJobID>) {
+        try self.updateBase(from, unique: unique)
+        
+        self.avgHours = from.avgHours
+        self.hourlyRate = from.hourlyRate.rawValue
     }
     
     @MainActor
@@ -85,19 +80,14 @@ public final class HourlyJobSnapshot : TraditionalJobSnapshot, ElementSnapshot {
     /// The average number of hours the job has
     public var avgHours: Decimal;
     
-    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        var result = super.validate(unique: unique);
+    public override func validate(unique: UniqueEngine) async -> ValidationFailure? {
+        if let topResult = await super.validate(unique: unique) {
+            return topResult
+        }
         
-        if hourlyRate < 0 { result.append(.negativeAmount("Hourly Rate")) }
-        if avgHours < 0 { result.append(.negativeAmount("Average Hours")) }
+        if hourlyRate < 0 || avgHours < 0 { return .negativeAmount }
         
-        return result;
-    }
-    public func apply(_ to: HourlyJob, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<TraditionalJobID>) {
-        try super.apply(to, unique: unique)
-        
-        to.hourlyRate = hourlyRate.rawValue
-        to.avgHours = avgHours
+        return nil;
     }
     
     public override func hash(into hasher: inout Hasher) {

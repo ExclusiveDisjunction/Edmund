@@ -10,9 +10,7 @@ import Foundation
 
 /// Represents a job that has the same paycheck value each week.
 @Model
-public final class SalariedJob : Identifiable, InspectableElement, EditableElement, UniqueElement, TraditionalJob {
-    public typealias InspectorView = SalariedJobInspector;
-    public typealias EditView = SalariedJobEdit;
+public final class SalariedJob : Identifiable, UniqueElement, TraditionalJob, SnapshotableElement {
     public typealias Snapshot = SalariedJobSnapshot;
     
     /// Creates the job from default values.
@@ -36,20 +34,16 @@ public final class SalariedJob : Identifiable, InspectableElement, EditableEleme
     public var grossAmount: Decimal;
     public var taxRate: Decimal;
     
-    public static var typeDisplay: TypeTitleStrings {
-        .init(
-            singular: "Salaried Job",
-            plural: "Salaried Jobs",
-            inspect: "Inspect Salaried Job",
-            edit: "Edit Salaried Job",
-            add: "Add Salaried Job"
-        )
+    public func makeSnapshot() -> SalariedJobSnapshot {
+        return .init(self)
     }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Company"), .init(name: "Position") ]
+    public static func makeBlankSnapshot() -> SalariedJobSnapshot {
+        return .init()
     }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.job(id: self.id, action: .remove)
+    public func update(_ from: SalariedJobSnapshot, unique: UniqueEngine) throws(UniqueFailureError<TraditionalJobID>) {
+        try self.updateBase(from, unique: unique)
+        
+        self.grossAmount = from.grossAmount.rawValue
     }
     
     @MainActor
@@ -75,17 +69,14 @@ public final class SalariedJobSnapshot : TraditionalJobSnapshot, ElementSnapshot
     /// The gross take home pay from the job.
     public var grossAmount: CurrencyValue;
     
-    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        var result = super.validate(unique: unique)
+    public override func validate(unique: UniqueEngine) async -> ValidationFailure? {
+        if let topResult = await super.validate(unique: unique) {
+            return topResult
+        }
         
-        if grossAmount < 0 { result.append(.negativeAmount("Gross Amount")) }
+        if grossAmount < 0 { return .negativeAmount }
         
-        return result
-    }
-    public func apply(_ to: SalariedJob, context: ModelContext, unique: UniqueEngine) throws(UniqueFailueError<TraditionalJobID>) {
-        try super.apply(to, unique: unique)
-        
-        to.grossAmount = grossAmount.rawValue
+        return nil
     }
     public override func hash(into hasher: inout Hasher) {
         super.hash(into: &hasher)

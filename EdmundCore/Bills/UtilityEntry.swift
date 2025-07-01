@@ -49,10 +49,6 @@ public class UtilityEntry: Identifiable, Hashable, Equatable, SnapshotableElemen
     /// The parent utility that this is associated with
     @Relationship
     public var parent: Utility? = nil;
-    
-    public static var typeDisplay: TypeTitleStrings {
-        .init(singular: "Utility Entry", plural: "Utility Entries", inspect: "Inspect Utility Entry", edit: "Edit Utility Entry", add: "Add Utility Entry")
-    }
 }
 
 /// The snapshot for `UtilityEntry`
@@ -77,10 +73,8 @@ public class UtilityEntrySnapshot: Identifiable, Hashable, Equatable, ElementSna
     /// The date this occured on
     public var date: Date;
     
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        if amount < 0 { return [.negativeAmount("Amount")] }
-    
-        return []
+    public func validate(unique: UniqueEngine) -> ValidationFailure? {
+        amount < 0 ? .negativeAmount : nil
     }
     
     public func hash(into hasher: inout Hasher) {

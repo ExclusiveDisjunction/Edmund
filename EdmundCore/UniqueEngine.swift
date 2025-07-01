@@ -60,7 +60,7 @@ public enum UniqueEngineAction {
 }
 
 /// An error that occurs when the unique engine cannot validate a claim to an ID, but was assumed to be a free value.
-public struct UniqueFailueError<T> : Error where T: Sendable, T: Hashable {
+public struct UniqueFailureError<T> : Error where T: Sendable, T: Hashable {
     /// The ID that was taken already
     public let value: T
     

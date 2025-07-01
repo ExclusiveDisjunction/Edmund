@@ -114,7 +114,7 @@ public final class Bill : BillBase, SnapshotableElement, UniqueElement {
     public static func makeBlankSnapshot() -> BillSnapshot {
         BillSnapshot()
     }
-    public func update(_ from: BillSnapshot, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) {
+    public func update(_ from: BillSnapshot, unique: UniqueEngine) throws(UniqueFailureError<BillBaseID>) {
         try self.updateFromBase(snap: from, unique: unique)
         
         self.amount   = from.amount.rawValue

@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 
 /// The ID used to identify a specific `BoundPair` value. It contains an optional parent name, and a specified name.
-public struct BoundPairID : Hashable, Equatable, RawRepresentable {
+public struct BoundPairID : Hashable, Equatable, RawRepresentable, Sendable {
     /// Creates the ID using an optional parent name, and the child's name.
     public init(parent: String?, name: String) {
         self.parent = parent
@@ -102,11 +102,4 @@ public extension Array where Element: BoundPairParent {
         
         return foundParent.children.first(where: {$0.name == child } )
     }
-}
-
-public protocol BoundPairSnapshot: ElementSnapshot {
-    associatedtype Parent: BoundPairParent where Parent.C == Self.Host;
-    
-    var name: String { get set }
-    var parent: Parent? { get set }
 }

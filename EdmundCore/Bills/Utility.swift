@@ -93,7 +93,7 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement 
     public static func makeBlankSnapshot() -> UtilitySnapshot {
         .init()
     }
-    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) throws(UniqueFailueError<BillBaseID>) {
+    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) throws(UniqueFailureError<BillBaseID>) {
         try self.updateFromBase(snap: from, unique: unique)
         
         let old = Dictionary(uniqueKeysWithValues: self.children?.map { ($0.id, ChildUpdateRecord($0) ) } ?? [] )

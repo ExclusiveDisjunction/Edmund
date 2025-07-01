@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import SwiftUI
 
 public enum IncomeKind: Int, CaseIterable, Identifiable {
     case pay
@@ -195,23 +194,11 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
     }
     
     @MainActor
-    public static func getExampleBudget() -> BudgetInstance {
-        let container = Containers.debugContainer;
-        let item = (try! container.mainContext.fetch(FetchDescriptor<BudgetInstance>())).first!
+    public static func getExampleBudget() throws -> BudgetInstance {
+        let container = try Containers.debugContainer();
+        let item = (try container.mainContext.fetch(FetchDescriptor<BudgetInstance>())).first!
         
         return item;
-    }
-}
-
-extension BudgetInstance : EditableElement, InspectableElement {
-    public typealias EditView = BudgetEdit
-    public typealias InspectView = BudgetInspect;
-    
-    public func makeInspectView() -> some View {
-        BudgetInspect(data: self)
-    }
-    public static func makeEditView(_ snap: Snapshot) -> BudgetEdit {
-        BudgetEdit(snap)
     }
 }
 
@@ -261,8 +248,8 @@ public final class BudgetInstanceSnapshot : Hashable, Equatable, ElementSnapshot
         hasRemainder ? 0 : moneyLeftDirect
     }
     
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        fatalError()
+    public func validate(unique: UniqueEngine) -> ValidationFailure? {
+        return .internalError
     }
     
     public func hash(into hasher: inout Hasher) {
@@ -291,13 +278,6 @@ public enum DevotionGroup : Int, Identifiable, CaseIterable {
     case want
     case savings
     
-    public var display: LocalizedStringKey {
-        switch self {
-            case .need: "Need"
-            case .want: "Want"
-            case .savings: "Savings"
-        }
-    }
     public var asString: String {
         switch self {
             case .need: "Need"
@@ -396,8 +376,8 @@ public class DevotionSnapshotBase : Identifiable, Hashable, Equatable, ElementSn
     public var group: DevotionGroup;
     public var account: SubAccount?;
     
-    public func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        fatalError()
+    public func validate(unique: UniqueEngine) -> ValidationFailure? {
+        return .internalError
     }
     
     public func hash(into hasher: inout Hasher) {
@@ -540,8 +520,8 @@ public final class AmountDevotionSnapshot : DevotionSnapshotBase {
     
     public var amount: CurrencyValue;
     
-    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        fatalError()
+    public override func validate(unique: UniqueEngine) -> ValidationFailure? {
+        return .internalError
     }
     
     public override func hash(into hasher: inout Hasher) {
@@ -610,8 +590,8 @@ public final class PercentDevotionSnapshot : DevotionSnapshotBase {
     
     public var amount: PercentValue;
     
-    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        fatalError()
+    public override func validate(unique: UniqueEngine) -> ValidationFailure? {
+        return .internalError
     }
     
     public override func hash(into hasher: inout Hasher) {
