@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The edit view for Salaried Jobs. 
 public struct SalariedJobInspector : View {
@@ -72,6 +73,6 @@ public struct SalariedJobInspector : View {
 }
 
 #Preview {
-    ElementInspector(data: SalariedJob())
-        .modelContainer(Containers.debugContainer)
+    ElementInspector(data: SalariedJob.exampleJob)
+        .modelContainer(try! Containers.debugContainer())
 }

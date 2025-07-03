@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct CreditCardTrans: TransactionEditorProtocol {
     @Environment(\.modelContext) private var modelContext;
@@ -14,8 +15,8 @@ struct CreditCardTrans: TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> [ValidationFailure]? {
-        return [.internalError]
+    func apply() -> ValidationFailure? {
+        return .internalError
     }
     
     var body: some View {
@@ -27,5 +28,5 @@ struct CreditCardTrans: TransactionEditorProtocol {
 
 #Preview {
     CreditCardTrans()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

@@ -11,7 +11,9 @@ import SwiftData
 
 /// A protocol that determines if an element is unique.
 /// For the unique pattern to work, the type must implement this protocol.
-public protocol UniqueElement: Identifiable where Self.ID: Sendable { }
+public protocol UniqueElement: Identifiable where Self.ID: Sendable {
+    static var objId: ObjectIdentifier { get }
+}
 
 /// A struct that allows for the access of all unique elements out of a modelContext in a safe way.
 public struct UniqueContext {

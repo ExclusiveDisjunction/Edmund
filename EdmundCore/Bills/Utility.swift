@@ -29,6 +29,8 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement 
         self.location = location
     }
     
+    public static let objId: ObjectIdentifier = .init((any BillBase).self)
+    
     public var id: BillBaseID {
         .init(name: name, company: company, location: location)
     }

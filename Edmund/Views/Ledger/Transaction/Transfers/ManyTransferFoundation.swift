@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import EdmundCore
 
 @Observable
 class ManyTableEntry : Identifiable {
@@ -25,13 +26,11 @@ class ManyTableEntry : Identifiable {
 
 extension [ManyTableEntry] {
     /// Takes in the current information and builds `LedgerEntry` instances from it. If `transfer_into` is true, these will be in the form of "Various to [account]"
-    func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) throws(ValidationException) -> [LedgerEntry] {
+    func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) throws(ValidationFailure) -> [LedgerEntry] {
         var result: [LedgerEntry] = [];
-        var failures: [ValidationFailure] = [];
         for (id, entry) in self.enumerated() {
             guard let acc = entry.account else {
-                failures.append(.empty("Line \(id + 1): Account"))
-                continue;
+                throw .empty
             }
             
             result.append(
@@ -45,10 +44,6 @@ extension [ManyTableEntry] {
                     account: acc
                 )
             );
-        }
-        
-        guard failures.isEmpty else {
-            throw ValidationException(failures)
         }
         
         return result;
@@ -230,5 +225,5 @@ struct ManyTransferTable : View {
     
     ManyTransferTable(title: nil, data: binding)
         .padding()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

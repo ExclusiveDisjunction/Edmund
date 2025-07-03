@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct PersonalLoan: TransactionEditorProtocol {
     enum Mode : LocalizedStringKey, Identifiable, CaseIterable {
@@ -34,30 +35,19 @@ struct PersonalLoan: TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
-        
-        var result: [ValidationFailure] = [];
         
         let person = person.trimmingCharacters(in: .whitespaces)
         let amount = amount.rawValue;
         
-        if person.isEmpty {
-            result.append(.empty("Person"))
+        guard let destination = account, !person.isEmpty else {
+            return .empty
         }
-        
-        if amount < 0 {
-            result.append(.negativeAmount("Amount"))
-        }
-        
-        guard let destination = account else {
-            return result + [.empty("Account")]
-        }
-        
-        guard result.isEmpty else {
-            return result
+        guard amount >= 0 else {
+            return .negativeAmount
         }
         
         let name = switch mode {
@@ -133,5 +123,5 @@ struct PersonalLoan: TransactionEditorProtocol {
 
 #Preview {
     PersonalLoan()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

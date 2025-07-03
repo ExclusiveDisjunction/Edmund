@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import EdmundCore
 
 struct ManyManyTransfer : TransactionEditorProtocol {
     @State private var top: [ManyTableEntry] = [.init()];
@@ -15,23 +16,15 @@ struct ManyManyTransfer : TransactionEditorProtocol {
     @Environment(\.categoriesContext) private var categoriesContext;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    
-    func apply() -> [ValidationFailure]? {
+
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
-        
-        var result: [ValidationFailure] = [];
+    
         let topAmount = top.amount, bottomAmount = bottom.amount;
-        if topAmount != bottomAmount {
-            if topAmount > bottomAmount {
-                result.append(.tooLargeAmount("Top Total"))
-                result.append(.tooSmallAmount("Bottom Total"))
-            }
-            else {
-                result.append(.tooSmallAmount("Top Total"))
-                result.append(.tooLargeAmount("Bottom Total"))
-            }
+        guard topAmount != bottomAmount else {
+            return .invalidInput
         }
         
         let topData: [LedgerEntry], bottomData: [LedgerEntry];
@@ -40,7 +33,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
             bottomData = try bottom.createTransactions(transfer_into: false, categories);
         }
         catch let e {
-            return result + e.data;
+            return e
         }
         
         let totalData = topData + bottomData
@@ -80,5 +73,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
 }
 
 #Preview {
-    ManyManyTransfer().padding().modelContainer(Containers.debugContainer)
+    ManyManyTransfer()
+        .padding()
+        .modelContainer(try! Containers.debugContainer())
 }

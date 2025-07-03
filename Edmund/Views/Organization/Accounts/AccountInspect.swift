@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The inspect view for Account.
 public struct AccountInspect : View {

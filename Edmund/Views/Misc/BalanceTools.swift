@@ -8,8 +8,10 @@
 import Foundation
 import SwiftData
 import Charts
+import EdmundCore
 
 struct BalanceResolver {
+    @MainActor
     static func computeBalances<T>(_ on: [T]) -> Dictionary<T, (Decimal, Decimal)> where T: BoundPairParent, T.C: TransactionHolder {
         var result: [T: (Decimal, Decimal)] = [:];
         for account in on {
@@ -31,6 +33,7 @@ struct BalanceResolver {
         
         return result
     }
+    @MainActor
     static func computeSubBalances<T>(_ on: [T]) -> Dictionary<T, Dictionary<T.C, (Decimal, Decimal)>> where T: BoundPairParent, T.C: TransactionHolder {
         var result: [T: [T.C: (Decimal, Decimal)]] = [:];
         for account in on {
@@ -164,7 +167,7 @@ extension Array where Element: ParentBalanceEncoder {
 }
 
 protocol BalanceEncoder: Identifiable {
-    var name: String { get set }
+    var name: String { get }
     var balance: Decimal { get }
 }
 protocol ParentBalanceEncoder: Identifiable, BalanceEncoder {
@@ -172,10 +175,10 @@ protocol ParentBalanceEncoder: Identifiable, BalanceEncoder {
     
     var name: String { get set }
     var balance: Decimal { get  }
-    var children: [Child]? { get set }
+    var children: [Child]? { get }
 }
 
-struct SimpleBalance : Identifiable, BalanceEncoder {
+struct SimpleBalance : Identifiable, BalanceEncoder, Sendable {
     init(_ name: String, _ credit: Decimal, _ debit: Decimal) {
         self.name = name
         self.credit = credit
@@ -183,16 +186,16 @@ struct SimpleBalance : Identifiable, BalanceEncoder {
         self.id = UUID()
     }
     
-    var id: UUID;
-    var name: String;
-    var credit: Decimal;
-    var debit: Decimal;
+    let id: UUID;
+    let name: String;
+    let credit: Decimal;
+    let debit: Decimal;
     var balance: Decimal {
         credit - debit
     }
 }
 
-struct DetailedBalance : Identifiable, ParentBalanceEncoder {
+struct DetailedBalance : Identifiable, ParentBalanceEncoder, Sendable {
     init(_ name: String,  _ credit: Decimal, _ debit: Decimal, children: [DetailedBalance]? = nil) {
         self.name = name
         self.credit = credit
@@ -201,10 +204,10 @@ struct DetailedBalance : Identifiable, ParentBalanceEncoder {
         self.children = children
     }
     
-    var id: UUID
-    var name: String;
-    var credit: Decimal;
-    var debit: Decimal;
+    let id: UUID
+    let name: String;
+    let credit: Decimal;
+    let debit: Decimal;
     var balance: Decimal {
         credit - debit
     }

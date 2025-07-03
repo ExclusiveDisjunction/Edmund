@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 struct PaydayEditor : TransactionEditorProtocol {
-    func apply() -> [ValidationFailure]? {
-        return [.internalError]
+    func apply() -> ValidationFailure? {
+        return .internalError
     }
     
     var body: some View {
@@ -21,5 +22,5 @@ struct PaydayEditor : TransactionEditorProtocol {
 
 #Preview {
     PaydayEditor()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

@@ -76,6 +76,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     }
     
     /// The specified view used to store the data.
+    @MainActor
     @ViewBuilder
     var view : some View {
         switch self {

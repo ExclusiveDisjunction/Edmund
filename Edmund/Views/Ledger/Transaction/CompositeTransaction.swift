@@ -7,6 +7,7 @@
 
 import SwiftUI;
 import Foundation;
+import EdmundCore
 
 public extension Array {
     func windows(_ count: Int) -> [[Element]] {
@@ -69,17 +70,16 @@ struct CompositeTransaction : TransactionEditorProtocol {
         return result;
     }
     
-    func apply() -> [ValidationFailure]? {
-        let snapshotResult = snapshot.validate(unique: uniqueEngine)
-        guard snapshotResult.isEmpty else {
-            return snapshotResult
+    func apply() -> ValidationFailure? {
+        if let validation = snapshot.validate(unique: uniqueEngine) {
+            return validation
         }
         
         let newTrans = LedgerEntry();
-        snapshot.apply(newTrans, context: modelContext, unique: uniqueEngine);
+        newTrans.update(snapshot, unique: uniqueEngine)
         
         guard let total = computeWorking() else {
-            return [.invalidInput("Costs")]
+            return .invalidInput
         }
         
         if mode == .debit {
@@ -183,5 +183,5 @@ struct CompositeTransaction : TransactionEditorProtocol {
 
 #Preview {
     CompositeTransaction()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

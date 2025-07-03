@@ -25,6 +25,8 @@ public final class SalariedJob : Identifiable, UniqueElement, TraditionalJob, Sn
         self.taxRate = taxRate
     }
     
+    public static let objId: ObjectIdentifier = .init((any TraditionalJob).self)
+    
     public var id: TraditionalJobID {
         .init(company: company, position: position)
     }

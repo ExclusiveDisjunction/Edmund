@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import EdmundCore
 
 struct CategoryAdder : View {
     @State private var name: String = "";
@@ -19,7 +19,7 @@ struct CategoryAdder : View {
     private func submit() {
         let name = name.trimmingCharacters(in: .whitespaces);
         
-        let category = Category()
+        let category = EdmundCore.Category()
         if !name.isEmpty && category.tryNewName(name: name, unique: uniqueEngine) {
             category.setNewName(name: name, unique: uniqueEngine)
             modelContext.insert(category)

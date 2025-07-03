@@ -24,6 +24,8 @@ public final class Category : CategoryBase, BoundPairParent, UniqueElement, Equa
         self.isLocked = isLocked
     }
     
+    public static let objId: ObjectIdentifier = .init(Category.self)
+    
     public var id: String { name }
     public var name: String = "";
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent)

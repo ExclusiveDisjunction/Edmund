@@ -7,9 +7,10 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct CategoriesIE : View {
-    @Query(sort: [SortDescriptor(\Category.name, order: .forward)] ) private var categories: [Category];
+    @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
     
     @State private var selection = Set<CategoryTableRow.ID>();
     @State private var cache: [CategoryTableRow] = [];
@@ -98,5 +99,5 @@ struct CategoriesIE : View {
 
 #Preview {
     CategoriesIE()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

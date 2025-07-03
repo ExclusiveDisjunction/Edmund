@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import EdmundCore
 
 struct ManyOneTransfer : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
@@ -17,13 +18,13 @@ struct ManyOneTransfer : TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
         
         guard let destination = account else {
-            return [.empty("Account")]
+            return .empty
         }
         
         var firstTrans: [LedgerEntry];
@@ -31,7 +32,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
             firstTrans = try data.createTransactions(transfer_into: false, categories)
         }
         catch let e {
-            return e.data
+            return e
         }
         
         firstTrans.append(
@@ -94,5 +95,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
 }
 
 #Preview {
-    ManyOneTransfer().padding().modelContainer(Containers.debugContainer)
+    ManyOneTransfer()
+        .padding()
+        .modelContainer(try! Containers.debugContainer())
 }

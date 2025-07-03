@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData;
+import EdmundCore
 
 struct UtilityPayment : TransactionEditorProtocol {
     @Query private var utilities: [Utility];
@@ -28,20 +29,17 @@ struct UtilityPayment : TransactionEditorProtocol {
         cache = utilities.filter { !$0.isExpired }.sorted(by: { $0.name < $1.name } )
     }
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
         
         let amount = amount.rawValue;
         guard amount >= 0 else {
-            return [.negativeAmount("Amount")]
+            return .negativeAmount
         }
-        guard let target = selected else {
-            return [.empty("Selected Utility")]
-        }
-        guard let account = account else {
-            return [.empty("Account")]
+        guard let target = selected, let account = account else {
+            return .empty
         }
         
         let transaction = LedgerEntry(
@@ -139,5 +137,5 @@ struct UtilityPayment : TransactionEditorProtocol {
 
 #Preview {
     UtilityPayment()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

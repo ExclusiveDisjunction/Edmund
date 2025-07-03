@@ -69,7 +69,7 @@ public final class LedgerEntry : Identifiable, SnapshotableElement {
     public static func makeBlankSnapshot() -> LedgerEntrySnapshot {
         .init()
     }
-    public func update(_ from: LedgerEntrySnapshot, unique: UniqueEngine) async {
+    public func update(_ from: LedgerEntrySnapshot, unique: UniqueEngine) {
         self.name = from.name.trimmingCharacters(in: .whitespaces)
         self.credit = from.credit.rawValue
         self.debit = from.debit.rawValue

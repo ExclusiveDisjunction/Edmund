@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
  
 struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;
@@ -25,13 +26,13 @@ struct OneManyTransfer : TransactionEditorProtocol {
     private let maxWidth: CGFloat = 60;
 #endif
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
         
         guard let source = account else {
-            return [.empty("Account")]
+            return .empty
         }
         
         let subTrans: [LedgerEntry]
@@ -39,7 +40,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
             subTrans = try data.createTransactions(transfer_into: true, categories)
         }
         catch let e {
-            return e.data
+            return e
         }
         
         modelContext.insert(

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 struct MiscIncome: TransactionEditorProtocol {
     @State private var person: String = "";
@@ -26,43 +27,35 @@ struct MiscIncome: TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
-        
-        var result: [ValidationFailure] = [];
         
         let person = person.trimmingCharacters(in: .whitespaces)
-        if person.isEmpty {
-            result.append(.empty("Person"))
+        guard let destination = account, !person.isEmpty else {
+            return .empty
+        }
+        guard amount >= 0.0 else {
+            return .negativeAmount
         }
         
-        if amount < 0 {
-            result.append(.negativeAmount("Amount"))
-        }
         
-        if let destination = account {
-            let name = "Misc. Income from \(person)";
-            let company = "Bank";
-            let category = categories.payments.gift;
-            
-            let transaction = LedgerEntry(
-                name: name,
-                credit: amount.rawValue,
-                debit: 0,
-                date: date,
-                location: company,
-                category: category,
-                account: destination
-            );
-            modelContext.insert(transaction);
-            return nil;
-        }
-        else {
-            result.append(.empty("Account"))
-            return result;
-        }
+        let name = "Misc. Income from \(person)";
+        let company = "Bank";
+        let category = categories.payments.gift;
+        
+        let transaction = LedgerEntry(
+            name: name,
+            credit: amount.rawValue,
+            debit: 0,
+            date: date,
+            location: company,
+            category: category,
+            account: destination
+        );
+        modelContext.insert(transaction);
+        return nil;
     }
 
     var body: some View {
@@ -106,5 +99,5 @@ struct MiscIncome: TransactionEditorProtocol {
 
 #Preview {
     MiscIncome()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

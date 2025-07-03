@@ -7,8 +7,9 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
-/// A view used to help determine the paycheck amount of a salaried job. 
+/// A view used to help determine the paycheck amount of a salaried job.
 public struct SalariedJobHelper : View {
     
     public var body: some View {
@@ -80,6 +81,6 @@ public struct SalariedJobEdit : View {
 }
 
 #Preview {
-    ElementEditor(SalariedJob(), adding: true)
-        .modelContainer(Containers.debugContainer)
+    ElementEditor(SalariedJob.exampleJob, adding: true)
+        .modelContainer(try! Containers.debugContainer())
 }

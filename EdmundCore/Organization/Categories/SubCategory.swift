@@ -24,6 +24,8 @@ public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, Ca
         self.isLocked = isLocked;
     }
     
+    public static let objId: ObjectIdentifier = .init(SubCategory.self)
+    
     public var id: BoundPairID {
         .init(parent: self.parentName, name: self.name)
     }

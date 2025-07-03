@@ -26,6 +26,8 @@ public final class SubAccount : BoundPair, Equatable, SnapshotableElement, Uniqu
         self.transactions = transactions
     }
     
+    public static let objId: ObjectIdentifier = .init(SubAccount.self)
+    
     public var id: BoundPairID {
         .init(parent: self.parentName, name: self.name)
     }

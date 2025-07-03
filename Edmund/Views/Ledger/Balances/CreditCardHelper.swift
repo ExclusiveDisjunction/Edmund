@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct CreditCardHelper: View {
     @Query private var accounts: [Account];
@@ -144,5 +145,5 @@ struct CreditCardHelper: View {
 }
 
 #Preview {
-    CreditCardHelper().modelContainer(Containers.debugContainer)
+    CreditCardHelper().modelContainer(try! Containers.debugContainer())
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import EdmundCore
 
 struct OneOneTransfer : View, TransactionEditorProtocol {
     @Environment(\.categoriesContext) private var categories: CategoriesContext?;
@@ -27,20 +28,17 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
 #endif
     
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categories else {
-            return [.internalError]
+            return .internalError
         }
         
-        guard let source = src else {
-            return [.empty("Source Account")]
-        }
-        guard let destination = dest else {
-            return [.empty("Destination Account")]
+        guard let source = src, let destination = dest else {
+            return .empty
         }
         
         guard amount > 0.0 else {
-            return [.negativeAmount("Amount")]
+            return .negativeAmount
         }
         
         let trans: [LedgerEntry] = [
@@ -124,5 +122,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
 }
 
 #Preview {
-    OneOneTransfer().modelContainer(Containers.debugContainer).padding()
+    OneOneTransfer()
+        .modelContainer(try! Containers.debugContainer())
+        .padding()
 }

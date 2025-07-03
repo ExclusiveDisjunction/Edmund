@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// A top level view to display all accounts, their balances, and then the sub balances within.
 struct BalanceSheet: View {
@@ -183,5 +184,6 @@ struct BalanceSheet: View {
 
 #Preview {
     BalanceSheet()
-        .frame(width: 500, height: 400).modelContainer(Containers.debugContainer)
+        .frame(width: 500, height: 400)
+        .modelContainer(try! Containers.debugContainer())
 }

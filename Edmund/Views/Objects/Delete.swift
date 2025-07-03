@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// An observable class that provides deleting confrimation dialog abstraction. It includes a member, `isDeleting`, which can be bound. This value will become `true` when the internal list is not `nil` and not empty.
 @Observable
@@ -102,13 +103,16 @@ public struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
         cancelButton
     }
 }
-extension AbstractDeletingActionConfirm where T: UniqueElement {
+extension AbstractDeletingActionConfirm where T: UniqueElement, T.ID: Sendable {
     @ViewBuilder
     public var body: some View {
         if let deleting = deleting.action {
             Button("Delete") {
                 for data in deleting {
-                    let _ = data.removeFromEngine(unique: uniqueEngine)
+                    let id = data.id;
+                    Task {
+                        await uniqueEngine.releaseId(key: T.objId, id: id)
+                    }
                     delete(data, self.modelContext)
                 }
                 

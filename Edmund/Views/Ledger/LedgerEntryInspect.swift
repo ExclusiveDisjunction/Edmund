@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The inspect view for Ledger Entries.
 public struct LedgerEntryInspect : View {
@@ -125,5 +126,5 @@ public struct LedgerEntryInspect : View {
 
 #Preview {
     ElementInspector(data: LedgerEntry.exampleEntry)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

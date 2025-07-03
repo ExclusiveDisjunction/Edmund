@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct Refund : TransactionEditorProtocol {
     @State private var company: String = "";
@@ -28,32 +29,17 @@ struct Refund : TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
         
         let company = company.trimmingCharacters(in: .whitespaces)
         let reason = reason.trimmingCharacters(in: .whitespaces)
         let amount = amount.rawValue;
         
-        var result: [ValidationFailure] = [];
-        if company.isEmpty {
-            result.append(.empty("Company"))
-        }
-        if reason.isEmpty {
-            result.append(.empty("Reason"))
-        }
-        if amount < 0 {
-            result.append(.negativeAmount("Amount"))
-        }
-        
-        guard let destination = account else {
-            return result + [.empty("Account")]
-        }
-        
-        guard result.isEmpty else {
-            return result
+        guard let destination = account, !company.isEmpty && !reason.isEmpty else {
+            return .empty
         }
         
         let transaction = LedgerEntry(
@@ -120,5 +106,5 @@ struct Refund : TransactionEditorProtocol {
 
 #Preview {
     Refund()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

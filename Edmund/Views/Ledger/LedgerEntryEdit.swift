@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The edit view for Ledger Entries.
 public struct LedgerEntryEdit : View {
@@ -37,29 +38,13 @@ public struct LedgerEntryEdit : View {
                 Text(ledgerStyle == .none ? "Money In:" : ledgerStyle == .standard ? "Debit:" : "Credit:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                HStack {
-                    TextField("Credit", value: $snapshot.credit, format: .currency(code: currencyCode))
-                        .textFieldStyle(.roundedBorder)
-#if os(iOS)
-                        .keyboardType(.decimalPad)
-#endif
-                    
-                    Spacer()
-                }
+                CurrencyField(snapshot.credit)
             }
             GridRow {
                 Text(ledgerStyle == .none ? "Money Out:" : ledgerStyle == .standard ? "Credit:" : "Debit:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                HStack {
-                    TextField("Debit", value: $snapshot.debit, format: .currency(code: currencyCode))
-                        .textFieldStyle(.roundedBorder)
-#if os(iOS)
-                        .keyboardType(.decimalPad)
-#endif
-                    
-                    Spacer()
-                }
+                CurrencyField(snapshot.debit)
             }
             GridRow {
                 Text("Balance:")
@@ -85,30 +70,21 @@ public struct LedgerEntryEdit : View {
                 Text("Location:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                HStack {
-                    TextField("Location", text: $snapshot.location).textFieldStyle(.roundedBorder)
-                    Spacer()
-                }
+                TextField("Location", text: $snapshot.location).textFieldStyle(.roundedBorder)
             }
             Divider()
             GridRow {
                 Text("Category:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                HStack {
-                    NamedPairPicker($snapshot.category)
-                    Spacer()
-                }
+                NamedPairPicker($snapshot.category)
             }
             Divider()
             GridRow {
                 Text("Account:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                HStack {
-                    NamedPairPicker($snapshot.account)
-                    Spacer()
-                }
+                NamedPairPicker($snapshot.account)
             }
         }
     }
@@ -116,5 +92,5 @@ public struct LedgerEntryEdit : View {
 
 #Preview {
     ElementEditor(LedgerEntry.exampleEntry, adding: false)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

@@ -26,6 +26,8 @@ public final class HourlyJob : SnapshotableElement, UniqueElement, TraditionalJo
         self.taxRate = taxRate
     }
     
+    public static let objId: ObjectIdentifier = .init((any TraditionalJob).self)
+    
     public var id: TraditionalJobID {
         .init(company: company, position: position)
     }

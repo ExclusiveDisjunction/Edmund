@@ -7,6 +7,7 @@
 
 import SwiftUI;
 import SwiftData;
+import EdmundCore
 
 /*
 public class EditUndoWrapper<T> where T: EditableElement {
@@ -47,7 +48,7 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
 }
 
 /// A high level view that allows for switching between editing and inspecting
-public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel {
+public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel, T: TypeTitled, T.ID: Sendable {
     /// Opens the editor with a specific mode.
     /// - Parameters:
     ///     - data: The data being passed for inspection/editing
@@ -72,7 +73,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @StateObject private var editing: EditingManifest<T>;
     
     @Bindable private var uniqueError: StringWarningManifest = .init();
-    @Bindable private var validationError: ValidationWarningManifest = .init()
+    @Bindable private var validationError: BaseWarningManifest<ValidationFailure> = .init()
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;
@@ -85,19 +86,16 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     }
     
     /// If in edit mode, it will determine if the input is valid. It will show an error otherwise.
-    private func validate() -> Bool {
-        if let snapshot = editing.snapshot {
-            let result = snapshot.validate(unique: uniqueEngine);
-            if !result.isEmpty {
-                validationError.warning = .init(result);
-                return false;
-            }
+    private func validate() async -> Bool {
+        if let snapshot = editing.snapshot, let result = await snapshot.validate(unique: uniqueEngine) {
+            validationError.warning = result
+            return false;
         }
         
         return true
     }
     /// Modifies the attached data to the editing snapshot, if edit mode is active.
-    private func apply() -> Bool {
+    private func apply() async -> Bool {
         if let editing = editing.snapshot {
             //undoManager?.beginUndoGrouping()
             
@@ -123,7 +121,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             }
             
             do {
-                try data.update(editing, unique: uniqueEngine)
+                try await data.update(editing, unique: uniqueEngine)
             }
             catch let e {
                 uniqueError.warning = .init(e.localizedDescription);
@@ -136,9 +134,14 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         return true;
     }
     /// Validates, applies and dismisses, if the validation passes.
+    @MainActor
     private func submit() {
-        if validate() && apply() {
-            dismiss()
+        Task {
+            if await validate() {
+                if await apply() {
+                    dismiss()
+                }
+            }
         }
     }
     /// Closes the tool window.
@@ -152,21 +155,24 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         }
     }
     /// Switches from inspect -> edit mode, and vice versa.
+    @MainActor
     private func toggleMode() {
-        if editing.snapshot == nil {
-            // Go into edit mode
-            self.editing.openWith(data)
-            return
-        }
-        
-        // Do nothing if we have an invalid state.
-        guard validate() else { return }
-        
-        if editing.snapshot?.hashValue != editing.hash {
-            warningConfirm = true
-        }
-        else {
-            self.editing.reset()
+        Task {
+            if editing.snapshot == nil {
+                // Go into edit mode
+                self.editing.openWith(data)
+                return
+            }
+            
+            // Do nothing if we have an invalid state.
+            guard await validate() else { return }
+            
+            if editing.snapshot?.hashValue != editing.hash {
+                warningConfirm = true
+            }
+            else {
+                self.editing.reset()
+            }
         }
     }
     

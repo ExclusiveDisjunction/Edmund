@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetDevotionsEditor : View {
     @Bindable var snapshot: BudgetInstanceSnapshot;
@@ -35,6 +36,7 @@ struct BudgetDevotionsEditor : View {
                 switch dev {
                     case .amount(let a): CurrencyField(a.amount)
                     case .percent(let p): PercentField(p.amount)
+                    default: Text("internalError")
                 }
             }
             
@@ -42,6 +44,7 @@ struct BudgetDevotionsEditor : View {
                 switch dev {
                     case .amount(let a): Text(a.amount.rawValue, format: .currency(code: currencyCode))
                     case .percent(let p): Text(p.amount.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
+                    default: Text("internalError")
                 }
             }
             

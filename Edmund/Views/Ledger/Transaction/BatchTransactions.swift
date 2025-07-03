@@ -20,32 +20,17 @@ struct BatchTransactions: TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() async -> ValidationFailure? {
-        var result: [LedgerEntry] = [];
+    func apply() -> ValidationFailure? {
         for snapshot in snapshots {
-            if let failure = snapshot.validate(unique: uniqueEngine)
-        }
-        var errors: [ValidationFailure] = [];
-        for snapshot in snapshots {
-            let validation = snapshot.validate(unique: uniqueEngine);
-            guard validation.isEmpty else {
-                errors.append(contentsOf: validation)
-                continue;
+            if let failure = snapshot.validate(unique: uniqueEngine) {
+                return failure
             }
             
-            let entry = LedgerEntry();
-            snapshot.apply(entry, context: modelContext, unique: uniqueEngine)
-            
-            result.append(entry)
-        }
-        
-        guard errors.isEmpty else {
-            return errors;
+            let new = LedgerEntry()
+            new.update(snapshot, unique: uniqueEngine)
+            modelContext.insert(new)
         }
 
-        for item in result {
-            modelContext.insert(item)
-        }
         return nil;
     }
     private func add_trans() {
@@ -69,12 +54,10 @@ struct BatchTransactions: TransactionEditorProtocol {
                             .textFieldStyle(.roundedBorder)
                     }
                     TableColumn("Credit") { $item in
-                        TextField("", value: $item.credit, format: .currency(code: currencyCode))
-                            .textFieldStyle(.roundedBorder)
+                        CurrencyField(item.credit)
                     }
                     TableColumn("Debit") { $item in
-                        TextField("", value: $item.debit, format: .currency(code: currencyCode))
-                            .textFieldStyle(.roundedBorder)
+                        CurrencyField(item.debit)
                     }
                     TableColumn("Date") { $item in
                         DatePicker("", selection: $item.date, displayedComponents: .date)
@@ -116,6 +99,6 @@ struct BatchTransactions: TransactionEditorProtocol {
 
 #Preview {
     BatchTransactions()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
         .padding()
 }

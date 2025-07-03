@@ -38,6 +38,8 @@ public final class Bill : BillBase, SnapshotableElement, UniqueElement {
         self._period = period.rawValue
     }
     
+    public static let objId: ObjectIdentifier = .init((any BillBase).self)
+    
     public var id: BillBaseID {
         .init(name: name, company: company, location: location)
     }
@@ -75,7 +77,7 @@ public final class Bill : BillBase, SnapshotableElement, UniqueElement {
     }
     
     /// The internal raw value used to store the kind.
-    public var _kind: StrictBillsKind.RawValue;
+    public private(set) var _kind: StrictBillsKind.RawValue;
     /// The internall raw value used to store the period.
     private var _period: TimePeriods.RawValue;
     

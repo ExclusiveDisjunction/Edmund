@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct AccountsIE : View {
     @Query(sort: [SortDescriptor(\Account.name, order: .forward)] ) private var accounts: [Account];
@@ -118,5 +119,5 @@ struct AccountsIE : View {
 
 #Preview {
     AccountsIE()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

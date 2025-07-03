@@ -18,13 +18,13 @@ struct Audit: TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> [ValidationFailure]? {
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
         
         guard let account = account else {
-            return [.empty ]
+            return .empty
         }
         
         let transaction = LedgerEntry(

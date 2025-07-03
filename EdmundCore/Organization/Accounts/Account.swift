@@ -32,6 +32,8 @@ public final class Account : Identifiable, Hashable, BoundPairParent, Snapshotab
         self.children = children
     }
     
+    public static let objId: ObjectIdentifier = .init(Account.self)
+    
     public var id: String { name }
     /// The account's name. This must be unique. This can be simple like "Checking", or more elaborate like "Chase Savings"
     public var name: String = "";

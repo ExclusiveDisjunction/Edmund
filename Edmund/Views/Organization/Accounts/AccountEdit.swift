@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The edit view for Account.
 public struct AccountEdit : View {
@@ -73,7 +74,7 @@ public struct AccountEdit : View {
                     Text("Interest:", comment: "Money interest")
                         .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                     
-                    TextField("", value: $snapshot.interest, format: .percent.precision(.fractionLength(3)))
+                    PercentField(snapshot.interest)
                 }
             }
             
@@ -102,6 +103,6 @@ public struct AccountEdit : View {
 }
 
 #Preview {
-    ElementEditor(Account(), adding: false)
-        .modelContainer(Containers.debugContainer)
+    ElementEditor(Account.exampleAccount, adding: false)
+        .modelContainer(try! Containers.debugContainer())
 }

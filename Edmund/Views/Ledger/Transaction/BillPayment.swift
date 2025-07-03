@@ -7,9 +7,10 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BillPayment : TransactionEditorProtocol {
-    init(kind: BillsKind)  {
+    init(kind: StrictBillsKind)  {
         self.kind = kind;
         
         _bills = Query(filter: BillPayment.predicate(kind: kind), sort: \Bill.name)
@@ -17,7 +18,7 @@ struct BillPayment : TransactionEditorProtocol {
     
     @Query private var bills: [Bill];
     
-    private let kind: BillsKind;
+    private let kind: StrictBillsKind;
     @State private var selected: Bill? = nil;
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
@@ -35,26 +36,22 @@ struct BillPayment : TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    private static func predicate(kind: BillsKind) -> Predicate<Bill> {
+    private static func predicate(kind: StrictBillsKind) -> Predicate<Bill> {
         let distantFuture = Date.distantFuture;
         let now = Date.now;
         let kind = kind.rawValue;
-        return #Predicate<Bill> { utility in
-            return (utility.endDate ?? distantFuture) > now && utility.rawKind == kind
+        return #Predicate<Bill> { bill in
+            return (bill.endDate ?? distantFuture) > now && bill._kind == kind
         }
     }
-    
-    func apply() -> [ValidationFailure]? {
+
+    func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
-            return [.internalError]
+            return .internalError
         }
         
-        guard let target = selected else {
-            return [.empty("Target")]
-        }
-        
-        guard let account = account else {
-            return [.empty("Account")]
+        guard let target = selected, let account = account else {
+            return .empty
         }
         
         let amount = target.amount;
@@ -134,5 +131,5 @@ struct BillPayment : TransactionEditorProtocol {
 
 #Preview {
     BillPayment(kind: .subscription)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

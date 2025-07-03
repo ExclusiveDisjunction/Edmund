@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BalanceVerifier: View {
     @Query private var accounts: [Account];
@@ -101,6 +102,6 @@ struct BalanceVerifier: View {
 
 #Preview {
     BalanceVerifier()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
         .navigationTitle("Balance Verification")
 }
