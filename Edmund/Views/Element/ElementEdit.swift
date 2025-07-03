@@ -7,9 +7,10 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// A high level abstraction over element edting. If `T` is an `EditableElement`, then it will load the editing view, and handle the layout/closing/saving actions for the process.
-public struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel {
+public struct ElementEditor<T> : View where T: EditableElement, T: PersistentModel, T: TypeTitled {
     /// Constructs the view using the specified data.
     /// - Parameters:
     ///     - data: The element to modify. A `T.Snapshot` will be created for it.
@@ -17,7 +18,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     ///     - postAction: If provided, this will be called when the editor closes, regardless of saving or not.
     public init(_ data: T, adding: Bool, postAction: (() -> Void)? = nil) {
         self.data = data
-        let tmp = T.Snapshot(data)
+        let tmp = data.makeSnapshot()
         self.adding = adding;
         self.editing = tmp
         self.editHash = tmp.hashValue
@@ -30,7 +31,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     @Bindable private var editing: T.Snapshot;
     @State private var editHash: Int;
     @Bindable private var uniqueError: StringWarningManifest = .init();
-    @Bindable private var validationError: ValidationWarningManifest = .init()
+    @Bindable private var validationError: BaseWarningManifest<ValidationFailure> = .init()
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;
@@ -38,9 +39,9 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     @Environment(\.dismiss) private var dismiss;
     
     /// Determines if the specified edit is allowed, and shows the error otherwise.
-    private func validate() -> Bool {
-        let result = editing.validate(unique: uniqueEngine);
-        guard !result.isEmpty else {
+    @MainActor
+    private func validate() async -> Bool {
+        if let result = await editing.validate(unique: uniqueEngine) {
             validationError.warning = .init(result)
             return false;
         }
@@ -48,7 +49,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
         return true;
     }
     /// Applies the data to the specified data.
-    private func apply() -> Bool {
+    private func apply() async -> Bool {
         if adding {
             modelContext.insert(data)
             /*
@@ -68,19 +69,24 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
         }
         
         do {
-            try editing.apply(data, context: modelContext, unique: uniqueEngine)
+            try await data.update(editing, unique: uniqueEngine)
         }
         catch let e {
-            uniqueError.warning = .init(e.localizedDescription);
+            uniqueError.warning = .init("internalError");
             return false;
         }
         
         return true;
     }
     /// Run when the `Save` button is pressed. This will validate & apply the data (if it is valid).
+    @MainActor
     private func submit() {
-        if validate() && apply() {
-            dismiss()
+        Task {
+            if await validate() {
+                if await apply() {
+                    dismiss()
+                }
+            }
         }
     }
     /// Closes the popup.
@@ -100,7 +106,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
             
             Divider()
             
-            T.EditView(editing)
+            T.makeEditView(editing)
             
             Spacer()
             
@@ -119,7 +125,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
                     validationError.isPresented = false
                 })
             }, message: {
-                validationError.content
+                Text((validationError.warning ?? .internalError).display)
             })
             .alert("Error", isPresented: $uniqueError.isPresented, actions: {
                 Button("Ok", action: {

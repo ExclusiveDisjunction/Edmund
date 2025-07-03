@@ -73,6 +73,6 @@ public struct SalariedJobInspector : View {
 }
 
 #Preview {
-    ElementInspector(data: SalariedJob.exampleJob)
+    ElementInspector(data: SalariedJob.exampleJob)g
         .modelContainer(try! Containers.debugContainer())
 }

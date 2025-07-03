@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 /// A simple basis for what warnings should include.
 public protocol WarningBasis : Identifiable {
@@ -42,20 +43,6 @@ public struct StringWarning: Identifiable, WarningBasis {
     public var id: UUID ;
 }
 
-public struct ValidationWarning : Identifiable, WarningBasis {
-    public init(_ warnings: [ValidationFailure], id: UUID = UUID()) {
-        self.warnings = warnings;
-        self.id = id
-    }
-    
-    public let warnings: [ValidationFailure];
-    public var id: UUID;
-    
-    public var message: LocalizedStringKey {
-        "There are one or more errors with the data inputted."
-    }
-}
-
 /// An observable class that provides warning funcntionality. It includes a memeber, `isPresented`, which can be bound. This value will become `true` when the internal `warning` is not `nil`.
 @Observable
 public class BaseWarningManifest<T> where T: WarningBasis {
@@ -75,25 +62,8 @@ public class BaseWarningManifest<T> where T: WarningBasis {
     }
 }
 
-@Observable
-public class ValidationWarningManifest: BaseWarningManifest<ValidationWarning> {
-    @ViewBuilder
-    public var content: some View {
-        if let warning = self.warning {
-            VStack {
-                Text("Please ensure all fields are filled in and no negative values are used.")
-                ForEach(warning.warnings, id: \.id) { warning in
-                    warning.display
-                }
-            }
-        }
-        else {
-            Text("No warnings to report")
-        }
-    }
-}
-
 /// A specalized version of `BaseWarningManifest<T>` that works for `WarningKind` values.
 public typealias SelectionWarningManifest = BaseWarningManifest<SelectionWarningKind>;
 /// A specalized version of `BaseWarningManifest<T>` that works for `WarningMessage` values.
 public typealias StringWarningManifest = BaseWarningManifest<StringWarning>
+public typealias ValidationWarningManifest = BaseWarningManifest<ValidationFailure>
