@@ -144,8 +144,13 @@ struct AppWindowGate<Content> : View where Content: View {
     
     var body: some View {
         switch loader.state {
-            case .loading: Text("Please wait while Edmund loads")
+            case .loading: VStack {
+                Text("Please wait while Edmund loads")
+                ProgressView()
+                    .progressViewStyle(.linear)
+            }
                     .preferredColorScheme(colorScheme)
+                    .padding()
             case .error(let e): AppErrorView(error: e)
                     .preferredColorScheme(colorScheme)
             case .loaded(let a): self.content()

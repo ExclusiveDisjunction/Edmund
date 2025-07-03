@@ -104,8 +104,15 @@ struct BalanceSheet: View {
     private func accountView(_ item: DetailedBalance) -> some View {
         VStack {
             HStack {
-                Text(item.balance, format: .currency(code: currencyCode)).foregroundStyle(item.balance < 0 ? .red : .primary).font(.title2)
+                Text(item.name)
+                    .font(.title2)
+                
                 Spacer()
+                
+                Text(item.balance, format: .currency(code: currencyCode))
+                    .foregroundStyle(item.balance < 0 ? .red : .primary)
+                    .font(.title2)
+                
             }
             
             childSection(item)
