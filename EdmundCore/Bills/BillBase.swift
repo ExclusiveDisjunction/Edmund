@@ -228,6 +228,7 @@ public class BillBaseSnapshot: Hashable, Equatable {
     public var autoPay: Bool;
     
     /// Validates the bill with its current information.
+    @MainActor
     public func validate(unique: UniqueEngine) async -> ValidationFailure? {
         let name = name.trimmingCharacters(in: .whitespaces)
         let company = company.trimmingCharacters(in: .whitespaces)

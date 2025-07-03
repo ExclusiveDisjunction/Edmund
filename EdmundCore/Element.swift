@@ -22,6 +22,10 @@ public protocol IsolatedDefaultableElement {
     init()
 }
 
+public protocol NamedElement {
+    var name: String { get set }
+}
+
 /// Represents a data type that can be "snapshoted" and updated from that snapshot at a later time.
 public protocol SnapshotableElement : ElementBase, PersistentModel {
     associatedtype Snapshot : ElementSnapshot;
@@ -39,5 +43,6 @@ public protocol SnapshotableElement : ElementBase, PersistentModel {
 /// Represents a class that can be used to hold the values of an element for editing.
 public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
     /// Determines if the current values are acceptable to display to the user.
+    @MainActor
     func validate(unique: UniqueEngine) async -> ValidationFailure?
 }

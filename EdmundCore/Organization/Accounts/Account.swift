@@ -17,7 +17,7 @@ public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
 
 /// Represents a location to store money, via the use of inner sub-accounts.
 @Model
-public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement {
+public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement {
     public typealias Snapshot = AccountSnapshot;
     
     public convenience init() {

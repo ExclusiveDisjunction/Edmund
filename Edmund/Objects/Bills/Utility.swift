@@ -8,7 +8,7 @@
 import SwiftUI
 import EdmundCore
 
-extension Utility : NamedEditableElement, NamedInspectableElement, TypeTitled {
+extension Utility : EditableElement, InspectableElement, TypeTitled {
     public func makeInspectView() -> UtilityInspect {
         UtilityInspect(self)
     }

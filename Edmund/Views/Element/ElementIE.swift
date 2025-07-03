@@ -86,6 +86,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     }
     
     /// If in edit mode, it will determine if the input is valid. It will show an error otherwise.
+    @MainActor
     private func validate() async -> Bool {
         if let snapshot = editing.snapshot, let result = await snapshot.validate(unique: uniqueEngine) {
             validationError.warning = result
@@ -95,6 +96,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         return true
     }
     /// Modifies the attached data to the editing snapshot, if edit mode is active.
+    @MainActor
     private func apply() async -> Bool {
         if let editing = editing.snapshot {
             //undoManager?.beginUndoGrouping()
@@ -176,6 +178,28 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         }
     }
     
+    @ViewBuilder
+    private var confirm: some View {
+        Button("Save", action: {
+            warningConfirm = false //Since two sheets cannot show at the same time, we must dismiss this one first
+            
+            Task {
+                if await apply() {
+                    editing.reset()
+                }
+            }
+        })
+        
+        Button("Discard") {
+            editing.reset()
+            warningConfirm = false
+        }
+        
+        Button("Cancel", role: .cancel) {
+            warningConfirm = false
+        }
+    }
+    
     public var body: some View {
         VStack {
             InspectEditTitle<T>(mode: mode)
@@ -213,7 +237,14 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                     Button("Cancel", action: cancel).buttonStyle(.bordered)
                 }
                 
-                Button(mode == .inspect ? "Ok" : "Save", action: isEdit ? submit : cancel).buttonStyle(.borderedProminent)
+                Button(mode == .inspect ? "Ok" : "Save") {
+                    if isEdit {
+                        submit()
+                    }
+                    else {
+                        cancel()
+                    }
+                }.buttonStyle(.borderedProminent)
             }
         }.padding()
             .onDisappear(perform: onDismiss)
@@ -222,25 +253,10 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                     validationError.isPresented = false
                 })
             }, message: {
-                validationError.content
+                Text((validationError.warning ?? .internalError).display)
             })
             .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $warningConfirm) {
-                Button("Save", action: {
-                    warningConfirm = false //Since two sheets cannot show at the same time, we must dismiss this one first
-                    
-                    if apply() {
-                        editing.reset()
-                    }
-                })
-                
-                Button("Discard") {
-                    editing.reset()
-                    warningConfirm = false
-                }
-                
-                Button("Cancel", role: .cancel) {
-                    warningConfirm = false
-                }
+                confirm
             }
             .alert("Error", isPresented: $uniqueError.isPresented, actions: {
                 Button("Ok", action: {

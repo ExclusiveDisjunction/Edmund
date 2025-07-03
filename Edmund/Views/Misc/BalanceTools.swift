@@ -59,7 +59,7 @@ struct BalanceResolver {
     }
 }
 
-public struct MonthYear : Hashable, Codable, Comparable {
+public struct MonthYear : Hashable, Codable, Comparable, Sendable {
     public init(_ year: Int, _ month: Int) {
         self.year = year
         self.month = month
@@ -106,14 +106,14 @@ public struct TransactionResolver {
     }
 }
 
-extension Dictionary where Key: NamedInspectableElement, Value == (Decimal, Decimal) {
+extension Dictionary where Key: NamedElement, Value == (Decimal, Decimal) {
     func intoSimpleBalances() -> [SimpleBalance] {
         self.map { (element, balances) in
                 .init(element.name, balances.0, balances.1)
         }
     }
 }
-extension Dictionary where Key: NamedInspectableElement, Key: BoundPairParent, Key.C: TransactionHolder, Key.C: NamedInspectableElement, Value == Dictionary<Key.C, (Decimal, Decimal)> {
+extension Dictionary where Key: NamedElement, Key: BoundPairParent, Key.C: TransactionHolder, Key.C: NamedElement, Value == Dictionary<Key.C, (Decimal, Decimal)> {
     func intoSimpleBalances() -> [SimpleBalance] {
         self.map { (account, subAccount) in
             var credit: Decimal = 0, debit: Decimal = 0;
@@ -138,11 +138,6 @@ extension Dictionary where Key: NamedInspectableElement, Key: BoundPairParent, K
             }
             
             return .init(account.name, credit, debit, children: children)
-        }
-    }
-    func intoComplexBalances() -> [ComplexBalance] {
-        self.map {
-            .init($0.key.name, subs: $0.value.intoSimpleBalances())
         }
     }
 }
@@ -173,7 +168,7 @@ protocol BalanceEncoder: Identifiable {
 protocol ParentBalanceEncoder: Identifiable, BalanceEncoder {
     associatedtype Child: BalanceEncoder
     
-    var name: String { get set }
+    var name: String { get }
     var balance: Decimal { get  }
     var children: [Child]? { get }
 }
@@ -214,8 +209,9 @@ struct DetailedBalance : Identifiable, ParentBalanceEncoder, Sendable {
     var children: [DetailedBalance]?;
 }
 
+/*
 @Observable
-class ComplexBalance : Identifiable, ParentBalanceEncoder {
+class ComplexBalance : Identifiable, ParentBalanceEncoder, @unchecked Sendable {
     init(_ name: String, subs: [SimpleBalance]) {
         self.name = name;
         self.subs = subs;
@@ -223,8 +219,9 @@ class ComplexBalance : Identifiable, ParentBalanceEncoder {
         self.subs.sort { $0.balance > $1.balance }
     }
     
-    var name: String;
-    var subs: [SimpleBalance];
+    let name: String;
+    let subs: [SimpleBalance];
+    let expanded = true;
     var children: [SimpleBalance]? {
         get { subs }
         set { subs = newValue ?? [] }
@@ -232,5 +229,5 @@ class ComplexBalance : Identifiable, ParentBalanceEncoder {
     var balance: Decimal {
         subs.reduce(into: 0) { $0 += $1.balance }
     }
-    var expanded = true;
 }
+*/

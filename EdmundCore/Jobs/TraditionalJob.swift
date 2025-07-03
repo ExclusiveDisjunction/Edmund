@@ -141,6 +141,7 @@ public class TraditionalJobSnapshot : JobSnapshot {
     public var company: String;
     public var position: String;
     
+    @MainActor
     public func validate(unique: UniqueEngine) async -> ValidationFailure? {
         let company = self.company.trimmingCharacters(in: .whitespaces)
         let position = self.position.trimmingCharacters(in: .whitespaces)

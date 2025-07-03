@@ -37,11 +37,6 @@ public protocol InspectableElement : ElementBase {
     @ViewBuilder
     func makeInspectView() -> InspectorView;
 }
-/// Represents an inspectable element that also has a name.
-public protocol NamedInspectableElement : InspectableElement {
-    /// The name of the element
-    var name: String { get }
-}
 
 /// Represents a data type that can be editied with a dedicated view.
 public protocol EditableElement : ElementBase, SnapshotableElement {
@@ -53,9 +48,4 @@ public protocol EditableElement : ElementBase, SnapshotableElement {
     @MainActor
     @ViewBuilder
     static func makeEditView(_ snap: Self.Snapshot) -> EditView;
-}
-/// Represents an editable element that has a writable name.
-public protocol NamedEditableElement : EditableElement {
-    /// The name of the element
-    var name: String { get set }
 }

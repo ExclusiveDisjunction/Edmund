@@ -32,6 +32,7 @@ public enum AppState {
 
 @Observable
 public class AppLoader {
+    @MainActor
     public init() {
         Task {
             await load()
@@ -40,53 +41,52 @@ public class AppLoader {
     
     public var state: AppState = .loading
     
+    @MainActor
     public func load() async {
-        await MainActor.run {
-            let container: ModelContainer;
-            let uniqueContext: UniqueContext;
-            let unique: UniqueEngine;
-            let categories: CategoriesContext;
-            
-            do {
-                #if DEBUG
-                container = try Containers.debugContainer()
-                #else
-                container = try Containers.mainContainer()
-                #endif
-            }
-            catch let e {
-                withAnimation {
-                    self.state = .error(.init(with: .modelContainer, message: e.localizedDescription))
-                }
-                return;
-            }
-            
-            do {
-                uniqueContext = try UniqueContext(container.mainContext)
-            }
-            catch let e {
-                withAnimation {
-                    self.state = .error(.init(with: .unique, message: e.localizedDescription))
-                }
-                return;
-            }
-            
-            unique = UniqueEngine(uniqueContext)
-            
-            do {
-                categories = try CategoriesContext(container.mainContext)
-            }
-            catch let e {
-                withAnimation {
-                    self.state = .error(.init(with: .categories, message: e.localizedDescription))
-                }
-                return;
-            }
-            
-            let loaded = LoadedApp(container: container, unique: unique, categories: categories)
+        let container: ModelContainer;
+        let uniqueContext: UniqueContext;
+        let unique: UniqueEngine;
+        let categories: CategoriesContext;
+        
+        do {
+#if DEBUG
+            container = try Containers.debugContainer()
+#else
+            container = try Containers.mainContainer()
+#endif
+        }
+        catch let e {
             withAnimation {
-                self.state = .loaded(loaded)
+                self.state = .error(.init(with: .modelContainer, message: e.localizedDescription))
             }
+            return;
+        }
+        
+        do {
+            uniqueContext = try UniqueContext(container.mainContext)
+        }
+        catch let e {
+            withAnimation {
+                self.state = .error(.init(with: .unique, message: e.localizedDescription))
+            }
+            return;
+        }
+        
+        unique = UniqueEngine(uniqueContext)
+        
+        do {
+            categories = try CategoriesContext(container.mainContext)
+        }
+        catch let e {
+            withAnimation {
+                self.state = .error(.init(with: .categories, message: e.localizedDescription))
+            }
+            return;
+        }
+        
+        let loaded = LoadedApp(container: container, unique: unique, categories: categories)
+        withAnimation {
+            self.state = .loaded(loaded)
         }
     }
 }

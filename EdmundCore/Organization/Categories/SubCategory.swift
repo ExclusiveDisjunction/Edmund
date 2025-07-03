@@ -9,7 +9,7 @@ import SwiftData
 
 /// Represents a category within a parent category that is used to group related transactions.
 @Model
-public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, CategoryBase, Equatable {
+public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, CategoryBase, NamedElement, Equatable {
     public convenience init() {
         self.init("")
     }
@@ -45,7 +45,7 @@ public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, Ca
         hasher.combine(name)
     }
     
-    
+    @MainActor
     public func tryNewName(name: String, unique: UniqueEngine) async -> Bool {
         let id = BoundPairID(parent: self.parentName, name: name)
         
@@ -53,6 +53,7 @@ public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, Ca
         
         return await unique.isIdOpen(key: .init(SubCategory.self), id: id)
     }
+    @MainActor
     public func setNewName(name: String, unique: UniqueEngine) async {
         let id = BoundPairID(parent: parentName, name: name)
         

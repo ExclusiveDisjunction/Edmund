@@ -27,7 +27,7 @@ struct CategoriesIE : View {
     }
     private func deleteFromModel(data: CategoryTableRow, context: ModelContext) {
         withAnimation {
-            if let category = data.target as? Category {
+            if let category = data.target as? EdmundCore.Category {
                 context.delete(category)
             }
             else if let SubCategory = data.target as? SubCategory {

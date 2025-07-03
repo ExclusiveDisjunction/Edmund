@@ -28,7 +28,7 @@ extension [ManyTableEntry] {
     /// Takes in the current information and builds `LedgerEntry` instances from it. If `transfer_into` is true, these will be in the form of "Various to [account]"
     func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) throws(ValidationFailure) -> [LedgerEntry] {
         var result: [LedgerEntry] = [];
-        for (id, entry) in self.enumerated() {
+        for entry in self {
             guard let acc = entry.account else {
                 throw .empty
             }

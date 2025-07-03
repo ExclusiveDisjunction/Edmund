@@ -11,7 +11,7 @@ import Foundation;
 
 /// Represents a variable-cost bill
 @Model
-public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement {
+public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement, NamedElement {
     public typealias Snapshot = UtilitySnapshot
     
     /// Creates the utility with blank values.

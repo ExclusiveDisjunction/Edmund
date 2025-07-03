@@ -7,12 +7,13 @@
 
 import SwiftData
 import SwiftUI
+import EdmundCore
 
 struct SubCategoryAdder : View {
-    @Query(sort: [SortDescriptor(\Category.name, order: .forward)] ) private var categories: [Category];
+    @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
     
     @State private var name: String = "";
-    @State private var parent: Category? = nil;
+    @State private var parent: EdmundCore.Category? = nil;
     @State private var nameAttempts: CGFloat = 0;
     @State private var parentAttempts: CGFloat = 0;
     
@@ -28,28 +29,37 @@ struct SubCategoryAdder : View {
     private let maxWidth: CGFloat = 65;
 #endif
     
-    private func submit() {
+    @MainActor
+    private func process() async {
         let name = name.trimmingCharacters(in: .whitespaces)
-        
         
         if let parent = parent {
             let target = SubCategory(parent: parent)
-            if !name.isEmpty && target.tryNewName(name: name, unique: uniqueEngine) {
-                target.setNewName(name: name, unique: uniqueEngine)
-                modelContext.insert(target)
+            if !name.isEmpty {
+                if await target.tryNewName(name: name, unique: uniqueEngine) {
+                    await target.setNewName(name: name, unique: uniqueEngine)
+                    modelContext.insert(target)
+                    
+                    dismiss()
+                    return
+                }
                 
-                dismiss()
-                return
+                withAnimation(.default) {
+                    nameAttempts += 1;
+                }
             }
-        
-            withAnimation(.default) {
-                nameAttempts += 1;
+            else {
+                withAnimation(.default) {
+                    parentAttempts += 1;
+                }
             }
         }
-        else {
-            withAnimation(.default) {
-                parentAttempts += 1;
-            }
+    }
+    
+    @MainActor
+    private func submit() {
+        Task {
+            await process()
         }
     }
     
@@ -62,7 +72,7 @@ struct SubCategoryAdder : View {
                     
                     Picker("", selection: $parent) {
                         Text("None")
-                            .tag(nil as Category?)
+                            .tag(nil as EdmundCore.Category?)
                         
                         ForEach(categories, id: \.id) { category in
                             Text(category.name)
@@ -101,5 +111,5 @@ struct SubCategoryAdder : View {
 
 #Preview {
     SubCategoryAdder()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

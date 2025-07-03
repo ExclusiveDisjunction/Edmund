@@ -6,6 +6,7 @@
 //
 
 import SwiftUI;
+import EdmundCore
 
 /// A simple abstraction that allows for the displaying of a named pair couple as "Parent, Child" name.
 public struct CompactNamedPairInspect<T>: View where T: BoundPair {

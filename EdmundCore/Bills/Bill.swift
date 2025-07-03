@@ -11,7 +11,7 @@ import Foundation
 
 /// A data set pertaining to a same-amount periodic charge.
 @Model
-public final class Bill : BillBase, SnapshotableElement, UniqueElement {
+public final class Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     public typealias Snapshot = BillSnapshot
     
     /// Creates the bill based on a specific kind.

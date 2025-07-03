@@ -44,7 +44,7 @@ public enum LedgerStyle: Int, Identifiable, CaseIterable {
     public var id: Self { self }
 }
 
-extension LedgerEntry : NamedEditableElement, NamedInspectableElement, TypeTitled {
+extension LedgerEntry : EditableElement, InspectableElement, TypeTitled {
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Transaction",

@@ -59,7 +59,7 @@ struct BudgetPropertiesEditor : View {
 }
 
 #Preview {
-    let budget = BudgetInstance.getExampleBudget()
+    let budget = try! BudgetInstance.getExampleBudget()
     let snapshot = BudgetInstanceSnapshot(budget)
     
     BudgetPropertiesEditor(snapshot: snapshot)

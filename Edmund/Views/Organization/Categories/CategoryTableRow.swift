@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 @Observable
 final class CategoryTableRow : Identifiable, Parentable {
@@ -16,7 +17,7 @@ final class CategoryTableRow : Identifiable, Parentable {
         self.children = nil;
         self.name = subCategory.name;
     }
-    init(category: Category) {
+    init(category: EdmundCore.Category) {
         self.id = UUID();
         self.target = category;
         self.children = category.children.map { Self(subCategory: $0) }
@@ -43,17 +44,20 @@ struct CategoryTableRowEdit : View {
     
     private static let lockedWarning: LocalizedStringKey = "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted.";
     
-    private func submitFor(_ cat: CategoryTableRow) {
+    @MainActor
+    private func submitFor(_ cat: CategoryTableRow) async {
         let name = cat.name.trimmingCharacters(in: .whitespaces);
         
-        if !name.isEmpty && cat.target.tryNewName(name: name, unique: uniqueEngine) {
-            cat.target.setNewName(name: name, unique: uniqueEngine);
-            cat.isEditing = false;
-        }
-        else {
-            withAnimation(.default) {
-                cat.attempts += 1;
+        if !name.isEmpty {
+            if await cat.target.tryNewName(name: name, unique: uniqueEngine) {
+                await cat.target.setNewName(name: name, unique: uniqueEngine)
+                cat.isEditing = false;
+                return
             }
+        }
+        
+        withAnimation(.default) {
+            cat.attempts += 1;
         }
     }
     
@@ -66,8 +70,10 @@ struct CategoryTableRowEdit : View {
                             .frame(width: 50)
                         TextField("", text: $data.name)
                             .textFieldStyle(.roundedBorder)
-                            .onSubmit{
-                                submitFor(data)
+                            .onSubmit {
+                                Task {
+                                    await submitFor(data)
+                                }
                             }
                             .onDisappear {
                                 data.name = data.target.name

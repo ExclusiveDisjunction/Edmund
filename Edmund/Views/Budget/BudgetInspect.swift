@@ -28,7 +28,7 @@ public struct BudgetInspect : View {
 }
 
 #Preview {
-    BudgetInspect(data: .getExampleBudget())
+    BudgetInspect(data: try! .getExampleBudget())
         .modelContainer(try! Containers.debugContainer())
         .padding()
 }

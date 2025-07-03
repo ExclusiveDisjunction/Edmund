@@ -22,7 +22,7 @@ extension AccountKind : Displayable {
     }
 }
 
-extension Account: NamedEditableElement, NamedInspectableElement, TypeTitled {
+extension Account: EditableElement, InspectableElement, TypeTitled {
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Account",

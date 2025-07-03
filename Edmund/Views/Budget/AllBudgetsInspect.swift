@@ -51,6 +51,7 @@ struct AllBudgetsInspect : View {
             case .amount(let a): a.amount
             case .percent(let p): p.amount * budget.amount
             case .remainder(_): budget.remainderValue
+            default: .nan
         }
     }
     private func apply(_ budget: BudgetInstance) {
@@ -66,6 +67,7 @@ struct AllBudgetsInspect : View {
                     case .amount(let a): Text(a.amount, format: .currency(code: currencyCode))
                     case .percent(let p): Text(p.amount, format: .percent)
                     case .remainder(_): Text("Remainder")
+                    default: Text("internalError")
                 }
             }
             TableColumn("Amount") { row in

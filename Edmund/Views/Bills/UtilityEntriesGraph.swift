@@ -15,7 +15,7 @@ public struct UtilityEntriesGraph : View {
     public var source: Utility;
     
     private var children: [UtilityEntry] {
-        source.children?.sorted(by: { $0.date < $1.date } ) ?? .init()
+        source.children.sorted(by: { $0.date < $1.date } )
     }
     
     public var body: some View {

@@ -71,7 +71,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
         do {
             try await data.update(editing, unique: uniqueEngine)
         }
-        catch let e {
+        catch {
             uniqueError.warning = .init("internalError");
             return false;
         }

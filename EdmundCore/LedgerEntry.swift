@@ -10,7 +10,7 @@ import Foundation;
 
 /// A record into the ledger, representing a single transaction.
 @Model
-public final class LedgerEntry : Identifiable, SnapshotableElement {
+public final class LedgerEntry : Identifiable, SnapshotableElement, NamedElement {
     public typealias Snapshot = LedgerEntrySnapshot;
     
     /// Creates an empty transaction

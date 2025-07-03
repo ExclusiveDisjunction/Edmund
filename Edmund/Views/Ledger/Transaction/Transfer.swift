@@ -8,10 +8,10 @@
 import SwiftUI
 import SwiftData
 
-enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable, Codable {
+enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable, Codable, Displayable {
     case oneOne, oneMany, manyOne, manyMany
     
-    var name: LocalizedStringKey {
+    var display: LocalizedStringKey {
         switch self {
             case.oneOne: return "One-to-One"
             case .oneMany: return "One-to-Many"

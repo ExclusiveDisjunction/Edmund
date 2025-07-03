@@ -123,7 +123,7 @@ struct SettingsView : View {
                     
                     Picker("Budgeting Period", selection: $showcasePeriod) {
                         ForEach(TimePeriods.allCases, id: \.self) { bill in
-                            Text(bill.name).tag(bill)
+                            Text(bill.display).tag(bill)
                         }
                     }.labelsHidden()
                 }

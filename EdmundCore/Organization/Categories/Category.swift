@@ -11,7 +11,7 @@ import SwiftUI
 
 /// A grouping structure used to associate transactions into non-account groups.
 @Model
-public final class Category : CategoryBase, BoundPairParent, UniqueElement, Equatable {
+public final class Category : CategoryBase, BoundPairParent, UniqueElement, NamedElement, Equatable {
     public init() {
         self.name = ""
         self.children = []

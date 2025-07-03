@@ -96,7 +96,7 @@ struct BillBaseInspect : View {
             Text("Frequency:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
             
             HStack {
-                Text(target.period.name)
+                Text(target.period.display)
                 Spacer()
             }
         }
@@ -208,7 +208,7 @@ struct BillBaseEditor : View {
             HStack {
                 Picker("Frequency", selection: $editing.period) {
                     ForEach(TimePeriods.allCases, id: \.id) { period in
-                        Text(period.name).tag(period)
+                        Text(period.display).tag(period)
                     }
                 }.labelsHidden()
                 Spacer()

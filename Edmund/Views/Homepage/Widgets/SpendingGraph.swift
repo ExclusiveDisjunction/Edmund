@@ -10,7 +10,7 @@ import SwiftData
 import Charts
 import EdmundCore
 
-struct SpendingComputation: Identifiable {
+struct SpendingComputation: Identifiable, Sendable {
     init(_ monthYear: MonthYear, _ data: [LedgerEntry]) {
         self.monthYear = monthYear
         let computed = data.reduce((0.0, 0.0), { acc, trans in
@@ -22,10 +22,10 @@ struct SpendingComputation: Identifiable {
         self.id = UUID()
     }
     
-    var id: UUID;
-    var monthYear: MonthYear;
-    var credit: Decimal;
-    var debit: Decimal;
+    let id: UUID;
+    let monthYear: MonthYear;
+    let credit: Decimal;
+    let debit: Decimal;
     var balance: Decimal {
         self.credit - self.debit
     }
@@ -35,7 +35,7 @@ struct SpendingComputation: Identifiable {
     }
 }
 
-enum SpendingGraphMode: Int, Identifiable, CaseIterable {
+enum SpendingGraphMode: Int, Identifiable, CaseIterable, Sendable {
     case net
     case individual
     

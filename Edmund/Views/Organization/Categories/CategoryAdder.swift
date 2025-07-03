@@ -16,21 +16,30 @@ struct CategoryAdder : View {
     @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.modelContext) private var modelContext;
     
-    private func submit() {
+    @MainActor
+    private func apply() async {
         let name = name.trimmingCharacters(in: .whitespaces);
         
         let category = EdmundCore.Category()
-        if !name.isEmpty && category.tryNewName(name: name, unique: uniqueEngine) {
-            category.setNewName(name: name, unique: uniqueEngine)
-            modelContext.insert(category)
-            
-            dismiss()
-            
-            return;
+        if !name.isEmpty {
+            if await category.tryNewName(name: name, unique: uniqueEngine) {
+                await category.setNewName(name: name, unique: uniqueEngine)
+                modelContext.insert(category)
+                
+                dismiss()
+                return
+            }
         }
         
         withAnimation(.default) {
             attempts += 1;
+        }
+    }
+    
+    @MainActor
+    private func submit() {
+        Task {
+            await apply()
         }
     }
     
@@ -62,5 +71,5 @@ struct CategoryAdder : View {
 
 #Preview {
     CategoryAdder()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

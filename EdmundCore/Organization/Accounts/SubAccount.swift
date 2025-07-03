@@ -10,7 +10,7 @@ import SwiftData
 
 /// Represents a sub-section under an account for transaction grouping.
 @Model
-public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, TransactionHolder {
+public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, NamedElement, TransactionHolder {
     public typealias Snapshot = SubAccountSnapshot;
     
     public convenience init() {

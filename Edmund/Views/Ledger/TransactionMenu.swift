@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 struct TransactionMenu<Label> : View where Label: View {
     var selection: Binding<TransactionKind?>? = nil;
@@ -35,18 +36,18 @@ struct TransactionMenu<Label> : View where Label: View {
     var body: some View {
         Menu {
             Menu {
-                Button(TransactionKind.simple.name, action: {
+                Button(TransactionKind.simple.display, action: {
                     openEditor(.simple)
                 })
-                Button(TransactionKind.composite.name, action: {
+                Button(TransactionKind.composite.display, action: {
                     openEditor(.composite)
                 })
 #if os(macOS)
-                Button(TransactionKind.grouped.name, action: {
+                Button(TransactionKind.grouped.display, action: {
                     openWindow(id: "transactionEditor", value: TransactionKind.grouped)
                 })
 #endif
-                Button(TransactionKind.creditCard.name, action: {
+                Button(TransactionKind.creditCard.display, action: {
                     openEditor(.creditCard)
                 }).disabled(true).help("futureRelease")
             } label: {
@@ -54,13 +55,13 @@ struct TransactionMenu<Label> : View where Label: View {
             }
             
             Menu {
-                Button(BillsKind.bill.name, action: {
+                Button(BillsKind.bill.display, action: {
                     openEditor(.billPay(.bill))
                 })
-                Button(BillsKind.subscription.name, action: {
+                Button(BillsKind.subscription.display, action: {
                     openEditor(.billPay(.subscription))
                 })
-                Button(BillsKind.utility.name, action: {
+                Button(BillsKind.utility.display, action: {
                     openEditor(.utilityPay)
                 })
             } label: {
@@ -68,18 +69,18 @@ struct TransactionMenu<Label> : View where Label: View {
             }
             
             Menu {
-                Button(TransactionKind.payday.name, action: {
+                Button(TransactionKind.payday.display, action: {
                     openEditor(.payday)
                 }).disabled(true).help("futureRelease")
-                Button(TransactionKind.personalLoan.name, action: {
+                Button(TransactionKind.personalLoan.display, action: {
                     openEditor(.personalLoan)
                 })
                 
-                Button(TransactionKind.miscIncome.name, action: {
+                Button(TransactionKind.miscIncome.display, action: {
                     openEditor(.miscIncome)
                 })
                 
-                Button(TransactionKind.refund.name, action: {
+                Button(TransactionKind.refund.display, action: {
                     openEditor(.refund)
                 })
             } label: {
@@ -87,19 +88,19 @@ struct TransactionMenu<Label> : View where Label: View {
             }
             
             Menu {
-                Button(TransferKind.oneOne.name, action: {
+                Button(TransferKind.oneOne.display, action: {
                     openEditor(.transfer(.oneOne))
                 })
                 
-                Button(TransferKind.oneMany.name, action: {
+                Button(TransferKind.oneMany.display, action: {
                     openEditor(.transfer(.oneMany))
                 })
                 
-                Button(TransferKind.manyOne.name, action: {
+                Button(TransferKind.manyOne.display, action: {
                     openEditor(.transfer(.manyOne))
                 })
                 
-                Button(TransferKind.manyMany.name, action: {
+                Button(TransferKind.manyMany.display, action: {
                     openEditor(.transfer(.manyMany))
                 })
             } label: {

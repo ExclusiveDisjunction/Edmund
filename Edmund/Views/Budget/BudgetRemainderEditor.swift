@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetRemainderEditor : View {
     @Bindable var remainder: DevotionSnapshotBase;

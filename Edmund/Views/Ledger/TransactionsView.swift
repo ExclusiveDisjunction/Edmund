@@ -47,7 +47,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
             case .billPay(let v):  v.display
             case .utilityPay:      "Utility"
             case .audit:           "Audit"
-            case .transfer(let v): v.name
+            case .transfer(let v): v.display
         }
     }
     

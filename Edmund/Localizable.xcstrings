@@ -4,9 +4,6 @@
     "" : {
       "shouldTranslate" : false
     },
-    "\t" : {
-
-    },
     "..." : {
       "shouldTranslate" : false
     },
@@ -14,9 +11,6 @@
 
     },
     "(No information)" : {
-
-    },
-    "(No Parent)" : {
 
     },
     "(No parent), %@" : {
@@ -188,10 +182,10 @@
     "Add Utility" : {
 
     },
-    "Added On:" : {
+    "Add Utility Entry" : {
 
     },
-    "Alphabetical" : {
+    "Added On:" : {
 
     },
     "Amount" : {
@@ -427,9 +421,6 @@
     "Bottom Section" : {
 
     },
-    "Bottom Total" : {
-
-    },
     "Budget" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -446,9 +437,6 @@
           }
         }
       }
-    },
-    "Budget Editor" : {
-
     },
     "Budget Search" : {
 
@@ -498,9 +486,6 @@
           }
         }
       }
-    },
-    "cannot be negative" : {
-
     },
     "Cash" : {
 
@@ -583,9 +568,6 @@
 
     },
     "Copy from another" : {
-
-    },
-    "Costs" : {
 
     },
     "Credit" : {
@@ -741,9 +723,6 @@
     "Destination" : {
 
     },
-    "Destination Account" : {
-
-    },
     "Detailed Balances" : {
 
     },
@@ -827,6 +806,9 @@
     "Edit Utility" : {
 
     },
+    "Edit Utility Entry" : {
+
+    },
     "Edmund" : {
       "localizations" : {
         "de" : {
@@ -844,6 +826,9 @@
       },
       "shouldTranslate" : false
     },
+    "Edmund has hit a snag while loading, and cannot access your data." : {
+
+    },
     "Edmund Help" : {
 
     },
@@ -853,16 +838,10 @@
     "End" : {
 
     },
-    "End Date" : {
-
-    },
     "End Date:" : {
 
     },
     "Ended On" : {
-
-    },
-    "Entries" : {
 
     },
     "Error" : {
@@ -882,6 +861,12 @@
           }
         }
       }
+    },
+    "Error Kind:" : {
+
+    },
+    "Error Message:" : {
+
     },
     "Estimated Pay" : {
 
@@ -927,7 +912,7 @@
     "Expression:" : {
 
     },
-    "Filters" : {
+    "Filter" : {
 
     },
     "Finalize" : {
@@ -992,9 +977,6 @@
     },
     "Gross / Net -> Tax Rate" : {
       "comment" : "Used to denote the data format. Gross Pay divided by Net Pay is the tax rate"
-    },
-    "Gross Amount" : {
-
     },
     "Gross Pay" : {
 
@@ -1073,9 +1055,6 @@
         }
       }
     },
-    "High to Low" : {
-
-    },
     "Home" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1109,9 +1088,6 @@
 
     },
     "Hourly Jobs" : {
-
-    },
-    "Hourly Rate" : {
 
     },
     "Hourly Rate:" : {
@@ -1194,6 +1170,9 @@
     "Inspect Utility" : {
 
     },
+    "Inspect Utility Entry" : {
+
+    },
     "Interest" : {
 
     },
@@ -1211,18 +1190,6 @@
       }
     },
     "Into:" : {
-
-    },
-    "is empty" : {
-
-    },
-    "is invalid" : {
-
-    },
-    "is too large" : {
-
-    },
-    "is too small" : {
 
     },
     "Item" : {
@@ -1288,9 +1255,6 @@
     },
     "Left Side" : {
 
-    },
-    "Line %lld: Account" : {
-      "comment" : "Line #: Account"
     },
     "Loading" : {
 
@@ -1418,9 +1382,6 @@
     "Move to" : {
 
     },
-    "must be unique" : {
-      "comment" : "[property] must be unique"
-    },
     "Name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1506,9 +1467,6 @@
     "No location" : {
 
     },
-    "No warnings to report" : {
-
-    },
     "noCategories" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1558,6 +1516,9 @@
     "On" : {
       "comment" : "[Amount] on [Date]"
     },
+    "One or more fields has invalid input." : {
+
+    },
     "One Section" : {
 
     },
@@ -1592,6 +1553,9 @@
           }
         }
       }
+    },
+    "Oops!" : {
+
     },
     "Open in new Window" : {
       "extractionState" : "manual",
@@ -1628,12 +1592,6 @@
       }
     },
     "Over" : {
-
-    },
-    "Parent" : {
-
-    },
-    "Parent Name" : {
 
     },
     "Pay" : {
@@ -1677,7 +1635,16 @@
     "Personal Loan" : {
 
     },
-    "Please ensure all fields are filled in and no negative values are used." : {
+    "Please ensure all amount values are positive." : {
+
+    },
+    "Please ensure all fields are filled in." : {
+
+    },
+    "Please ensure all fields are not too large. (Ex: Percents greater than 100%)" : {
+
+    },
+    "Please ensure all fields are not too small." : {
 
     },
     "Please ensure that the name is not empty, the income is not negative, and an account is selected." : {
@@ -1687,6 +1654,9 @@
 
     },
     "Please report any translation errors." : {
+
+    },
+    "Please report this issue." : {
 
     },
     "Please select a topic to begin" : {
@@ -1706,6 +1676,9 @@
 
     },
     "Please visit the project on GitHub:" : {
+
+    },
+    "Please wait while Edmund loads" : {
 
     },
     "Position" : {
@@ -1791,9 +1764,6 @@
       }
     },
     "Quarterly" : {
-
-    },
-    "Reason" : {
 
     },
     "Refresh" : {
@@ -1883,9 +1853,6 @@
     "Select One" : {
       "comment" : "Select One bill\nSelect One utility"
     },
-    "Selected Utility" : {
-
-    },
     "Semi-Anually" : {
 
     },
@@ -1941,19 +1908,16 @@
     "Simple Balances" : {
 
     },
+    "Sort" : {
+
+    },
     "Sort & Filter" : {
 
     },
     "Sort By" : {
 
     },
-    "Sorting" : {
-
-    },
     "Source" : {
-
-    },
-    "Source Account" : {
 
     },
     "Source:" : {
@@ -2062,12 +2026,6 @@
         }
       }
     },
-    "Subscription to Utility" : {
-
-    },
-    "Subscriptions" : {
-
-    },
     "Supporting Projects" : {
 
     },
@@ -2075,9 +2033,6 @@
       "shouldTranslate" : false
     },
     "Take from" : {
-
-    },
-    "Target" : {
 
     },
     "Tax Estimator" : {
@@ -2092,10 +2047,13 @@
     "Taxes" : {
 
     },
-    "The following errors are present:" : {
+    "The app's model container could not be loaded." : {
 
     },
-    "The following properties must be unique together:" : {
+    "The categories context cannot be loaded." : {
+
+    },
+    "The current element is not unique." : {
 
     },
     "The help guides could not be loaded. Please report this issue." : {
@@ -2104,7 +2062,7 @@
     "The page content could not be loaded. Please report this issue." : {
 
     },
-    "The uniqueness constraint failed for this value. Please cancel the edit and try again." : {
+    "The unique engine could not be loaded." : {
 
     },
     "There are no associated transactions for this account" : {
@@ -2122,9 +2080,6 @@
           }
         }
       }
-    },
-    "There are one or more errors with the data inputted." : {
-
     },
     "There are unsaved changes, do you wish to continue?" : {
 
@@ -2155,9 +2110,6 @@
       }
     },
     "Top Section" : {
-
-    },
-    "Top Total" : {
 
     },
     "Topic" : {
@@ -2262,6 +2214,9 @@
     "Type in numbers, separated by commas. Values are added up." : {
 
     },
+    "Uh oh" : {
+
+    },
     "Under" : {
 
     },
@@ -2309,6 +2264,12 @@
           }
         }
       }
+    },
+    "Utility Entries" : {
+
+    },
+    "Utility Entry" : {
+
     },
     "Variance" : {
       "localizations" : {
