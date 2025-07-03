@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// A specific filter for a query type. One is made per case of a `Filterable` type, and this stores if that filter is active or not.
 @Observable
@@ -29,11 +30,6 @@ public class QueryFilter<T>: Identifiable, Equatable, Hashable where T: Queryabl
     public func hash(into hasher: inout Hasher) {
         hasher.combine(filter)
         hasher.combine(isIncluded)
-    }
-    
-    /// Determines if the object should be included (not filtered out)
-    public func accepts(_ item: T) -> Bool {
-        isIncluded && filter.accepts(item)
     }
 }
 
@@ -66,19 +62,14 @@ public class QueryManifest<T> : Hashable, Equatable where T: Queryable {
         hasher.combine(filter)
     }
     
-    private func sortRank(lhs: T, rhs: T) -> Bool {
-        sorting.compare(lhs, rhs, ascending)
-    }
-    
     /// Uses the sorting and filtering criteria to determine which objects from `on` should be inclued. The result is sotred in `cached`, so that the
     public func apply(_ on: [T]) {
-        let filtered: [T] = on.filter { item in
-            filter.first(where: { $0.accepts(item) } ) != nil
-        }
+        let filterSet: Set<T.FilterType> = .init(filter.filter { $0.isIncluded }.map { $0.filter })
+        let filtered = T.filter(on, using: filterSet)
         
-        let sorted: [T] = filtered.sorted(by: sortRank)
+        let sortOrder: SortOrder = ascending ? .forward : .reverse
         
-        self.cached = sorted
+        cached = T.sort(filtered, using: self.sorting, order: sortOrder)
     }
 }
 
@@ -89,7 +80,7 @@ public struct QueryHandle<T>: Identifiable where T: Queryable {
 }
 
 /// A UI element that uses a specific `QueryManifest<T>` to allow the user to change sorting & filtering criteria.
-public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
+public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.SortType: Displayable, T.FilterType.AllCases: RandomAccessCollection, T.FilterType: Displayable {
     public init(provider: QueryManifest<T>) {
         self.provider = provider;
         self.handle = nil;
@@ -110,7 +101,7 @@ public struct QueryButton<T>: View where T: Queryable, T.SortType.AllCases: Rand
 }
 
 /// The popout used by `QueryButton<T>`.
-public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.FilterType.AllCases: RandomAccessCollection {
+public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: RandomAccessCollection, T.SortType: Displayable, T.FilterType.AllCases: RandomAccessCollection, T.FilterType: Displayable {
     @Bindable public var provider: QueryManifest<T>;
     let isSheet: Bool;
     
@@ -119,19 +110,20 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
     public var body: some View {
         VStack {
             Form {
-                Section(header: Text("Sorting").font(.headline)) {
+                Section("Sort") {
                     Picker("Sort By", selection: $provider.sorting) {
                         ForEach(T.SortType.allCases, id: \.id) { sort in
-                            Text(sort.toString).tag(sort)
+                            Text(sort.display)
+                                .tag(sort)
                         }
                     }
                     
-                    Toggle(provider.sorting.ascendingQuestion, isOn: $provider.ascending)
+                    Toggle("Ascending", isOn: $provider.ascending)
                 }
                 
-                Section(header: Text("Filters").font(.headline)) {
+                Section("Filter") {
                     ForEach($provider.filter) { $filter in
-                        Toggle(filter.filter.pluralName, isOn: $filter.isIncluded)
+                        Toggle(filter.filter.display, isOn: $filter.isIncluded)
                     }
                 }
             }
@@ -155,5 +147,5 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
 #Preview {
     let provider = QueryManifest<BillBaseWrapper>(.name);
     QueryPopout(provider: provider, isSheet: false)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

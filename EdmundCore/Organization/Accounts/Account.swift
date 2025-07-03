@@ -81,15 +81,13 @@ public final class Account : Identifiable, Hashable, BoundPairParent, Snapshotab
     public static func makeBlankSnapshot() -> AccountSnapshot {
         .init()
     }
-    public func update(_ from: AccountSnapshot, unique: UniqueEngine) throws(UniqueFailureError<String>) {
+    public func update(_ from: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<String>) {
         let name = from.name.trimmingCharacters(in: .whitespaces)
         
         if name != self.name {
-            Task {
-                let result = await unique.swapId(key: .init(Account.self), oldId: self.name, newId: name)
-                guard result else {
-                    throw UniqueFailureError(value: name)
-                }
+            let result = await unique.swapId(key: .init(Account.self), oldId: self.name, newId: name)
+            guard result else {
+                throw UniqueFailureError(value: name)
             }
         }
         

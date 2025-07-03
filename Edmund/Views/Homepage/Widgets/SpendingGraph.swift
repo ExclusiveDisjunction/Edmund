@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
+import EdmundCore
 
 struct SpendingComputation: Identifiable {
     init(_ monthYear: MonthYear, _ data: [LedgerEntry]) {
@@ -57,7 +58,7 @@ struct SpendingGraph : View {
     
     private func load() -> [SpendingComputation] {
         let split = TransactionResolver.splitByMonth(entries);
-        return Array(split.map(SpendingComputation.init).sorted(using: KeyPathComparator(\.monthYear, order: .forward)).prefix(showingLast))
+        return Array(split.map(SpendingComputation.init).sorted(using: KeyPathComparator(\SpendingComputation.monthYear, order: .forward)).prefix(showingLast))
     }
     
     var body: some View {
@@ -99,5 +100,5 @@ struct SpendingGraph : View {
     SpendingGraph()
         .padding()
         .frame(width: 500)
-        .modelContainer(Containers.transactionsWithSpreadContainer)
+        .modelContainer(try! Containers.transactionsWithSpreadContainer())
 }

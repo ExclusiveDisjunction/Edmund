@@ -36,68 +36,52 @@ public final class Category : CategoryBase, BoundPairParent, UniqueElement, Equa
     public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
     }
-
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Category",
-            plural:   "Categories",
-            inspect:  "Inspect Category",
-            edit:     "Edit Category",
-            add:      "Add Category"
-        )
-    }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Name") ]
-    }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.category(id: self.id, action: .remove)
-    }
-    public func tryNewName(name: String, unique: UniqueEngine) -> Bool {
+    
+    public func tryNewName(name: String, unique: UniqueEngine) async -> Bool {
         guard name != self.name else { return true }
         
-        return unique.category(id: name, action: .validate)
+        return await unique.isIdOpen(key: .init(Category.self), id: name)
     }
-    public func setNewName(name: String, unique: UniqueEngine) {
+    public func setNewName(name: String, unique: UniqueEngine) async {
         guard name != self.name else { return }
+        guard await unique.swapId(key: .init(Category.self), oldId: self.name, newId: name) else {
+            fatalError("The unique engine could not swap the id for the category formally known as \(self.name)")
+        }
         
-        let _ = unique.category(id: self.name, action: .remove);
-        let _ = unique.category(id: name, action: .insert);
-        self.name = name;
+        self.name = name
     }
     
     /// A list of categories that can be used to display filler data.
-    public static let exampleCategories: [Category] = {
-        [
-            exampleCategory,
-            .init("Account Control", children: [
-                .init("Transfer"),
-                .init("Pay"),
-                .init("Audit"),
-                .init("Initial")
-            ]),
-            .init("Personal", children: [
-                .init("Dining"),
-                .init("Entertainment")
-            ]),
-            .init("Home", children: [
-                .init("Groceries"),
-                .init("Health"),
-                .init("Decor"),
-                .init("Repairs")
-            ]),
-            .init("Car", children: [
-                .init("Gas"),
-                .init("Maintenence"),
-                .init("Decor")
-            ])
-        ]
-    }()
-    /// A singular category that can be used to display filler data.
-    public static let exampleCategory: Category = {
-        .init("Bills", children: [
-            .init("Utility"),
-            .init("Subscription"),
-            .init("Bill")
+    @MainActor
+    public static let exampleCategories: [Category] = [
+        exampleCategory,
+        .init("Account Control", children: [
+            .init("Transfer"),
+            .init("Pay"),
+            .init("Audit"),
+            .init("Initial")
+        ]),
+        .init("Personal", children: [
+            .init("Dining"),
+            .init("Entertainment")
+        ]),
+        .init("Home", children: [
+            .init("Groceries"),
+            .init("Health"),
+            .init("Decor"),
+            .init("Repairs")
+        ]),
+        .init("Car", children: [
+            .init("Gas"),
+            .init("Maintenence"),
+            .init("Decor")
         ])
-    }()
+    ]
+    /// A singular category that can be used to display filler data.
+    @MainActor
+    public static let exampleCategory: Category = .init("Bills", children: [
+        .init("Utility"),
+        .init("Subscription"),
+        .init("Bill")
+    ])
 }

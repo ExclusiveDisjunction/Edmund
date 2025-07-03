@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct SimpleBalancesView : View {
     @Query private var accounts: [Account];
@@ -37,5 +38,5 @@ struct SimpleBalancesView : View {
     SimpleBalancesView()
         .padding()
         .frame(width: 300, height: 200)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

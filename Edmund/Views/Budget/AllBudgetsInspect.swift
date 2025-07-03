@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetIE : View {
     var data: BudgetInstance;
@@ -260,5 +261,5 @@ struct AllBudgetsInspect : View {
 
 #Preview {
     AllBudgetsInspect()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

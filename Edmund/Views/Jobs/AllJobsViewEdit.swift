@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// A view representing all jobs currently stored.
 struct AllJobsViewEdit : View {
@@ -156,6 +157,6 @@ struct AllJobsViewEdit : View {
 #Preview {
     NavigationStack {
         AllJobsViewEdit()
-            .modelContainer(Containers.debugContainer)
+            .modelContainer(try! Containers.debugContainer())
     }
 }

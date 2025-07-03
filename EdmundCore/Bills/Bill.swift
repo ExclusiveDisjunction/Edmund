@@ -104,18 +104,14 @@ public final class Bill : BillBase, SnapshotableElement, UniqueElement {
         }
     }
     
-    public func removeFromEngine(unique: UniqueEngine) async -> Bool {
-        await unique.bill(id: self.id, action: .remove)
-    }
-    
     public func makeSnapshot() -> BillSnapshot {
         BillSnapshot(self)
     }
     public static func makeBlankSnapshot() -> BillSnapshot {
         BillSnapshot()
     }
-    public func update(_ from: BillSnapshot, unique: UniqueEngine) throws(UniqueFailureError<BillBaseID>) {
-        try self.updateFromBase(snap: from, unique: unique)
+    public func update(_ from: BillSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
+        try await self.updateFromBase(snap: from, unique: unique)
         
         self.amount   = from.amount.rawValue
         self.trueKind = from.kind
@@ -123,28 +119,28 @@ public final class Bill : BillBase, SnapshotableElement, UniqueElement {
     
     /// A list of filler data for bills that have already expired.
     @MainActor
-    static let exampleExpiredBills: [Bill] = [
-            .init(sub: "Bitwarden Premium",      amount: 9.99,  company: "Bitwarden", start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
-            .init(sub: "Spotify Premium Family", amount: 16.99, company: "Spotify",   start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
-        ]
+    public static let exampleExpiredBills: [Bill] = [
+        .init(sub: "Bitwarden Premium",      amount: 9.99,  company: "Bitwarden", start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
+        .init(sub: "Spotify Premium Family", amount: 16.99, company: "Spotify",   start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
+    ]
     /// Examples of subscriptions that can be used on the UI.
     @MainActor
-    static let exampleSubscriptions: [Bill] = [
-            .init(sub: "Apple Music",     amount: 5.99, company: "Apple",   start: Date.fromParts(2025, 3, 2)!,  end: nil),
-            .init(sub: "iCloud+",         amount: 2.99, company: "Apple",   start: Date.fromParts(2025, 5, 15)!, end: nil),
-            .init(sub: "YouTube Premium", amount: 9.99, company: "YouTube", start: Date.fromParts(2024, 11, 7)!, end: nil)
-        ]
+    public static let exampleSubscriptions: [Bill] = [
+        .init(sub: "Apple Music",     amount: 5.99, company: "Apple",   start: Date.fromParts(2025, 3, 2)!,  end: nil),
+        .init(sub: "iCloud+",         amount: 2.99, company: "Apple",   start: Date.fromParts(2025, 5, 15)!, end: nil),
+        .init(sub: "YouTube Premium", amount: 9.99, company: "YouTube", start: Date.fromParts(2024, 11, 7)!, end: nil)
+    ]
     /// Examples of bill kind bills that can be used on UI.
     @MainActor
-    static let exampleActualBills: [Bill] = [
-            .init(bill: "Student Loan",  amount: 56,  company: "FAFSA",       start: Date.fromParts(2025, 3, 2)!,  end: nil),
-            .init(bill: "Car Insurance", amount: 899, company: "The General", start: Date.fromParts(2024, 7, 25)!, end: nil, period: .semiAnually),
-            .init(bill: "Internet",      amount: 60,  company: "Spectrum",    start: Date.fromParts(2024, 7, 25)!, end: nil)
-        ]
+    public static let exampleActualBills: [Bill] = [
+        .init(bill: "Student Loan",  amount: 56,  company: "FAFSA",       start: Date.fromParts(2025, 3, 2)!,  end: nil),
+        .init(bill: "Car Insurance", amount: 899, company: "The General", start: Date.fromParts(2024, 7, 25)!, end: nil, period: .semiAnually),
+        .init(bill: "Internet",      amount: 60,  company: "Spectrum",    start: Date.fromParts(2024, 7, 25)!, end: nil)
+    ]
     
     /// A collection of all bills used to show filler UI data.
     @MainActor
-    static let exampleBills: [Bill] = exampleExpiredBills + exampleSubscriptions + exampleActualBills
+    public static let exampleBills: [Bill] = exampleExpiredBills + exampleSubscriptions + exampleActualBills
 }
 
 /// The snapshot type for `Bill`.
@@ -168,12 +164,14 @@ public final class BillSnapshot : BillBaseSnapshot, ElementSnapshot {
     /// The bill's kind.
     public var kind: StrictBillsKind;
     
-    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        var topResult = super.validate(unique: unique);
+    public override func validate(unique: UniqueEngine) async -> ValidationFailure? {
+        if let topResult = await super.validate(unique: unique) {
+            return topResult
+        }
         
-        if amount.rawValue < 0 { topResult.append(.negativeAmount("Amount")) }
+        if amount.rawValue < 0 { return .negativeAmount }
         
-        return topResult
+        return nil
     }
     
     public override func hash(into hasher: inout Hasher) {

@@ -47,8 +47,8 @@ public final class HourlyJob : SnapshotableElement, UniqueElement, TraditionalJo
     public static func makeBlankSnapshot() -> HourlyJobSnapshot {
         .init()
     }
-    public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) throws(UniqueFailureError<TraditionalJobID>) {
-        try self.updateBase(from, unique: unique)
+    public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<TraditionalJobID>) {
+        try await self.updateBase(from, unique: unique)
         
         self.avgHours = from.avgHours
         self.hourlyRate = from.hourlyRate.rawValue

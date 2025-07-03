@@ -7,8 +7,7 @@
 
 import SwiftUI
 import SwiftData
-
-public typealias For = Utility;
+import EdmundCore
 
 public struct UtilityInspect : View {
     @Bindable public var bill: Utility;
@@ -59,7 +58,7 @@ public struct UtilityInspect : View {
             
             LongTextEditWithLabel(value: $bill.notes, minWidth: minWidth, maxWidth: maxWidth)
         }.sheet(isPresented: $showingSheet) {
-            UtilityEntriesInspect(children: bill.children ?? [])
+            UtilityEntriesInspect(children: bill.children)
         }.sheet(isPresented: $showingChart) {
             VStack {
                 UtilityEntriesGraph(source: bill)
@@ -78,5 +77,5 @@ public struct UtilityInspect : View {
 
 #Preview {
     ElementInspector(data: Utility())
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

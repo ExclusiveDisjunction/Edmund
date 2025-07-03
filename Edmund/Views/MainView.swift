@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The homepage elements that are presented to the user.
 enum PageDestinations: LocalizedStringKey, Identifiable {
@@ -146,5 +147,5 @@ struct MainView: View {
 
 #Preview {
     MainView()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

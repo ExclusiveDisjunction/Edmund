@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 public struct BoundPairChildEdit<T> : ElementEditorView where T: BoundPair, T: EditableElement, T.Snapshot: BoundPairSnapshot {
     public typealias For = T;
@@ -57,5 +58,5 @@ public struct BoundPairChildEdit<T> : ElementEditorView where T: BoundPair, T: E
 #Preview {
     let child = Account.exampleAccounts[0].children[0]
     
-    ElementEditor(child, adding: false).modelContainer(Containers.debugContainer)
+    ElementEditor(child, adding: false).modelContainer(try! Containers.debugContainer())
 }

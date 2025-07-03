@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The inspect view for Bills. 
 public struct BillInspect : View {
@@ -44,7 +45,7 @@ public struct BillInspect : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    Text(data.kind.name)
+                    Text(data.trueKind.display)
                     Spacer()
                 }
             }
@@ -54,5 +55,5 @@ public struct BillInspect : View {
 
 #Preview {
     ElementInspector(data: Bill.exampleBills[0])
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

@@ -8,11 +8,11 @@
 import SwiftUI
 
 /// Represents a data type that can be used for sorting options.
-public protocol Sortable: CaseIterable, Identifiable, Hashable, Equatable {
+public protocol Sortable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
     
 }
 /// Represents a data type that can be used for filtering options.
-public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable {
+public protocol Filterable: CaseIterable, Identifiable, Hashable, Equatable where Self.ID == Self {
     
 }
 

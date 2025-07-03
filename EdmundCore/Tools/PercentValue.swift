@@ -39,4 +39,11 @@ public final class PercentValue : ValueWrapper {
         formatter.minimumFractionDigits = 0;
         self.raw = formatter.string(from: rawValue as NSDecimalNumber) ?? "";
     }
+    public func rawChanged() {
+        let filter = raw.filter { "-0123456789.".contains($0) }
+        
+        if let parsed = Decimal(string: filter) {
+            self.rawValue = parsed
+        }
+    }
 }

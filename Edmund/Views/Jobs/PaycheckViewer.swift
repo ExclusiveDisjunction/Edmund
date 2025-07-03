@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct PaycheckViewer : View {
     @State private var selectedJob: TraditionalJobWrapper?;
@@ -46,5 +47,5 @@ struct PaycheckViewer : View {
 
 #Preview {
     PaycheckViewer()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

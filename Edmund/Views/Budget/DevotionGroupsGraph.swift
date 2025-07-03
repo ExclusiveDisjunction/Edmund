@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
+import EdmundCore
 
 struct DevotionGroupsGraph: View {
     struct ChartRow : Identifiable {
@@ -32,6 +33,7 @@ struct DevotionGroupsGraph: View {
                 case .amount(let a): a.amount
                 case .percent(let p): p.amount * from.amount
                 case .remainder(_): from.remainderValue
+                default: .nan
             }
             
             data[item.group, default: 0.0] += amount;
@@ -87,8 +89,6 @@ struct DevotionGroupsGraph: View {
 }
 
 #Preview {
-    let container = Containers.debugContainer;
-    let item = (try! container.mainContext.fetch(FetchDescriptor<BudgetInstance>())).first!
-    
-    DevotionGroupsGraph(from: item, isSheet: false)
+    DevotionGroupsGraph(from: .getExampleBudget(), isSheet: false)
+        .modelContainer(try! Containers.debugContainer())
 }

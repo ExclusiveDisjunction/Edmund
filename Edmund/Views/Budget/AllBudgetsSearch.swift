@@ -7,8 +7,9 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
-public enum BudgetSortField : CaseIterable, Identifiable {
+public enum BudgetSortField : CaseIterable, Identifiable, Displayable {
     case name
     case amount
     case lastUpdated
@@ -219,6 +220,6 @@ struct AllBudgetsSearch : View {
     let binding = Binding(get: { id }, set: { id = $0 } )
     NavigationStack {
         AllBudgetsSearch(result: binding)
-            .modelContainer(Containers.debugContainer)
+            .modelContainer(try! Containers.debugContainer())
     }
 }

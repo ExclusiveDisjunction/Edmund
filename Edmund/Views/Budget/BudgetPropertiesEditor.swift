@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetPropertiesEditor : View {
     @Bindable var snapshot: BudgetInstanceSnapshot;

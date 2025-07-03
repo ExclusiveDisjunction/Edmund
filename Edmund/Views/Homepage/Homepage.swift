@@ -7,6 +7,7 @@
 
 import SwiftUI;
 import SwiftData;
+import EdmundCore
 
 struct Homepage : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -129,7 +130,7 @@ struct Homepage : View {
 
 #Preview {
     Homepage()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
         .frame(width: 600, height: 400)
         .padding()
 }

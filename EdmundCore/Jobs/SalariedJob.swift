@@ -40,8 +40,8 @@ public final class SalariedJob : Identifiable, UniqueElement, TraditionalJob, Sn
     public static func makeBlankSnapshot() -> SalariedJobSnapshot {
         return .init()
     }
-    public func update(_ from: SalariedJobSnapshot, unique: UniqueEngine) throws(UniqueFailureError<TraditionalJobID>) {
-        try self.updateBase(from, unique: unique)
+    public func update(_ from: SalariedJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<TraditionalJobID>) {
+        try await self.updateBase(from, unique: unique)
         
         self.grossAmount = from.grossAmount.rawValue
     }

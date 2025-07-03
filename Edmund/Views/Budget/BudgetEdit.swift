@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 public struct BudgetEdit : View {
     public init(_ snap: BudgetInstanceSnapshot) {
@@ -38,6 +39,6 @@ public struct BudgetEdit : View {
 }
 
 #Preview {
-    BudgetEdit(.init(BudgetInstance.getExampleBudget()))
-        .modelContainer(Containers.debugContainer)
+    BudgetEdit(.init(try! BudgetInstance.getExampleBudget()))
+        .modelContainer(try! Containers.debugContainer())
 }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The inspection view for Utility Entries.  This provides the layout for viewing all datapoints.
 public struct UtilityEntriesInspect : View {
@@ -56,6 +57,6 @@ public struct UtilityEntriesInspect : View {
 }
 
 #Preview {
-    UtilityEntriesInspect(children: Utility.exampleUtility[0].children ?? [])
+    UtilityEntriesInspect(children: Utility.exampleUtility[0].children)
         .padding()
 }

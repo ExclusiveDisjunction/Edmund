@@ -69,15 +69,10 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement 
     private var rawPeriod: Int = 0;
     /// The associated instances of being charged for this bill
     @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent)
-    public var children: [UtilityEntry]? = nil;
+    public var children: [UtilityEntry] = []
     
     public var amount: Decimal {
-        if let children = children {
-            children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
-        }
-        else {
-            Decimal.nan
-        }
+        children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
     }
     public var kind: BillsKind {
         .utility
@@ -93,23 +88,9 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement 
     public static func makeBlankSnapshot() -> UtilitySnapshot {
         .init()
     }
-    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) throws(UniqueFailureError<BillBaseID>) {
-        try self.updateFromBase(snap: from, unique: unique)
-        
-        let old = Dictionary(uniqueKeysWithValues: self.children?.map { ($0.id, ChildUpdateRecord($0) ) } ?? [] )
-        var new: [UtilityEntry] = [];
-        
-        for newChild in from.children {
-            // Since the UtilitySnapshot never throws, this will also never throw
-            try! ChildUpdateRecord.updateOrInsert(newChild, old: old, modelContext: modelContext, unique: unique, list: &new)
-        }
-        
-        let notUpdated = old.values.filter { !$0.visisted }
-        for item in notUpdated {
-            modelContext?.delete(item.data)
-        }
-        
-        self.children = new;
+    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
+        try await self.updateFromBase(snap: from, unique: unique)
+        try! await mergeAndUpdateChildren(list: &self.children, merging: from.children, context: modelContext, unique: unique)
     }
     
     /// Example utilities that can be used to show UI filler.
@@ -163,7 +144,7 @@ public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
         super.init()
     }
     public init(_ from: Utility) {
-        self.children = from.children?.map { UtilityEntrySnapshot($0) } ?? []
+        self.children = from.children.map { UtilityEntrySnapshot($0) }
         
         super.init(from)
     }
@@ -181,14 +162,18 @@ public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
         }
     }
     
-    public override func validate(unique: UniqueEngine) -> [ValidationFailure] {
-        if let topResult = super.validate(unique: unique) else {
+    public override func validate(unique: UniqueEngine) async -> ValidationFailure? {
+        if let topResult = await super.validate(unique: unique) {
             return topResult;
         }
-        var topResult = super.validate(unique: unique);
         
-        let childrenResult = children.map { $0.validate(unique: unique) }.reduce([], +)
-        return topResult + childrenResult
+        for child in self.children {
+            if let result = child.validate(unique: unique) {
+                return result
+            }
+        }
+        
+        return nil
     }
     
     public override func hash(into hasher: inout Hasher) {

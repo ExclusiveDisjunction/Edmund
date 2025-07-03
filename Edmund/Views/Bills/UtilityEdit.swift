@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The edit view for Utilities.
 public struct UtilityEdit : View {
@@ -64,5 +65,5 @@ public struct UtilityEdit : View {
 
 #Preview {
     ElementEditor(Utility(), adding: false)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

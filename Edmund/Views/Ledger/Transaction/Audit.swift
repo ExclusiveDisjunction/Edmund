@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 struct Audit: TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
@@ -23,7 +24,7 @@ struct Audit: TransactionEditorProtocol {
         }
         
         guard let account = account else {
-            return [.empty("Account")]
+            return [.empty ]
         }
         
         let transaction = LedgerEntry(
@@ -72,5 +73,5 @@ struct Audit: TransactionEditorProtocol {
 #Preview {
     Audit()
         .padding()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

@@ -8,37 +8,32 @@
 import EdmundCore
 import SwiftUI
 
-public extension BillsKind {
-    var display: LocalizedStringKey {
+extension BillsKind : Displayable {
+    public var display: LocalizedStringKey {
         switch self {
             case .subscription: "Subscription"
             case .bill: "Bill"
             case .utility: "Utility"
         }
     }
-    var plural: LocalizedStringKey {
+}
+
+extension StrictBillsKind : Displayable {
+    public var display: LocalizedStringKey {
         switch self {
-            case .subscription: "Subscriptions"
-            case .bill: "Bills"
-            case .utility: "Utilities"
+            case .subscription: "Subscription"
+            case .bill: "Bill"
+            default: "internalError"
         }
     }
 }
 
-public extension BillsSort {
-    var display: LocalizedStringKey {
+extension BillsSort : Displayable {
+    public var display: LocalizedStringKey {
         switch self {
             case .name: "Name"
             case .amount: "Amount"
             case .kind: "Kind"
-            default: "internalError"
-        }
-    }
-    var ascendingQuestion: LocalizedStringKey {
-        switch self {
-            case .name: "Alphabetical"
-            case .amount: "High to Low"
-            case .kind: "Subscription to Utility"
             default: "internalError"
         }
     }
@@ -57,7 +52,9 @@ public extension TimePeriods {
             default: "internalError"
         }
     }
-    var name: LocalizedStringKey {
+}
+extension TimePeriods : Displayable {
+    public var display: LocalizedStringKey {
         switch self {
             case .weekly:       "Weekly"
             case .biWeekly:     "Bi-Weekly"

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetDevotionsInspect : View {
     var data: BudgetInstance
@@ -21,6 +22,7 @@ struct BudgetDevotionsInspect : View {
             case .amount(let a): a.amount
             case .percent(let p): p.amount * data.amount
             case .remainder(_): data.remainderValue
+            default: .nan
         }
     }
     
@@ -59,6 +61,7 @@ struct BudgetDevotionsInspect : View {
                     case .amount(let a): Text(a.amount, format: .currency(code: currencyCode))
                     case .percent(let p): Text(p.amount, format: .percent)
                     case .remainder(_): Text("Remainder")
+                    default: Text("internalError")
                 }
             }
             TableColumn("Amount") { row in
@@ -90,5 +93,5 @@ struct BudgetDevotionsInspect : View {
 
 #Preview {
     BudgetDevotionsInspect(data: .getExampleBudget())
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

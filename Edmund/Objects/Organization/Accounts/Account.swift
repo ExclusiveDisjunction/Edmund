@@ -8,8 +8,8 @@
 import SwiftUI
 import EdmundCore
 
-public extension AccountKind {
-    var display: LocalizedStringKey {
+extension AccountKind : Displayable {
+    public var display: LocalizedStringKey {
         switch self {
             case .credit: "Credit"
             case .checking: "Checking"

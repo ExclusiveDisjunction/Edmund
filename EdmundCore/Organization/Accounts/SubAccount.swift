@@ -50,16 +50,14 @@ public final class SubAccount : BoundPair, Equatable, SnapshotableElement, Uniqu
     public static func makeBlankSnapshot() -> SubAccountSnapshot {
         .init()
     }
-    public func update(_ from: SubAccountSnapshot, unique: UniqueEngine) throws (UniqueFailureError<BoundPairID>) {
+    public func update(_ from: SubAccountSnapshot, unique: UniqueEngine) async throws (UniqueFailureError<BoundPairID>) {
         let name = from.name.trimmingCharacters(in: .whitespaces)
         let id = BoundPairID(parent: parent?.name, name: name)
         
         if self.id != id {
-            Task {
-                let result = await unique.swapId(key: .init(SubAccount.self), oldId: self.id, newId: id)
-                guard result else {
-                    throw UniqueFailureError(value: id)
-                }
+            let result = await unique.swapId(key: .init(SubAccount.self), oldId: self.id, newId: id)
+            guard result else {
+                throw UniqueFailureError(value: id)
             }
         }
         

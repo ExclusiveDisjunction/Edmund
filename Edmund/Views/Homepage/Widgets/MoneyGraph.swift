@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
+import EdmundCore
 
 struct MoneyGraph : View {
     @Query private var accounts: [Account]
@@ -42,6 +43,6 @@ struct MoneyGraph : View {
 #Preview {
     MoneyGraph()
         .padding()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
         .frame(width: 200, height: 200)
 }

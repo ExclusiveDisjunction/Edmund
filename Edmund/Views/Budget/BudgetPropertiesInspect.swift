@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetPropertiesInspect : View {
     var data: BudgetInstance;
@@ -70,5 +71,5 @@ struct BudgetPropertiesInspect : View {
 
 #Preview {
     BudgetPropertiesInspect(data: .getExampleBudget())
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

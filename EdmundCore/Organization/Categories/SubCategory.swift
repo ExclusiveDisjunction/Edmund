@@ -43,38 +43,26 @@ public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, Ca
         hasher.combine(name)
     }
     
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Sub Category",
-            plural:   "Sub Categories",
-            inspect:  "Inspect Sub Category",
-            edit:     "Edit Sub Category",
-            add:      "Add Sub Category"
-        )
-    }
-    public static var identifiers: [ElementIdentifer] {
-        [ .init(name: "Parent Name", optional: true), .init(name: "Name") ]
-    }
-    public func removeFromEngine(unique: UniqueEngine) -> Bool {
-        unique.subCategory(id: self.id, action: .remove)
-    }
-    public func tryNewName(name: String, unique: UniqueEngine) -> Bool {
+    
+    public func tryNewName(name: String, unique: UniqueEngine) async -> Bool {
         let id = BoundPairID(parent: self.parentName, name: name)
         
         guard id != self.id else { return true; }
         
-        return unique.subCategory(id: id, action: .validate)
+        return await unique.isIdOpen(key: .init(SubCategory.self), id: id)
     }
-    public func setNewName(name: String, unique: UniqueEngine) {
+    public func setNewName(name: String, unique: UniqueEngine) async {
         let id = BoundPairID(parent: parentName, name: name)
         
         guard id != self.id else { return }
+        guard await unique.swapId(key: .init(SubCategory.self), oldId: self.id, newId: id) else {
+            fatalError("The unique engine was not able to bind to the new name provided.")
+        }
         
-        let _ = unique.subCategory(id: self.id, action: .remove)
-        let _ = unique.subAccount(id: id, action: .insert)
         self.name = name
     }
     
     /// A UI ready filler data example of a sub-category.
-    static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills", children: []))
+    @MainActor
+    public static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills", children: []))
 }

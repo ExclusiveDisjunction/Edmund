@@ -40,4 +40,11 @@ public final class CurrencyValue : ValueWrapper {
         formatter.currencyCode = context
         self.raw = formatter.string(from: rawValue as NSDecimalNumber) ?? "";
     }
+    public func rawChanged() {
+        let filter = raw.filter { "-0123456789.".contains($0) }
+        
+        if let parsed = Decimal(string: filter) {
+            self.rawValue = parsed
+        }
+    }
 }

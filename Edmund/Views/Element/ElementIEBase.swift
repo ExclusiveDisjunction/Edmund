@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 public struct GenericAction<Result> {
     public init(_ data: (() -> Result)?) {
@@ -28,16 +29,20 @@ public struct GenericAction<Result> {
 public struct SubmitActionKey : EnvironmentKey {
     public typealias Value = GenericAction<Void>
     
-    public static var defaultValue: GenericAction<Void> = .init(nil)
+    public static var defaultValue: GenericAction<Void> {
+        .init(nil)
+    }
 }
 public struct CancelActionKey : EnvironmentKey {
     public typealias Value = GenericAction<Void>
     
-    public static var defaultValue: GenericAction<Void> = .init(nil)
+    public static var defaultValue: GenericAction<Void> {
+        .init(nil)
+    }
 }
 public struct ElementIsEditKey: EnvironmentKey {
     public typealias Value = Bool
-    public static var defaultValue: Bool = false
+    public static let defaultValue: Bool = false
 }
 
 public extension EnvironmentValues {

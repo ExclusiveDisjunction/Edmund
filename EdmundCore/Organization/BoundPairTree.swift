@@ -77,7 +77,7 @@ public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
         }
     }
     public mutating func getOrInsert(parent: String, child: String) -> T.C {
-        if var target = self.data[parent]?.getOrInsert(name: child) {
+        if let target = self.data[parent]?.getOrInsert(name: child) {
             return target
         }
         else {

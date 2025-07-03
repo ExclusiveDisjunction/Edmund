@@ -72,35 +72,37 @@ public protocol BillBase : Identifiable<BillBaseID>, AnyObject, UniqueElement, S
     /// When true, it is known that the bill will automatically be debited to the account.
     var autoPay: Bool { get set }
 }
-public extension BillBase {
-    func computeNextDueDate(relativeTo: Date = .now) -> Date? {
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone.current
-        
-        guard startDate <= relativeTo else {
-            if let end = endDate, startDate > end {
-                return nil
-            }
-            
-            return startDate
-        }
-        
-        var nextDate = startDate
-        var interval = period.asComponents
-        
-        while nextDate <= relativeTo {
-            if let advanced = calendar.date(byAdding: interval, to: nextDate) {
-                nextDate = advanced
-            } else {
-                return nil 
-            }
-        }
-        
-        if let end = endDate, nextDate > end {
+
+public func computeNextBillDueDate(start: Date, end: Date?, period: TimePeriods, relativeTo: Date = .now, calendar: Calendar = .current) -> Date? {
+    guard start <= relativeTo else {
+        if let end = end, start > end {
             return nil
         }
         
-        return nextDate
+        return start
+    }
+    
+    var nextDate = start
+    let interval = period.asComponents
+    
+    while nextDate <= relativeTo {
+        if let advanced = calendar.date(byAdding: interval, to: nextDate) {
+            nextDate = advanced
+        } else {
+            return nil
+        }
+    }
+    
+    if let end = end, nextDate > end {
+        return nil
+    }
+    
+    return nextDate
+}
+
+public extension BillBase {
+    func computeNextDueDate(relativeTo: Date = .now) -> Date? {
+        return computeNextBillDueDate(start: self.startDate, end: self.endDate, period: self.period, relativeTo: relativeTo)
     }
     /// When true, the `endDate` exists, and it is in the past.
     var isExpired: Bool {
@@ -116,17 +118,16 @@ public extension BillBase {
         self.amount * self.period.conversionFactor(period)
     }
     
-    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) throws(UniqueFailureError<BillBaseID>) {
+    @MainActor
+    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
         let name = snap.name.trimmingCharacters(in: .whitespaces)
         let company = snap.company.trimmingCharacters(in: .whitespaces)
         let location = snap.location.trimmingCharacters(in: .whitespaces)
         let id = BillBaseID(name: name, company: company, location: snap.hasLocation ? location : nil)
         
         if id != self.id {
-            Task {
-                guard await unique.swapId(key: .init((any BillBase).self), oldId: self.id, newId: id) else {
-                    throw UniqueFailureError(value: id)
-                }
+            guard await unique.swapId(key: .init((any BillBase).self), oldId: self.id, newId: id) else {
+                throw UniqueFailureError(value: id)
             }
         }
         
@@ -189,7 +190,7 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.autoPay = true
     }
     /// Constructs a snapshot around an instance of a `BillBase`.
-    init<T>(_ from: T) where T: BillBase {
+    public init<T>(_ from: T) where T: BillBase {
         self.name = from.name
         self.startDate = from.startDate
         self.hasEndDate = from.endDate != nil
@@ -255,42 +256,11 @@ public class BillBaseSnapshot: Hashable, Equatable {
         hasher.combine(autoPay)
     }
     public static func ==(lhs: BillBaseSnapshot, rhs: BillBaseSnapshot) -> Bool {
-        lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.endDate == rhs.endDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.location == rhs.location && lhs.notes == rhs.notes && lhs.autoPay == rhs.autoPay
+        guard lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.hasEndDate == rhs.hasEndDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.hasLocation == rhs.hasLocation && lhs.notes == rhs.notes && lhs.autoPay == rhs.autoPay else { return false }
+        
+        if lhs.hasLocation && lhs.location != rhs.location { return false }
+        if lhs.hasEndDate && lhs.endDate != rhs.endDate { return false }
+        
+        return true
     }
-}
-
-/// A type used to store information about an upcoming bill. This is computed from a specific date, and will showcase the bills basic information.
-public struct UpcomingBill : Hashable, Equatable, Codable, Identifiable {
-    public init(name: String, amount: Decimal, dueDate: Date, id: UUID = UUID()) {
-        self.name = name
-        self.amount = amount
-        self.dueDate = dueDate
-        self.id = id
-    }
-    
-    public let id: UUID;
-    /// The name of the associated bill
-    public let name: String;
-    /// The amount to be expected on the due date
-    public let amount: Decimal;
-    /// The due date for this bill
-    public let dueDate: Date;
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name);
-        hasher.combine(amount);
-        hasher.combine(dueDate);
-    }
-}
-/// A collection of `UpcomingBill` computed from a specified date.
-public struct UpcomingBillsBundle : Hashable, Equatable, Codable {
-    public init(date: Date, bills: [UpcomingBill]) {
-        self.date = date;
-        self.bills = bills;
-    }
-    
-    /// The date that this bundle was computed for
-    public var date: Date;
-    /// The associated upcoming bills
-    public var bills: [UpcomingBill];
 }

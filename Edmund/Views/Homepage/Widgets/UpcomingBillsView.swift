@@ -7,6 +7,8 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
+import EdmundWidgetCore
 
 struct UpcomingBillsView : View {
     @Query private var bills: [Bill];
@@ -40,5 +42,5 @@ struct UpcomingBillsView : View {
 #Preview {
     UpcomingBillsView()
         .padding()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

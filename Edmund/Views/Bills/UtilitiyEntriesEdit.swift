@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 /// The editor view for Utility Entries.  This provides the layout for editing the entries as a series of payments & dates.
 public struct UtilityEntriesEdit : View {
@@ -24,7 +25,7 @@ public struct UtilityEntriesEdit : View {
     }
     /// Adds a new datapoint.
     private func add_new() {
-        snapshot.children.append(.init(amount: 0, date: Date.now))
+        snapshot.children.append(.init())
     }
     
     /// Creates the context menu used for the list and table elements of the view.

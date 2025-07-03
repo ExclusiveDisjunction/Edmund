@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 struct ChoiceRenderer : View {
     let choice: WidgetChoice
@@ -39,5 +40,5 @@ struct ChoiceRenderer : View {
 #Preview {
     ChoiceRenderer(choice: .detailedBalances)
         .padding()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

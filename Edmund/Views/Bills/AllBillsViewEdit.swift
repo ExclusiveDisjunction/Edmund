@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
+import EdmundCore
 
 struct AllBillsViewEdit : View {
     @State private var tableSelected = Set<BillBaseWrapper.ID>();
@@ -44,9 +45,7 @@ struct AllBillsViewEdit : View {
         let combined: [any BillBase] = filteredBills + filteredUtilities;
         query.apply(combined.map { BillBaseWrapper($0) } )
     }
-    private func add_bill(_ kind: BillsKind = .bill) {
-        guard kind != .utility else { return }
-        
+    private func add_bill(_ kind: StrictBillsKind = .bill) {
         withAnimation {
             let raw = Bill(name: "", kind: kind, amount: 0, company: "",start: Date.now, end: nil, period: .monthly)
             refresh()
@@ -104,7 +103,7 @@ struct AllBillsViewEdit : View {
         Table(self.sortedBills, selection: $tableSelected) {
             TableColumn("Name", value: \.data.name)
             TableColumn("Kind") { wrapper in
-                Text(wrapper.data.kind.name)
+                Text(wrapper.data.kind.display)
             }
             #if os(iOS)
             TableColumn("Amount") { wrapper in
@@ -127,7 +126,7 @@ struct AllBillsViewEdit : View {
                     Text("Expired Bill").italic()
                 }
                 else {
-                    Text((wrapper.data.nextBillDate?.formatted(date: .abbreviated, time: .omitted) ?? "-"))
+                    Text((wrapper.data.nextDueDate?.formatted(date: .abbreviated, time: .omitted) ?? "-"))
                 }
             }
             
@@ -209,7 +208,7 @@ struct AllBillsViewEdit : View {
         }
         else {
             VStack {
-                Text("Unexpected Error").italic()
+                Text("internalError").italic()
                 Button("Ok", action: {
                     inspect.value = nil
                 }).buttonStyle(.borderedProminent)
@@ -309,6 +308,6 @@ struct AllBillsViewEdit : View {
 
 #Preview {
     NavigationStack {
-        AllBillsViewEdit().modelContainer(Containers.debugContainer)
+        AllBillsViewEdit().modelContainer(try! Containers.debugContainer())
     }
 }

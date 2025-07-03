@@ -8,6 +8,7 @@
 import SwiftUI;
 import SwiftData;
 import Foundation;
+import EdmundCore
 
 struct BatchTransactions: TransactionEditorProtocol {
     @State private var snapshots: [LedgerEntrySnapshot] = [.init()];
@@ -19,8 +20,11 @@ struct BatchTransactions: TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    func apply() -> [ValidationFailure]? {
+    func apply() async -> ValidationFailure? {
         var result: [LedgerEntry] = [];
+        for snapshot in snapshots {
+            if let failure = snapshot.validate(unique: uniqueEngine)
+        }
         var errors: [ValidationFailure] = [];
         for snapshot in snapshots {
             let validation = snapshot.validate(unique: uniqueEngine);

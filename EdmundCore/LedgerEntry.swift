@@ -6,50 +6,11 @@
 //
 
 import SwiftData;
-import SwiftUI;
 import Foundation;
-
-/// The displayed value of the ledger style
-public enum LedgerStyle: Int, Identifiable, CaseIterable {
-    /// Display credits as 'money in', and debits as 'money out'
-    case none = 0
-    /// Display credits as 'debit', and debits as 'credit'
-    case standard = 1
-    /// Display credits as 'credit', and debits as 'debit'
-    case reversed = 2
-    
-    /// A UI ready description of what the value is
-    public var description: LocalizedStringKey {
-        switch self {
-            case .none: "Do not show as Accounting Style"
-            case .standard: "Standard Accounting Style"
-            case .reversed: "Reversed Accounting Style"
-        }
-    }
-    /// The value to use for a 'credit' field.
-    public var displayCredit: LocalizedStringKey {
-        switch self {
-            case .none: "Money In"
-            case .standard: "Debit"
-            case .reversed: "Credit"
-        }
-    }
-    /// The value to use for a 'debit' field.
-    public var displayDebit: LocalizedStringKey {
-        switch self {
-            case .none: "Money Out"
-            case .standard: "Credit"
-            case .reversed: "Debit"
-        }
-    }
-    public var id: Self { self }
-}
 
 /// A record into the ledger, representing a single transaction.
 @Model
 public final class LedgerEntry : Identifiable, SnapshotableElement {
-    public typealias InspectorView = LedgerEntryInspect;
-    public typealias EditView = LedgerEntryEdit;
     public typealias Snapshot = LedgerEntrySnapshot;
     
     /// Creates an empty transaction
@@ -102,14 +63,20 @@ public final class LedgerEntry : Identifiable, SnapshotableElement {
         credit - debit
     }
     
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Transaction",
-            plural:   "Transactions",
-            inspect:  "Inspect Transaction",
-            edit:     "Edit Transaction",
-            add:      "Add Transaction"
-        )
+    public func makeSnapshot() -> LedgerEntrySnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> LedgerEntrySnapshot {
+        .init()
+    }
+    public func update(_ from: LedgerEntrySnapshot, unique: UniqueEngine) async {
+        self.name = from.name.trimmingCharacters(in: .whitespaces)
+        self.credit = from.credit.rawValue
+        self.debit = from.debit.rawValue
+        self.date = from.date
+        self.location = from.location
+        self.category = from.category
+        self.account = from.account
     }
     
     /// Builds a list of ledger entries over some accounts and categories. It expects specific ones to exist, and may cause a crash if they dont.
@@ -161,8 +128,8 @@ public final class LedgerEntrySnapshot : ElementSnapshot {
     /// Creates a blank snapshot with default values.
     public init() {
         name = .init();
-        credit = 0;
-        debit = 0;
+        credit = .init();
+        debit = .init()
         date = .now;
         location = "";
         category = nil;
@@ -170,8 +137,8 @@ public final class LedgerEntrySnapshot : ElementSnapshot {
     }
     public init(_ from: LedgerEntry) {
         name     = from.name;
-        credit   = from.credit;
-        debit    = from.debit;
+        credit   = .init(rawValue: from.credit);
+        debit    = .init(rawValue: from.debit);
         date     = from.date;
         location = from.location;
         category = from.category;
@@ -179,38 +146,29 @@ public final class LedgerEntrySnapshot : ElementSnapshot {
     }
     
     /// The memo of the transaction
-    public var name: String = "";
+    public var name: String;
     /// The money in
-    public var credit: Decimal = 0;
+    public var credit: CurrencyValue
     /// The money leaving
-    public var debit: Decimal = 0;
+    public var debit: CurrencyValue
     /// The date in which the transaction occured
-    public var date: Date = Date.now;
+    public var date: Date;
     /// The location in which it occured
-    public var location: String = "";
+    public var location: String
     /// The associated category
-    public var category: SubCategory? = nil;
+    public var category: SubCategory?
     /// The associated sub account
-    public var account: SubAccount? = nil;
+    public var account: SubAccount?
     
     /// The net between credit and debit
     public var balance: Decimal {
-        credit - debit
+        credit.rawValue - debit.rawValue
     }
     
     public func validate(unique: UniqueEngine) -> ValidationFailure? {
-        if category == nil || account == nil { return .empty }
+        if name.trimmingCharacters(in: .whitespaces).isEmpty || category == nil || account == nil { return .empty }
     
         return nil
-    }
-    public func apply(_ to: LedgerEntry, context: ModelContext, unique: UniqueEngine) {
-        to.name     = name;
-        to.credit   = credit;
-        to.debit    = debit;
-        to.date     = date;
-        to.location = location;
-        to.category = category;
-        to.account  = account;
     }
     
     public func hash(into hasher: inout Hasher) {

@@ -6,8 +6,8 @@
 //
 
 public protocol CategoryBase : ElementBase, UniqueElement, PairBasis {
-    func tryNewName(name: String, unique: UniqueEngine) -> Bool;
-    func setNewName(name: String, unique: UniqueEngine);
+    func tryNewName(name: String, unique: UniqueEngine) async -> Bool;
+    func setNewName(name: String, unique: UniqueEngine) async;
     
     var isLocked: Bool { get }
 }

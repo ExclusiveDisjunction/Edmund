@@ -7,8 +7,9 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
-/// The edit view for Bills. 
+/// The edit view for Bills.
 public struct BillEdit : View {
     @Bindable private var snapshot: BillSnapshot;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -42,9 +43,12 @@ public struct BillEdit : View {
                 
                 HStack {
                     Picker("", selection: $snapshot.kind) {
-                        Text(BillsKind.subscription.name).tag(BillsKind.subscription)
-                        Text(BillsKind.bill.name).tag(BillsKind.bill)
+                        ForEach(StrictBillsKind.allCases, id: \.id) { kind in
+                            Text(kind.display)
+                                .tag(kind)
+                        }
                     }.labelsHidden()
+                        .pickerStyle(.segmented)
                     Spacer()
                 }
             }
@@ -54,5 +58,5 @@ public struct BillEdit : View {
 
 #Preview {
     ElementEditor(Bill(kind: .subscription), adding: false)
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

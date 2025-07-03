@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 /// The inspection view for Hourly Jobs. 
 public struct HourlyJobInspect : View {
@@ -80,6 +81,6 @@ public struct HourlyJobInspect : View {
 }
 
 #Preview {
-    ElementInspector(data: HourlyJob())
-        .modelContainer(Containers.debugContainer)
+    ElementInspector(data: HourlyJob.exampleJob)
+        .modelContainer(try! Containers.debugContainer())
 }

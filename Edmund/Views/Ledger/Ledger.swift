@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData;
+import EdmundCore
 
 struct LedgerTable: View {
     @Query(sort: [
@@ -142,5 +143,6 @@ struct LedgerTable: View {
 }
 
 #Preview {
-    LedgerTable().modelContainer(Containers.debugContainer)
+    LedgerTable()
+        .modelContainer(try! Containers.debugContainer())
 }

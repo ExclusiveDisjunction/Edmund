@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct BudgetAddView : View {
     init(_ id: Binding<BudgetInstance.ID?>? = nil) {
@@ -135,5 +136,5 @@ struct BudgetAddView : View {
 
 #Preview {
     BudgetAddView()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

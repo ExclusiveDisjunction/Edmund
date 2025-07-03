@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct AllExpiredBillsVE : View {
     @Query private var bills: [Bill];
@@ -87,7 +88,7 @@ struct AllExpiredBillsVE : View {
             Table(wrappers, selection: $selection) {
                 TableColumn("Name", value: \.data.name)
                 TableColumn("Kind") { wrapper in
-                    Text(wrapper.data.kind.name)
+                    Text(wrapper.data.kind.display)
                 }
                 TableColumn("Started On") { wrapper in
                     Text(wrapper.data.startDate.formatted(date: .abbreviated, time: .omitted))
@@ -177,6 +178,6 @@ struct AllExpiredBillsVE : View {
 
 #Preview {
     NavigationStack {
-        AllExpiredBillsVE().modelContainer(Containers.debugContainer)
+        AllExpiredBillsVE().modelContainer(try! Containers.debugContainer())
     }
 }

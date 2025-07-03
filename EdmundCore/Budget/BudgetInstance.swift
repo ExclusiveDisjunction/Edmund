@@ -14,13 +14,6 @@ public enum IncomeKind: Int, CaseIterable, Identifiable {
     case donation
     
     public var id: Self { self }
-    public var display: LocalizedStringKey {
-        switch self {
-            case .pay: "Pay"
-            case .gift: "Gift"
-            case .donation: "Donation"
-        }
-    }
 }
 
 @Model
@@ -92,15 +85,7 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
     public static func makeBlankSnapshot() -> BudgetInstanceSnapshot {
         .init()
     }
-    public func update(_ snap: BudgetInstanceSnapshot, unique: UniqueEngine) {
-        // These types are UUID -> (Devotion, Bool). The bool determines if this value was updated at all from the previous system. If it was not, they will be deleted at the end.
-        let oldAmounts = Dictionary(uniqueKeysWithValues: self.amounts.map { ($0.id, ChildUpdateRecord($0)) })
-        let oldPercents = Dictionary(uniqueKeysWithValues: self.percents.map { ($0.id, ChildUpdateRecord($0) ) })
-        
-        // All old & new elements will be added to this list. That way
-        var newAmounts: [AmountDevotion] = [];
-        var newPercents: [PercentDevotion] = [];
-        
+    public func update(_ snap: BudgetInstanceSnapshot, unique: UniqueEngine) async {
         if let oldRemainder = self.remainder, snap.hasRemainder {
             oldRemainder.update(snap.remainder, unique: unique)
         }
@@ -116,38 +101,10 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
             modelContext?.insert(new)
         } // At this point, there is no remainder in the snapshot, and the current remainder is nil, so nothing to do with it.
         
-        // Note that try! is ok because these devotions do not throw.
-        for devotion in snap.devotions {
-            switch devotion {
-                case .amount(let amount):
-                    try! ChildUpdateRecord.updateOrInsert(amount, old: oldAmounts, modelContext: modelContext, unique: unique, list: &newAmounts)
-                case .percent(let percent):
-                    try! ChildUpdateRecord.updateOrInsert(percent, old: oldPercents, modelContext: modelContext, unique: unique, list: &newPercents)
-            }
-        }
-        
-        // Removes any un-visisted amounts
-        let filteredAmounts = oldAmounts.values.filter { !$0.visisted }
-        let filteredPercents = oldPercents.values.filter { !$0.visisted }
-        
-        for amount in filteredAmounts {
-            modelContext?.delete(amount.data)
-        }
-        for percent in filteredPercents {
-            modelContext?.delete(percent.data)
-        }
-        
-        // Assign parents to the new & old elements
-        for amount in newAmounts {
-            amount.parent = self
-        }
-        for percent in newPercents {
-            percent.parent = self
-        }
-        
-        // Assign the correct amounts & percents lists
-        self.amounts = newAmounts
-        self.percents = newPercents
+        let newAmounts = snap.devotions.compactMap { if case .amount(let a) = $0 { return a } else { return nil }}
+        let newPercents = snap.devotions.compactMap { if case .percent(let a) = $0 { return a } else { return nil }}
+        try! await mergeAndUpdateChildren(list: &amounts, merging: newAmounts, context: modelContext, unique: unique) //Amount devotions cannot throw
+        try! await mergeAndUpdateChildren(list: &percents, merging: newPercents, context: modelContext, unique: unique)
         
         self.lastUpdated = .now
         

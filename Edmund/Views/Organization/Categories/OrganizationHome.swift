@@ -7,10 +7,11 @@
 
 import SwiftUI
 import SwiftData
+import EdmundCore
 
 struct OrganizationHome : View {
     @Query private var accounts: [Account];
-    @Query private var categories: [Category];
+    @Query private var categories: [EdmundCore.Category];
     
     var body: some View {
         HStack(spacing: 10) {
@@ -37,5 +38,5 @@ struct OrganizationHome : View {
 
 #Preview {
     OrganizationHome()
-        .modelContainer(Containers.debugContainer)
+        .modelContainer(try! Containers.debugContainer())
 }

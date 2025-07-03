@@ -20,12 +20,23 @@ extension BudgetInstance : EditableElement, InspectableElement {
     }
 }
 
-public extension DevotionGroup {
-    var display: LocalizedStringKey {
+extension DevotionGroup : Displayable {
+    public var display: LocalizedStringKey {
         switch self {
             case .need: "Need"
             case .want: "Want"
             case .savings: "Savings"
+            default: "internalError"
+        }
+    }
+}
+
+extension IncomeKind : Displayable {
+    public var display: LocalizedStringKey {
+        switch self {
+            case .pay: "Pay"
+            case .gift: "Gift"
+            case .donation: "Donation"
             default: "internalError"
         }
     }

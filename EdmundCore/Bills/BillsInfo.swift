@@ -10,7 +10,7 @@ import SwiftUI
 import Foundation
 
 /// The bills kind that is used by the Bill class, as it does not include the utility kind.
-public enum StrictBillsKind : Int, Equatable, Hashable, Codable, Identifiable {
+public enum StrictBillsKind : Int, Equatable, Hashable, Codable, Identifiable, CaseIterable, Sendable {
     case subscription
     case bill
     
@@ -18,7 +18,7 @@ public enum StrictBillsKind : Int, Equatable, Hashable, Codable, Identifiable {
 }
 
 @frozen
-public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable, Filterable {
+public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable, Filterable, Sendable {
     public typealias On = BillBaseWrapper
     
     case bill = 0
@@ -32,7 +32,7 @@ public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable, Filterabl
     }
 }
 
-public enum BillsSort : Int, Identifiable, CaseIterable, Sortable {
+public enum BillsSort : Int, Identifiable, CaseIterable, Sortable, Sendable {
     case name, amount, kind
     
     public var id: Self { self }
@@ -44,7 +44,7 @@ public extension Date {
     }
 }
 
-public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable {
+public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2

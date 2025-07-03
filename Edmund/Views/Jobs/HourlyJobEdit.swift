@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import EdmundCore
 
 /// The edit view for Hourly Jobs. 
 public struct HourlyJobEdit : View {
@@ -82,6 +83,6 @@ public struct HourlyJobEdit : View {
 }
 
 #Preview {
-    ElementEditor(HourlyJob(), adding: true)
-        .modelContainer(Containers.debugContainer)
+    ElementEditor(HourlyJob.exampleJob, adding: true)
+        .modelContainer(try! Containers.debugContainer())
 }

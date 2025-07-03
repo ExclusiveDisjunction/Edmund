@@ -62,22 +62,20 @@ public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
     var position: String  { get set }
 }
 internal extension TraditionalJob {
-    func updateBase(_ snap: TraditionalJobSnapshot, unique: UniqueEngine) throws (UniqueFailureError<TraditionalJobID>) {
-        self.taxRate = snap.taxRate
-        
+    @MainActor
+    func updateBase(_ snap: TraditionalJobSnapshot, unique: UniqueEngine) async throws (UniqueFailureError<TraditionalJobID>) {
         let company = snap.company.trimmingCharacters(in: .whitespaces)
         let position = snap.position.trimmingCharacters(in: .whitespaces)
         let id = TraditionalJobID(company: company, position: position)
         
         if id != self.id {
-            Task {
-                let couldSwap = await unique.swapId(key: .init((any TraditionalJob).self), oldId: self.id, newId: id)
-                guard couldSwap else {
-                    throw UniqueFailureError(value: id)
-                }
+            let couldSwap = await unique.swapId(key: .init((any TraditionalJob).self), oldId: self.id, newId: id)
+            guard couldSwap else {
+                throw UniqueFailureError(value: id)
             }
         }
         
+        self.taxRate = snap.taxRate
         self.company = company
         self.position = position
     }

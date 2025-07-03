@@ -7,8 +7,15 @@
 
 import SwiftUI
 import SwiftData;
+import EdmundCore
 
-enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
+extension ValidationFailure : WarningBasis {
+    public var message: LocalizedStringKey {
+        self.display
+    }
+}
+
+enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
     case simple,
          composite,
          creditCard
@@ -16,7 +23,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
          refund
     case miscIncome,
          payday
-    case billPay    (BillsKind),
+    case billPay    (StrictBillsKind),
          utilityPay
     case audit
     case transfer   (TransferKind)
@@ -25,7 +32,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
     case grouped
 #endif
     
-    var name: LocalizedStringKey {
+    var display: LocalizedStringKey {
         switch self {
             case .simple:          "Transaction"
             case .composite:       "Composite Transaction"
@@ -37,7 +44,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
             case .refund:          "Refund"
             case .miscIncome:      "Miscellaneous Income"
             case .payday:          "Payday"
-            case .billPay(let v):  v.name
+            case .billPay(let v):  v.display
             case .utilityPay:      "Utility"
             case .audit:           "Audit"
             case .transfer(let v): v.name
@@ -48,11 +55,11 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable {
 }
 
 protocol TransactionEditorProtocol : View {
-    func apply() -> [ValidationFailure]?;
+    func apply() -> ValidationFailure?
 }
 
 struct TransactionEditorFrame<Content> : View where Content: View {
-    init(_ kind: TransactionKind, apply: @escaping () -> [ValidationFailure]?, @ViewBuilder content: @escaping () -> Content) {
+    init(_ kind: TransactionKind, apply: @escaping () async -> ValidationFailure?, @ViewBuilder content: @escaping () -> Content) {
         self.kind = kind;
         self.apply = apply;
         self.warning = .init();
@@ -60,18 +67,21 @@ struct TransactionEditorFrame<Content> : View where Content: View {
     }
     
     let kind: TransactionKind;
-    private let apply: () -> [ValidationFailure]?;
+    private let apply: () async -> ValidationFailure?;
     private let content: () -> Content;
-    @Bindable private var warning: ValidationWarningManifest;
+    @Bindable private var warning: BaseWarningManifest<ValidationFailure>;
     
     @Environment(\.dismiss) private var dismiss;
     
+    @MainActor
     private func submit() {
-        if let error = apply() {
-            warning.warning = .init(error)
-        }
-        else {
-            dismiss()
+        Task {
+            if let error = await apply() {
+                warning.warning = error
+            }
+            else {
+                dismiss()
+            }
         }
     }
     private func cancel() {
@@ -80,7 +90,8 @@ struct TransactionEditorFrame<Content> : View where Content: View {
     
     var body: some View {
         VStack {
-            Text(kind.name).font(.title2)
+            Text(kind.display)
+                .font(.title2)
             
             content()
             
@@ -95,7 +106,7 @@ struct TransactionEditorFrame<Content> : View where Content: View {
             .alert("Error", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: { warning.isPresented = false } )
             }, message: {
-                warning.content
+                Text(warning.warning?.display ?? "internalError")
             })
     }
 }
