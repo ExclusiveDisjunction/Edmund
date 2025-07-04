@@ -24,11 +24,9 @@ struct BalanceSheet: View {
         computed = nil;
     }
     private func computeBalances() -> [DetailedBalance] {
-        var bal = BalanceResolver.computeSubBalances(accounts)
-            .intoDetailedBalances();
-        bal.sortByBalances()
-        
-        return bal
+        BalanceResolver.computeSubBalances(accounts)
+            .intoDetailedBalances()
+            .sortedByBalances()
     }
     
     /// The view for each sub account
@@ -46,16 +44,18 @@ struct BalanceSheet: View {
                             Text("Sub Account").font(.headline)
                             Spacer()
                         }
-                        if horizontalSizeClass != .compact && ledgerStyle != .none {
+                        if horizontalSizeClass != .compact {
                             HStack {
                                 Spacer()
                                 
-                                Text(ledgerStyle == .standard ? "Debit" : "Credit").font(.headline)
+                                Text(ledgerStyle.displayCredit)
+                                    .font(.headline)
                             }
                             HStack {
                                 Spacer()
                                 
-                                Text(ledgerStyle == .standard ? "Credit" : "Debit").font(.headline)
+                                Text(ledgerStyle.displayDebit)
+                                    .font(.headline)
                             }
                         }
                         
@@ -66,29 +66,28 @@ struct BalanceSheet: View {
                     }
                     Divider()
                     
-                    ForEach(children) { sub in
-                        GridRow {
+                    AltRowView(data: children) { sub, _ in
+                        HStack {
+                            Text(sub.name)
+                            Spacer()
+                        }
+                        
+                        if horizontalSizeClass != .compact {
                             HStack {
-                                Text(sub.name)
                                 Spacer()
-                            }
-                            
-                            if horizontalSizeClass != .compact && ledgerStyle != .none {
-                                HStack {
-                                    Spacer()
-                                    Text(sub.credit, format: .currency(code: currencyCode))
-                                }
-                                
-                                HStack {
-                                    Spacer()
-                                    Text(sub.debit, format: .currency(code: currencyCode))
-                                }
+                                Text(sub.credit, format: .currency(code: currencyCode))
                             }
                             
                             HStack {
                                 Spacer()
-                                Text(sub.balance, format: .currency(code: currencyCode)).foregroundStyle(sub.balance < 0 ? .red : .primary )
+                                Text(sub.debit, format: .currency(code: currencyCode))
                             }
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            Text(sub.balance, format: .currency(code: currencyCode))
+                                .foregroundStyle(sub.balance < 0 ? .red : .primary )
                         }
                     }
                 }
@@ -106,6 +105,8 @@ struct BalanceSheet: View {
             HStack {
                 Text(item.name)
                     .font(.title2)
+                    .bold()
+                    .foregroundStyle(.accent)
                 
                 Spacer()
                 

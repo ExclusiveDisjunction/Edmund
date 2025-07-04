@@ -9,7 +9,7 @@ import Foundation
 
 public struct BoundPairTreeRow<T> where T: BoundPairParent, T.C.P == T {
     internal init<C>(target: T, children: C) where C: Collection, C.Element == T.C{
-        let childrenDict: [String : T.C] = .init(uniqueKeysWithValues: children.map { ($0.name, $0) } );
+        let childrenDict: [String : T.C] = .init(uniqueKeysWithValues: children.map { ($0.name, $0) } ); //.init(children.map { ($0.name, $0) }, uniquingKeysWith: { a, b in return a }) 
         self.init(target: target, children: childrenDict)
     }
     internal init(target: T, children: Dictionary<String, T.C>) {
@@ -18,7 +18,7 @@ public struct BoundPairTreeRow<T> where T: BoundPairParent, T.C.P == T {
     }
     
     public let target: T;
-    private var children: Dictionary<String, T.C>;
+    fileprivate var children: Dictionary<String, T.C>;
     
     public subscript(position: String) -> T.C? {
         _read {
@@ -26,6 +26,7 @@ public struct BoundPairTreeRow<T> where T: BoundPairParent, T.C.P == T {
         }
     }
     
+    @available(*, deprecated, message: "this function does not perform as expected, do not use it.")
     public mutating func getOrInsert(name: String) -> T.C {
         let new = T.C()
         new.parent = target;
@@ -77,15 +78,27 @@ public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
         }
     }
     public mutating func getOrInsert(parent: String, child: String) -> T.C {
-        if let target = self.data[parent]?.getOrInsert(name: child) {
+        if let target = self.data[parent]?.children[child] {
             return target
         }
-        else {
-            let new = T();
-            new.name = parent
+        else if var target = self.data[parent] {
+            let new = T.C(parent: target.target)
+            new.name = child
             
-            self.data[parent] = .init(target: new, children: .init());
-            return self.data[parent]!.getOrInsert(name: child)
+            target.children[child] = new
+            return new
+        }
+        else {
+            let newParent = T()
+            newParent.name = parent
+            var newRow = BoundPairTreeRow(target: newParent, children: [])
+            let newChild = T.C(parent: newParent)
+            newChild.name = child
+            newRow.children[child] = newChild;
+            
+            self.data[parent] = newRow;
+            
+            return newChild
         }
     }
 }

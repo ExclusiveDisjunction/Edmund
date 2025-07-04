@@ -16,10 +16,14 @@ public protocol ExampleCreator {
 public struct DefaultDebugCreator : ExampleCreator {
     public func fill(context: ModelContext) {
         let accounts = Account.exampleAccounts
+        var accTree = BoundPairTree(data: accounts)
+        
+        let categories = Category.exampleCategories;
+        var catTree = BoundPairTree(data: categories)
+        
         for account in accounts {
             context.insert(account)
         }
-        let categories = Category.exampleCategories;
         for category in categories {
             context.insert(category)
         }
@@ -36,9 +40,6 @@ public struct DefaultDebugCreator : ExampleCreator {
         
         context.insert(HourlyJob.exampleJob)
         context.insert(SalariedJob.exampleJob)
-        
-        var accTree = BoundPairTree(data: accounts)
-        var catTree = BoundPairTree(data: categories)
         
         let ledger = LedgerEntry.exampleEntries(acc: &accTree, cat: &catTree)
         for entry in ledger {

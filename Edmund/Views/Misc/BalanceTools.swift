@@ -141,23 +141,23 @@ extension Dictionary where Key: NamedElement, Key: BoundPairParent, Key.C: Trans
         }
     }
 }
-extension Array where Element: BalanceEncoder {
-    mutating func sortByBalances() {
-        self.sort(using: KeyPathComparator(\.balance, order: .reverse))
-    }
+extension [SimpleBalance] {
     func sortedByBalances() -> Self {
         return self.sorted(using: KeyPathComparator(\.balance, order: .reverse))
     }
 }
-extension Array where Element: ParentBalanceEncoder {
-    mutating func sortByBalances() {
-        for item in self {
-            if var children = item.children {
-                children.sortByBalances()
-            }
-        }
-        
-        self.sort(using: KeyPathComparator(\.balance, order: .reverse))
+public extension [DetailedBalance] {
+    func sortedByBalances() -> Self {
+        let cmp = KeyPathComparator(\DetailedBalance.balance, order: .reverse)
+        return self.map {
+            .init(
+                $0.name,
+                $0.credit,
+                $0.debit,
+                children: $0.children?.sorted(using: cmp),
+                id: $0.id
+            )
+        }.sorted(using: cmp)
     }
 }
 
@@ -174,11 +174,11 @@ protocol ParentBalanceEncoder: Identifiable, BalanceEncoder {
 }
 
 struct SimpleBalance : Identifiable, BalanceEncoder, Sendable {
-    init(_ name: String, _ credit: Decimal, _ debit: Decimal) {
+    init(_ name: String, _ credit: Decimal, _ debit: Decimal, id: UUID = UUID()) {
         self.name = name
         self.credit = credit
         self.debit = debit
-        self.id = UUID()
+        self.id = id
     }
     
     let id: UUID;
@@ -191,11 +191,11 @@ struct SimpleBalance : Identifiable, BalanceEncoder, Sendable {
 }
 
 struct DetailedBalance : Identifiable, ParentBalanceEncoder, Sendable {
-    init(_ name: String,  _ credit: Decimal, _ debit: Decimal, children: [DetailedBalance]? = nil) {
+    init(_ name: String,  _ credit: Decimal, _ debit: Decimal, children: [DetailedBalance]? = nil, id: UUID = UUID()) {
         self.name = name
         self.credit = credit
         self.debit = debit
-        self.id = UUID()
+        self.id = id
         self.children = children
     }
     
@@ -203,10 +203,11 @@ struct DetailedBalance : Identifiable, ParentBalanceEncoder, Sendable {
     let name: String;
     let credit: Decimal;
     let debit: Decimal;
+    let children: [DetailedBalance]?;
     var balance: Decimal {
         credit - debit
     }
-    var children: [DetailedBalance]?;
+    
 }
 
 /*
