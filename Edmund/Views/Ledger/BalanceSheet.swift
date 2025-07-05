@@ -41,7 +41,7 @@ struct BalanceSheet: View {
                 Grid {
                     GridRow {
                         HStack {
-                            Text("Sub Account").font(.headline)
+                            Text("Sub Account Name").font(.headline)
                             Spacer()
                         }
                         if horizontalSizeClass != .compact {
@@ -66,28 +66,30 @@ struct BalanceSheet: View {
                     }
                     Divider()
                     
-                    AltRowView(data: children) { sub, _ in
-                        HStack {
-                            Text(sub.name)
-                            Spacer()
-                        }
-                        
-                        if horizontalSizeClass != .compact {
+                    ForEach(children, id: \.id) { sub in
+                        GridRow {
                             HStack {
+                                Text(sub.name)
                                 Spacer()
-                                Text(sub.credit, format: .currency(code: currencyCode))
+                            }
+                            
+                            if horizontalSizeClass != .compact {
+                                HStack {
+                                    Spacer()
+                                    Text(sub.credit, format: .currency(code: currencyCode))
+                                }
+                                
+                                HStack {
+                                    Spacer()
+                                    Text(sub.debit, format: .currency(code: currencyCode))
+                                }
                             }
                             
                             HStack {
                                 Spacer()
-                                Text(sub.debit, format: .currency(code: currencyCode))
+                                Text(sub.balance, format: .currency(code: currencyCode))
+                                    .foregroundStyle(sub.balance < 0 ? .red : .primary )
                             }
-                        }
-                        
-                        HStack {
-                            Spacer()
-                            Text(sub.balance, format: .currency(code: currencyCode))
-                                .foregroundStyle(sub.balance < 0 ? .red : .primary )
                         }
                     }
                 }
