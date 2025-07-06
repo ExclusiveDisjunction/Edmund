@@ -27,6 +27,7 @@ struct LoadableView<T, Body> : View where Body: View, T: Sendable {
                 Spacer()
                 Text("Loading")
                 ProgressView()
+                    .progressViewStyle(.linear)
                 Spacer()
             }.task {
                 let result = try? await self.task();

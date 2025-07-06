@@ -17,7 +17,7 @@ public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
 
 /// Represents a location to store money, via the use of inner sub-accounts.
 @Model
-public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement {
+public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement, CustomStringConvertible {
     public typealias Snapshot = AccountSnapshot;
     
     public convenience init() {
@@ -77,6 +77,10 @@ public final class Account : Identifiable, Hashable, BoundPairParent, Snapshotab
         hasher.combine(name)
     }
     
+    public var description: String {
+        "Account \(name)"
+    }
+    
     public func makeSnapshot() -> AccountSnapshot {
         .init(self)
     }
@@ -102,25 +106,27 @@ public final class Account : Identifiable, Hashable, BoundPairParent, Snapshotab
     
     /// A list of template data to use on the UI.
     @MainActor
-    public static let exampleAccounts: [Account] = [
-        exampleAccount,
-        .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
-            .init("Main"),
-            .init("Reserved"),
-            .init("Rent")
-        ]),
-        .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One", children: [
-            .init("DI"),
-            .init("Groceries")
-        ]),
-        .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist", children: [
-            .init("DI"),
-            .init("Groceries")
-        ])
-    ]
+    public static var exampleAccounts: [Account] {
+        [
+            exampleAccount,
+            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
+                .init("Main"),
+                .init("Reserved"),
+                .init("Rent")
+            ]),
+            .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One", children: [
+                .init("DI"),
+                .init("Groceries")
+            ]),
+            .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist", children: [
+                .init("DI"),
+                .init("Groceries")
+            ])
+        ]
+    }
     /// A singular account to display on the UI.
     @MainActor
-    public static let exampleAccount: Account =
+    public static var exampleAccount: Account {
         .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001, children: [
             .init("DI"),
             .init("Gas"),
@@ -132,10 +138,13 @@ public final class Account : Identifiable, Hashable, BoundPairParent, Snapshotab
             .init("Taxes"),
             .init("Bills")
         ])
+    }
     
     /// A singular account that is setup like a credit card.
     @MainActor
-    public static let exampleCreditAccount: Account = .init("Credit", kind: .credit, creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] );
+    public static var exampleCreditAccount: Account {
+        .init("Credit", kind: .credit, creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] )
+    }
 }
 
 /// The snapshot type for `Account`.

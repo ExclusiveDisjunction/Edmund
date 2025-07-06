@@ -11,17 +11,23 @@ import EdmundCore
 import EdmundWidgetCore
 
 struct UpcomingBillsView : View {
-    @Query private var bills: [Bill];
-    @Query private var utilities: [Utility];
     @State private var loadedBills: [UpcomingBill]? = nil;
-    private var allBills: [any BillBase] {
-        bills + utilities
-    }
     
+    @Environment(\.modelContext) private var modelContext;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func loadBills() -> [UpcomingBill] {
-        .init()
+    @MainActor
+    private func makeManager() -> UpcomingBillsWidgetManager? {
+        return try? .init(context: modelContext)
+    }
+    
+    @MainActor
+    private func loadBills() async -> [UpcomingBill] {
+        guard let manager = await MainActor.run(body: makeManager) else {
+            return []
+        }
+        
+        return manager.determineUpcomingBills(for: .now).bills
     }
     
     var body: some View {

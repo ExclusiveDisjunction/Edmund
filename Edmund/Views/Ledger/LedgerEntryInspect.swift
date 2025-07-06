@@ -30,24 +30,31 @@ public struct LedgerEntryInspect : View {
     
     public var body: some View {
         Grid {
-            if ledgerStyle != .none {
-                GridRow {
-                    Text(ledgerStyle == .none ? "Money In:" : ledgerStyle == .standard ? "Debit:" : "Credit:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.credit, format: .currency(code: currencyCode))
-                        Spacer()
-                    }
+            GridRow {
+                Text("Memo:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(target.name)
+                    Spacer()
                 }
-                GridRow {
-                    Text(ledgerStyle == .none ? "Money Out:" : ledgerStyle == .standard ? "Credit:" : "Debit:")
-                        .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(target.debit, format: .currency(code: currencyCode))
-                        Spacer()
-                    }
+            }
+            GridRow {
+                Text(ledgerStyle == .none ? "Money In:" : ledgerStyle == .standard ? "Debit:" : "Credit:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(target.credit, format: .currency(code: currencyCode))
+                    Spacer()
+                }
+            }
+            GridRow {
+                Text(ledgerStyle == .none ? "Money Out:" : ledgerStyle == .standard ? "Credit:" : "Debit:")
+                    .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(target.debit, format: .currency(code: currencyCode))
+                    Spacer()
                 }
             }
             GridRow {
@@ -88,7 +95,7 @@ public struct LedgerEntryInspect : View {
                     Spacer()
                 }
             }
-            Divider()
+
             GridRow {
                 Text("Category:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
@@ -104,7 +111,6 @@ public struct LedgerEntryInspect : View {
                     Spacer()
                 }
             }
-            Divider()
             GridRow {
                 Text("Account:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)

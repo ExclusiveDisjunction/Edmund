@@ -49,7 +49,9 @@ public final class SalariedJob : Identifiable, UniqueElement, TraditionalJob, Sn
     }
     
     @MainActor
-    public static let exampleJob: SalariedJob = SalariedJob(company: "Winn Dixie", position: "Customer Service Manager", grossAmount: 850, taxRate: 0.25);
+    public static var exampleJob: SalariedJob {
+        SalariedJob(company: "Winn Dixie", position: "Customer Service Manager", grossAmount: 850, taxRate: 0.25);
+    }
 }
 
 /// The snapshot value for `SalariedJob`

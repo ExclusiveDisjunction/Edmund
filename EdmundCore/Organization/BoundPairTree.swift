@@ -7,9 +7,43 @@
 
 import Foundation
 
+public struct DuplicateIdError<T> : Error, Sendable, CustomStringConvertible where T: Hashable, T: Sendable {
+    public init(_ id: T) {
+        self.id = id
+    }
+    
+    public let id: T;
+    
+    public var localizedDescription: String {
+        "The id \(id) is not unique"
+    }
+    public var description: String {
+        "Duplicate ID: \(id)"
+    }
+}
+public enum ParentChildID : Hashable, Sendable, CustomStringConvertible {
+    case parent(String)
+    case child(BoundPairID)
+    
+    public var description: String {
+        switch self {
+            case .parent(let p): "Parent: '\(p)'"
+            case .child(let c): "Child: '\(c)'"
+        }
+    }
+}
+
 public struct BoundPairTreeRow<T> where T: BoundPairParent, T.C.P == T {
-    internal init<C>(target: T, children: C) where C: Collection, C.Element == T.C{
-        let childrenDict: [String : T.C] = .init(uniqueKeysWithValues: children.map { ($0.name, $0) } ); //.init(children.map { ($0.name, $0) }, uniquingKeysWith: { a, b in return a }) 
+    internal init<C>(target: T, children: C) throws(DuplicateIdError<BoundPairID>) where C: Collection, C.Element == T.C {
+        var childrenDict: [String : T.C] = [:];
+        for item in children {
+            guard !childrenDict.keys.contains(item.id.name) else {
+                throw .init(item.id)
+            }
+            
+            childrenDict[item.name] = item
+        }
+        
         self.init(target: target, children: childrenDict)
     }
     internal init(target: T, children: Dictionary<String, T.C>) {
@@ -36,12 +70,23 @@ public struct BoundPairTreeRow<T> where T: BoundPairParent, T.C.P == T {
 }
 
 public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
-    public init<C>(data: C) where C: Collection, C.Element == T {
-        let asDict: [T.ID: BoundPairTreeRow<T>] = .init(uniqueKeysWithValues:
-            data.map { ($0.id, BoundPairTreeRow(target: $0, children: $0.children)) }
-        );
+    public init<C>(data: C) throws(DuplicateIdError<ParentChildID>) where C: Collection, C.Element == T {
+        var computed: [String : BoundPairTreeRow<T>] = [:];
+        for item in data {
+            guard !computed.keys.contains(item.id) else {
+                print("Duplicate parent: \(item.name)")
+                throw .init(.parent(item.id))
+            }
+            
+            do {
+                computed[item.id] = try BoundPairTreeRow(target: item, children: item.children)
+            }
+            catch let e {
+                throw .init(.child(e.id))
+            }
+        }
         
-        self.init(data: asDict)
+        self.init(data: computed)
     }
     internal init(data: Dictionary<String, BoundPairTreeRow<T>>) {
         self.data = data
@@ -91,7 +136,7 @@ public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
         else {
             let newParent = T()
             newParent.name = parent
-            var newRow = BoundPairTreeRow(target: newParent, children: [])
+            var newRow = try! BoundPairTreeRow(target: newParent, children: [])
             let newChild = T.C(parent: newParent)
             newChild.name = child
             newRow.children[child] = newChild;

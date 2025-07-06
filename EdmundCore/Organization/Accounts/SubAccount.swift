@@ -10,7 +10,7 @@ import SwiftData
 
 /// Represents a sub-section under an account for transaction grouping.
 @Model
-public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, NamedElement, TransactionHolder {
+public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, NamedElement, TransactionHolder, CustomStringConvertible {
     public typealias Snapshot = SubAccountSnapshot;
     
     public convenience init() {
@@ -45,6 +45,10 @@ public final class SubAccount : BoundPair, Equatable, SnapshotableElement, Uniqu
     public var percentDevotions: [PercentDevotion] = [];
     @Relationship(deleteRule: .nullify, inverse: \RemainderDevotion.account)
     public var remainderDevotions: [RemainderDevotion] = [];
+    
+    public var description: String {
+        "Sub Account \(id)"
+    }
     
     public func makeSnapshot() -> SubAccountSnapshot {
         .init(self)

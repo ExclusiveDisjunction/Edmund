@@ -22,9 +22,30 @@ public struct TooltipButton : View {
         }) {
             Image(systemName: "questionmark.circle")
         }.popover(isPresented: $showTooltip) {
-            Text(text)
-                .padding()
+            ScrollView {
+                Text(text)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(nil)
+                    .padding()
+            }
+            .frame(maxWidth: 300, maxHeight: 300)
         }
         .buttonStyle(.borderless)
+    }
+}
+
+#Preview {
+    VStack {
+        Spacer()
+        
+        HStack {
+            Spacer()
+            TooltipButton("Here is some small text")
+            
+            TooltipButton("Large Text: \(String(repeating: "Hello! ", count: 100))")
+            Spacer()
+        }.padding()
+        
+        Spacer()
     }
 }

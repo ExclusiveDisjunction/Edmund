@@ -909,6 +909,9 @@
     "Export as PDF" : {
       "shouldTranslate" : false
     },
+    "Export Data" : {
+
+    },
     "Expression:" : {
 
     },
@@ -1795,6 +1798,9 @@
     "Repayment" : {
 
     },
+    "Report Issue" : {
+
+    },
     "Reset Ledger" : {
 
     },
@@ -2367,6 +2373,9 @@
     },
     "will be moved to" : {
       "comment" : "$ will be moved to"
+    },
+    "Wipe All Data" : {
+
     },
     "Work in progress" : {
 

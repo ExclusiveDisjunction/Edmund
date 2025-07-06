@@ -9,7 +9,7 @@ import SwiftData
 
 /// Represents a category within a parent category that is used to group related transactions.
 @Model
-public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, CategoryBase, NamedElement, Equatable {
+public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, CategoryBase, NamedElement, Equatable, CustomStringConvertible {
     public convenience init() {
         self.init("")
     }
@@ -36,6 +36,10 @@ public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, Ca
     @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category)
     public var transactions: [LedgerEntry]? = nil;
     public var isLocked: Bool;
+    
+    public var description: String {
+        "Sub Category \(id)"
+    }
     
     public static func == (lhs: SubCategory, rhs: SubCategory) -> Bool {
         lhs.id == rhs.id
@@ -67,5 +71,5 @@ public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, Ca
     
     /// A UI ready filler data example of a sub-category.
     @MainActor
-    public static let exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills", children: []))
+    public static var exampleSubCategory: SubCategory = .init("Utilities", parent: .init("Bills", children: []))
 }

@@ -56,7 +56,7 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement,
         let lastHash = _oldHash
         
         _oldHash = computedHash
-     
+        
         if let nextDueDate = _nextDueDate, computedHash == lastHash {
             return nextDueDate
         }
@@ -97,44 +97,45 @@ public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement,
     
     /// Example utilities that can be used to show UI filler.
     @MainActor
-    public static let exampleUtility: [Utility] = [
-        .init(
-            "Gas",
-            amounts: [
-                .init(Date.fromParts(2025, 1, 25)!, 25),
-                .init(Date.fromParts(2025, 2, 25)!, 23),
-                .init(Date.fromParts(2025, 3, 25)!, 28),
-                .init(Date.fromParts(2025, 4, 25)!, 27)],
-            company: "TECO",
-            location: "The Retreat",
-            start: Date.fromParts(2025, 1, 25)!,
-            end: nil
-        ),
-        .init(
-            "Electric",
-            amounts: [
-                .init(Date.fromParts(2025, 1, 17)!, 30),
-                .init(Date.fromParts(2025, 2, 17)!, 31),
-                .init(Date.fromParts(2025, 3, 17)!, 35),
-                .init(Date.fromParts(2025, 4, 17)!, 32)],
-            company: "Lakeland Eletric",
-            location: "The Retreat",
-            start: Date.fromParts(2025, 1, 17)!,
-            end: nil
-        ),
-        .init(
-            "Water",
-            amounts: [
-                .init(Date.fromParts(2025, 1, 2)!, 10),
-                .init(Date.fromParts(2025, 2, 2)!, 12),
-                .init(Date.fromParts(2025, 3, 2)!, 14),
-                .init(Date.fromParts(2025, 4, 2)!, 15)],
-            company: "The Retreat",
-            location: "The Retreat",
-            start: Date.fromParts(2025, 1, 25)!,
-            end: nil
-        )
-    ];
+    public static var exampleUtility: [Utility] { [
+            .init(
+                "Gas",
+                amounts: [
+                    .init(Date.fromParts(2025, 1, 25)!, 25),
+                    .init(Date.fromParts(2025, 2, 25)!, 23),
+                    .init(Date.fromParts(2025, 3, 25)!, 28),
+                    .init(Date.fromParts(2025, 4, 25)!, 27)],
+                company: "TECO",
+                location: "The Retreat",
+                start: Date.fromParts(2025, 1, 25)!,
+                end: nil
+            ),
+            .init(
+                "Electric",
+                amounts: [
+                    .init(Date.fromParts(2025, 1, 17)!, 30),
+                    .init(Date.fromParts(2025, 2, 17)!, 31),
+                    .init(Date.fromParts(2025, 3, 17)!, 35),
+                    .init(Date.fromParts(2025, 4, 17)!, 32)],
+                company: "Lakeland Eletric",
+                location: "The Retreat",
+                start: Date.fromParts(2025, 1, 17)!,
+                end: nil
+            ),
+            .init(
+                "Water",
+                amounts: [
+                    .init(Date.fromParts(2025, 1, 2)!, 10),
+                    .init(Date.fromParts(2025, 2, 2)!, 12),
+                    .init(Date.fromParts(2025, 3, 2)!, 14),
+                    .init(Date.fromParts(2025, 4, 2)!, 15)],
+                company: "The Retreat",
+                location: "The Retreat",
+                start: Date.fromParts(2025, 1, 25)!,
+                end: nil
+            )
+        ];
+    }
 }
 
 /// The snapshot class used for `Utility`.

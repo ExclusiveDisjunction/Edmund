@@ -11,7 +11,7 @@ import SwiftUI
 
 /// A grouping structure used to associate transactions into non-account groups.
 @Model
-public final class Category : CategoryBase, BoundPairParent, UniqueElement, NamedElement, Equatable {
+public final class Category : CategoryBase, BoundPairParent, UniqueElement, NamedElement, Equatable, CustomStringConvertible {
     public init() {
         self.name = ""
         self.children = []
@@ -31,6 +31,10 @@ public final class Category : CategoryBase, BoundPairParent, UniqueElement, Name
     @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent)
     public var children: [SubCategory]
     public var isLocked: Bool;
+    
+    public var description: String {
+        "Category \(name)"
+    }
     
     public static func ==(lhs: Category, rhs: Category) -> Bool {
         lhs.name == rhs.name
@@ -55,35 +59,39 @@ public final class Category : CategoryBase, BoundPairParent, UniqueElement, Name
     
     /// A list of categories that can be used to display filler data.
     @MainActor
-    public static let exampleCategories: [Category] = [
-        exampleCategory,
-        .init("Account Control", children: [
-            .init("Transfer"),
-            .init("Pay"),
-            .init("Audit"),
-            .init("Initial")
-        ]),
-        .init("Personal", children: [
-            .init("Dining"),
-            .init("Entertainment")
-        ]),
-        .init("Home", children: [
-            .init("Groceries"),
-            .init("Health"),
-            .init("Decor"),
-            .init("Repairs")
-        ]),
-        .init("Car", children: [
-            .init("Gas"),
-            .init("Maintenence"),
-            .init("Decor")
-        ])
-    ]
+    public static var exampleCategories: [Category] {
+        [
+            exampleCategory,
+            .init("Account Control", children: [
+                .init("Transfer"),
+                .init("Pay"),
+                .init("Audit"),
+                .init("Initial")
+            ]),
+            .init("Personal", children: [
+                .init("Dining"),
+                .init("Entertainment")
+            ]),
+            .init("Home", children: [
+                .init("Groceries"),
+                .init("Health"),
+                .init("Decor"),
+                .init("Repairs")
+            ]),
+            .init("Car", children: [
+                .init("Gas"),
+                .init("Maintenence"),
+                .init("Decor")
+            ])
+        ]
+    }
     /// A singular category that can be used to display filler data.
     @MainActor
-    public static let exampleCategory: Category = .init("Bills", children: [
-        .init("Utility"),
-        .init("Subscription"),
-        .init("Bill")
-    ])
+    public static var exampleCategory: Category {
+        .init("Bills", children: [
+            .init("Utility"),
+            .init("Subscription"),
+            .init("Bill")
+        ])
+    }
 }

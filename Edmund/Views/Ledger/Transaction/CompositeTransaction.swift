@@ -36,8 +36,8 @@ struct CompositeTransaction : TransactionEditorProtocol {
     let minWidth: CGFloat = 75;
     let maxWidth: CGFloat = 85;
 #else
-    let minWidth: CGFloat = 90;
-    let maxWidth: CGFloat = 100;
+    let minWidth: CGFloat = 100;
+    let maxWidth: CGFloat = 110;
 #endif
     
     @State private var mode: Mode = .debit;

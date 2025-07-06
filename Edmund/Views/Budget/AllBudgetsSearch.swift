@@ -188,6 +188,9 @@ struct AllBudgetsSearch : View {
                                 }
                             }
                         }
+                        #if os(iOS)
+                        .frame(minWidth: 300, minHeight: 225)
+                        #endif
                         .padding()
                     }
             }

@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 
 /// The ID used to identify a specific `BoundPair` value. It contains an optional parent name, and a specified name.
-public struct BoundPairID : Hashable, Equatable, RawRepresentable, Sendable {
+public struct BoundPairID : Hashable, Equatable, RawRepresentable, Sendable, CustomStringConvertible {
     /// Creates the ID using an optional parent name, and the child's name.
     public init(parent: String?, name: String) {
         self.parent = parent
@@ -31,6 +31,10 @@ public struct BoundPairID : Hashable, Equatable, RawRepresentable, Sendable {
     public let name: String;
     public var rawValue: String {
         "\(parent ?? String()).\(name)"
+    }
+    
+    public var description: String {
+        self.rawValue
     }
     
     public func hash(into hasher: inout Hasher) {

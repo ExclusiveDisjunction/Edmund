@@ -43,7 +43,7 @@ public final class PercentValue : ValueWrapper {
         let filter = raw.filter { "-0123456789.".contains($0) }
         
         if let parsed = Decimal(string: filter) {
-            self.rawValue = parsed
+            self.rawValue = parsed / 100;
         }
     }
 }

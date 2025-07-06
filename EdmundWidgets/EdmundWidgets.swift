@@ -7,49 +7,125 @@
 
 import WidgetKit
 import SwiftUI
+import EdmundWidgetCore
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+struct UpcomingBillsProvider: TimelineProvider {
+    typealias Entry = UpcomingBillsBundle
+    func placeholder(in context: Context) -> UpcomingBillsBundle {
+        .init(
+            date: .now,
+            bills: [
+                .init(name: "Apple Music", amount: 9.99, dueDate: Date.fromParts(2025, 7, 2)!),
+                .init(name: "iCloud", amount: 2.99, dueDate: Date.fromParts(2025, 7, 5)!),
+                .init(name: "Electric", amount: 33.45, dueDate: Date.fromParts(2025, 7, 10)!),
+                .init(name: "Amazon Prime", amount: 14.99, dueDate: Date.fromParts(2025, 7, 15)!),
+                .init(name: "Water", amount: 40.00, dueDate: Date.fromParts(2025, 7, 22)!),
+                .init(name: "YouTube Premium", amount: 20.00, dueDate: Date.fromParts(2026, 7, 29)!)
+            ]
+        )
     }
-
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
+    private static func getAllSnapshots() async -> [UpcomingBillsBundle]? {
+        guard let provider = WidgetDataProvider() else {
+            return nil
         }
-
-        return Timeline(entries: entries, policy: .atEnd)
+        
+        return try? await UpcomingBillsWidgetManager.extractFromProvider(provider: provider)
     }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+    func getSnapshot(in context: Context, completion: @escaping @Sendable (EdmundWidgetCore.UpcomingBillsBundle) -> Void) {
+        Task {
+            guard let data = await Self.getAllSnapshots(), let first = data.first else {
+                return
+            }
+            
+            completion(first)
+        }
+    }
+    func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<EdmundWidgetCore.UpcomingBillsBundle>) -> Void) {
+        Task {
+            let updateWhen: Date;
+            if let date = Calendar.current.date(byAdding: .day, value: 10, to: .now) {
+                updateWhen = date
+            }
+            else {
+                updateWhen = .distantFuture
+            }
+            guard let data = await Self.getAllSnapshots() else {
+                return
+            }
+            
+            completion(.init(entries: data, policy: .after(updateWhen)))
+        }
+    }
 }
 
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let configuration: ConfigurationAppIntent
+struct SquaresBackground : ShapeStyle {
+    
 }
 
 struct EdmundWidgetsEntryView : View {
-    var entry: Provider.Entry
-
+    var entry: UpcomingBillsProvider.Entry
+    @Environment(\.widgetFamily) private var family;
+    @Environment(\.showsWidgetContainerBackground) private var showBackground;
+    let currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    var display: [UpcomingBill] {
+        switch family {
+            case .systemSmall: Array(entry.bills.prefix(2))
+            case .systemMedium: Array(entry.bills.prefix(4))
+            case .systemLarge: Array(entry.bills.prefix(10))
+            case .systemExtraLarge: Array(entry.bills.prefix(20))
+            default: []
+        }
+    }
+    
     var body: some View {
-        Text("Time:")
-        Text(entry.date, style: .time)
-
-        Text("Favorite Emoji:")
-        Text(entry.configuration.favoriteEmoji)
+        VStack {
+            Text("Upcoming Bills")
+                .font(.headline)
+            Divider()
+            
+            if family == .systemSmall {
+                ForEach(display, id: \.id) { bill in
+                    HStack {
+                        Text(bill.name)
+                        Spacer()
+                    }
+                    HStack {
+                        Spacer()
+                        Text(bill.dueDate.formatted(date: .numeric, time: .omitted))
+                            .italic()
+                    }
+                }
+            }
+            else {
+                Grid {
+                    GridRow {
+                        Text("Name")
+                            .bold()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text("Amount")
+                            .bold()
+                        
+                        Text("Date")
+                            .bold()
+                    }
+                    
+                    ForEach(display, id: \.id) { bill in
+                        GridRow {
+                            Text(bill.name)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Text(bill.amount, format: .currency(code: currencyCode))
+                            
+                            Text(bill.dueDate.formatted(date: .numeric, time: .omitted))
+                        }
+                    }
+                }
+            }
+            
+            Spacer()
+        }.containerBackground(SquaresBackground(), for: .widget)
     }
 }
 
@@ -57,30 +133,26 @@ struct EdmundWidgets: Widget {
     let kind: String = "EdmundWidgets"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: UpcomingBillsProvider()) { entry in
             EdmundWidgetsEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
-        }
+        }.containerBackgroundRemovable()
+            .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
+            .description("Displays the current upcoming bills, including their name, amount, and due date.")
     }
 }
 
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemSmall) {
+#Preview(as: .systemLarge) {
     EdmundWidgets()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
+    UpcomingBillsBundle(
+        date: .now,
+        bills: [
+            .init(name: "Apple Music", amount: 9.99, dueDate: Date.fromParts(2025, 7, 2)!),
+            .init(name: "iCloud", amount: 2.99, dueDate: Date.fromParts(2025, 7, 5)!),
+            .init(name: "Electric", amount: 33.45, dueDate: Date.fromParts(2025, 7, 10)!),
+            .init(name: "Amazon Prime", amount: 14.99, dueDate: Date.fromParts(2025, 7, 15)!),
+            .init(name: "Water", amount: 40.00, dueDate: Date.fromParts(2025, 7, 22)!),
+            .init(name: "YouTube Premium", amount: 20.00, dueDate: Date.fromParts(2026, 7, 29)!)
+        ]
+    )
 }

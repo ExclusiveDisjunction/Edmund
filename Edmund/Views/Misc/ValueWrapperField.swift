@@ -9,6 +9,7 @@ import SwiftUI
 import EdmundCore
 
 struct ValueWrapperField<T> : View where T: ValueWrapper {
+    let isNumeric: Bool;
     @Bindable var over: T;
     @Binding var context: T.Context;
     @FocusState private var focus: Bool;
@@ -31,6 +32,9 @@ struct ValueWrapperField<T> : View where T: ValueWrapper {
                     over.format(context: context)
                 }
             }
+        #if os(iOS)
+            .keyboardType(isNumeric ? .decimalPad : .default)
+        #endif
     }
 }
 
@@ -44,7 +48,7 @@ struct CurrencyField : View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     var body: some View {
-        ValueWrapperField(over: over, context: $currencyCode)
+        ValueWrapperField(isNumeric: true, over: over, context: $currencyCode)
     }
 }
 
@@ -56,6 +60,6 @@ struct PercentField : View {
     @Bindable private var over: PercentValue;
     
     var body: some View {
-        ValueWrapperField(over: over, context: .constant(()))
+        ValueWrapperField(isNumeric: true, over: over, context: .constant(()))
     }
 }

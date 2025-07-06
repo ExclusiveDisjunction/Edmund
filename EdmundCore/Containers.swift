@@ -13,13 +13,39 @@ public protocol ExampleCreator {
     func fill(context: ModelContext) throws;
 }
 
-public struct DefaultDebugCreator : ExampleCreator {
+public struct UniqueElementsCreator : ExampleCreator {
     public func fill(context: ModelContext) {
         let accounts = Account.exampleAccounts
-        var accTree = BoundPairTree(data: accounts)
+        let categories = Category.exampleCategories;
+        
+        for account in accounts {
+            context.insert(account)
+        }
+        for category in categories {
+            context.insert(category)
+        }
+        
+        let bills = Bill.exampleBills;
+        for bill in bills {
+            context.insert(bill)
+        }
+        
+        let utilities = Utility.exampleUtility;
+        for utility in utilities {
+            context.insert(utility)
+        }
+        
+        context.insert(HourlyJob.exampleJob)
+        context.insert(SalariedJob.exampleJob)
+    }
+}
+public struct DefaultDebugCreator : ExampleCreator {
+    public func fill(context: ModelContext) throws {
+        let accounts = Account.exampleAccounts
+        var accTree = try BoundPairTree(data: accounts)
         
         let categories = Category.exampleCategories;
-        var catTree = BoundPairTree(data: categories)
+        var catTree = try BoundPairTree(data: categories)
         
         for account in accounts {
             context.insert(account)
@@ -146,21 +172,62 @@ public struct Containers {
         return container
     }
     
+    @MainActor
+    private static var _uniqueDebugContainer: ModelContainer? = nil;
+    @MainActor
+    public static func uniqueDebugContainer() throws -> ModelContainer {
+        if let container = _uniqueDebugContainer {
+            return container
+        }
+        else {
+            let result = try makeDebugContainer(using: UniqueElementsCreator())
+            _uniqueDebugContainer = result
+            return result
+        }
+    }
+    
+    @MainActor
+    private static var _debugContainer: ModelContainer? = nil;
     /// A container that contains temporary, simple data used for showcasing.
     @MainActor
     public static func debugContainer() throws -> ModelContainer {
-         try makeDebugContainer(using: DefaultDebugCreator())
+        if let container = _debugContainer {
+            return container
+        }
+        else {
+            let result = try makeDebugContainer(using: DefaultDebugCreator())
+            _debugContainer = result
+            return result
+        }
     }
     
+    @MainActor
+    private static var _transactionsWithSpreadContainer: ModelContainer? = nil;
     /// A model container with just transactions. it shows a spread with amounts & dates so that the UI elements can be tested.
     @MainActor
     public static func transactionsWithSpreadContainer() throws -> ModelContainer {
-        try makeDebugContainer(using: TransactionSpreadCreator())
+        if let container = _transactionsWithSpreadContainer {
+            return container
+        }
+        else {
+            let result = try makeDebugContainer(using: TransactionSpreadCreator())
+            _transactionsWithSpreadContainer = result
+            return result
+        }
     }
     
-    /// The main container used by the app. This stores the data for the app in non-debug based contexts. 
+    @MainActor
+    private static var _mainContainer: ModelContainer? = nil;
+    /// The main container used by the app. This stores the data for the app in non-debug based contexts.
     @MainActor
     public static func mainContainer() throws -> ModelContainer {
-        try prepareContainer(loc: .simple)
+        if let container = _mainContainer {
+            return container
+        }
+        else {
+            let result = try prepareContainer(loc: .simple)
+            _mainContainer = result
+            return result
+        }
     }
 }

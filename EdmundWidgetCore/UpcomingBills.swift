@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import EdmundCore
+import WidgetKit
 
 /// A type used to store information about an upcoming bill. This is computed from a specific date, and will showcase the bills basic information.
 public struct UpcomingBill : Hashable, Equatable, Codable, Identifiable, Sendable {
@@ -33,7 +34,7 @@ public struct UpcomingBill : Hashable, Equatable, Codable, Identifiable, Sendabl
     }
 }
 /// A collection of `UpcomingBill` computed from a specified date.
-public struct UpcomingBillsBundle : Hashable, Equatable, Codable, Sendable {
+public struct UpcomingBillsBundle : Hashable, Equatable, Codable, Sendable, TimelineEntry {
     public init(date: Date, bills: [UpcomingBill]) {
         self.date = date;
         self.bills = bills;
@@ -87,7 +88,7 @@ public struct UpcomingBillsWidgetManager : WidgetDataManager, Sendable {
         self.forDays = forDays
     }
     
-    func determineUpcomingBills(for date: Date) -> UpcomingBillsBundle {
+    public func determineUpcomingBills(for date: Date) -> UpcomingBillsBundle {
         let upcomings = data.compactMap {
             if let next = $0.nextDueDate(from: date) {
                 UpcomingBill(name: $0.name, amount: $0.amount, dueDate: next)
@@ -95,7 +96,7 @@ public struct UpcomingBillsWidgetManager : WidgetDataManager, Sendable {
             else {
                 nil
             }
-        }.sorted(using: KeyPathComparator(\UpcomingBill.name))
+        }.sorted(using: KeyPathComparator(\UpcomingBill.dueDate))
         
         return .init(date: date, bills: upcomings)
     }

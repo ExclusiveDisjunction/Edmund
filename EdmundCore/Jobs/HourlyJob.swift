@@ -57,7 +57,9 @@ public final class HourlyJob : SnapshotableElement, UniqueElement, TraditionalJo
     }
     
     @MainActor
-    public static let exampleJob: HourlyJob = HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15);
+    public static var exampleJob: HourlyJob {
+        HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15)
+    }
 }
 
 @Observable
