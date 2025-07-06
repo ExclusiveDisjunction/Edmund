@@ -94,6 +94,8 @@ public class BudgetSearchVM {
     }
 }
 
+
+
 struct AllBudgetsSearch : View {
     init(result: Binding<BudgetInstance.ID?>) {
         self._result = result
@@ -103,6 +105,7 @@ struct AllBudgetsSearch : View {
     @Binding var result: BudgetInstance.ID?;
     
     @Query private var budgets: [BudgetInstance];
+    @Bindable private var inspect: InspectionManifest<BudgetInstance> = .init();
     @Bindable private var query: BudgetSearchVM
     @State private var showPopover = false;
     
@@ -110,6 +113,17 @@ struct AllBudgetsSearch : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    @ViewBuilder
+    private func contextMenuSel(_ selection: Set<BudgetInstance.ID>) -> some View {
+        Button {
+            if let id = selection.first, let item = query.cache.first(where: { $0.id == id }), selection.count == 1 {
+                inspect.open(item, mode: .inspect)
+            }
+        } label: {
+            Label("Close Look", systemImage: "magnifyingglass")
+        }.disabled(selection.count != 1)
+    }
     
     @ViewBuilder
     private var fullSized: some View {
@@ -142,6 +156,7 @@ struct AllBudgetsSearch : View {
             .width(160)
 #endif
         }.frame(minHeight: 250)
+            .contextMenu(forSelectionType: BudgetInstance.ID.self, menu: contextMenuSel)
     }
     
     @ViewBuilder
@@ -152,9 +167,15 @@ struct AllBudgetsSearch : View {
                 Spacer()
                 Text(budget.amount, format: .currency(code: currencyCode))
             }.swipeActions(edge: .trailing) {
-                
+                Button {
+                    inspect.open(budget, mode: .inspect)
+                } label: {
+                    Label("Close Look", systemImage: "magnifyingglass")
+                }
+                .tint(.green)
             }
         }.frame(minHeight: 250)
+            .contextMenu(forSelectionType: BudgetInstance.ID.self, menu: contextMenuSel)
     }
     
     var body: some View {
@@ -214,6 +235,9 @@ struct AllBudgetsSearch : View {
             }
             .onChange(of: query.criteria.hashValue) { _, _ in
                 query.update(budgets)
+            }
+            .sheet(item: $inspect.value) { item in
+                BudgetCloseInspect(data: item)
             }
     }
 }

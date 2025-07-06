@@ -49,18 +49,15 @@ struct LedgerTable: View {
     private var fullSized: some View {
         Table(data, selection: $selected) {
             TableColumn("Memo", value: \.name)
-            if ledgerStyle == .none {
-                TableColumn("Balance") { item in
-                    Text(item.balance, format: .currency(code: currencyCode))
-                }
+#if os(macOS)
+                .width(200)
+#endif
+            
+            TableColumn(ledgerStyle.displayCredit) { item in
+                Text(item.credit, format: .currency(code: currencyCode))
             }
-            else {
-                TableColumn(ledgerStyle == .standard ? "Debit" : "Credit") { item in
-                    Text(item.credit, format: .currency(code: currencyCode))
-                }
-                TableColumn(ledgerStyle == .standard ? "Credit" : "Debit") { item in
-                    Text(item.debit, format: .currency(code: currencyCode))
-                }
+            TableColumn(ledgerStyle.displayDebit) { item in
+                Text(item.debit, format: .currency(code: currencyCode))
             }
             TableColumn("Date") { item in
                 Text(item.date, style: .date)
@@ -74,6 +71,9 @@ struct LedgerTable: View {
                     Text("No Category")
                 }
             }
+#if os(macOS)
+            .width(200)
+#endif
             TableColumn("Account") { item in
                 if let account = item.account {
                     CompactNamedPairInspect(account)
@@ -82,12 +82,15 @@ struct LedgerTable: View {
                     Text("No Account")
                 }
             }
+#if os(macOS)
+            .width(200)
+#endif
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
             SelectionContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
         }
-        #if os(macOS)
+#if os(macOS)
         .frame(minWidth: 300)
-        #endif
+#endif
     }
     
     @ToolbarContentBuilder

@@ -96,6 +96,7 @@ public struct AccountEdit : View {
                         .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                     
                     TextField("Location", text: $snapshot.location)
+                        .textFieldStyle(.roundedBorder)
                 }
             }
         }

@@ -23,6 +23,7 @@ struct BillPayment : TransactionEditorProtocol {
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
@@ -73,21 +74,18 @@ struct BillPayment : TransactionEditorProtocol {
     }
     
     var body: some View {
-        TransactionEditorFrame(.billPay(kind), apply: apply, content: {
+        TransactionEditorFrame(.billPay(kind), apply: apply) {
             Grid {
                 GridRow {
                     Text("Paying:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        Picker("Bill", selection: $selected) {
-                            Text("Select One", comment: "Select One bill").tag(nil as Bill?)
-                            ForEach(bills, id: \.id) { bill in
-                                Text(bill.name).tag(bill)
-                            }
-                        }.labelsHidden()
-                        Spacer()
-                    }
+                    Picker("Bill", selection: $selected) {
+                        Text("Select One", comment: "Select One bill").tag(nil as Bill?)
+                        ForEach(bills, id: \.id) { bill in
+                            Text(bill.name).tag(bill)
+                        }
+                    }.labelsHidden()
                 }
                 Divider()
                 GridRow {
@@ -105,11 +103,8 @@ struct BillPayment : TransactionEditorProtocol {
                     Text("From:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        NamedPairPicker($account)
-                        
-                        Spacer()
-                    }
+                    NamedPairPicker($account)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
                 GridRow {
                     Text("Date:")
@@ -125,7 +120,7 @@ struct BillPayment : TransactionEditorProtocol {
                     }
                 }
             }
-        })
+        }
     }
 }
 

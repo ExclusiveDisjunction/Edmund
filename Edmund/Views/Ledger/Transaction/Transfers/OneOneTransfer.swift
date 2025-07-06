@@ -9,6 +9,7 @@ import SwiftUI;
 import EdmundCore
 
 struct OneOneTransfer : View, TransactionEditorProtocol {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.categoriesContext) private var categories: CategoriesContext?;
     @Environment(\.modelContext) private var modelContext;
     
@@ -102,6 +103,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                     
                     HStack {
                         NamedPairPicker($dest)
+                            .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                         Spacer()
                     }
                 }

@@ -65,9 +65,9 @@ struct AllExpiredBillsVE : View {
                 HStack {
                     Text(wrapper.data.name)
                     Spacer()
-                    Text("Ended On")
+                    Text("Ended:", comment: "Bill ended on date")
                     if let end = wrapper.data.endDate {
-                        Text(end.formatted(date: .abbreviated, time: .omitted))
+                        Text(end.formatted(date: .numeric, time: .omitted))
                     }
                     else {
                         Text("No Information").italic()

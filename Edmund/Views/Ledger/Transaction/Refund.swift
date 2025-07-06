@@ -16,6 +16,7 @@ struct Refund : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
     @Bindable private var amount: CurrencyValue = .init();
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
@@ -98,6 +99,7 @@ struct Refund : TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($account)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
             }
         })

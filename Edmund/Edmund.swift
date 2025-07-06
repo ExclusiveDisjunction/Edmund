@@ -14,14 +14,6 @@ import EdmundWidgetCore
 struct EdmundApp: App {
     init() {
         self.loader = .init()
-    
-        /*
-         #if os(iOS)
-         registerBackgroundTasks()
-         #elseif os(macOS)
-         refreshWidget()
-         #endif
-         */
     }
     
     var loader: AppLoader;
@@ -47,69 +39,91 @@ struct EdmundApp: App {
         }
         
         WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
-            AppWindowGate(loader: loader) {
-                Homepage()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    Homepage()
+                }
             }
         }
         
         WindowGroup(PageDestinations.ledger.rawValue, id: PageDestinations.ledger.key) {
-            AppWindowGate(loader: loader) {
-                LedgerTable()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    LedgerTable()
+                }
             }
         }
         
         WindowGroup(PageDestinations.balance.rawValue, id: PageDestinations.balance.key) {
-            AppWindowGate(loader: loader) {
-                BalanceSheet()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    BalanceSheet()
+                }
             }
         }
         
         WindowGroup(PageDestinations.bills.rawValue, id: PageDestinations.bills.key) {
-            AppWindowGate(loader: loader) {
-                AllBillsViewEdit()
-                
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    AllBillsViewEdit()
+                    
+                }
             }
         }
         
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
-            AppWindowGate(loader: loader) {
-                AllBudgetsInspect()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    AllBudgetsInspect()
+                }
             }
         }
         
         WindowGroup(PageDestinations.org.rawValue, id: PageDestinations.org.key) {
-            AppWindowGate(loader: loader) {
-                OrganizationHome()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    OrganizationHome()
+                }
             }
         }
         
         WindowGroup(PageDestinations.accounts.rawValue, id: PageDestinations.accounts.key) {
-            AppWindowGate(loader: loader) {
-                AccountsIE()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    AccountsIE()
+                }
             }
         }
         
         WindowGroup(PageDestinations.categories.rawValue, id: PageDestinations.categories.key) {
-            AppWindowGate(loader: loader) {
-                CategoriesIE()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    CategoriesIE()
+                }
             }
         }
         
         WindowGroup(PageDestinations.credit.rawValue, id: PageDestinations.credit.key) {
-            AppWindowGate(loader: loader) {
-                CreditCardHelper()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    CreditCardHelper()
+                }
             }
         }
         
         WindowGroup(PageDestinations.audit.rawValue, id: PageDestinations.audit.key) {
-            AppWindowGate(loader: loader) {
-                BalanceVerifier()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    BalanceVerifier()
+                }
             }
         }
         
         WindowGroup(PageDestinations.jobs.rawValue, id: PageDestinations.jobs.key) {
-            AppWindowGate(loader: loader) {
-                AllJobsViewEdit()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    AllJobsViewEdit()
+                }
             }
         }
         
@@ -119,8 +133,10 @@ struct EdmundApp: App {
         
 #if os(macOS)
         WindowGroup("Expired Bills", id: "expiredBills") {
-            AppWindowGate(loader: loader) {
-                AllExpiredBillsVE()
+            NavigationStack {
+                AppWindowGate(loader: loader) {
+                    AllExpiredBillsVE()
+                }
             }
         }
         

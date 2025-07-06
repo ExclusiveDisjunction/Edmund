@@ -12,6 +12,7 @@ import EdmundCore
 struct UtilityPayment : TransactionEditorProtocol {
     @Query private var utilities: [Utility];
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.categoriesContext) private var categoriesContext;
     @Environment(\.modelContext) private var modelContext;
     
@@ -101,6 +102,7 @@ struct UtilityPayment : TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($account)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
                 
                 GridRow {

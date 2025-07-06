@@ -131,18 +131,13 @@ struct ManyTransferTable : View {
                 Spacer()
                 
                 NamedPairPicker($item.account)
-                /*
-                Text(item.amount.rawValue, format: .currency(code: currencyCode))
-                
-                Spacer()
-                
-                if let account = item.account {
-                    CompactNamedPairInspect(account)
-                }
-                else {
-                    Text("No Account").italic()
-                }
-                */
+                    .namedPairPickerStyle(.vertical)
+            }.swipeActions(edge: .trailing) {
+                Button {
+                    data.removeAll(where: { $0.id == item.id } )
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                }.tint(.red)
             }
         }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
     }

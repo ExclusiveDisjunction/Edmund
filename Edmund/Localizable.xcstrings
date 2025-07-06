@@ -532,6 +532,9 @@
     "Checking" : {
 
     },
+    "Close Look" : {
+
+    },
     "Closer look" : {
 
     },
@@ -717,6 +720,9 @@
     "Deposit to:" : {
 
     },
+    "Deposit To:" : {
+
+    },
     "Deposit:" : {
 
     },
@@ -843,6 +849,9 @@
     },
     "Ended On" : {
 
+    },
+    "Ended:" : {
+      "comment" : "Bill ended on date"
     },
     "Error" : {
       "comment" : "Used as the title of a message explaining what went wrong.",
@@ -1111,6 +1120,9 @@
     "Income" : {
 
     },
+    "Income Division Close Look" : {
+
+    },
     "Income Kind:" : {
 
     },
@@ -1233,10 +1245,16 @@
     "Last Edited" : {
 
     },
+    "Last Edited:" : {
+
+    },
     "Last Updated" : {
 
     },
     "Last Viewed" : {
+
+    },
+    "Last Viewed:" : {
 
     },
     "Ledger" : {

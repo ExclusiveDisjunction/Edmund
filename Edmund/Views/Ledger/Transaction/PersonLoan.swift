@@ -22,6 +22,7 @@ struct PersonalLoan: TransactionEditorProtocol {
     @State private var account: SubAccount?;
     @Bindable private var amount: CurrencyValue = .init();
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
@@ -106,6 +107,9 @@ struct PersonalLoan: TransactionEditorProtocol {
                     HStack {
                         DatePicker("", selection: $date, displayedComponents: .date)
                             .labelsHidden()
+                        
+                        Button("Today") { date = .now }
+                        
                         Spacer()
                     }
                 }
@@ -115,6 +119,7 @@ struct PersonalLoan: TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($account)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
             }
         })

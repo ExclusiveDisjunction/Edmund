@@ -14,6 +14,7 @@ struct MiscIncome: TransactionEditorProtocol {
     @State private var date: Date = .now;
     @State private var account: SubAccount? = nil;
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
@@ -62,16 +63,6 @@ struct MiscIncome: TransactionEditorProtocol {
         TransactionEditorFrame(.miscIncome, apply: apply, content: {
             Grid {
                 GridRow {
-                    Text("Date:")
-                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
-                        Spacer()
-                    }
-                }
-                
-                GridRow {
                     Text("Amount:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
@@ -87,10 +78,24 @@ struct MiscIncome: TransactionEditorProtocol {
                 }
                 
                 GridRow {
+                    Text("Date:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
+                        
+                        Button("Today") { date = .now }
+                        
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
                     Text("Deposit:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($account)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
             }
         })

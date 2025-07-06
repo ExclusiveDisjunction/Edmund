@@ -13,6 +13,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
     @State private var date: Date = .now;
     @State private var data: [ManyTableEntry] = [.init()];
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
@@ -71,6 +72,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                         Text("Account:")
                         
                         NamedPairPicker($account)
+                            .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                     }
                     HStack {
                         Text("Date:")

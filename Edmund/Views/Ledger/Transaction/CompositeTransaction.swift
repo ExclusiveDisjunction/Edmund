@@ -45,6 +45,7 @@ struct CompositeTransaction : TransactionEditorProtocol {
     
     @Bindable private var snapshot = LedgerEntrySnapshot();
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.uniqueEngine) private var uniqueEngine;
     
@@ -111,6 +112,8 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     HStack {
                         DatePicker("Date", selection: $snapshot.date, displayedComponents: .date)
                             .labelsHidden()
+                        
+                        Button("Today") { snapshot.date = .now }
                 
                         Spacer()
                     }
@@ -131,12 +134,14 @@ struct CompositeTransaction : TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($snapshot.category)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
                 GridRow {
                     Text("Account:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($snapshot.account)
+                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
                 
                 Divider()

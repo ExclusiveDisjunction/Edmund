@@ -13,6 +13,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil
     @State private var data: [ManyTableEntry] = [.init()];
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
     
@@ -70,6 +71,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
                             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                         
                         NamedPairPicker($account)
+                            .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                     }
                     
                     GridRow {

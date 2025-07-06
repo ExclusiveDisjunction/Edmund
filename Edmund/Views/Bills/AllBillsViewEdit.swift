@@ -90,9 +90,9 @@ struct AllBillsViewEdit : View {
             HStack {
                 Text(wrapper.data.name)
                 Spacer()
-                Text(wrapper.data.pricePer(showcasePeriod), format: .currency(code: currencyCode))
+                Text(wrapper.data.amount, format: .currency(code: currencyCode))
                 Text("/")
-                Text(showcasePeriod.perName)
+                Text(wrapper.data.period.perName)
             }.swipeActions(edge: .trailing) {
                 SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
             }
