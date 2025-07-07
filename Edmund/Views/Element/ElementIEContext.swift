@@ -6,13 +6,46 @@
 //
 
 import SwiftUI
+import SwiftData
+import EdmundCore
+
+public struct SubmitActionData {
+    public typealias Callback = @MainActor (ModelContext, UndoManager?, UniqueEngine) async -> Bool;
+    
+    @MainActor
+    public init(_ callback: @escaping Self.Callback, context: ModelContext, undoManager: UndoManager?, unique: UniqueEngine) {
+        self.callback = callback
+        self.context = context
+        self.undo = undoManager
+        self.unique = unique
+    }
+    
+    public let callback: Self.Callback;
+    public var context: ModelContext?;
+    public var undo: UndoManager?
+    public var unique: UniqueEngine;
+    
+    @MainActor
+    public func callAsFunction() async -> Bool {
+        if let context = context {
+            return await callback(context, undo, unique)
+        }
+        else {
+            return false
+        }
+    }
+}
 
 public struct SubmitAction {
-    public init(_ data: (() async -> Bool)?) {
+    public init() {
+        self.data = nil;
+    }
+    @MainActor
+    public init(_ data: SubmitActionData) {
         self.data = data
     }
     
-    private var data: (() async -> Bool)?;
+    public var data: SubmitActionData?
     
     @MainActor
     public func callAsFunction() async -> Bool {
@@ -29,7 +62,7 @@ public struct SubmitActionKey : EnvironmentKey {
     public typealias Value = SubmitAction
     
     public static var defaultValue: SubmitAction {
-        .init(nil)
+        .init()
     }
 }
 public struct ElementIsEditKey: EnvironmentKey {
@@ -38,9 +71,14 @@ public struct ElementIsEditKey: EnvironmentKey {
 }
 
 public extension EnvironmentValues {
+    @MainActor
     var elementSubmit: SubmitAction {
-        get { self[SubmitActionKey.self] }
-        set { self[SubmitActionKey.self] = newValue }
+        get {
+            self[SubmitActionKey.self]
+        }
+        set {
+            self[SubmitActionKey.self] = newValue
+        }
     }
     
     var elementIsEdit: Bool {

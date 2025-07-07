@@ -11,9 +11,8 @@ import EdmundCore
 
 @Observable
 public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
-    init(_ data: T, mode: InspectionMode, unique: UniqueEngine = .init()) {
+    init(_ data: T, mode: InspectionMode) {
         self.data = data
-        self.uniqueEngine = unique
         
         switch mode {
             case .add:
@@ -36,9 +35,6 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     public let adding: Bool;
     public var snapshot: T.Snapshot?;
     public var editHash: Int;
-    
-    public var modelContext: ModelContext?;
-    public var uniqueEngine: UniqueEngine;
     
     public var uniqueError: StringWarningManifest = .init()
     public var validationError: ValidationWarningManifest = .init()
@@ -75,7 +71,7 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
                     self.editHash = snap.hashValue
                 }
                 else { // Was editing, now is not. Must check for unsaved changes and warn otherwise.
-                    guard await validate() else { return }
+                    guard await validate(unique: unique) else { return }
                     
                     if snapshot?.hashValue != editHash {
                         warningConfirm = true
@@ -111,8 +107,8 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     }
     
     @MainActor
-    public func validate() async -> Bool {
-        if let snapshot = self.snapshot, let result = await snapshot.validate(unique: uniqueEngine) {
+    public func validate(unique: UniqueEngine) async -> Bool {
+        if let snapshot = self.snapshot, let result = await snapshot.validate(unique: unique) {
             validationError.warning = result
             return false
         }
@@ -120,14 +116,16 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
         return true
     }
     @MainActor
-    public func apply() async -> Bool {
+    public func apply(context: ModelContext, undoManager: UndoManager?, unique: UniqueEngine) async -> Bool {
+        print("Does the model context have an undo manager? \(context.undoManager != nil)")
+        print("Does the undo manager exist? \(undoManager != nil)")
+        
         if let editing = snapshot {
             if adding {
-                modelContext?.insert(data)
-                /*
+                context.insert(data)
                 if let uniqueElement = data as? any UniqueElement {
                     let id = uniqueElement.getObjectId()
-                    let wrapper = UndoAddUniqueWrapper(id: id, element: data, unique: uniqueEngine)
+                    let wrapper = UndoAddUniqueWrapper(id: id, element: data, unique: unique)
                     wrapper.registerWith(manager: undoManager)
                 }
                 else {
@@ -136,22 +134,19 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
                 }
                 
                 undoManager?.setActionName("add")
-                 */
             }
-            /*
             else {
                 let previous = data.makeSnapshot();
-                let wrapper = UndoSnapshotApplyWrapper(item: data, snapshot: previous, engine: uniqueEngine)
+                let wrapper = UndoSnapshotApplyWrapper(item: data, snapshot: previous, engine: unique)
                 wrapper.registerWith(manager: undoManager)
                 
                 undoManager?.setActionName("update")
             }
             
             undoManager?.endUndoGrouping()
-             */
             
             do {
-                try await data.update(editing, unique: uniqueEngine)
+                try await data.update(editing, unique: unique)
             }
             catch let e {
                 uniqueError.warning = .init(e.localizedDescription)
@@ -163,9 +158,9 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     }
     
     @MainActor
-    public func submit() async -> Bool {
-        if await validate() {
-            if await apply() {
+    public func submit(context: ModelContext, undoManager: UndoManager?, unique: UniqueEngine) async -> Bool {
+        if await validate(unique: unique) {
+            if await apply(context: context, undoManager: undoManager, unique: unique) {
                 return true
             }
         }
@@ -225,6 +220,18 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
     private let inspect: (T) -> Inspect;
     private let edit: (T.Snapshot) -> Edit;
     
+    public var submitAction: SubmitAction {
+        .init(
+            .init(
+                { context, undo, unique in
+                    await manifest.submit(context: context, undoManager: undo, unique: unique)
+                },
+                context: modelContext,
+                undoManager: undoManager,
+                unique: uniqueEngine)
+        )
+    }
+    
     public func onModeChanged(_ perform: ((InspectionMode) -> Void)?) -> some View {
         self.manifest.onModeChanged(perform)
         return self
@@ -248,7 +255,7 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
             warningConfirm = false //Since two sheets cannot show at the same time, we must dismiss this one first
             
             Task {
-                if await manifest.apply() {
+                if await manifest.apply(context: modelContext, undoManager: undoManager, unique: uniqueEngine) {
                     manifest.reset()
                 }
             }
@@ -278,14 +285,11 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
             Spacer()
             
             self.footer()
-                .environment(\.elementSubmit, .init(manifest.submit))
+                .environment(\.elementSubmit, submitAction)
                 .environment(\.elementIsEdit, .init(manifest.isEdit))
         }.onAppear {
             print("does the context have an undo manager? \(modelContext.undoManager != nil)")
             print("does the undo manager exist? \(undoManager != nil)")
-            
-            manifest.uniqueEngine = uniqueEngine
-            manifest.modelContext = modelContext
         }
         .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $manifest.warningConfirm, titleVisibility: .visible) {
             confirm
