@@ -14,6 +14,11 @@ import SwiftData
 public protocol UniqueElement: Identifiable where Self.ID: Sendable {
     static var objId: ObjectIdentifier { get }
 }
+public extension UniqueElement {
+    func getObjectId() -> ObjectIdentifier {
+        Self.objId
+    }
+}
 
 /// A struct that allows for the access of all unique elements out of a modelContext in a safe way.
 public struct UniqueContext {
@@ -145,7 +150,7 @@ public actor UniqueEngine {
     /// Attempts to release an ID from an object ID's pool.
     @discardableResult
     public func releaseId<ID>(key: ObjectIdentifier, id: ID) async -> Bool where ID: Hashable, ID: Sendable  {
-        data[key, default: .init()].remove(id) != nil
+        data[key]?.remove(id) != nil
     }
     
     /// Releases and then attempts to obtain a new ID for a specific type.

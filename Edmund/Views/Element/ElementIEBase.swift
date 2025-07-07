@@ -6,126 +6,184 @@
 //
 
 import SwiftUI
+import SwiftData
 import EdmundCore
 
-public struct GenericAction<Result> {
-    public init(_ data: (() -> Result)?) {
-        self.data = data
-    }
-    
-    private var data: (() -> Result)?;
-    
-    @discardableResult
-    public func callAsFunction() -> Result? {
-        if let data = data {
-            return data()
-        }
-        else {
-            return nil
-        }
-    }
-}
-
-public struct SubmitActionKey : EnvironmentKey {
-    public typealias Value = GenericAction<Void>
-    
-    public static var defaultValue: GenericAction<Void> {
-        .init(nil)
-    }
-}
-public struct CancelActionKey : EnvironmentKey {
-    public typealias Value = GenericAction<Void>
-    
-    public static var defaultValue: GenericAction<Void> {
-        .init(nil)
-    }
-}
-public struct ElementIsEditKey: EnvironmentKey {
-    public typealias Value = Bool
-    public static let defaultValue: Bool = false
-}
-
-public extension EnvironmentValues {
-    var elementSubmit: GenericAction<Void> {
-        get { self[SubmitActionKey.self] }
-        set { self[SubmitActionKey.self] = newValue }
-    }
-    
-    var elementCancel: GenericAction<Void> {
-        get { self[CancelActionKey.self] }
-        set { self[CancelActionKey.self] = newValue }
-    }
-    
-    var elementIsEdit: Bool {
-        get { self[ElementIsEditKey.self] }
-        set { self[ElementIsEditKey.self] = newValue }
-    }
-}
-
 @Observable
-public class ElementIEManifest<T> where T: SnapshotableElement {
-    init(_ data: T, isEdit: Bool) {
+public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
+    init(_ data: T, mode: InspectionMode, unique: UniqueEngine = .init()) {
         self.data = data
+        self.uniqueEngine = unique
         
-        if isEdit {
-            let snap = data.makeSnapshot()
-            self.snapshot = snap
-            self.editHash = snap.hashValue
+        switch mode {
+            case .add:
+                fallthrough
+            case .edit:
+                let snap = data.makeSnapshot()
+                self.snapshot = snap
+                self.editHash = snap.hashValue
+            case .inspect:
+                self.snapshot = nil
+                self.editHash = 0
         }
-        else {
-            self.snapshot = nil
-            self.editHash = 0
-        }
+        
+        adding = mode == .add
     }
     
     public let data: T;
+    public let adding: Bool;
     public var snapshot: T.Snapshot?;
     public var editHash: Int;
     
+    public var modelContext: ModelContext?;
+    public var uniqueEngine: UniqueEngine;
+    public var undoManager: UndoManager?;
+    
+    public var uniqueError: StringWarningManifest = .init()
+    public var validationError: ValidationWarningManifest = .init()
+    
+    public var warningConfirm: Bool = false;
+    
+    private var _onEditChanged: ((InspectionMode) -> Void)?;
+    private var _postAction: (() -> Void)?;
+    
+    public func onModeChanged(_ perform: @escaping (InspectionMode) -> Void) {
+        self._onEditChanged = perform
+    }
+    public func postAction(_ perform: @escaping () -> Void) {
+        self._postAction = perform
+    }
+    
+    public func reset() {
+        snapshot = nil
+        editHash = 0
+    }
+    
+    @MainActor
     public var isEdit: Bool {
         get {
             snapshot != nil
         }
         set {
-            guard newValue != isEdit else { return }
+            guard !adding && newValue != isEdit else { return } //Cannot change mode if we are adding
             
-            if newValue { //Was not editing, now is
-                
-            }
-            else { // Was editing, now is not. Must check for unsaved changes and warn otherwise.
-                
+            Task {
+                if newValue { //Was not editing, now is
+                    let snap = data.makeSnapshot()
+                    self.snapshot = snap
+                    self.editHash = snap.hashValue
+                }
+                else { // Was editing, now is not. Must check for unsaved changes and warn otherwise.
+                    guard await validate() else { return }
+                    
+                    if snapshot?.hashValue != editHash {
+                        warningConfirm = true
+                    }
+                    else {
+                        self.reset()
+                    }
+                }
             }
         }
     }
     
+    @MainActor
+    public func validate() async -> Bool {
+        if let snapshot = self.snapshot, let result = await snapshot.validate(unique: uniqueEngine) {
+            validationError.warning = result
+            return false
+        }
+        
+        return true
+    }
+    @MainActor
+    public func apply() async -> Bool {
+        if let editing = snapshot {
+            undoManager?.beginUndoGrouping()
+            
+            if adding {
+                modelContext?.insert(data)
+                if let uniqueElement = data as? any UniqueElement {
+                    let id = uniqueElement.getObjectId()
+                    let wrapper = UndoAddUniqueWrapper(id: id, element: data, unique: uniqueEngine)
+                    wrapper.registerWith(manager: undoManager)
+                }
+                else {
+                    let wrapper = UndoAddWrapper(element: data)
+                    wrapper.registerWith(manager: undoManager)
+                }
+                
+                
+                undoManager?.setActionName("add")
+            }
+            else {
+                let previous = data.makeSnapshot();
+                let wrapper = UndoSnapshotApplyWrapper(item: data, snapshot: previous, engine: uniqueEngine)
+                wrapper.registerWith(manager: undoManager)
+                
+                undoManager?.setActionName("update")
+            }
+            
+            undoManager?.endUndoGrouping()
+            
+            do {
+                try await data.update(editing, unique: uniqueEngine)
+            }
+            catch let e {
+                uniqueError.warning = .init(e.localizedDescription)
+                return false;
+            }
+        }
+        
+        return true
+    }
+    
+    @MainActor
+    public func submit() async -> Bool {
+        if await validate() {
+            if await apply() {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    @MainActor
     private var unsavedChanges: Bool {
         isEdit && (snapshot?.hashValue ?? Int()) != editHash
     }
 }
 
 public struct DefaultElementIEFooter : View {
-    @Environment(\.elementCancel) private var elementCancel;
     @Environment(\.elementSubmit) private var elementSubmit;
     @Environment(\.elementIsEdit) private var isEdit;
+    @Environment(\.dismiss) private var dismiss;
     
     public var body: some View {
         HStack {
             Spacer()
             
             if isEdit {
-                Button("Cancel", action: { elementCancel() } )
+                Button("Cancel", action: { dismiss() } )
                     .buttonStyle(.bordered)
             }
             
-            Button(isEdit ? "Save" : "Ok", action: { elementSubmit() })
+            Button(isEdit ? "Save" : "Ok", action: {
+                Task {
+                    if await elementSubmit() {
+                        dismiss()
+                    }
+                }
+            })
                 .buttonStyle(.borderedProminent)
         }
     }
 }
 
-public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: SnapshotableElement, Header: View, Footer: View, Inspect: View, Edit: View {
+public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: SnapshotableElement, T.ID: Sendable, Header: View, Footer: View, Inspect: View, Edit: View {
     
-    public init(_ data: T, isEditing: Bool,
+    public init(_ data: T, mode: InspectionMode,
                 @ViewBuilder header:  @escaping (Binding<Bool>) -> Header,
                 @ViewBuilder footer:  @escaping () -> Footer,
                 @ViewBuilder inspect: @escaping (T) -> Inspect,
@@ -135,41 +193,52 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
         self.inspect = inspect
         self.edit = edit
         
-        self.manifest = .init(data, isEdit: isEditing)
+        self.manifest = .init(data, mode: mode)
     }
     
     private let header: (Binding<Bool>) -> Header;
     private let footer: () -> Footer;
     private let inspect: (T) -> Inspect;
     private let edit: (T.Snapshot) -> Edit;
-    private var _onEditChanged: ((Bool) -> Void)?;
-    private var _postAction: (() -> Void)?;
     
-    public func onEditChanged(_ perform: @escaping (Bool) -> Void) -> some View {
-        var result = self
-        result._onEditChanged = perform
-        
-        return result
+    public func onModeChanged(_ perform: @escaping (InspectionMode) -> Void) -> some View {
+        self.manifest.onModeChanged(perform)
+        return self
     }
     public func postAction(_ perform: @escaping () -> Void) -> some View {
-        var result = self
-        result._postAction = perform
-        
-        return result
+        self.manifest.postAction(perform)
+        return self
     }
     
-    private func submit() {
-        print("submit called")
-    }
-    private func cancel() {
-        print("cancel called")
-    }
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.undoManager) private var undoManager;
+    @Environment(\.modelContext) private var modelContext;
 
     @State private var warningConfirm: Bool = false;
     
     @Bindable private var manifest: ElementIEManifest<T>;
-    @Bindable private var uniqueError: StringWarningManifest = .init()
-    @Bindable private var validationError: ValidationWarningManifest = .init()
+    
+    @ViewBuilder
+    private var confirm: some View {
+        Button("Save", action: {
+            warningConfirm = false //Since two sheets cannot show at the same time, we must dismiss this one first
+            
+            Task {
+                if await manifest.apply() {
+                    manifest.reset()
+                }
+            }
+        })
+        
+        Button("Discard") {
+            manifest.reset()
+            warningConfirm = false
+        }
+        
+        Button("Cancel", role: .cancel) {
+            warningConfirm = false
+        }
+    }
     
     public var body: some View {
         VStack {
@@ -183,20 +252,40 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
             }
             
             self.footer()
-                .environment(\.elementSubmit, .init(submit))
-                .environment(\.elementCancel, .init(cancel))
+                .environment(\.elementSubmit, .init(manifest.submit))
                 .environment(\.elementIsEdit, .init(manifest.isEdit))
+        }.onAppear {
+            manifest.uniqueEngine = uniqueEngine
+            manifest.undoManager = undoManager
+            manifest.modelContext = modelContext
         }
+        .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $manifest.warningConfirm) {
+            confirm
+        }
+        .alert("Error", isPresented: $manifest.uniqueError.isPresented, actions: {
+            Button("Ok", action: {
+                manifest.uniqueError.isPresented = false
+            })
+        }, message: {
+            Text(manifest.uniqueError.message ?? "")
+        })
+        .alert("Error", isPresented: $manifest.validationError.isPresented, actions: {
+            Button("Ok", action: {
+                manifest.validationError.isPresented = false
+            })
+        }, message: {
+            Text((manifest.validationError.warning ?? .internalError).display)
+        })
     }
 }
 public extension ElementIEBase where Footer == DefaultElementIEFooter {
-    init(_ data: T, isEditing: Bool,
+    init(_ data: T, mode: InspectionMode,
                 @ViewBuilder header:  @escaping (Binding<Bool>) -> Header,
                 @ViewBuilder inspect: @escaping (T) -> Inspect,
                 @ViewBuilder edit:    @escaping (T.Snapshot) -> Edit) {
         self.init(
             data,
-            isEditing: isEditing,
+            mode: mode,
             header: header,
             footer: DefaultElementIEFooter.init,
             inspect: inspect,

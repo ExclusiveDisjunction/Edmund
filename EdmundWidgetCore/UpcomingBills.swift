@@ -44,6 +44,18 @@ public struct UpcomingBillsBundle : Hashable, Equatable, Codable, Sendable, Time
     public let date: Date;
     /// The associated upcoming bills
     public let bills: [UpcomingBill];
+    
+    public static let example: UpcomingBillsBundle = UpcomingBillsBundle(
+        date: .now,
+        bills: [
+            .init(name: "Apple Music", amount: 9.99, dueDate: Date.fromParts(2025, 7, 2)!),
+            .init(name: "iCloud", amount: 2.99, dueDate: Date.fromParts(2025, 7, 5)!),
+            .init(name: "Electric", amount: 33.45, dueDate: Date.fromParts(2025, 7, 10)!),
+            .init(name: "Amazon Prime", amount: 14.99, dueDate: Date.fromParts(2025, 7, 15)!),
+            .init(name: "Water", amount: 40.00, dueDate: Date.fromParts(2025, 7, 22)!),
+            .init(name: "YouTube Premium", amount: 20.00, dueDate: Date.fromParts(2026, 7, 29)!)
+        ]
+    )
 }
 public struct BillSchematic : Sendable {
     @MainActor

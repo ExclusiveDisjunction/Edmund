@@ -11,6 +11,6 @@ import SwiftUI
 @main
 struct EdmundWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        EdmundWidgets()
+        UpcomingBillsWidget()
     }
 }
