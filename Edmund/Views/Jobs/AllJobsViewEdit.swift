@@ -155,8 +155,9 @@ struct AllJobsViewEdit : View {
 }
 
 #Preview {
-    NavigationStack {
-        AllJobsViewEdit()
-            .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        NavigationStack {
+            AllJobsViewEdit()
+        }
     }
 }

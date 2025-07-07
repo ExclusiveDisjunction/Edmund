@@ -94,6 +94,7 @@ public struct LedgerEntryEdit : View {
 }
 
 #Preview {
-    ElementEditor(LedgerEntry.exampleEntry, adding: false)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementEditor(LedgerEntry.exampleEntry, adding: false)
+    }
 }

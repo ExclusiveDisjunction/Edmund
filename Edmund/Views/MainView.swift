@@ -105,6 +105,9 @@ struct MainView: View {
     @State private var page: PageDestinations.ID? = nil;
     @State private var allowedPages = PageDestinations.topLevel;
     
+    @Environment(\.undoManager) private var undoManager;
+    @Environment(\.modelContext) private var modelContext;
+    
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
     
@@ -142,11 +145,15 @@ struct MainView: View {
         } detail: {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
+        }.onAppear {
+            print("does the context have an undo manager? \(modelContext.undoManager != nil)")
+            print("is the undo manager present? \(undoManager != nil)")
         }
     }
 }
 
 #Preview {
-    MainView()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        MainView()
+    }
 }

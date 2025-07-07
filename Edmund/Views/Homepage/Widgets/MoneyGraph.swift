@@ -41,8 +41,9 @@ struct MoneyGraph : View {
 }
 
 #Preview {
-    MoneyGraph()
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
-        .frame(width: 200, height: 200)
+    DebugContainerView {
+        MoneyGraph()
+            .padding()
+            .frame(width: 200, height: 200)
+    }
 }

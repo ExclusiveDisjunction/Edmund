@@ -89,6 +89,7 @@ struct DevotionGroupsGraph: View {
 }
 
 #Preview {
-    DevotionGroupsGraph(from: try! .getExampleBudget(), isSheet: false)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        DevotionGroupsGraph(from: try! .getExampleBudget(), isSheet: false)
+    }
 }

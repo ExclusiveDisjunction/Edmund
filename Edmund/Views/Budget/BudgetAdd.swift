@@ -135,6 +135,7 @@ struct BudgetAddView : View {
 }
 
 #Preview {
-    BudgetAddView()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BudgetAddView()
+    }
 }

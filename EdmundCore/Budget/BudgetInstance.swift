@@ -153,7 +153,7 @@ public final class BudgetInstance : Identifiable, SnapshotableElement, Defaultab
     @MainActor
     public static func getExampleBudget() throws -> BudgetInstance {
         let container = try Containers.debugContainer();
-        let item = (try container.mainContext.fetch(FetchDescriptor<BudgetInstance>())).first!
+        let item = (try container.context.fetch(FetchDescriptor<BudgetInstance>())).first!
         
         return item;
     }

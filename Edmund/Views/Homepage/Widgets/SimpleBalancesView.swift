@@ -35,8 +35,9 @@ struct SimpleBalancesView : View {
 }
 
 #Preview {
-    SimpleBalancesView()
-        .padding()
-        .frame(width: 300, height: 200)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        SimpleBalancesView()
+            .padding()
+            .frame(width: 300, height: 200)
+    }
 }

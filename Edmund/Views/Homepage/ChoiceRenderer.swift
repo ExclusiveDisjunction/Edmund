@@ -38,7 +38,8 @@ struct ChoiceRenderer : View {
 }
 
 #Preview {
-    ChoiceRenderer(choice: .detailedBalances)
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ChoiceRenderer(choice: .detailedBalances)
+            .padding()
+    }
 }

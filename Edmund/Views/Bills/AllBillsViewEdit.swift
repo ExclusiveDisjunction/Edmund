@@ -297,7 +297,10 @@ struct AllBillsViewEdit : View {
             .navigationTitle("Bills")
             .onChange(of: query.hashValue, refresh)
             .onChange(of: showExpiredBills, refresh)
-            .onAppear(perform: refresh)
+            .onAppear {
+                refresh()
+                print("does the context have an undo manager? \(modelContext.undoManager != nil)")
+            }
         #if os(iOS)
             .sheet(isPresented: $expiredBillsSheet) {
                 billsExpiredSheet
@@ -307,7 +310,9 @@ struct AllBillsViewEdit : View {
 }
 
 #Preview {
-    NavigationStack {
-        AllBillsViewEdit().modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        NavigationStack {
+            AllBillsViewEdit()
+        }
     }
 }

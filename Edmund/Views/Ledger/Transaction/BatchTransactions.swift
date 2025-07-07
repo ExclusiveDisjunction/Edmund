@@ -98,7 +98,8 @@ struct BatchTransactions: TransactionEditorProtocol {
 }
 
 #Preview {
-    BatchTransactions()
-        .modelContainer(try! Containers.debugContainer())
-        .padding()
+    DebugContainerView {
+        BatchTransactions()
+            .padding()
+    }
 }

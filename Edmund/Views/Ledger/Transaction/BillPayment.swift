@@ -125,6 +125,7 @@ struct BillPayment : TransactionEditorProtocol {
 }
 
 #Preview {
-    BillPayment(kind: .subscription)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BillPayment(kind: .subscription)
+    }
 }

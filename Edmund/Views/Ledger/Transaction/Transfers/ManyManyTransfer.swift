@@ -73,7 +73,8 @@ struct ManyManyTransfer : TransactionEditorProtocol {
 }
 
 #Preview {
-    ManyManyTransfer()
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ManyManyTransfer()
+            .padding()
+    }
 }

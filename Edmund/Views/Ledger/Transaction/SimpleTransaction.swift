@@ -35,7 +35,8 @@ struct SimpleTransaction : TransactionEditorProtocol {
 }
 
 #Preview {
-    SimpleTransaction()
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        SimpleTransaction()
+            .padding()
+    }
 }

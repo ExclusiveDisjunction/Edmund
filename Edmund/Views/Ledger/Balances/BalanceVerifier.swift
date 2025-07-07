@@ -101,7 +101,7 @@ struct BalanceVerifier: View {
 }
 
 #Preview {
-    BalanceVerifier()
-        .modelContainer(try! Containers.debugContainer())
-        .navigationTitle("Balance Verification")
+    DebugContainerView {
+        BalanceVerifier()
+    }
 }

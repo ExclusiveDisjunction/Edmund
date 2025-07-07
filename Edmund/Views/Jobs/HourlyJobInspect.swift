@@ -81,6 +81,7 @@ public struct HourlyJobInspect : View {
 }
 
 #Preview {
-    ElementInspector(data: HourlyJob.exampleJob)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementInspector(data: HourlyJob.exampleJob)
+    }
 }

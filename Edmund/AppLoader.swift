@@ -22,7 +22,7 @@ public extension EnvironmentValues {
 }
 
 public struct LoadedApp {
-    public let container: ModelContainer;
+    public let container: ContainerBundle;
     public let unique: UniqueEngine;
     public let categories: CategoriesContext;
     public let warnings: [String];
@@ -56,7 +56,7 @@ public class AppLoader {
     
     @MainActor
     public func load() async {
-        let container: ModelContainer;
+        let container: ContainerBundle;
         let uniqueContext: UniqueContext;
         let unique: UniqueEngine;
         let categories: CategoriesContext;
@@ -75,8 +75,10 @@ public class AppLoader {
             return;
         }
         
+        print("does the context have an undo manager? \(container.context.undoManager != nil)")
+        
         do {
-            uniqueContext = try UniqueContext(container.mainContext)
+            uniqueContext = try UniqueContext(container.context)
         }
         catch let e {
             withAnimation {
@@ -88,7 +90,7 @@ public class AppLoader {
         unique = UniqueEngine(uniqueContext)
         
         do {
-            categories = try CategoriesContext(container.mainContext)
+            categories = try CategoriesContext(container.context)
         }
         catch let e {
             withAnimation {
@@ -101,7 +103,7 @@ public class AppLoader {
         
         if let provider: WidgetDataProvider = .init() {
             do {
-                try await provider.append(data: UpcomingBillsWidgetManager(context: container.mainContext))
+                try await provider.append(data: UpcomingBillsWidgetManager(context: container.context))
                 try await provider.prepareWidget()
             }
             catch let e {
@@ -148,7 +150,7 @@ struct AppWindowGate<Content> : View where Content: View {
                     .environment(\.categoriesContext, a.categories)
                     .environment(\.uniqueEngine, a.unique)
                     .environment(\.appWarnings, a.warnings)
-                    .modelContainer(a.container)
+                    .environment(\.modelContext, a.container.context)
                 
         }
     }

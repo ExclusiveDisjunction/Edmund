@@ -138,6 +138,7 @@ struct UtilityPayment : TransactionEditorProtocol {
 }
 
 #Preview {
-    UtilityPayment()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        UtilityPayment()
+    }
 }

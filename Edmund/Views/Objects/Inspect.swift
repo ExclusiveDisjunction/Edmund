@@ -16,6 +16,14 @@ public enum InspectionMode : Int, Identifiable, CaseIterable {
     /// Singlas the data is being added. This is essentially `Self.edit`, but gives extra context.
     case add
     
+    public func toggled() -> Self {
+        switch self {
+            case .edit: .inspect
+            case .inspect: .edit
+            case .add: .add
+        }
+    }
+    
     public var id: String {
         switch self {
             case .edit: "edit"

@@ -27,6 +27,7 @@ struct CreditCardTrans: TransactionEditorProtocol {
 }
 
 #Preview {
-    CreditCardTrans()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        CreditCardTrans()
+    }
 }

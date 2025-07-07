@@ -145,5 +145,7 @@ struct CreditCardHelper: View {
 }
 
 #Preview {
-    CreditCardHelper().modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        CreditCardHelper()
+    }
 }

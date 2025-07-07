@@ -88,7 +88,8 @@ public struct NamedPairPicker<C> : View where C: BoundPair, C: TypeTitled, C: Pe
         }
     );
     
-    NamedPairPicker(bind)
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        NamedPairPicker(bind)
+            .padding()
+    }
 }

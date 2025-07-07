@@ -83,6 +83,7 @@ public struct HourlyJobEdit : View {
 }
 
 #Preview {
-    ElementEditor(HourlyJob.exampleJob, adding: true)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementEditor(HourlyJob.exampleJob, adding: true)
+    }
 }

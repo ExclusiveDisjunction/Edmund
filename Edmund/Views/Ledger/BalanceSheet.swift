@@ -159,7 +159,8 @@ struct BalanceSheet: View {
 }
 
 #Preview {
-    BalanceSheet()
-        .frame(width: 500, height: 400)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BalanceSheet()
+            .frame(width: 500, height: 400)
+    }
 }

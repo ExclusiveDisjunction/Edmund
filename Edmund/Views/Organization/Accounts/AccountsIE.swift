@@ -118,6 +118,7 @@ struct AccountsIE : View {
 }
 
 #Preview {
-    AccountsIE()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        AccountsIE()
+    }
 }

@@ -46,6 +46,7 @@ struct PaycheckViewer : View {
 
 
 #Preview {
-    PaycheckViewer()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        PaycheckViewer()
+    }
 }

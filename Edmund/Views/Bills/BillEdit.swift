@@ -57,6 +57,7 @@ public struct BillEdit : View {
 }
 
 #Preview {
-    ElementEditor(Bill(kind: .subscription), adding: false)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementEditor(Bill(kind: .subscription), adding: false)
+    }
 }

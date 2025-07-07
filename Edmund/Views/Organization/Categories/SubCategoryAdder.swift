@@ -110,6 +110,7 @@ struct SubCategoryAdder : View {
 }
 
 #Preview {
-    SubCategoryAdder()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        SubCategoryAdder()
+    }
 }

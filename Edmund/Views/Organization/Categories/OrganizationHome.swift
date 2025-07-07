@@ -37,6 +37,7 @@ struct OrganizationHome : View {
 }
 
 #Preview {
-    OrganizationHome()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        OrganizationHome()
+    }
 }

@@ -46,7 +46,8 @@ struct UpcomingBillsView : View {
 }
 
 #Preview {
-    UpcomingBillsView()
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        UpcomingBillsView()
+            .padding()
+    }
 }

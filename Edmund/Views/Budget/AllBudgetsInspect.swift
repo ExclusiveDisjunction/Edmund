@@ -262,6 +262,7 @@ struct AllBudgetsInspect : View {
 }
 
 #Preview {
-    AllBudgetsInspect()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        AllBudgetsInspect()
+    }
 }

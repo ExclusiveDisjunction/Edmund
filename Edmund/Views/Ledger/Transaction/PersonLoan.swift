@@ -127,6 +127,7 @@ struct PersonalLoan: TransactionEditorProtocol {
 }
 
 #Preview {
-    PersonalLoan()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        PersonalLoan()
+    }
 }

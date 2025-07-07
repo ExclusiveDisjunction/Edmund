@@ -104,6 +104,7 @@ public struct AccountEdit : View {
 }
 
 #Preview {
-    ElementEditor(Account.exampleAccount, adding: false)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementEditor(Account.exampleAccount, adding: false)
+    }
 }

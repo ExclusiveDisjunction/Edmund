@@ -218,7 +218,8 @@ struct ManyTransferTable : View {
         set: { data = $0 }
     );
     
-    ManyTransferTable(title: nil, data: binding)
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ManyTransferTable(title: nil, data: binding)
+            .padding()
+    }
 }

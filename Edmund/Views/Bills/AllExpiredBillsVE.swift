@@ -177,7 +177,9 @@ struct AllExpiredBillsVE : View {
 }
 
 #Preview {
-    NavigationStack {
-        AllExpiredBillsVE().modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        NavigationStack {
+            AllExpiredBillsVE()
+        }
     }
 }

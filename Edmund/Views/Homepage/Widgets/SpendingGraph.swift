@@ -97,8 +97,9 @@ struct SpendingGraph : View {
 }
 
 #Preview {
-    SpendingGraph()
-        .padding()
-        .frame(width: 500)
-        .modelContainer(try! Containers.transactionsWithSpreadContainer())
+    DebugContainerView {
+        SpendingGraph()
+            .padding()
+            .frame(width: 500)
+    }
 }

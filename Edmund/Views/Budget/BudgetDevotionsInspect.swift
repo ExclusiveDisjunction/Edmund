@@ -92,6 +92,7 @@ struct BudgetDevotionsInspect : View {
 }
 
 #Preview {
-    BudgetDevotionsInspect(data: try! .getExampleBudget())
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BudgetDevotionsInspect(data: try! .getExampleBudget())
+    }
 }

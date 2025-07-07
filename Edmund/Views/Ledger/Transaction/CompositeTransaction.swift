@@ -187,6 +187,7 @@ struct CompositeTransaction : TransactionEditorProtocol {
 }
 
 #Preview {
-    CompositeTransaction()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        CompositeTransaction()
+    }
 }

@@ -103,6 +103,7 @@ struct MiscIncome: TransactionEditorProtocol {
 }
 
 #Preview {
-    MiscIncome()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        MiscIncome()
+    }
 }

@@ -70,6 +70,7 @@ struct BudgetPropertiesInspect : View {
 }
 
 #Preview {
-    BudgetPropertiesInspect(data: try! .getExampleBudget())
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BudgetPropertiesInspect(data: try! .getExampleBudget())
+    }
 }

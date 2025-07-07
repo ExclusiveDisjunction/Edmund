@@ -64,6 +64,7 @@ public struct UtilityEdit : View {
 }
 
 #Preview {
-    ElementEditor(Utility(), adding: false)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementEditor(Utility(), adding: false)
+    }
 }

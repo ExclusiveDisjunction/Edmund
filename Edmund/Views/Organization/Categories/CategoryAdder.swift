@@ -70,6 +70,7 @@ struct CategoryAdder : View {
 }
 
 #Preview {
-    CategoryAdder()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        CategoryAdder()
+    }
 }

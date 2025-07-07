@@ -21,6 +21,7 @@ struct PaydayEditor : TransactionEditorProtocol {
 }
 
 #Preview {
-    PaydayEditor()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        PaydayEditor()
+    }
 }

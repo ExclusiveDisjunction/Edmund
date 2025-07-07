@@ -39,6 +39,7 @@ public struct BudgetEdit : View {
 }
 
 #Preview {
-    BudgetEdit(.init(try! BudgetInstance.getExampleBudget()))
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BudgetEdit(.init(try! BudgetInstance.getExampleBudget()))
+    }
 }

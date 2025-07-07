@@ -131,6 +131,7 @@ public struct LedgerEntryInspect : View {
 }
 
 #Preview {
-    ElementInspector(data: LedgerEntry.exampleEntry)
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementInspector(data: LedgerEntry.exampleEntry)
+    }
 }

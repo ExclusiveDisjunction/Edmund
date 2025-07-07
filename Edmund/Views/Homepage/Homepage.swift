@@ -129,8 +129,9 @@ struct Homepage : View {
 
 
 #Preview {
-    Homepage()
-        .modelContainer(try! Containers.debugContainer())
-        .frame(width: 600, height: 400)
-        .padding()
+    DebugContainerView {
+        Homepage()
+            .frame(width: 600, height: 400)
+            .padding()
+    }
 }

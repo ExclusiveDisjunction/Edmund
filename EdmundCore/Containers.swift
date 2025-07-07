@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 public protocol ExampleCreator {
     @MainActor
@@ -118,6 +119,26 @@ public enum ContainerLocation {
     case cloudKit(ModelConfiguration.CloudKitDatabase)
 }
 
+public struct ContainerBundle {
+    public let container: ModelContainer
+    public let context: ModelContext
+    public let undo: UndoManager
+}
+
+public struct DebugContainerView<Content> : View where Content: View {
+    public init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+        self.container = try! Containers.debugContainer()
+    }
+    public let content: () -> Content;
+    public let container: ContainerBundle;
+    
+    public var body: some View {
+        content()
+            .environment(\.modelContext, container.context)
+    }
+}
+
 /// A collection of various tools used for SwiftData containers.
 public struct Containers {
     public static let interestedTypes: [any PersistentModel.Type] = [
@@ -146,7 +167,7 @@ public struct Containers {
     private static let schema: Schema = .init(interestedTypes)
     
     @MainActor
-    private static func prepareContainer(loc: ContainerLocation) throws -> ModelContainer {
+    private static func prepareContainer(loc: ContainerLocation) throws -> ContainerBundle {
         let configuration: ModelConfiguration = switch loc {
             case .onDisk(let name):  .init(name, schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
             case .simple:            .init(      schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
@@ -155,27 +176,30 @@ public struct Containers {
         }
         
 
-        let result = try ModelContainer(for: schema, configurations: [ configuration ])
-        result.mainContext.undoManager = UndoManager()
-        result.mainContext.autosaveEnabled = true;
+        let container = try ModelContainer(for: schema, configurations: [ configuration ])
+        let undoManager = UndoManager()
+        let context = ModelContext(container)
+        context.undoManager = undoManager
+        context.autosaveEnabled = true
         
-        return result;
+        print("does the context have an undo manager? \(context.undoManager != nil)")
+        
+        return .init(container: container, context: context, undo: undoManager)
     }
     
     @MainActor
-    private static func makeDebugContainer<T>(using: T) throws -> ModelContainer where T: ExampleCreator {
+    private static func makeDebugContainer<T>(using: T) throws -> ContainerBundle where T: ExampleCreator {
         let container = try prepareContainer(loc: .inMemory)
-        let context = container.mainContext
         
-        try using.fill(context: context)
+        try using.fill(context: container.context)
         
         return container
     }
     
     @MainActor
-    private static var _uniqueDebugContainer: ModelContainer? = nil;
+    private static var _uniqueDebugContainer: ContainerBundle? = nil;
     @MainActor
-    public static func uniqueDebugContainer() throws -> ModelContainer {
+    public static func uniqueDebugContainer() throws -> ContainerBundle {
         if let container = _uniqueDebugContainer {
             return container
         }
@@ -187,10 +211,10 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _debugContainer: ModelContainer? = nil;
+    private static var _debugContainer: ContainerBundle? = nil;
     /// A container that contains temporary, simple data used for showcasing.
     @MainActor
-    public static func debugContainer() throws -> ModelContainer {
+    public static func debugContainer() throws -> ContainerBundle {
         if let container = _debugContainer {
             return container
         }
@@ -202,10 +226,10 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _transactionsWithSpreadContainer: ModelContainer? = nil;
+    private static var _transactionsWithSpreadContainer: ContainerBundle? = nil;
     /// A model container with just transactions. it shows a spread with amounts & dates so that the UI elements can be tested.
     @MainActor
-    public static func transactionsWithSpreadContainer() throws -> ModelContainer {
+    public static func transactionsWithSpreadContainer() throws -> ContainerBundle {
         if let container = _transactionsWithSpreadContainer {
             return container
         }
@@ -217,10 +241,10 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _mainContainer: ModelContainer? = nil;
+    private static var _mainContainer: ContainerBundle? = nil;
     /// The main container used by the app. This stores the data for the app in non-debug based contexts.
     @MainActor
-    public static func mainContainer() throws -> ModelContainer {
+    public static func mainContainer() throws -> ContainerBundle {
         if let container = _mainContainer {
             return container
         }

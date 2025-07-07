@@ -98,6 +98,7 @@ struct CategoriesIE : View {
 }
 
 #Preview {
-    CategoriesIE()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        CategoriesIE()
+    }
 }

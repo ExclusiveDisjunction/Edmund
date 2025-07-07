@@ -107,6 +107,7 @@ struct Refund : TransactionEditorProtocol {
 }
 
 #Preview {
-    Refund()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        Refund()
+    }
 }

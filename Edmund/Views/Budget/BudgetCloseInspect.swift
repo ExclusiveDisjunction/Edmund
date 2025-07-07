@@ -92,6 +92,7 @@ struct BudgetCloseInspect : View {
 }
 
 #Preview {
-    BudgetCloseInspect(data: try! .getExampleBudget())
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        BudgetCloseInspect(data: try! .getExampleBudget())
+    }
 }

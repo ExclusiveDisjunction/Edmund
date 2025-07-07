@@ -97,7 +97,8 @@ struct ManyOneTransfer : TransactionEditorProtocol {
 }
 
 #Preview {
-    ManyOneTransfer()
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ManyOneTransfer()
+            .padding()
+    }
 }

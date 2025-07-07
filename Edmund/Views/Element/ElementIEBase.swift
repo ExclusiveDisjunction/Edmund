@@ -17,7 +17,9 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
         
         switch mode {
             case .add:
-                fallthrough
+                let snap = T.makeBlankSnapshot()
+                self.snapshot = snap
+                self.editHash = snap.hashValue
             case .edit:
                 let snap = data.makeSnapshot()
                 self.snapshot = snap
@@ -37,7 +39,6 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     
     public var modelContext: ModelContext?;
     public var uniqueEngine: UniqueEngine;
-    public var undoManager: UndoManager?;
     
     public var uniqueError: StringWarningManifest = .init()
     public var validationError: ValidationWarningManifest = .init()
@@ -47,10 +48,10 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     private var _onEditChanged: ((InspectionMode) -> Void)?;
     private var _postAction: (() -> Void)?;
     
-    public func onModeChanged(_ perform: @escaping (InspectionMode) -> Void) {
+    public func onModeChanged(_ perform: ((InspectionMode) -> Void)?) {
         self._onEditChanged = perform
     }
-    public func postAction(_ perform: @escaping () -> Void) {
+    public func postAction(_ perform: (() -> Void)?) {
         self._postAction = perform
     }
     
@@ -86,6 +87,28 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
             }
         }
     }
+    @MainActor
+    public var mode: InspectionMode {
+        get {
+            if adding {
+                return .add
+            }
+            
+            return isEdit ? .edit : .inspect
+        }
+        set {
+            guard !adding && newValue != mode else { return  }
+            
+            switch newValue {
+                case .add:
+                    fallthrough
+                case .edit:
+                    isEdit = true
+                case .inspect:
+                    isEdit = false
+            }
+        }
+    }
     
     @MainActor
     public func validate() async -> Bool {
@@ -99,10 +122,9 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     @MainActor
     public func apply() async -> Bool {
         if let editing = snapshot {
-            undoManager?.beginUndoGrouping()
-            
             if adding {
                 modelContext?.insert(data)
+                /*
                 if let uniqueElement = data as? any UniqueElement {
                     let id = uniqueElement.getObjectId()
                     let wrapper = UndoAddUniqueWrapper(id: id, element: data, unique: uniqueEngine)
@@ -113,9 +135,10 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
                     wrapper.registerWith(manager: undoManager)
                 }
                 
-                
                 undoManager?.setActionName("add")
+                 */
             }
+            /*
             else {
                 let previous = data.makeSnapshot();
                 let wrapper = UndoSnapshotApplyWrapper(item: data, snapshot: previous, engine: uniqueEngine)
@@ -125,6 +148,7 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
             }
             
             undoManager?.endUndoGrouping()
+             */
             
             do {
                 try await data.update(editing, unique: uniqueEngine)
@@ -184,7 +208,7 @@ public struct DefaultElementIEFooter : View {
 public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: SnapshotableElement, T.ID: Sendable, Header: View, Footer: View, Inspect: View, Edit: View {
     
     public init(_ data: T, mode: InspectionMode,
-                @ViewBuilder header:  @escaping (Binding<Bool>) -> Header,
+                @ViewBuilder header:  @escaping (Binding<InspectionMode>) -> Header,
                 @ViewBuilder footer:  @escaping () -> Footer,
                 @ViewBuilder inspect: @escaping (T) -> Inspect,
                 @ViewBuilder edit:    @escaping (T.Snapshot) -> Edit) {
@@ -196,16 +220,16 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
         self.manifest = .init(data, mode: mode)
     }
     
-    private let header: (Binding<Bool>) -> Header;
+    private let header: (Binding<InspectionMode>) -> Header;
     private let footer: () -> Footer;
     private let inspect: (T) -> Inspect;
     private let edit: (T.Snapshot) -> Edit;
     
-    public func onModeChanged(_ perform: @escaping (InspectionMode) -> Void) -> some View {
+    public func onModeChanged(_ perform: ((InspectionMode) -> Void)?) -> some View {
         self.manifest.onModeChanged(perform)
         return self
     }
-    public func postAction(_ perform: @escaping () -> Void) -> some View {
+    public func postAction(_ perform: (() -> Void)?) -> some View {
         self.manifest.postAction(perform)
         return self
     }
@@ -242,7 +266,7 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
     
     public var body: some View {
         VStack {
-            self.header($manifest.isEdit)
+            self.header($manifest.mode)
             
             if let editing = manifest.snapshot {
                 self.edit(editing)
@@ -251,15 +275,19 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
                 self.inspect(manifest.data)
             }
             
+            Spacer()
+            
             self.footer()
                 .environment(\.elementSubmit, .init(manifest.submit))
                 .environment(\.elementIsEdit, .init(manifest.isEdit))
         }.onAppear {
+            print("does the context have an undo manager? \(modelContext.undoManager != nil)")
+            print("does the undo manager exist? \(undoManager != nil)")
+            
             manifest.uniqueEngine = uniqueEngine
-            manifest.undoManager = undoManager
             manifest.modelContext = modelContext
         }
-        .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $manifest.warningConfirm) {
+        .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $manifest.warningConfirm, titleVisibility: .visible) {
             confirm
         }
         .alert("Error", isPresented: $manifest.uniqueError.isPresented, actions: {
@@ -280,7 +308,7 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
 }
 public extension ElementIEBase where Footer == DefaultElementIEFooter {
     init(_ data: T, mode: InspectionMode,
-                @ViewBuilder header:  @escaping (Binding<Bool>) -> Header,
+                @ViewBuilder header:  @escaping (Binding<InspectionMode>) -> Header,
                 @ViewBuilder inspect: @escaping (T) -> Inspect,
                 @ViewBuilder edit:    @escaping (T.Snapshot) -> Edit) {
         self.init(
@@ -292,8 +320,4 @@ public extension ElementIEBase where Footer == DefaultElementIEFooter {
             edit: edit
         )
     }
-}
-
-#Preview {
-    
 }

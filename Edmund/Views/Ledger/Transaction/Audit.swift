@@ -88,7 +88,8 @@ struct Audit: TransactionEditorProtocol {
 }
 
 #Preview {
-    Audit()
-        .padding()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        Audit()
+            .padding()
+    }
 }

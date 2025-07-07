@@ -76,6 +76,7 @@ public struct UtilityInspect : View {
 
 
 #Preview {
-    ElementInspector(data: Utility())
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        ElementInspector(data: Utility())
+    }
 }

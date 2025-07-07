@@ -245,8 +245,10 @@ struct AllBudgetsSearch : View {
 #Preview {
     var id: UUID? = UUID();
     let binding = Binding(get: { id }, set: { id = $0 } )
-    NavigationStack {
-        AllBudgetsSearch(result: binding)
-            .modelContainer(try! Containers.debugContainer())
+    
+    DebugContainerView {
+        NavigationStack {
+            AllBudgetsSearch(result: binding)
+        }
     }
 }

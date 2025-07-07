@@ -124,7 +124,8 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
 }
 
 #Preview {
-    OneOneTransfer()
-        .modelContainer(try! Containers.debugContainer())
-        .padding()
+    DebugContainerView {
+        OneOneTransfer()
+            .padding()
+    }
 }

@@ -28,7 +28,8 @@ public struct BudgetInspect : View {
 }
 
 #Preview {
-    BudgetInspect(data: try! .getExampleBudget())
-        .modelContainer(try! Containers.debugContainer())
-        .padding()
+    DebugContainerView {
+        BudgetInspect(data: try! .getExampleBudget())
+            .padding()
+    }
 }

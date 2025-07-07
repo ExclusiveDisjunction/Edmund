@@ -146,6 +146,8 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
 
 #Preview {
     let provider = QueryManifest<BillBaseWrapper>(.name);
-    QueryPopout(provider: provider, isSheet: false)
-        .modelContainer(try! Containers.debugContainer())
+    
+    DebugContainerView {
+        QueryPopout(provider: provider, isSheet: false)
+    }
 }

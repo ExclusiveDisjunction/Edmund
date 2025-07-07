@@ -146,6 +146,7 @@ struct LedgerTable: View {
 }
 
 #Preview {
-    LedgerTable()
-        .modelContainer(try! Containers.debugContainer())
+    DebugContainerView {
+        LedgerTable()
+    }
 }
