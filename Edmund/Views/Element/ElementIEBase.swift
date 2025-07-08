@@ -57,53 +57,49 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
     }
     
     @MainActor
-    public var isEdit: Bool {
-        get {
-            snapshot != nil
+    public func changeIsEdit(newValue: Bool, unique: UniqueEngine) async {
+        print("change edit called, \(newValue)")
+        guard !adding && newValue != isEdit else { print("skipped"); return } //Cannot change mode if we are adding
+        
+        if newValue { //Was not editing, now is
+            let snap = data.makeSnapshot()
+            self.snapshot = snap
+            self.editHash = snap.hashValue
         }
-        set {
-            guard !adding && newValue != isEdit else { return } //Cannot change mode if we are adding
+        else { // Was editing, now is not. Must check for unsaved changes and warn otherwise.
+            guard await validate(unique: unique) else { return }
             
-            Task {
-                if newValue { //Was not editing, now is
-                    let snap = data.makeSnapshot()
-                    self.snapshot = snap
-                    self.editHash = snap.hashValue
-                }
-                else { // Was editing, now is not. Must check for unsaved changes and warn otherwise.
-                    guard await validate(unique: unique) else { return }
-                    
-                    if snapshot?.hashValue != editHash {
-                        warningConfirm = true
-                    }
-                    else {
-                        self.reset()
-                    }
-                }
+            if snapshot?.hashValue != editHash {
+                warningConfirm = true
+            }
+            else {
+                self.reset()
             }
         }
+        
+        print("new is edit: \(isEdit)")
+    }
+    @MainActor
+    public func changeMode(newValue: InspectionMode, unique: UniqueEngine) async {
+        print("change mode called, value: \(newValue)")
+        guard !adding && newValue != mode else { return  }
+        
+        await changeIsEdit(newValue: newValue == .add || newValue == .edit, unique: unique)
+        
+        print("new mode: \(mode)")
+    }
+    
+    @MainActor
+    public var isEdit: Bool {
+        snapshot != nil
     }
     @MainActor
     public var mode: InspectionMode {
-        get {
-            if adding {
-                return .add
-            }
-            
-            return isEdit ? .edit : .inspect
+        if adding {
+            return .add
         }
-        set {
-            guard !adding && newValue != mode else { return  }
-            
-            switch newValue {
-                case .add:
-                    fallthrough
-                case .edit:
-                    isEdit = true
-                case .inspect:
-                    isEdit = false
-            }
-        }
+        
+        return isEdit ? .edit : .inspect
     }
     
     @MainActor
@@ -121,6 +117,8 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
         print("Does the undo manager exist? \(undoManager != nil)")
         
         if let editing = snapshot {
+            undoManager?.beginUndoGrouping()
+            
             if adding {
                 context.insert(data)
                 if let uniqueElement = data as? any UniqueElement {
@@ -201,9 +199,8 @@ public struct DefaultElementIEFooter : View {
 }
 
 public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: SnapshotableElement, T.ID: Sendable, Header: View, Footer: View, Inspect: View, Edit: View {
-    
     public init(_ data: T, mode: InspectionMode,
-                @ViewBuilder header:  @escaping (Binding<InspectionMode>) -> Header,
+                @ViewBuilder header:  @escaping (InspectionMode) -> Header,
                 @ViewBuilder footer:  @escaping () -> Footer,
                 @ViewBuilder inspect: @escaping (T) -> Inspect,
                 @ViewBuilder edit:    @escaping (T.Snapshot) -> Edit) {
@@ -215,7 +212,7 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
         self.manifest = .init(data, mode: mode)
     }
     
-    private let header: (Binding<InspectionMode>) -> Header;
+    private let header: (InspectionMode) -> Header;
     private let footer: () -> Footer;
     private let inspect: (T) -> Inspect;
     private let edit: (T.Snapshot) -> Edit;
@@ -229,6 +226,16 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
                 context: modelContext,
                 undoManager: undoManager,
                 unique: uniqueEngine)
+        )
+    }
+    public var changeModeAction: ChangeModeAction {
+        .init(
+            .init(
+                { mode, unique in
+                    await manifest.changeMode(newValue: mode, unique: unique)
+                },
+                unique: uniqueEngine
+            )
         )
     }
     
@@ -273,7 +280,8 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
     
     public var body: some View {
         VStack {
-            self.header($manifest.mode)
+            self.header(manifest.mode)
+                .environment(\.elementChangeMode, changeModeAction)
             
             if let editing = manifest.snapshot {
                 self.edit(editing)
@@ -312,7 +320,7 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
 }
 public extension ElementIEBase where Footer == DefaultElementIEFooter {
     init(_ data: T, mode: InspectionMode,
-                @ViewBuilder header:  @escaping (Binding<InspectionMode>) -> Header,
+                @ViewBuilder header:  @escaping (InspectionMode) -> Header,
                 @ViewBuilder inspect: @escaping (T) -> Inspect,
                 @ViewBuilder edit:    @escaping (T.Snapshot) -> Edit) {
         self.init(

@@ -41,7 +41,7 @@ struct AboutView : View {
                     Text("James Larson")
                 }
                 VStack {
-                    Text("Ruth")
+                    Text("Ruth Brito")
                     Text("Kyle Lawrence")
                 }
             }

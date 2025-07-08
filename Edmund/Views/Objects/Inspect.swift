@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// A combination signals used to indicate what you want to do with a specific data element.
-public enum InspectionMode : Int, Identifiable, CaseIterable {
+public enum InspectionMode : Int, Identifiable, CaseIterable, Sendable {
     /// Signals the data should be edited
     case edit
     /// Signals the data should be viewed/inspected

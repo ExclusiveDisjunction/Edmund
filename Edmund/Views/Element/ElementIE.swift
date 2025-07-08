@@ -9,6 +9,23 @@ import SwiftUI;
 import SwiftData;
 import EdmundCore
 
+public struct ElementIEHeader<T> : View where T: TypeTitled {
+    public let mode: InspectionMode;
+    @Environment(\.elementChangeMode) private var changeMode;
+    
+    public var body: some View {
+        InspectEditTitle<T>(mode: mode)
+        
+        Button {
+            Task {
+                await changeMode(mode: mode.toggled())
+            }
+        } label :{
+            Image(systemName: mode == .add || mode == .edit ? "info.circle" : "pencil")
+        }.disabled(mode == .add)
+    }
+}
+
 /// A high level view that allows for switching between editing and inspecting
 public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel, T: TypeTitled, T.ID: Sendable {
     /// Opens the editor with a specific mode.
@@ -29,16 +46,8 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @Environment(\.dismiss) private var dismiss;
     
     public var body: some View {
-        ElementIEBase(data, mode: startMode) { $mode in
-            InspectEditTitle<T>(mode: mode)
-            
-            Button {
-                withAnimation {
-                    mode = mode.toggled()
-                }
-            } label: {
-                Image(systemName: mode == .add || mode == .edit ? "info.circle" : "pencil")
-            }.disabled(mode == .add)
+        ElementIEBase(data, mode: startMode) { mode in
+            ElementIEHeader<T>(mode: mode)
         } footer: {
             DefaultElementIEFooter()
         } inspect: { item in
