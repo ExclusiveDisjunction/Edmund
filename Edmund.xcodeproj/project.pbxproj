@@ -148,6 +148,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Views/Element/ElementIEBase.swift,
+				Views/Element/ElementIEContext.swift,
 				Views/Organization/Categories/CategoryEdit.swift,
 				Views/Organization/Categories/CategoryInspect.swift,
 				Views/Organization/NamedPair/NamedPairChildEdit.swift,

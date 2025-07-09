@@ -9,11 +9,11 @@ import Foundation
 import SwiftData
 import EdmundCore
 
-protocol UndoManagerWrapper : AnyObject, Sendable {
+public protocol UndoManagerWrapper : AnyObject, Sendable {
     @MainActor
     func update() async;
 }
-extension UndoManagerWrapper {
+public extension UndoManagerWrapper {
     @MainActor
     func registerWith(manager: UndoManager?) {
         manager?.registerUndo(withTarget: self, handler: { item in
@@ -25,16 +25,16 @@ extension UndoManagerWrapper {
 }
 
 /// A class that can be used to re-insert a bit of data from a snapshot
-class UndoDeleteWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: SnapshotableElement, T: IsolatedDefaultableElement, T.ID: Sendable {
-    init(data: T.Snapshot, unique: UniqueEngine, context: ModelContext) {
+public class UndoDeleteWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: SnapshotableElement, T: IsolatedDefaultableElement, T.ID: Sendable {
+    public init(data: T.Snapshot, unique: UniqueEngine, context: ModelContext) {
         self.data = data
         self.unique = unique
         self.context = context
     }
     
-    let data: T.Snapshot;
-    let unique: UniqueEngine;
-    weak var context: ModelContext?;
+    public let data: T.Snapshot;
+    public let unique: UniqueEngine;
+    public weak var context: ModelContext?;
     
     @MainActor
     public func update() async {
@@ -45,12 +45,12 @@ class UndoDeleteWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: Sn
         }
     }
 }
-class UndoAddWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: PersistentModel, T.ID: Sendable {
-    init(element: T) {
+public class UndoAddWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: PersistentModel, T.ID: Sendable {
+    public init(element: T) {
         self.element = element
     }
     
-    weak var element: T?;
+    public weak var element: T?;
     
     @MainActor
     public func update() {
@@ -63,19 +63,19 @@ class UndoAddWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: Persi
         }
     }
 }
-class UndoAddUniqueWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: PersistentModel, T.ID: Sendable {
-    convenience init(element: T, unique: UniqueEngine) where T: UniqueElement {
+public class UndoAddUniqueWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: PersistentModel, T.ID: Sendable {
+    public convenience init(element: T, unique: UniqueEngine) where T: UniqueElement {
         self.init(id: T.objId, element: element, unique: unique)
     }
-    init(id: ObjectIdentifier, element: T, unique: UniqueEngine) {
+    public init(id: ObjectIdentifier, element: T, unique: UniqueEngine) {
         self.id = id
         self.element = element
         self.unique = unique
     }
     
-    let id: ObjectIdentifier;
-    weak var element: T?;
-    let unique: UniqueEngine;
+    public let id: ObjectIdentifier;
+    public weak var element: T?;
+    public let unique: UniqueEngine;
     
     @MainActor
     public func update() async {
@@ -91,16 +91,16 @@ class UndoAddUniqueWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T:
     }
 }
 
-class UndoSnapshotApplyWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: SnapshotableElement, T.ID: Sendable {
-    init(item: T, snapshot: T.Snapshot, engine: UniqueEngine) {
+public class UndoSnapshotApplyWrapper<T> : UndoManagerWrapper, @unchecked Sendable where T: SnapshotableElement, T.ID: Sendable {
+    public init(item: T, snapshot: T.Snapshot, engine: UniqueEngine) {
         self.item = item
         self.snapshot = snapshot
         self.engine = engine
     }
     
-    weak var item: T?;
-    let engine: UniqueEngine;
-    let snapshot: T.Snapshot;
+    public weak var item: T?;
+    public let engine: UniqueEngine;
+    public let snapshot: T.Snapshot;
     
     @MainActor
     public func update() async {

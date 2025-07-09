@@ -299,7 +299,6 @@ struct AllBillsViewEdit : View {
             .onChange(of: showExpiredBills, refresh)
             .onAppear {
                 refresh()
-                print("does the context have an undo manager? \(modelContext.undoManager != nil)")
             }
         #if os(iOS)
             .sheet(isPresented: $expiredBillsSheet) {

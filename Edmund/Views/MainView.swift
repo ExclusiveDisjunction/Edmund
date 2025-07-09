@@ -145,9 +145,6 @@ struct MainView: View {
         } detail: {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
-        }.onAppear {
-            print("does the context have an undo manager? \(modelContext.undoManager != nil)")
-            print("is the undo manager present? \(undoManager != nil)")
         }
     }
 }

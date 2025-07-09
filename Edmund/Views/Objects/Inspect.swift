@@ -63,10 +63,10 @@ public class InspectionManifest<T> {
     
     /// If the `selection` contains only one id, and it resolves to a `T` value, it will open it with the specified `mode`. Otherwise, it will omit a warning.
     public func inspectSelected(_ selection: Set<T.ID>, mode: InspectionMode, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
-        guard !selection.isEmpty else { warning.warning = .noneSelected; return }
-        guard selection.count == 1 else { warning.warning = .tooMany; return }
-        
         let objects = on.filter { selection.contains($0.id) }
+        
+        guard !objects.isEmpty else { warning.warning = .noneSelected; return }
+        guard objects.count == 1 else { warning.warning = .tooMany; return }
         guard let target = objects.first else { warning.warning = .noneSelected; return }
         
         self.open(target, mode: mode)

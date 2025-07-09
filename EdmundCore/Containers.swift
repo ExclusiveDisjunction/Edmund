@@ -182,8 +182,6 @@ public struct Containers {
         context.undoManager = undoManager
         context.autosaveEnabled = true
         
-        print("does the context have an undo manager? \(context.undoManager != nil)")
-        
         return .init(container: container, context: context, undo: undoManager)
     }
     

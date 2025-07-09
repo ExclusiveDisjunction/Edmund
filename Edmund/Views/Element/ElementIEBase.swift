@@ -4,6 +4,7 @@
 //
 //  Created by Hollan Sellars on 6/29/25.
 //
+//  This file, and its contents are depreciated, and should not be used. 
 
 import SwiftUI
 import SwiftData
@@ -117,8 +118,6 @@ public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {
         print("Does the undo manager exist? \(undoManager != nil)")
         
         if let editing = snapshot {
-            undoManager?.beginUndoGrouping()
-            
             if adding {
                 context.insert(data)
                 if let uniqueElement = data as? any UniqueElement {
@@ -297,9 +296,6 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
             self.footer()
                 .environment(\.elementSubmit, submitAction)
                 .environment(\.elementIsEdit, .init(manifest.isEdit))
-        }.onAppear {
-            print("does the context have an undo manager? \(modelContext.undoManager != nil)")
-            print("does the undo manager exist? \(undoManager != nil)")
         }
         .confirmationDialog("There are unsaved changes, do you wish to continue?", isPresented: $manifest.warningConfirm, titleVisibility: .visible) {
             confirm

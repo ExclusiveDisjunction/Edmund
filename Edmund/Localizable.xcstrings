@@ -1504,7 +1504,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please select at one item."
+            "value" : "Please select at least one item."
           }
         }
       }

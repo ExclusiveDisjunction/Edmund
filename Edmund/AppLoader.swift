@@ -75,8 +75,6 @@ public class AppLoader {
             return;
         }
         
-        print("does the context have an undo manager? \(container.context.undoManager != nil)")
-        
         do {
             uniqueContext = try UniqueContext(container.context)
         }

@@ -15,7 +15,7 @@ struct UniqueTests {
     func testAccounts() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let data = try container.mainContext.fetch(FetchDescriptor<Account>());
+        let data = try container.context.fetch(FetchDescriptor<Account>());
         let set = Set<Account.ID>(data.lazy.map { $0.id } )
         #expect(set.count == data.count)
     }
@@ -25,7 +25,7 @@ struct UniqueTests {
     func testSubAccounts() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let data = try container.mainContext.fetch(FetchDescriptor<SubAccount>());
+        let data = try container.context.fetch(FetchDescriptor<SubAccount>());
         let set = Set(data.lazy.map { $0.id } )
         #expect(set.count == data.count)
     }
@@ -35,7 +35,7 @@ struct UniqueTests {
     func testCategories() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let data = try container.mainContext.fetch(FetchDescriptor<EdmundCore.Category>());
+        let data = try container.context.fetch(FetchDescriptor<EdmundCore.Category>());
         let set = Set(data.lazy.map { $0.id } )
         #expect(set.count == data.count)
     }
@@ -45,7 +45,7 @@ struct UniqueTests {
     func testSubCategories() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let data = try container.mainContext.fetch(FetchDescriptor<SubCategory>());
+        let data = try container.context.fetch(FetchDescriptor<SubCategory>());
         let set = Set(data.lazy.map { $0.id } )
         #expect(set.count == data.count)
     }
@@ -55,8 +55,8 @@ struct UniqueTests {
     func testBills() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let bills = try container.mainContext.fetch(FetchDescriptor<Bill>());
-        let utilities = try container.mainContext.fetch(FetchDescriptor<Utility>());
+        let bills = try container.context.fetch(FetchDescriptor<Bill>());
+        let utilities = try container.context.fetch(FetchDescriptor<Utility>());
         let all = bills.map { $0.id } + utilities.map { $0.id };
         
         let set = Set(all)
@@ -68,8 +68,8 @@ struct UniqueTests {
     func testJobs() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let hourly = try container.mainContext.fetch(FetchDescriptor<HourlyJob>());
-        let salaried = try container.mainContext.fetch(FetchDescriptor<SalariedJob>());
+        let hourly = try container.context.fetch(FetchDescriptor<HourlyJob>());
+        let salaried = try container.context.fetch(FetchDescriptor<SalariedJob>());
         
         let all = hourly.map { $0.id } + salaried.map { $0.id };
         
