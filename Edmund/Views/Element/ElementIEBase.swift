@@ -187,10 +187,15 @@ public struct DefaultElementIEFooter : View {
             }
             
             Button(isEdit ? "Save" : "Ok", action: {
-                Task {
-                    if await elementSubmit() {
-                        dismiss()
+                if isEdit {
+                    Task {
+                        if await elementSubmit() {
+                            dismiss()
+                        }
                     }
+                }
+                else {
+                    dismiss()
                 }
             })
                 .buttonStyle(.borderedProminent)
@@ -216,6 +221,11 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
     private let footer: () -> Footer;
     private let inspect: (T) -> Inspect;
     private let edit: (T.Snapshot) -> Edit;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.undoManager) private var undoManager;
+    @Environment(\.modelContext) private var modelContext;
+    
+    @Bindable private var manifest: ElementIEManifest<T>;
     
     public var submitAction: SubmitAction {
         .init(
@@ -248,18 +258,10 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
         return self
     }
     
-    @Environment(\.uniqueEngine) private var uniqueEngine;
-    @Environment(\.undoManager) private var undoManager;
-    @Environment(\.modelContext) private var modelContext;
-
-    @State private var warningConfirm: Bool = false;
-    
-    @Bindable private var manifest: ElementIEManifest<T>;
-    
     @ViewBuilder
     private var confirm: some View {
         Button("Save", action: {
-            warningConfirm = false //Since two sheets cannot show at the same time, we must dismiss this one first
+            manifest.warningConfirm = false //Since two sheets cannot show at the same time, we must dismiss this one first
             
             Task {
                 if await manifest.apply(context: modelContext, undoManager: undoManager, unique: uniqueEngine) {
@@ -270,11 +272,11 @@ public struct ElementIEBase<T, Header, Footer, Inspect, Edit> : View where T: Sn
         
         Button("Discard") {
             manifest.reset()
-            warningConfirm = false
+            manifest.warningConfirm = false
         }
         
         Button("Cancel", role: .cancel) {
-            warningConfirm = false
+            manifest.warningConfirm = false
         }
     }
     
