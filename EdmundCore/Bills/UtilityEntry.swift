@@ -8,48 +8,52 @@
 import SwiftData
 import Foundation
 
-/// A specific charged instance of a utility's costs.
-@Model
-public class UtilityEntry: Identifiable, Hashable, Equatable, SnapshotableElement, DefaultableElement {
-    public required init() {
-        self.id = UUID()
-        self.amount = 0
-        self.date = .now
+extension EdmundModelsV1 {
+    /// A specific charged instance of a utility's costs.
+    @Model
+    public class UtilityEntry: Identifiable, Hashable, Equatable, SnapshotableElement, DefaultableElement {
+        public required init() {
+            self.id = UUID()
+            self.amount = 0
+            self.date = .now
+        }
+        public init(_ date: Date, _ amount: Decimal, id: UUID = UUID()) {
+            self.date = date
+            self.amount = amount
+            self.id = id
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(date)
+            hasher.combine(amount)
+        }
+        public static func ==(lhs: UtilityEntry, rhs: UtilityEntry) -> Bool {
+            lhs.date == rhs.date && lhs.amount == rhs.amount
+        }
+        
+        public func makeSnapshot() -> UtilityEntrySnapshot {
+            .init(self)
+        }
+        public static func makeBlankSnapshot() -> UtilityEntrySnapshot {
+            .init()
+        }
+        public func update(_ from: UtilityEntrySnapshot, unique: UniqueEngine) {
+            self.date = from.date
+            self.amount = from.amount.rawValue
+        }
+        
+        public var id: UUID = UUID()
+        /// How much the bill cost
+        public var amount: Decimal = 0;
+        /// The date that the charge occured on
+        public var date: Date = Date.now;
+        /// The parent utility that this is associated with
+        @Relationship
+        public var parent: Utility? = nil;
     }
-    public init(_ date: Date, _ amount: Decimal, id: UUID = UUID()) {
-        self.date = date
-        self.amount = amount
-        self.id = id
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(date)
-        hasher.combine(amount)
-    }
-    public static func ==(lhs: UtilityEntry, rhs: UtilityEntry) -> Bool {
-        lhs.date == rhs.date && lhs.amount == rhs.amount
-    }
-    
-    public func makeSnapshot() -> UtilityEntrySnapshot {
-        .init(self)
-    }
-    public static func makeBlankSnapshot() -> UtilityEntrySnapshot {
-        .init()
-    }
-    public func update(_ from: UtilityEntrySnapshot, unique: UniqueEngine) {
-        self.date = from.date
-        self.amount = from.amount.rawValue
-    }
-    
-    public var id: UUID = UUID()
-    /// How much the bill cost
-    public var amount: Decimal = 0;
-    /// The date that the charge occured on
-    public var date: Date = Date.now;
-    /// The parent utility that this is associated with
-    @Relationship
-    public var parent: Utility? = nil;
 }
+
+public typealias UtilityEntry = EdmundModelsV1.UtilityEntry
 
 /// The snapshot for `UtilityEntry`
 @Observable

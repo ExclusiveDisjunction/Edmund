@@ -148,7 +148,7 @@ struct AllJobsViewEdit : View {
                 })
             }, message: {
                 Text((warning.warning ?? .noneSelected).message )
-            }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
+            }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting, titleVisibility: .visible) {
                 AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
             }
     }

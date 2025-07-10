@@ -73,7 +73,7 @@ public struct DefaultDebugCreator : ExampleCreator {
             context.insert(entry);
         }
         
-        context.insert(BudgetInstance.exampleBudget(acc: &accTree))
+        context.insert(IncomeDividerInstance.exampleBudget(acc: &accTree))
     }
 }
 public struct TransactionSpreadCreator : ExampleCreator {
@@ -141,26 +141,7 @@ public struct DebugContainerView<Content> : View where Content: View {
 
 /// A collection of various tools used for SwiftData containers.
 public struct Containers {
-    public static let interestedTypes: [any PersistentModel.Type] = [
-        LedgerEntry.self,
-        Account.self,
-        SubAccount.self,
-        
-        Category.self,
-        SubCategory.self,
-        
-        Bill.self,
-        Utility.self,
-        UtilityEntry.self,
-        
-        HourlyJob.self,
-        SalariedJob.self,
-        
-        BudgetInstance.self,
-        AmountDevotion.self,
-        PercentDevotion.self,
-        RemainderDevotion.self
-    ]
+    public static let interestedTypes: [any PersistentModel.Type] = ModelsCurrentVersion.models
     
     /// The schema used by the containers.
     @MainActor
@@ -176,7 +157,7 @@ public struct Containers {
         }
         
 
-        let container = try ModelContainer(for: schema, configurations: [ configuration ])
+        let container = try ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [ configuration ])
         let undoManager = UndoManager()
         let context = ModelContext(container)
         context.undoManager = undoManager

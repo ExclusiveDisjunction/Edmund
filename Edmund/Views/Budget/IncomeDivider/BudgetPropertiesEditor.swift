@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 struct BudgetPropertiesEditor : View {
-    @Bindable var snapshot: BudgetInstanceSnapshot;
+    @Bindable var snapshot: IncomeDividerInstanceSnapshot;
     
 #if os(macOS)
     private let minWidth: CGFloat = 80;
@@ -59,8 +59,8 @@ struct BudgetPropertiesEditor : View {
 }
 
 #Preview {
-    let budget = try! BudgetInstance.getExampleBudget()
-    let snapshot = BudgetInstanceSnapshot(budget)
+    let budget = try! IncomeDividerInstance.getExampleBudget()
+    let snapshot = IncomeDividerInstanceSnapshot(budget)
     
     BudgetPropertiesEditor(snapshot: snapshot)
 }

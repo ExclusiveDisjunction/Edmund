@@ -26,7 +26,7 @@ public enum BudgetSortField : CaseIterable, Identifiable, Displayable {
         }
     }
     
-    public func sorted(data: [BudgetInstance], asc: Bool) -> [BudgetInstance] {
+    public func sorted(data: [IncomeDividerInstance], asc: Bool) -> [IncomeDividerInstance] {
         let order: SortOrder = asc ? .forward : .reverse
         
         switch self {
@@ -70,11 +70,11 @@ public class BudgetSearchVM {
     }
     
     public var criteria: BudgetSearchCriteria = .init();
-    private var _cache: [BudgetInstance] = []
+    private var _cache: [IncomeDividerInstance] = []
     
-    public func update(_ data: [BudgetInstance]) {
+    public func update(_ data: [IncomeDividerInstance]) {
         let queryStr = self.criteria.query.trimmingCharacters(in: .whitespaces).lowercased()
-        var filtered: [BudgetInstance];
+        var filtered: [IncomeDividerInstance];
         if queryStr.isEmpty {
             filtered = data
         }
@@ -89,7 +89,7 @@ public class BudgetSearchVM {
         self._cache = criteria.sortBy.sorted(data: filtered, asc: criteria.ascending)
     }
     
-    public var cache: [BudgetInstance] {
+    public var cache: [IncomeDividerInstance] {
         _cache
     }
 }
@@ -97,15 +97,15 @@ public class BudgetSearchVM {
 
 
 struct AllBudgetsSearch : View {
-    init(result: Binding<BudgetInstance.ID?>) {
+    init(result: Binding<IncomeDividerInstance.ID?>) {
         self._result = result
         self.query = .init()
     }
     
-    @Binding var result: BudgetInstance.ID?;
+    @Binding var result: IncomeDividerInstance.ID?;
     
-    @Query private var budgets: [BudgetInstance];
-    @Bindable private var inspect: InspectionManifest<BudgetInstance> = .init();
+    @Query private var budgets: [IncomeDividerInstance];
+    @Bindable private var inspect: InspectionManifest<IncomeDividerInstance> = .init();
     @Bindable private var query: BudgetSearchVM
     @State private var showPopover = false;
     
@@ -115,7 +115,7 @@ struct AllBudgetsSearch : View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @ViewBuilder
-    private func contextMenuSel(_ selection: Set<BudgetInstance.ID>) -> some View {
+    private func contextMenuSel(_ selection: Set<IncomeDividerInstance.ID>) -> some View {
         Button {
             if let id = selection.first, let item = query.cache.first(where: { $0.id == id }), selection.count == 1 {
                 inspect.open(item, mode: .inspect)
@@ -130,7 +130,7 @@ struct AllBudgetsSearch : View {
         Table(query.cache, selection: $result) {
             TableColumn("Name", value: \.name)
             if !query.criteria.hideFinalized {
-                TableColumn("Finalized") { (budget: BudgetInstance) in
+                TableColumn("Finalized") { (budget: IncomeDividerInstance) in
                     Text(budget.isFinalized ? "Yes" : "No")
                 }
             }
@@ -156,7 +156,7 @@ struct AllBudgetsSearch : View {
             .width(160)
 #endif
         }.frame(minHeight: 250)
-            .contextMenu(forSelectionType: BudgetInstance.ID.self, menu: contextMenuSel)
+            .contextMenu(forSelectionType: IncomeDividerInstance.ID.self, menu: contextMenuSel)
     }
     
     @ViewBuilder
@@ -175,7 +175,7 @@ struct AllBudgetsSearch : View {
                 .tint(.green)
             }
         }.frame(minHeight: 250)
-            .contextMenu(forSelectionType: BudgetInstance.ID.self, menu: contextMenuSel)
+            .contextMenu(forSelectionType: IncomeDividerInstance.ID.self, menu: contextMenuSel)
     }
     
     var body: some View {

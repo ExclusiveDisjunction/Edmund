@@ -49,6 +49,9 @@ struct CurrencyField : View {
     
     var body: some View {
         ValueWrapperField(isNumeric: true, over: over, context: $currencyCode)
+            .onAppear {
+                over.format(context: currencyCode)
+            }
     }
 }
 

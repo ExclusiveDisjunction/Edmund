@@ -288,7 +288,7 @@ struct AllBillsViewEdit : View {
             })
         }, message: {
             Text((warning.warning ?? .noneSelected).message )
-        }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
+        }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting, titleVisibility: .visible) {
             AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
         }.sheet(isPresented: $showingChart) {
             chartView

@@ -8,7 +8,7 @@
 import SwiftUI
 import EdmundCore
 
-extension BudgetInstance : EditableElement, InspectableElement {
+extension EdmundModelsV1.IncomeDividerInstance : EditableElement, InspectableElement {
     public typealias EditView = BudgetEdit
     public typealias InspectView = BudgetInspect;
     

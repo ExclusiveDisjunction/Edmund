@@ -9,14 +9,6 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-/// A view used to help determine the paycheck amount of a salaried job.
-public struct SalariedJobHelper : View {
-    
-    public var body: some View {
-        Text("Uh oh")
-    }
-}
-
 /// The edit view for Salaried Jobs.
 public struct SalariedJobEdit : View {
     public init(_ snapshot: SalariedJobSnapshot) {
@@ -25,6 +17,7 @@ public struct SalariedJobEdit : View {
     
     @Bindable private var snapshot: SalariedJobSnapshot;
     @State private var showingTax: Bool = false;
+    @State private var showingHelper: Bool = false;
     
 #if os(macOS)
     private let labelMinWidth: CGFloat = 70;
@@ -56,7 +49,13 @@ public struct SalariedJobEdit : View {
                 Text("Gross Pay:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                CurrencyField(snapshot.grossAmount)
+                HStack {
+                    CurrencyField(snapshot.grossAmount)
+                    
+                    Button("...", action: {
+                        showingHelper = true
+                    }).buttonStyle(.bordered)
+                }
             }
             
             GridRow {
@@ -76,6 +75,8 @@ public struct SalariedJobEdit : View {
             }
         }.sheet(isPresented: $showingTax) {
             JobTaxEstimator(output: $snapshot.taxRate)
+        }.sheet(isPresented: $showingHelper) {
+            SalariedJobHelper(output: snapshot.grossAmount)
         }
     }
 }

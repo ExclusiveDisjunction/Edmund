@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 struct BudgetDevotionsEditor : View {
-    @Bindable var snapshot: BudgetInstanceSnapshot;
+    @Bindable var snapshot: IncomeDividerInstanceSnapshot;
     @State private var selection: Set<AnyDevotionSnapshot.ID> = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;

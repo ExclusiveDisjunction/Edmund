@@ -10,8 +10,8 @@ import SwiftData
 import EdmundCore
 
 struct BudgetIE : View {
-    var data: BudgetInstance;
-    var snapshot: BudgetInstanceSnapshot?;
+    var data: IncomeDividerInstance;
+    var snapshot: IncomeDividerInstanceSnapshot?;
     var hash: Int;
     
     private var isEditing: Bool {
@@ -30,11 +30,11 @@ struct BudgetIE : View {
 }
 
 struct AllBudgetsInspect : View {
-    @Query(sort: [SortDescriptor(\BudgetInstance.name, order: .forward)]) private var budgetInstances: [BudgetInstance];
-    @State private var selectedBudgetID: BudgetInstance.ID?;
-    @State private var selectedBudget: BudgetInstance?;
+    @Query(sort: [SortDescriptor(\IncomeDividerInstance.name, order: .forward)]) private var budgetInstances: [IncomeDividerInstance];
+    @State private var selectedBudgetID: IncomeDividerInstance.ID?;
+    @State private var selectedBudget: IncomeDividerInstance?;
     @State private var selectedDevotions: Set<AnyDevotion.ID> = .init();
-    @State private var editingBudget: BudgetInstance?;
+    @State private var editingBudget: IncomeDividerInstance?;
     
     @State private var showInspector: Bool = false;
     @State private var isSearching: Bool = false;
@@ -46,7 +46,7 @@ struct AllBudgetsInspect : View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
-    private static func computedAmount(_ budget: BudgetInstance, _ target: AnyDevotion) -> Decimal {
+    private static func computedAmount(_ budget: IncomeDividerInstance, _ target: AnyDevotion) -> Decimal {
         switch target {
             case .amount(let a): a.amount
             case .percent(let p): p.amount * budget.amount
@@ -54,12 +54,12 @@ struct AllBudgetsInspect : View {
             default: .nan
         }
     }
-    private func apply(_ budget: BudgetInstance) {
+    private func apply(_ budget: IncomeDividerInstance) {
         fatalError()
     }
     
     @ViewBuilder
-    private func fullSize(_ budget: BudgetInstance) -> some View {
+    private func fullSize(_ budget: IncomeDividerInstance) -> some View {
         Table(budget.allDevotions, selection: $selectedDevotions) {
             TableColumn("Name", value: \.name)
             TableColumn("Devotion") { row in
@@ -86,7 +86,7 @@ struct AllBudgetsInspect : View {
     }
     
     @ViewBuilder
-    private func compact(_ budget: BudgetInstance) -> some View {
+    private func compact(_ budget: IncomeDividerInstance) -> some View {
         HStack {
             Text("Name")
                 .font(.subheadline)
@@ -170,7 +170,7 @@ struct AllBudgetsInspect : View {
                 
                 Picker("", selection: $selectedBudgetID) {
                     Text("None")
-                        .tag(nil as BudgetInstance.ID?)
+                        .tag(nil as IncomeDividerInstance.ID?)
                     ForEach(budgetInstances, id: \.id) {
                         Text($0.name).tag($0.id)
                             .strikethrough($0.isFinalized)
@@ -212,7 +212,7 @@ struct AllBudgetsInspect : View {
         }.padding()
             .navigationTitle("Budget")
             .onChange(of: selectedBudgetID) { _, newValue in
-                let new: BudgetInstance?;
+                let new: IncomeDividerInstance?;
                 if let id = newValue, let target = budgetInstances.first(where: { $0.id == id } ) {
                     target.lastViewed = .now
                     new = target

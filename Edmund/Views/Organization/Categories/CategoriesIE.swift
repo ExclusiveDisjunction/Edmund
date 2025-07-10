@@ -53,7 +53,7 @@ struct CategoriesIE : View {
             .navigationTitle("Categories")
             .task { refresh() }
             .onChange(of: categories, { _, _ in refresh() })
-            .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting) {
+            .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting, titleVisibility: .visible) {
                 AbstractDeletingActionConfirm(delete, delete: deleteFromModel, post: refresh)
             }
             .toolbar {

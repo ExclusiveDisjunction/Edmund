@@ -10,11 +10,11 @@ import SwiftData
 import EdmundCore
 
 public struct BudgetEdit : View {
-    public init(_ snap: BudgetInstanceSnapshot) {
+    public init(_ snap: IncomeDividerInstanceSnapshot) {
         self.snapshot = snap;
     }
     
-    @Bindable private var snapshot: BudgetInstanceSnapshot;
+    @Bindable private var snapshot: IncomeDividerInstanceSnapshot;
     
     public var body: some View {
         TabView {
@@ -40,6 +40,6 @@ public struct BudgetEdit : View {
 
 #Preview {
     DebugContainerView {
-        BudgetEdit(.init(try! BudgetInstance.getExampleBudget()))
+        BudgetEdit(.init(try! IncomeDividerInstance.getExampleBudget()))
     }
 }

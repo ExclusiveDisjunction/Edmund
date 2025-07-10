@@ -1105,6 +1105,9 @@
     "Hourly Rate:" : {
 
     },
+    "Hours:" : {
+
+    },
     "https://github.com/ExclusiveDisjunction/Edmund" : {
       "shouldTranslate" : false
     },
@@ -1212,9 +1215,6 @@
     },
     "James Larson" : {
       "shouldTranslate" : false
-    },
-    "Job:" : {
-
     },
     "Jobs" : {
 
@@ -1482,9 +1482,6 @@
     "No interest" : {
 
     },
-    "No job selected" : {
-
-    },
     "No location" : {
 
     },
@@ -1619,6 +1616,9 @@
 
     },
     "Pay Amount" : {
+
+    },
+    "Paycheck:" : {
 
     },
     "Paychecks" : {
@@ -2120,6 +2120,12 @@
     "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted." : {
 
     },
+    "This period is how many hours you work in this period. For example, 50 hours per week." : {
+
+    },
+    "This period is how often you get paid by your job." : {
+
+    },
     "To:" : {
 
     },
@@ -2241,9 +2247,6 @@
     "Type in numbers, separated by commas. Values are added up." : {
 
     },
-    "Uh oh" : {
-
-    },
     "Under" : {
 
     },
@@ -2321,6 +2324,9 @@
       "comment" : "App version. This has the format \"Version: (Number).(Number)\" Example: \"Version 1.0\""
     },
     "Vertical Split" : {
+
+    },
+    "Wage:" : {
 
     },
     "Want" : {
@@ -2420,9 +2426,6 @@
           }
         }
       }
-    },
-    "Year:" : {
-
     },
     "Yes" : {
 

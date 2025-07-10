@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 struct BudgetPropertiesInspect : View {
-    var data: BudgetInstance;
+    var data: IncomeDividerInstance;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     

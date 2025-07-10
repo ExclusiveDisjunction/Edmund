@@ -9,7 +9,7 @@ import EdmundCore
 import SwiftUI
 
 struct BudgetCloseInspect : View {
-    let data: BudgetInstance;
+    let data: IncomeDividerInstance;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @Environment(\.dismiss) private var dismiss;

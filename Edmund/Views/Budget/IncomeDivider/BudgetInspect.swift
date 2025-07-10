@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 public struct BudgetInspect : View {
-    public var data: BudgetInstance
+    public var data: IncomeDividerInstance
     
     public var body: some View {
         TabView {

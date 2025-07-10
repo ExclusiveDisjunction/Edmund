@@ -10,11 +10,11 @@ import SwiftData
 import EdmundCore
 
 struct BudgetAddView : View {
-    init(_ id: Binding<BudgetInstance.ID?>? = nil) {
+    init(_ id: Binding<IncomeDividerInstance.ID?>? = nil) {
         self.id = id;
     }
     
-    private let id: Binding<BudgetInstance.ID?>?;
+    private let id: Binding<IncomeDividerInstance.ID?>?;
     @State private var name: String = "";
     private var amount: CurrencyValue = .init();
     @State private var deposit: SubAccount? = nil;
@@ -49,7 +49,7 @@ struct BudgetAddView : View {
         let name = name.trimmingCharacters(in: .whitespaces)
         guard let account = deposit else { return false }
         
-        let new = BudgetInstance(name: name, amount: amount.rawValue, kind: kind, depositTo: account)
+        let new = IncomeDividerInstance(name: name, amount: amount.rawValue, kind: kind, depositTo: account)
         modelContext.insert(new)
         if let binding = id {
             binding.wrappedValue = new.id;

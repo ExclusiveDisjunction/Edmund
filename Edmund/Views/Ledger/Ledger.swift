@@ -134,7 +134,7 @@ struct LedgerTable: View {
             .sheet(item: $inspect.value) { target in
                 ElementIE(target, mode: inspect.mode)
             }
-            .confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting) {
+            .confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting, titleVisibility: .visible) {
                 DeletingActionConfirm(deleting)
             }
             .alert("Warning", isPresented: $warning.isPresented, actions: {
