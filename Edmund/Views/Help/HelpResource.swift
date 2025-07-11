@@ -11,7 +11,7 @@ import Foundation
 /// This ID is constructed as a series of parts separated by '/' (from the file system).
 /// It can be constructed back into a string by calling `.rawValue`, and can be parsed from any `String` instance.
 /// This can be sent between threads, or saved to an encoder.
-public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, Codable {
+public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, Codable, CustomStringConvertible {
     public typealias RawValue = String
     
     /// Constructs the ID from a series of pre-separated strings.
@@ -31,6 +31,9 @@ public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, 
     /// Obtains the last part of the
     public var name: String {
         parts.last ?? "Error"
+    }
+    public var description: String {
+        rawValue
     }
     
     public func appending(component: String) -> Self {
@@ -112,6 +115,15 @@ public enum HelpResource : HelpResourceBase, Sendable {
         }
         else {
             nil
+        }
+    }
+    /// Determines if the current instance is a topic or not.
+    public var isTopic: Bool {
+        if case .topic(_) = self {
+            return true
+        }
+        else {
+            return false
         }
     }
 }

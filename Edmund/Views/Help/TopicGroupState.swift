@@ -10,55 +10,48 @@ import SwiftUI
 
 @MainActor
 @propertyWrapper
-public struct TopicState : DynamicProperty {
-    public init(_ id: String) {
-        self.init(HelpResourceID(rawValue: id))
+public struct TopicGroupState : DynamicProperty {
+    public init(_ id: String, lazy: Bool = false) {
+        self.init(HelpResourceID(rawValue: id), lazy: lazy)
     }
-    public init(_ id: HelpResourceID) {
-        let data = TopicLoadHandle(id: id)
-        
-        self.data = data
-        let engine = self.helpEngine
+    public init(_ id: HelpResourceID, lazy: Bool = false) {
+        self.data = GroupLoadHandle(id: id)
         
         // Starts the request to load the data
-        Task {
-            await engine.getTopic(deposit: data)
+        if !lazy {
+            fetch()
         }
     }
     
     @Environment(\.helpEngine) private var helpEngine;
-    private var data: TopicLoadHandle;
+    private var data: GroupLoadHandle;
     
-    public var wrappedValue: TopicLoadHandle {
+    private func fetch() {
+        let engine = self.helpEngine
+        let data = self.data;
+        Task {
+            await engine.getGroup(deposit: data)
+        }
+    }
+    public func refresh() {
+        self.fetch()
+    }
+    
+    public var wrappedValue: GroupLoadHandle {
         data
     }
-}
-
-@MainActor
-@propertyWrapper
-public struct TopicGroupState : DynamicProperty {
-    public init(_ id: String) {
-        self.init(HelpResourceID(rawValue: id))
-    }
-    public init(_ id: HelpResourceID) {
-        self.data = .init(id: id)
-    }
-    
-    @Environment(\.helpEngine) private var helpEngine;
-    @Bindable private var data: TopicLoadHandle;
-    
-    public var wrappedValue: TopicLoadHandle {
-        data
-    }
-    
 }
 
 struct TopicGroupStateTester : View {
-    @TopicState("Help/Documentation/Change Log.md") private var group;
+    @TopicGroupState("Documentation") private var group;
     
     var body: some View {
-        Text(String(describing: group.status))
-            .frame(width: 200, height: 100)
+        VStack {
+            Button("Refresh", action: _group.refresh)
+            
+            Text(String(describing: group.status))
+                .frame(width: 200, height: 100)
+        }
     }
 }
 
@@ -68,7 +61,9 @@ struct TopicGroupStateTester : View {
         await HelpEngine.walkDirectory(engine: engine)
     }
     
-    TopicGroupStateTester()
-        .padding()
-        .environment(\.helpEngine, engine)
+    HStack {
+        TopicGroupStateTester()
+            .padding()
+            .environment(\.helpEngine, engine)
+    }
 }

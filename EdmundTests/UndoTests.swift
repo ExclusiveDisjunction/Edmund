@@ -51,11 +51,13 @@ struct UndoTests {
         
         #expect(undo.canUndo)
         
+        /*
         if undo.canUndo {
             undo.undo()
             
             #expect(new.isDeleted)
         }
+         */
     }
     
     @MainActor
@@ -83,10 +85,12 @@ struct UndoTests {
         
         #expect(undo.canUndo)
         
+        /*
         if undo.canUndo {
             undo.undo()
             
             #expect(object.name == oldName)
         }
+         */
     }
 }

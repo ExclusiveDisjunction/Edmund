@@ -19,23 +19,27 @@ public enum GroupFetchError : Error, Sendable {
     case engineLoading
 }
 
-public enum TopicLoadState {
+public enum ResourceLoadState<T, E> where T: LoadedHelpResourceBase, E: Sendable, E: Error {
     case loading
-    case loaded(LoadedHelpTopic)
-    case error(TopicFetchError)
+    case loaded(T)
+    case error(E)
 }
+public typealias TopicLoadState = ResourceLoadState<LoadedHelpTopic, TopicFetchError>;
+public typealias GroupLoadState = ResourceLoadState<LoadedHelpGroup, GroupFetchError>;
 
 @MainActor
 @Observable
-public class TopicLoadHandle {
+public class ResourceLoadHandle<T, E> : Identifiable where T: LoadedHelpResourceBase, E: Sendable, E: Error {
     public init(id: HelpResourceID) {
         self.id = id
         self.status = .loading
     }
     
-    public var status: TopicLoadState;
+    public var status: ResourceLoadState<T, E>;
     public let id: HelpResourceID;
 }
+public typealias TopicLoadHandle = ResourceLoadHandle<LoadedHelpTopic, TopicFetchError>;
+public typealias GroupLoadHandle = ResourceLoadHandle<LoadedHelpGroup, GroupFetchError>;
 
 public actor HelpEngine {
     public init() {
@@ -48,62 +52,71 @@ public actor HelpEngine {
     }
     
     /// Walks a directory, inserting all elements it finds into the engine, and returns all direct resource ID's for children notation.
-    private static func walkDirectory(engine: HelpEngine, topID: HelpResourceID, url: URL) async -> [HelpResourceID] {
+    private static func walkDirectory(engine: HelpEngine, topID: HelpResourceID, url: URL, fileManager: FileManager) async -> [HelpResourceID]? {
         guard let resource = try? url.resourceValues(forKeys: [.isDirectoryKey]) else {
-            return [];
+            return nil;
         }
-        let fileManager = FileManager.default;
         
         var result: [HelpResourceID] = [];
         
         if let isDirectory = resource.isDirectory, isDirectory {
-            if let enumerator = try? fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isDirectoryKey]) {
-                for case let path in enumerator {
-                    let newId = topID.appending(component: path.lastPathComponent);
-                    result.append(newId)
+            guard let enumerator = try? fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isDirectoryKey]) else {
+                return nil
+            }
+            
+            for case let path in enumerator {
+                let newId = topID.appending(component: path.lastPathComponent);
+                result.append(newId)
+                
+                if let resource = try? path.resourceValues(forKeys: [.isDirectoryKey]), let isDirectory = resource.isDirectory, isDirectory {
+                    guard let children = await Self.walkDirectory(engine: engine, topID: newId, url: path, fileManager: fileManager) else {
+                        continue
+                    }
                     
-                    if let resource = try? path.resourceValues(forKeys: [.isDirectoryKey]), let isDirectory = resource.isDirectory, isDirectory {
-                        let children = await Self.walkDirectory(engine: engine, topID: newId, url: path)
-                        
-                        await engine.directRegister(
-                            id: newId,
-                            to: .group(
-                                HelpGroup(
-                                    id: newId,
-                                    url: path,
-                                    children: children
-                                )
+                    await engine.directRegister(
+                        id: newId,
+                        to: .group(
+                            HelpGroup(
+                                id: newId,
+                                url: path,
+                                children: children
                             )
                         )
-                    }
-                    else {
-                        await engine.directRegister(
-                            id: newId,
-                            to: .topic(
-                                HelpTopic(
-                                    id: newId,
-                                    url: path
-                                )
+                    )
+                }
+                else {
+                    await engine.directRegister(
+                        id: newId,
+                        to: .topic(
+                            HelpTopic(
+                                id: newId,
+                                url: path
                             )
                         )
-                    }
+                    )
                 }
             }
         }
         
         return result
     }
-    public static func walkDirectory(engine: HelpEngine) async {
-        await engine.setIsLoading(true)
-        
+    @discardableResult
+    public static func walkDirectory(engine: HelpEngine, fileManager: FileManager = .default) async -> Bool {
         guard let url = Bundle.main.url(forResource: "Help", withExtension: nil) else {
             print("Unable to find help content base directory.")
-            return
+            return false
         }
         
+        return await Self.walkDirectory(engine: engine, baseURL: url, fileManager: fileManager)
+    }
+    @discardableResult
+    public static func walkDirectory(engine: HelpEngine, baseURL url: URL, fileManager: FileManager = .default) async -> Bool {
         let rootId = HelpResourceID(parts: [])
         //The root must be written in the data as a TopicGroup, so the directory must be walked.
-        let children = await Self.walkDirectory(engine: engine, topID: rootId, url: url)
+        guard let children = await Self.walkDirectory(engine: engine, topID: rootId, url: url, fileManager: fileManager) else {
+            return false
+        }
+        
         await engine.directRegister(
             id: rootId,
             to: .group(
@@ -115,13 +128,20 @@ public actor HelpEngine {
             )
         )
         
-        await engine.setIsLoading(false)
+        await engine.registerWalk()
+        return true
     }
     
-    private var isLoading: Bool = false;
+    private var walked: Bool = false;
     private var rootId: HelpResourceID = .init(parts: [])
     private var data: [HelpResourceID : HelpResource]
     private var cache: [HelpResourceID];
+    
+    public func getAllData() -> [String] {
+        data.map { key, value in
+            "\(key) -> \(value.name):\(value.isTopic ? "Topic" : "Group")"
+        }
+    }
     
     private func setRootId(_ to: HelpResourceID) {
         self.rootId = to
@@ -129,8 +149,8 @@ public actor HelpEngine {
     private func directRegister(id: HelpResourceID, to: HelpResource) {
         self.data[id] = to
     }
-    private func setIsLoading(_ new: Bool) async {
-        isLoading = new
+    private func registerWalk() {
+        self.walked = true
     }
     /// Ensures that the cache is not too full.
     private func registerCache(id: HelpResourceID) {
@@ -157,7 +177,7 @@ public actor HelpEngine {
     }
     
     public func getTopic(id: HelpResourceID) async throws(TopicFetchError) -> LoadedHelpTopic {
-        guard !isLoading else {
+        guard walked else {
             throw .engineLoading
         }
         
@@ -244,7 +264,7 @@ public actor HelpEngine {
         return result
     }
     public func getGroup(id: HelpResourceID) async throws(GroupFetchError) -> LoadedHelpGroup {
-        guard !isLoading else {
+        guard walked else {
             throw .engineLoading
         }
         
@@ -261,5 +281,29 @@ public actor HelpEngine {
         let root = LoadedHelpGroup(id: id, children: children);
         
         return root;
+    }
+    public func getGroup(deposit: GroupLoadHandle) async {
+        await MainActor.run {
+            deposit.status = .loading
+        }
+        let id = await MainActor.run {
+            deposit.id
+        }
+        
+        let result: LoadedHelpGroup;
+        do {
+            result = try await self.getGroup(id: id)
+        }
+        catch {
+            await MainActor.run {
+                deposit.status = .error(error)
+            }
+            
+            return
+        }
+        
+        await MainActor.run {
+            deposit.status = .loaded(result)
+        }
     }
 }

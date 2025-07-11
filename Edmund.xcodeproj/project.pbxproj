@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD2E264B2E2191BE001197EC /* HelpEngineTest in Resources */ = {isa = PBXBuildFile; fileRef = DD2E264A2E2191BE001197EC /* HelpEngineTest */; };
 		DD3DCA722E15F5550086DDAB /* EdmundWidgetCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD3DCA6A2E15F5550086DDAB /* EdmundWidgetCore.framework */; };
 		DD3DCA732E15F5550086DDAB /* EdmundWidgetCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD3DCA6A2E15F5550086DDAB /* EdmundWidgetCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DD3DCA772E15F5660086DDAB /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5B21472E11F662003A4B4A /* EdmundCore.framework */; };
@@ -126,6 +127,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DD2E264A2E2191BE001197EC /* HelpEngineTest */ = {isa = PBXFileReference; lastKnownFileType = folder; path = HelpEngineTest; sourceTree = "<group>"; };
 		DD34E6022D99D21D009E3875 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E6152D99D21E009E3875 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD3DCA6A2E15F5550086DDAB /* EdmundWidgetCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EdmundWidgetCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -248,6 +250,7 @@
 		DD34E5F92D99D21D009E3875 = {
 			isa = PBXGroup;
 			children = (
+				DD2E264A2E2191BE001197EC /* HelpEngineTest */,
 				DDC5663E2DBFE49F0022D3FB /* Help */,
 				DD34E6042D99D21D009E3875 /* Edmund */,
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
@@ -487,6 +490,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD2E264B2E2191BE001197EC /* HelpEngineTest in Resources */,
 				DDC5663F2DBFE49F0022D3FB /* Help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
