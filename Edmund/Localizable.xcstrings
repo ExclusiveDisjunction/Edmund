@@ -835,9 +835,6 @@
     "Edmund has hit a snag while loading, and cannot access your data." : {
 
     },
-    "Edmund Help" : {
-
-    },
     "Enable Dates" : {
 
     },
@@ -1000,9 +997,6 @@
 
     },
     "Group:" : {
-
-    },
-    "Groups:" : {
 
     },
     "Half Year" : {
@@ -1278,9 +1272,6 @@
 
     },
     "Loading" : {
-
-    },
-    "Loading guides, please wait" : {
 
     },
     "Loan" : {
@@ -1681,6 +1672,7 @@
 
     },
     "Please select a topic to begin" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2083,12 +2075,6 @@
     "The current element is not unique." : {
 
     },
-    "The help guides could not be loaded. Please report this issue." : {
-
-    },
-    "The page content could not be loaded. Please report this issue." : {
-
-    },
     "The unique engine could not be loaded." : {
 
     },
@@ -2143,15 +2129,6 @@
       }
     },
     "Top Section" : {
-
-    },
-    "Topic" : {
-
-    },
-    "Topic Group" : {
-
-    },
-    "Topics:" : {
 
     },
     "Total Average Tax Rate:" : {

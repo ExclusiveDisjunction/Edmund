@@ -10,14 +10,17 @@ import EdmundWidgetCore
 import SwiftData
 import SwiftUI
 
-private struct AppWarningsKey : EnvironmentKey {
-    typealias Value = [String]?;
-    static var defaultValue: [String]? { nil }
+public struct HelpEngineKey : EnvironmentKey {
+    public typealias Value = HelpEngine;
+    
+    public static var defaultValue: HelpEngine {
+        .init()
+    }
 }
 public extension EnvironmentValues {
-    var appWarnings: [String]? {
-        get { self[AppWarningsKey.self] }
-        set { self[AppWarningsKey.self] = [] }
+    var helpEngine: HelpEngine {
+        get { self[HelpEngineKey.self] }
+        set { self[HelpEngineKey.self] = newValue }
     }
 }
 
@@ -25,7 +28,7 @@ public struct LoadedApp {
     public let container: ContainerBundle;
     public let unique: UniqueEngine;
     public let categories: CategoriesContext;
-    public let warnings: [String];
+    public let help: HelpEngine;
 }
 
 public enum AppLoadErrorKind : Sendable {
@@ -60,6 +63,7 @@ public class AppLoader {
         let uniqueContext: UniqueContext;
         let unique: UniqueEngine;
         let categories: CategoriesContext;
+        let help: HelpEngine;
         
         do {
 #if DEBUG
@@ -111,7 +115,12 @@ public class AppLoader {
             }
         }
         
-        let loaded = LoadedApp(container: container, unique: unique, categories: categories, warnings: warning)
+        help = HelpEngine()
+        Task {
+            await HelpEngine.walkDirectory(engine: help)
+        }
+        
+        let loaded = LoadedApp(container: container, unique: unique, categories: categories, help: help)
         withAnimation {
             self.state = .loaded(loaded)
         }
@@ -147,7 +156,7 @@ struct AppWindowGate<Content> : View where Content: View {
                     .preferredColorScheme(colorScheme)
                     .environment(\.categoriesContext, a.categories)
                     .environment(\.uniqueEngine, a.unique)
-                    .environment(\.appWarnings, a.warnings)
+                    .environment(\.helpEngine, a.help)
                     .environment(\.modelContext, a.container.context)
                 
         }

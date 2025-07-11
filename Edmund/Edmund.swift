@@ -152,8 +152,10 @@ struct EdmundApp: App {
 #endif
         
         WindowGroup("Help", id: "help") {
+            /*
             HelpView()
                 .preferredColorScheme(colorScheme)
+            */
         }
     }
 }

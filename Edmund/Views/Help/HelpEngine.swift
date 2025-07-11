@@ -7,63 +7,15 @@
 
 import Foundation
 
-public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, Codable {
-    public typealias RawValue = String
-    
-    public init(parts: [String]) {
-        self.parts = parts.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-    }
-    public init(rawValue: String) {
-        self.parts = rawValue.split(separator: "/", omittingEmptySubsequences: true).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-    }
-    
-    public var parts: [String];
-    public var rawValue: String {
-        return parts.joined(separator: "/")
-    }
-}
-
-public struct HelpTopic : Identifiable {
-    public init(id: HelpResourceID, url: URL, content: String? = nil) {
-        self.id = id
-        self.url = url
-        self.content = content
-    }
-    
-    public let id: HelpResourceID;
-    public let url: URL;
-    public var content: String?;
-}
-public struct LoadedHelpTopic : Identifiable, Sendable {
-    public init(id: HelpResourceID, content: String) {
-        self.id = id
-        self.content = content
-    }
-    
-    public let id: HelpResourceID;
-    public let content: String;
-}
-public struct HelpGroup : Identifiable, Sendable {
-    public init(id: HelpResourceID, url: URL, children: [HelpResourceID]) {
-        self.id = id
-        self.url = url
-        self.children = children
-    }
-    
-    public let id: HelpResourceID;
-    public let url: URL;
-    public let children: [HelpResourceID]
-}
-
-public enum HelpResource {
-    case topic(HelpTopic)
-    case group(HelpGroup)
-}
-
 public enum TopicFetchError : Error, Sendable {
     case notFound
     case isAGroup
     case fileReadError(String)
+    case engineLoading
+}
+public enum GroupFetchError : Error, Sendable {
+    case notFound
+    case isATopic
     case engineLoading
 }
 
@@ -85,65 +37,98 @@ public class TopicLoadHandle {
     public let id: HelpResourceID;
 }
 
-public struct TopicRequest : Identifiable, Sendable {
-    public let name: String;
-    public let id: HelpResourceID;
-}
-public struct TopicGroupDetails : Identifiable, Sendable {
-    public let name: String;
-    public let id: HelpResourceID;
-    public let children: [HelpTopicTree];
-}
-
-public enum HelpTopicTree : Identifiable, Sendable {
-    case topic(TopicRequest)
-    case group(TopicGroupDetails)
-    
-    public var id: HelpResourceID {
-        switch self {
-            case .topic(let t): t.id
-            case .group(let g): g.id
-        }
-    }
-    public var name: String {
-        switch self {
-            case .topic(let t): t.name
-            case .group(let g): g.name
-        }
-    }
-    public var children: [HelpTopicTree]? {
-        if case .group(let g) = self {
-            return g.children
-        }
-        else {
-            return nil
-        }
-    }
-}
-
 public actor HelpEngine {
     public init() {
         self.data = .init()
         self.cache = .init()
-        self.root = .init(id: .init(rawValue: ""), url: .init(filePath: ""), children: [])
     }
-    private init(root: HelpGroup, data: [HelpResourceID : HelpResource ]) {
+    private init(data: [HelpResourceID : HelpResource ]) {
         self.data = data
         self.cache = .init()
-        self.root = root
     }
     
+    /// Walks a directory, inserting all elements it finds into the engine, and returns all direct resource ID's for children notation.
+    private static func walkDirectory(engine: HelpEngine, topID: HelpResourceID, url: URL) async -> [HelpResourceID] {
+        guard let resource = try? url.resourceValues(forKeys: [.isDirectoryKey]) else {
+            return [];
+        }
+        let fileManager = FileManager.default;
+        
+        var result: [HelpResourceID] = [];
+        
+        if let isDirectory = resource.isDirectory, isDirectory {
+            if let enumerator = try? fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.isDirectoryKey]) {
+                for case let path in enumerator {
+                    let newId = topID.appending(component: path.lastPathComponent);
+                    result.append(newId)
+                    
+                    if let resource = try? path.resourceValues(forKeys: [.isDirectoryKey]), let isDirectory = resource.isDirectory, isDirectory {
+                        let children = await Self.walkDirectory(engine: engine, topID: newId, url: path)
+                        
+                        await engine.directRegister(
+                            id: newId,
+                            to: .group(
+                                HelpGroup(
+                                    id: newId,
+                                    url: path,
+                                    children: children
+                                )
+                            )
+                        )
+                    }
+                    else {
+                        await engine.directRegister(
+                            id: newId,
+                            to: .topic(
+                                HelpTopic(
+                                    id: newId,
+                                    url: path
+                                )
+                            )
+                        )
+                    }
+                }
+            }
+        }
+        
+        return result
+    }
     public static func walkDirectory(engine: HelpEngine) async {
         await engine.setIsLoading(true)
+        
+        guard let url = Bundle.main.url(forResource: "Help", withExtension: nil) else {
+            print("Unable to find help content base directory.")
+            return
+        }
+        
+        let rootId = HelpResourceID(parts: [])
+        //The root must be written in the data as a TopicGroup, so the directory must be walked.
+        let children = await Self.walkDirectory(engine: engine, topID: rootId, url: url)
+        await engine.directRegister(
+            id: rootId,
+            to: .group(
+                HelpGroup(
+                    id: rootId,
+                    url: url,
+                    children: children
+                )
+            )
+        )
         
         await engine.setIsLoading(false)
     }
     
     private var isLoading: Bool = false;
-    private var root: HelpGroup;
+    private var rootId: HelpResourceID = .init(parts: [])
     private var data: [HelpResourceID : HelpResource]
     private var cache: [HelpResourceID];
     
+    private func setRootId(_ to: HelpResourceID) {
+        self.rootId = to
+    }
+    private func directRegister(id: HelpResourceID, to: HelpResource) {
+        self.data[id] = to
+    }
     private func setIsLoading(_ new: Bool) async {
         isLoading = new
     }
@@ -165,8 +150,10 @@ public actor HelpEngine {
         cache.append(id)
     }
     
-    public func getTree() async -> HelpTopicTree? {
+    public func getTree() async throws(GroupFetchError) -> [LoadedHelpResource] {
+        let rootGroup = try await self.getGroup(id: rootId)
         
+        return rootGroup.children
     }
     
     public func getTopic(id: HelpResourceID) async throws(TopicFetchError) -> LoadedHelpTopic {
@@ -205,6 +192,9 @@ public actor HelpEngine {
             return loaded
         }
     }
+    public func getTopic(request: TopicRequest) async throws(TopicFetchError) -> LoadedHelpTopic {
+        return try await self.getTopic(id: request.id)
+    }
     public func getTopic(deposit: TopicLoadHandle) async {
         await MainActor.run {
             deposit.status = .loading
@@ -228,5 +218,48 @@ public actor HelpEngine {
         await MainActor.run {
             deposit.status = .loaded(result)
         }
+    }
+    
+    private func walkGroup(group: HelpGroup) async -> [LoadedHelpResource] {
+        var result: [LoadedHelpResource] = [];
+        for child in group.children {
+            guard let resolved = data[child] else {
+                 //Could not resolve the id, so we just move on
+                continue;
+            }
+            
+            switch resolved {
+                case .group(let g):
+                    let children = await self.walkGroup(group: g)
+                    result.append(
+                        .group(LoadedHelpGroup(id: g.id, children: children))
+                    )
+                case .topic(let t):
+                    result.append(
+                        .topic(TopicRequest(id: t.id))
+                    )
+            }
+        }
+        
+        return result
+    }
+    public func getGroup(id: HelpResourceID) async throws(GroupFetchError) -> LoadedHelpGroup {
+        guard !isLoading else {
+            throw .engineLoading
+        }
+        
+        guard let resx = data[id] else {
+            throw .notFound
+        }
+        
+        guard case .group(let group) = resx else {
+            throw .isATopic
+        }
+        
+        //From this point on, we have the group, we need to resolve all children recursivley.
+        let children = await self.walkGroup(group: group);
+        let root = LoadedHelpGroup(id: id, children: children);
+        
+        return root;
     }
 }
