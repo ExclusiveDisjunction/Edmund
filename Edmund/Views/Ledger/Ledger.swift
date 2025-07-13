@@ -95,6 +95,8 @@ struct LedgerTable: View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
+        TopicToolbarButton("Help/Ledger/Ledger.md", placement: .secondaryAction)
+        
         ToolbarItem(id: "add", placement: .primaryAction) {
             TransactionMenu(selection: $transKind) {
                 Label("Add", systemImage: "plus")

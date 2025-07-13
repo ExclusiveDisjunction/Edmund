@@ -7,16 +7,8 @@
 
 import Foundation
 
-public protocol LoadedHelpResourceBase : Identifiable<HelpResourceID>, Sendable { }
-public extension LoadedHelpResourceBase {
-    /// The current name of the help resource.
-    var name: String {
-        id.name
-    }
-}
-
 /// Represents a topic that is guarenteed to have a file content.
-public struct LoadedHelpTopic : LoadedHelpResourceBase, Sendable {
+public struct LoadedHelpTopic : HelpResourceCore, Sendable {
     public init(id: HelpResourceID, content: String) {
         self.id = id
         self.content = content
@@ -27,12 +19,12 @@ public struct LoadedHelpTopic : LoadedHelpResourceBase, Sendable {
     public let content: String;
 }
 /// A request that can be submitted to the help engine to load a topic.
-public struct TopicRequest : LoadedHelpResourceBase, Sendable {
+public struct TopicRequest : HelpResourceCore, Sendable {
     public let id: HelpResourceID;
 }
 
 /// A complete tree with topic requests for presenting on the user interface.
-public struct LoadedHelpGroup : LoadedHelpResourceBase, Identifiable, Sendable {
+public struct LoadedHelpGroup : HelpResourceCore, Identifiable, Sendable {
     public init(id: HelpResourceID, children: [LoadedHelpResource]) {
         self.id = id
         self.children = children
@@ -44,7 +36,7 @@ public struct LoadedHelpGroup : LoadedHelpResourceBase, Identifiable, Sendable {
 }
 
 /// Either a `TopicRequest` or a `LoadedHelpGroup` instance for presenting on the UI.
-public enum LoadedHelpResource : Parentable, LoadedHelpResourceBase, Sendable, Identifiable {
+public enum LoadedHelpResource : Parentable, HelpResourceCore, Sendable, Identifiable {
     case topic(TopicRequest)
     case group(LoadedHelpGroup)
     

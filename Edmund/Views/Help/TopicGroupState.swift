@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+/// A property wrapper that is used to load a help topic in the background.
 @MainActor
 @propertyWrapper
 public struct TopicGroupState : DynamicProperty {

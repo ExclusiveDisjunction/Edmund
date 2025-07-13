@@ -6,49 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
 
-public enum TopicFetchError : Error, Sendable {
-    case notFound
-    case isAGroup
-    case fileReadError(String)
-    case engineLoading
-}
-public enum GroupFetchError : Error, Sendable {
-    case notFound
-    case isATopic
-    case engineLoading
-}
-
-public enum ResourceLoadState<T, E> where T: LoadedHelpResourceBase, E: Sendable, E: Error {
-    case loading
-    case loaded(T)
-    case error(E)
-}
-public typealias TopicLoadState = ResourceLoadState<LoadedHelpTopic, TopicFetchError>;
-public typealias GroupLoadState = ResourceLoadState<LoadedHelpGroup, GroupFetchError>;
-
-@MainActor
-@Observable
-public class ResourceLoadHandle<T, E> : Identifiable where T: LoadedHelpResourceBase, E: Sendable, E: Error {
-    public init(id: HelpResourceID) {
-        self.id = id
-        self.status = .loading
-    }
-    
-    public var status: ResourceLoadState<T, E>;
-    public let id: HelpResourceID;
-}
-public typealias TopicLoadHandle = ResourceLoadHandle<LoadedHelpTopic, TopicFetchError>;
-public typealias GroupLoadHandle = ResourceLoadHandle<LoadedHelpGroup, GroupFetchError>;
-
+/// A universal system to index, manage, cache, and produce different help topics & groups over some physical directory.
 public actor HelpEngine {
     public init() {
         self.data = .init()
-        self.cache = .init()
-    }
-    private init(data: [HelpResourceID : HelpResource ]) {
-        self.data = data
-        self.cache = .init()
     }
     
     /// Walks a directory, inserting all elements it finds into the engine, and returns all direct resource ID's for children notation.
@@ -100,6 +63,8 @@ public actor HelpEngine {
         
         return result
     }
+    
+    /// Walks the default pacakge help directory, recording all groups (folders) and topics (files) it finds.
     @discardableResult
     public static func walkDirectory(engine: HelpEngine, fileManager: FileManager = .default) async -> Bool {
         guard let url = Bundle.main.url(forResource: "Help", withExtension: nil) else {
@@ -109,6 +74,8 @@ public actor HelpEngine {
         
         return await Self.walkDirectory(engine: engine, baseURL: url, fileManager: fileManager)
     }
+    
+    /// Walks a specific base URL, recording all groups (folders) and topics (files) it finds.
     @discardableResult
     public static func walkDirectory(engine: HelpEngine, baseURL url: URL, fileManager: FileManager = .default) async -> Bool {
         let rootId = HelpResourceID(parts: [])
@@ -132,50 +99,58 @@ public actor HelpEngine {
         return true
     }
     
+    /// Represents the engine being unloaded. When false, retreiving data returns .notLoaded.
     private var walked: Bool = false;
+    /// The root ID from the top of the directory.
     private var rootId: HelpResourceID = .init(parts: [])
+    /// All topics and groups recognized by the engine.
     private var data: [HelpResourceID : HelpResource]
-    private var cache: [HelpResourceID];
+    /// The ID of values that have been cached.
+    private var cache: LimitedQueue<HelpResourceID> = .init(capacity: 20, with: .init(parts: []));
     
-    public func getAllData() -> [String] {
-        data.map { key, value in
-            "\(key) -> \(value.name):\(value.isTopic ? "Topic" : "Group")"
-        }
+    /// Instructs the engine to wipe all data.
+    public func reset() async {
+        if !walked { return }
+        
+        self.walked = false
+        self.data = [:]
+        self.cache.clear()
     }
     
+    /// Used to set the current rootID value of the engine.
     private func setRootId(_ to: HelpResourceID) {
         self.rootId = to
     }
+    /// Directly inserts `to` with  key `id`.
     private func directRegister(id: HelpResourceID, to: HelpResource) {
         self.data[id] = to
     }
+    /// Tells the engine that walking (loading) is complete.
     private func registerWalk() {
         self.walked = true
     }
     /// Ensures that the cache is not too full.
     private func registerCache(id: HelpResourceID) {
-        guard cache.count > 20 else { return }
-        
-        //Remove from front, add to the back
-        
-        // First, unload the current target
-        guard let firstId = cache.first, let first = data[firstId], case .topic(var oldTopic) = first else {
-            return;
+        if let oldId = cache.append(id) {
+            //Get the old element
+            
+            guard let first = data[oldId], case .topic(var oldTopic) = first else {
+                // Didnt resolve correctly, but that is ok
+                return;
+            }
+            
+            // Unload the data and update the internal data
+            oldTopic.content = nil;
+            self.data[oldId] = .topic(oldTopic)
         }
-        
-        oldTopic.content = nil
-        data[firstId] = .topic(oldTopic)
-        
-        cache.remove(at: 0)
-        cache.append(id)
     }
     
-    public func getTree() async throws(GroupFetchError) -> [LoadedHelpResource] {
-        let rootGroup = try await self.getGroup(id: rootId)
-        
-        return rootGroup.children
-    }
-    
+    /// Loads a topic from the engine from a specified `HelpResourceID`.
+    /// If the topic could not be found/resolved correctly, or the engine is loading, this will throw an error.
+    /// - Parameters:
+    ///     - id: The specified ID of the topic to load.
+    /// - Returns:
+    ///     - A `LoadedHelpTopic`, containing all topic information.
     public func getTopic(id: HelpResourceID) async throws(TopicFetchError) -> LoadedHelpTopic {
         guard walked else {
             throw .engineLoading
@@ -212,12 +187,24 @@ public actor HelpEngine {
             return loaded
         }
     }
+    /// Loads a topic from the engine from a specified `TopicRequest`.
+    /// If the topic could not be found/resolved correctly, or the engine is loading, this will throw an error.
+    /// - Parameters:
+    ///     - request: The request to load a specified topic.
+    /// - Returns:
+    ///     - A `LoadedHelpTopic`, containing all topic information.
     public func getTopic(request: TopicRequest) async throws(TopicFetchError) -> LoadedHelpTopic {
         return try await self.getTopic(id: request.id)
     }
+    /// Loads a topic from the engine and deposits the information into a `TopicLoadHandle`.
+    /// Any errors occuring from the engine will be placed as `.error()` in the `deposit` handle.
+    /// - Parameters:
+    ///     - deposit: The specified handle (id and status updater) to load the resources from the engine.
     public func getTopic(deposit: TopicLoadHandle) async {
         await MainActor.run {
-            deposit.status = .loading
+            withAnimation {
+                deposit.status = .loading
+            }
         }
         let id = await MainActor.run {
             deposit.id
@@ -229,17 +216,27 @@ public actor HelpEngine {
         }
         catch {
             await MainActor.run {
-                deposit.status = .error(error)
+                withAnimation {
+                    deposit.status = .error(error)
+                }
             }
             
             return
         }
         
         await MainActor.run {
-            deposit.status = .loaded(result)
+            withAnimation {
+                deposit.status = .loaded(result)
+            }
         }
     }
     
+    /// Using `data` and some `HelpGroup`, this will walk the tree and resolve all children into a `[LoadedHelpResource]` package.
+    /// This function is self-recursive, as it walks the entire tree structure starting at `group`.
+    /// - Parameters:
+    ///     - group: The root node to start walking from
+    /// - Returns:
+    ///     - All children under `group`, as loaded resources.
     private func walkGroup(group: HelpGroup) async -> [LoadedHelpResource] {
         var result: [LoadedHelpResource] = [];
         for child in group.children {
@@ -263,6 +260,12 @@ public actor HelpEngine {
         
         return result
     }
+    /// Loads a group from the engine from a specified `HelpResourceID`.
+    /// If the group could not be found/resolved correctly, or the engine is loading, this will throw an error.
+    /// - Parameters:
+    ///     - id: The specified ID of the group to load.
+    /// - Returns:
+    ///     - A `LoadedHelpGroup` instance with information to load all children resources.
     public func getGroup(id: HelpResourceID) async throws(GroupFetchError) -> LoadedHelpGroup {
         guard walked else {
             throw .engineLoading
@@ -282,9 +285,15 @@ public actor HelpEngine {
         
         return root;
     }
+    /// Loads a group from the engine and deposits the information into a `GroupLoadHandle`.
+    /// Any errors occuring from the engine will be placed as `.error()` in the `deposit` handle.
+    /// - Parameters:
+    ///     - deposit: The specified handle (id and status updater) to load the resources from the engine.
     public func getGroup(deposit: GroupLoadHandle) async {
         await MainActor.run {
-            deposit.status = .loading
+            withAnimation {
+                deposit.status = .loading
+            }
         }
         let id = await MainActor.run {
             deposit.id
@@ -296,7 +305,41 @@ public actor HelpEngine {
         }
         catch {
             await MainActor.run {
-                deposit.status = .error(error)
+                withAnimation {
+                    deposit.status = .error(error)
+                }
+            }
+            
+            return
+        }
+        
+        await MainActor.run {
+            withAnimation {
+                deposit.status = .loaded(result)
+            }
+        }
+    }
+    
+    /// Loads the entire engine's tree, and returns the top level resources.
+    /// See the documentation for `.getGroup(id:)` for information about errors.
+    public func getTree() async throws(GroupFetchError) -> [LoadedHelpResource] {
+        try await self.getGroup(id: rootId).children
+    }
+    /// Loads the engire engine's tree and places the result into a `WholeTreeLoadHandle`, as updates occur.
+    /// - Parameters:
+    ///     - deposit: The location to send updates about the fetch to.
+    public func getTree(deposit: WholeTreeLoadHandle) async {
+        await MainActor.run {
+            deposit.status = .loading
+        }
+        
+        let result: [LoadedHelpResource];
+        do {
+            result = try await self.getTree()
+        }
+        catch let e {
+            await MainActor.run {
+                deposit.status = .error(e)
             }
             
             return

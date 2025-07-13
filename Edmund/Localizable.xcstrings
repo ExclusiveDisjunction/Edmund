@@ -832,7 +832,16 @@
       },
       "shouldTranslate" : false
     },
+    "Edmund could not find that topic." : {
+
+    },
+    "Edmund expected a single topic, but got a group of topics instead." : {
+
+    },
     "Edmund has hit a snag while loading, and cannot access your data." : {
+
+    },
+    "Edmund was not able to obtain the guide's contents." : {
 
     },
     "Enable Dates" : {
@@ -867,6 +876,9 @@
           }
         }
       }
+    },
+    "Error description: %@" : {
+
     },
     "Error Kind:" : {
 
@@ -1025,6 +1037,9 @@
     "Has Location:" : {
 
     },
+    "Having trouble? Try refreshing:" : {
+
+    },
     "Help" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1107,6 +1122,9 @@
     },
     "https://github.com/swiftlang/swift-markdown" : {
       "shouldTranslate" : false
+    },
+    "If this is a common or persistent issue, please report it." : {
+
     },
     "If you need assistance with this tool, please see the help topic." : {
 
@@ -2075,6 +2093,9 @@
     "The current element is not unique." : {
 
     },
+    "The help system is not done loading. Please wait, and refresh." : {
+
+    },
     "The unique engine could not be loaded." : {
 
     },
@@ -2106,6 +2127,9 @@
     "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted." : {
 
     },
+    "This is not an issue caused by you, but the developer." : {
+
+    },
     "This period is how many hours you work in this period. For example, 50 hours per week." : {
 
     },
@@ -2129,6 +2153,9 @@
       }
     },
     "Top Section" : {
+
+    },
+    "Topic" : {
 
     },
     "Total Average Tax Rate:" : {

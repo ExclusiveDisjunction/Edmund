@@ -30,12 +30,24 @@ public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, 
     }
     /// Obtains the last part of the
     public var name: String {
-        parts.last ?? "Error"
+        if let last = parts.last {
+            let subParts = last.split(separator: ".")
+            if subParts.count == 1 {
+                // Since we dont have any periods, we just return that name directly.
+                return last
+            }
+            
+            return subParts.dropLast().joined(separator: ".")
+        }
+        else {
+            return "";
+        }
     }
     public var description: String {
         rawValue
     }
     
+    /// Appends a new string to the end of the parts, creating a new ID.
     public func appending(component: String) -> Self {
         let trimmed = component.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -44,6 +56,7 @@ public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, 
         
         return .init(parts: self.parts + [trimmed])
     }
+    /// Appends many new strings to the end of parts, creating a new ID.
     public func appending(contentsOf: [String]) -> Self {
         let list = self.parts + contentsOf.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter{ !$0.isEmpty }
         
@@ -51,20 +64,23 @@ public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, 
     }
 }
 
-/// A common protocol for unloaded help resources.
-public protocol HelpResourceBase : Identifiable<HelpResourceID>, Sendable {
-    /// The physical location on disk for loading
-    var url: URL { get }
-}
-public extension HelpResourceBase {
+/// A common protocol for all unloaded and loaded HelpResources. These are values that can be sent between threads, and are identifyable using `HelpResourceID`.
+public protocol HelpResourceCore : Identifiable<HelpResourceID>, Sendable { }
+public extension HelpResourceCore {
     /// The name of the current resource
     var name: String {
         id.name
     }
 }
 
+/// A common protocol for unloaded help resources.
+public protocol UnloadedHelpResource : HelpResourceCore {
+    /// The physical location on disk for loading
+    var url: URL { get }
+}
+
 /// A reference to a possibly unloaded topic, holding a file path.
-public struct HelpTopic : HelpResourceBase, Sendable {
+public struct HelpTopic : UnloadedHelpResource, Sendable {
     public init(id: HelpResourceID, url: URL, content: String? = nil) {
         self.id = id
         self.url = url
@@ -78,7 +94,7 @@ public struct HelpTopic : HelpResourceBase, Sendable {
 }
 
 /// Represents a directory, or group of other topics or groups.
-public struct HelpGroup : HelpResourceBase, Sendable {
+public struct HelpGroup : UnloadedHelpResource, Sendable {
     public init(id: HelpResourceID, url: URL, children: [HelpResourceID]) {
         self.id = id
         self.url = url
@@ -92,7 +108,7 @@ public struct HelpGroup : HelpResourceBase, Sendable {
 }
 
 /// A wrapper around help groups and help topics
-public enum HelpResource : HelpResourceBase, Sendable {
+public enum HelpResource : UnloadedHelpResource, Sendable {
     case topic(HelpTopic)
     case group(HelpGroup)
     
