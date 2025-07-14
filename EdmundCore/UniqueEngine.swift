@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import os
 
 /// A protocol that determines if an element is unique.
 /// For the unique pattern to work, the type must implement this protocol.
@@ -73,8 +74,16 @@ public struct UniqueFailureError<T> : Error where T: Sendable, T: Hashable {
 /// An environment safe class that can be used to enforce the uniqueness amongts different objects of the same type.
 public actor UniqueEngine {
     /// Creates the engine with empty sets.
-    public init() {
+    public init(_ logger: Logger? = nil) {
         self.data = .init();
+        self.logger = logger;
+    }
+    
+    private var logger: Logger?;
+    private var data: Dictionary<ObjectIdentifier, Set<AnyHashable>>;
+    
+    private struct DataBundle : @unchecked Sendable {
+        let inner: [ObjectIdentifier : Set<AnyHashable>]
     }
     
     /// Creates the engine with data from a `UniqueContext`.
@@ -82,6 +91,7 @@ public actor UniqueEngine {
     /// Note that this function will crash the program if any ID is non-unique.
     @MainActor
     public func fill(_ using: UniqueContext) async {
+        await logger?.info("The UniqueEngine is importing from the ModelContainer.")
         let allSets: [(ObjectIdentifier, Set<AnyHashable>)] = [
             ( ObjectIdentifier(Account.self),              Set(using.acc.map      { AnyHashable($0.id) } ) ),
             ( ObjectIdentifier(SubAccount.self),           Set(using.subAcc.map   { AnyHashable($0.id) } ) ),
@@ -91,17 +101,18 @@ public actor UniqueEngine {
             ( ObjectIdentifier((any TraditionalJob).self), Set(using.allJobs.map  { AnyHashable($0.id) } ) )
         ];
         
-        await self.setData(data: .init(uniqueKeysWithValues: allSets))
+        let dict = Dictionary(uniqueKeysWithValues: allSets);
+        let wrapper = DataBundle(inner: dict)
+        await self.setData(data: wrapper)
+        await logger?.info("The UniqueEngine's import is complete.")
     }
     public func reset() {
         self.data = [:]
     }
     
-    private func setData(data: Dictionary<ObjectIdentifier, Set<AnyHashable>>) async {
-        self.data = data
+    private func setData(data: DataBundle) async {
+        self.data = data.inner
     }
-    
-    private var data: Dictionary<ObjectIdentifier, Set<AnyHashable>>;
     
     /// Determines if a specific ID (presumed to be from type `T`), is not being used.
     public func isIdOpen<T, ID>(type: T.Type, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
@@ -127,8 +138,12 @@ public actor UniqueEngine {
     }
     /// Attempts to reserve an ID for a specific object ID.
     public func reserveId<ID>(key: ObjectIdentifier, id: ID) async -> Bool where ID: Hashable, ID: Sendable {
-        data[key, default: .init()].insert(id).inserted
+        let result = data[key, default: .init()].insert(id).inserted
+        if !result {
+            logger?.error("Reserveration of id \("\(id)", privacy: .public) is already taken.")
+        }
         // Since `inserted` will be false if the insert fails, this reserve call will also fail.
+        return result
     }
     
     /// Attempts to release an ID from a type's pool.

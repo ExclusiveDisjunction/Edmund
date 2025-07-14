@@ -13,9 +13,10 @@ import EdmundWidgetCore
 @main
 struct EdmundApp: App {
     init() {
-        let help = HelpEngine();
-        let unique = UniqueEngine();
-        let loader = AppLoaderEngine(unique: unique, help: help)
+        let log = LoggerSystem();
+        let help = HelpEngine(log.help);
+        let unique = UniqueEngine(log.unique);
+        let loader = AppLoaderEngine(unique: unique, help: help, log: log.app)
         
         self.help = help
         self.unique = unique
@@ -23,12 +24,14 @@ struct EdmundApp: App {
     
         let state = AppLoadingState();
         self.state = state
+        self.log = log
         
         Task {
             await loader.loadApp(state: state)
         }
     }
     
+    let log: LoggerSystem;
     let loader: AppLoaderEngine;
     let help: HelpEngine;
     let unique: UniqueEngine;
@@ -87,7 +90,7 @@ struct EdmundApp: App {
             }
         }
         
-        WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
+        WindowGroup(PageDestinations.incomeDivider.rawValue, id: PageDestinations.incomeDivider.key) {
             NavigationStack {
                 AppWindowGate(state: state) {
                     AllBudgetsInspect()
@@ -95,10 +98,10 @@ struct EdmundApp: App {
             }
         }
         
-        WindowGroup(PageDestinations.org.rawValue, id: PageDestinations.org.key) {
+        WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
                 AppWindowGate(state: state) {
-                    OrganizationHome()
+                    Text("Work in progress")
                 }
             }
         }

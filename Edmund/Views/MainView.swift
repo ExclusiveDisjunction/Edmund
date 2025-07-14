@@ -9,45 +9,60 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
+struct PageDestinationWrapper : Identifiable {
+    init(name: String, content: [PageDestinations]) {
+        self.id = name
+        self.name = .init(stringLiteral: name)
+        self.content = content
+    }
+    
+    let id: String;
+    let name: LocalizedStringKey;
+    let content: [PageDestinations];
+}
+
 /// The homepage elements that are presented to the user.
 enum PageDestinations: LocalizedStringKey, Identifiable {
-    case home = "Home",
-         ledger = "Ledger",
-         balance = "Balance Sheet",
-         bills = "Bills",
-         budget = "Budget",
-         
-         org = "Organization",
-         accounts = "Accounts",
-         credit = "Credit Card Helper",
-         audit = "Balance Verifier",
-         categories = "Categories",
-         
-         pay = "Pay",
-         paychecks = "Paychecks",
-         jobs = "Jobs",
-         taxes = "Taxes"
+    case home = "Home"
     
-    /// The top level options for the main page.
-    static var topLevel: [Self] {
+    case ledger = "Ledger"
+    case balance = "Balance Sheet"
+    case credit = "Credit Card Audit"
+    case audit = "Audits"
+    
+    case bills = "Bills"
+    
+    case jobs = "Jobs"
+    case incomeDivider = "Income Divider"
+    case budget = "Budget"
+    
+    case accounts = "Accounts"
+    case categories = "Categories"
+    
+    //case pay = "Pay"
+    //case paychecks = "Paychecks"
+    //case taxes = "Taxes"
+    
+    static var groups: [PageDestinationWrapper] {
         [
-            .home,
-            .ledger,
-            .balance,
-            .bills,
-            .budget,
-            .jobs,
-            .org
-            //.pay
+            .init(name: "Ledger", content: [
+                .ledger,
+                .balance,
+                .audit,
+                .credit
+            ]),
+            .init(name: "Bills", content: [
+                .bills
+            ]),
+            .init(name: "Budgeting & Pay", content: [
+                .incomeDivider,
+                .jobs,
+            ]),
+            .init(name: "Organization", content: [
+                .accounts,
+                .categories
+            ])
         ]
-    }
-    /// The children of a specific top level element. This is `nil` for all other elements.
-    var children: [Self]? {
-        switch self {
-            case .org: [.accounts, .categories, .credit, .audit ]
-            case .pay: [.paychecks, .jobs ] //.taxes
-            default: nil
-        }
     }
     
     var id: Self { self }
@@ -58,20 +73,21 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 
             case .ledger: "ledger"
             case .balance: "balanceSheet"
-                
-            case .bills: "bills"
-                
-            case .org: "organization"
-            case .accounts: "accounts"
-            case .categories: "categories"
             case .credit: "creditHelper"
             case .audit: "auditHelper"
                 
+            case .bills: "bills"
+                
             case .jobs: "jobs"
+            case .incomeDivider: "incomeDivider"
             case .budget: "budget"
-            case .pay: "pay"
-            case .paychecks: "paychecks"
-            case .taxes: "taxes"
+                
+            case .accounts: "accounts"
+            case .categories: "categories"
+           
+            //case .pay: "pay"
+            //case .paychecks: "paychecks"
+            //case .taxes: "taxes"
         }
     }
     
@@ -84,12 +100,11 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 
             case .ledger: LedgerTable()
             case .balance: BalanceSheet()
-            
-            case .budget: AllBudgetsInspect()
+                
+            case .incomeDivider: AllBudgetsInspect()
                 
             case .bills: AllBillsViewEdit()
                 
-            case .org: OrganizationHome()
             case .accounts: AccountsIE()
             case .categories: CategoriesIE()
             case .credit: CreditCardHelper()
@@ -103,7 +118,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
 
 struct MainView: View {
     @State private var page: PageDestinations.ID? = nil;
-    @State private var allowedPages = PageDestinations.topLevel;
     
     @Environment(\.undoManager) private var undoManager;
     @Environment(\.modelContext) private var modelContext;
@@ -120,6 +134,21 @@ struct MainView: View {
 #endif
     }()
     
+    @ViewBuilder
+    private func textFor(_ page: PageDestinations) -> some View {
+        if Self.allowPopouts {
+            Text(page.rawValue)
+                .contextMenu {
+                    Button("Open in new Window", action: {
+                        openWindow(id: page.key)
+                    })
+                }
+        }
+        else {
+            Text(page.rawValue)
+        }
+    }
+    
     var body: some View {
         NavigationSplitView {
             VStack {
@@ -128,17 +157,15 @@ struct MainView: View {
                     .padding(.bottom)
                     .backgroundStyle(.background.secondary)
                 
-                List(allowedPages, children: \.children, selection: $page) { page in
-                    if Self.allowPopouts {
-                        Text(page.rawValue)
-                            .contextMenu {
-                                Button("Open in new Window", action: {
-                                    openWindow(id: page.key)
-                                })
+                List(selection: $page) {
+                    Text(PageDestinations.home.rawValue).id(PageDestinations.home)
+                    
+                    ForEach(PageDestinations.groups) { group in
+                        Section(group.name) {
+                            ForEach(group.content) {
+                                textFor($0)
                             }
-                    }
-                    else {
-                        Text(page.rawValue)
+                        }
                     }
                 }
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)

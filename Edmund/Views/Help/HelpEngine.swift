@@ -7,10 +7,12 @@
 
 import Foundation
 import SwiftUI
+import os
 
 /// A universal system to index, manage, cache, and produce different help topics & groups over some physical directory.
 public actor HelpEngine {
-    public init() {
+    public init(_ logger: Logger? = nil) {
+        self.logger = logger
         self.data = .init()
     }
     
@@ -73,6 +75,7 @@ public actor HelpEngine {
     /// Walks a specific base URL, recording all groups (folders) and topics (files) it finds.
     @discardableResult
     public func walkDirectory(baseURL url: URL) async -> Bool {
+        logger?.info("Beging help engine walk of directory \(url.path(), privacy: .private)")
         let rootId = HelpResourceID(parts: [])
         //The root must be written in the data as a TopicGroup, so the directory must be walked.
         guard let children = await self.walkDirectory(topID: rootId, url: url) else {
@@ -88,9 +91,12 @@ public actor HelpEngine {
         )
         
         self.walked = true
+        logger?.info("Help engine walk is complete.")
         return true
     }
     
+    /// The internal logger used for the help engine.
+    private var logger: Logger?;
     /// Represents the engine being unloaded. When false, retreiving data returns .notLoaded.
     private var walked: Bool = false;
     /// The root ID from the top of the directory.

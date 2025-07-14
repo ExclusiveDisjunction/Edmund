@@ -10,6 +10,7 @@ import EdmundWidgetCore
 import SwiftData
 import SwiftUI
 import Observation
+import os
 
 public struct LoadedAppContext : @unchecked Sendable {
     public let container: ContainerBundle;
@@ -40,13 +41,15 @@ public class AppLoadingState {
 }
 
 public actor AppLoaderEngine {
-    public init(unique: UniqueEngine, help: HelpEngine) {
+    public init(unique: UniqueEngine, help: HelpEngine, log: Logger? = nil) {
         self.loaded = nil;
         self.unique = unique
         self.help = help
         self.loadHelpTask = nil;
+        self.log = log
     }
     
+    private let log: Logger?;
     public var loaded: LoadedAppContext?;
     public var unique: UniqueEngine;
     public var help: HelpEngine;
@@ -110,44 +113,65 @@ public actor AppLoaderEngine {
     private func setLoaded(_ data: LoadedAppContext) {
         self.loaded = data
     }
+    
+    @MainActor
+    private func getAppContext(state: AppLoadingState) async -> LoadedAppContext? {
+        log?.info("Obtaining model container")
+        guard let container = await Self.getModelContext(state: state) else {
+            return nil;
+        }
+        
+        log?.info("Obtaining unique context")
+        guard let uniqueContext = Self.getUniqueContext(state: state, context: container.context) else {
+            return nil
+        }
+        
+        log?.info("Obtaining categories context")
+        guard let categories = Self.getCategories(state: state, context: container.context) else {
+            return nil
+        }
+        
+        await unique.fill(uniqueContext)
+        let unique = await self.unique;
+        let help   = await self.help;
+        
+        log?.info("App load context is complete.")
+        
+        return LoadedAppContext(container: container, categories: categories, unique: unique, help: help)
+    }
 
     public func loadApp(state: AppLoadingState) async {
         await MainActor.run {
             state.state = .loading
         }
+        
+        log?.info("Begining app loading process")
+        if let loaded = self.loaded {
+            log?.info("App was previously loaded, keeping that state.")
+            await MainActor.run {
+                state.state = .loaded(loaded)
+            }
+            return;
+        }
+        
         //Reset the unique and help engines, just in case
         await help.reset()
         await unique.reset()
-        
+        self.loadHelpTask = Task {
+            log?.info("Instructing help engine to walk it's files.")
+            await help.walkDirectory()
+        }
+
+        self.loaded = await self.getAppContext(state: state)
         if let loaded = self.loaded {
+            log?.info("The app was loaded sucessfully.")
             await MainActor.run {
                 state.state = .loaded(loaded)
             }
         }
-        
-        self.loadHelpTask = Task {
-            await help.walkDirectory()
+        else {
+            log?.error("The app could not be loaded properly.")
         }
-
-        let context: LoadedAppContext? = await Task { @MainActor in
-            guard let container = await Self.getModelContext(state: state) else {
-                return nil
-            }
-            
-            guard let uniqueContext = Self.getUniqueContext(state: state, context: container.context) else {
-                return nil
-            }
-            
-            guard let categories = Self.getCategories(state: state, context: container.context) else {
-                return nil
-            }
-            
-            await unique.fill(uniqueContext)
-            
-            return await LoadedAppContext(container: container, categories: categories, unique: self.unique, help: self.help)
-        }.value
-        
-        self.loaded = context
     }
 }
 

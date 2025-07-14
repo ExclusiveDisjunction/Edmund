@@ -285,6 +285,9 @@
         }
       }
     },
+    "Audits" : {
+
+    },
     "Autopay:" : {
 
     },
@@ -336,9 +339,6 @@
       }
     },
     "Balance Verification" : {
-
-    },
-    "Balance Verifier" : {
 
     },
     "Balance:" : {
@@ -588,6 +588,9 @@
           }
         }
       }
+    },
+    "Credit Card Audit" : {
+
     },
     "Credit Card Helper" : {
 
@@ -1141,6 +1144,9 @@
     "Income" : {
 
     },
+    "Income Divider" : {
+
+    },
     "Income Division Close Look" : {
 
     },
@@ -1636,9 +1642,6 @@
     "Paycheck:" : {
 
     },
-    "Paychecks" : {
-
-    },
     "Payday" : {
 
     },
@@ -2088,9 +2091,6 @@
 
     },
     "Tax Rate:" : {
-
-    },
-    "Taxes" : {
 
     },
     "The app's model container could not be loaded." : {
