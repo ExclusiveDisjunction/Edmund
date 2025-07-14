@@ -13,6 +13,10 @@ struct TopicGroupPresenter : View, HelpPresenterView {
     }
     
     private let key: HelpResourceID;
+    @State private var selectedID: HelpResourceID?;
+    private var selected: LoadedHelpResource {
+        
+    }
     
     private func refresh(_ engine: HelpEngine, _ data: GroupLoadHandle) async {
         await engine.getGroup(deposit: data)

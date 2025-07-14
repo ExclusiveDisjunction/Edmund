@@ -35,10 +35,18 @@ public typealias TopicLoadState = ResourceLoadState<LoadedHelpTopic, TopicFetchE
 /// The load state for help groups.
 public typealias GroupLoadState = ResourceLoadState<LoadedHelpGroup, GroupFetchError>;
 
+public protocol ResourceLoadHandleBase : AnyObject, Observable {
+    associatedtype T
+    associatedtype E: Sendable, Error
+    
+    @MainActor
+    var status: ResourceLoadState<T, E> { get set }
+}
+
 /// An Observable class that can be used to record the process of loading some `id`, using `ResourceLoadState` to record progress.
 @MainActor
 @Observable
-public class ResourceLoadHandle<T, E> : Identifiable where T: Identifiable, T.ID: Sendable, E: Sendable, E: Error {
+public class ResourceLoadHandle<T, E> : ResourceLoadHandleBase, Identifiable where T: Identifiable, T.ID: Sendable, E: Sendable, E: Error {
     @MainActor
     public init(id: T.ID) {
         self.id = id
@@ -59,7 +67,7 @@ public typealias GroupLoadHandle = ResourceLoadHandle<LoadedHelpGroup, GroupFetc
 /// An Observable class that can be used to record the process of loading the entire topic tree from the `HelpEngine`.
 @MainActor
 @Observable
-public class WholeTreeLoadHandle {
+public class WholeTreeLoadHandle : ResourceLoadHandleBase {
     public init() {
         self.status = .loading
     }

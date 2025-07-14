@@ -117,7 +117,7 @@ public class AppLoader {
         
         help = HelpEngine()
         Task {
-            await HelpEngine.walkDirectory(engine: help)
+            await help.walkDirectory()
         }
         
         let loaded = LoadedApp(container: container, unique: unique, categories: categories, help: help)

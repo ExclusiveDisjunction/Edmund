@@ -15,7 +15,8 @@ public actor HelpEngine {
     }
     
     /// Walks a directory, inserting all elements it finds into the engine, and returns all direct resource ID's for children notation.
-    private static func walkDirectory(engine: HelpEngine, topID: HelpResourceID, url: URL, fileManager: FileManager) async -> [HelpResourceID]? {
+    private func walkDirectory(topID: HelpResourceID, url: URL) async -> [HelpResourceID]? {
+        let fileManager = FileManager.default
         guard let resource = try? url.resourceValues(forKeys: [.isDirectoryKey]) else {
             return nil;
         }
@@ -32,29 +33,23 @@ public actor HelpEngine {
                 result.append(newId)
                 
                 if let resource = try? path.resourceValues(forKeys: [.isDirectoryKey]), let isDirectory = resource.isDirectory, isDirectory {
-                    guard let children = await Self.walkDirectory(engine: engine, topID: newId, url: path, fileManager: fileManager) else {
+                    guard let children = await self.walkDirectory(topID: newId, url: path) else {
                         continue
                     }
                     
-                    await engine.directRegister(
-                        id: newId,
-                        to: .group(
-                            HelpGroup(
-                                id: newId,
-                                url: path,
-                                children: children
-                            )
+                    self.data[newId] = .group(
+                        HelpGroup(
+                            id: newId,
+                            url: path,
+                            children: children
                         )
                     )
                 }
                 else {
-                    await engine.directRegister(
-                        id: newId,
-                        to: .topic(
-                            HelpTopic(
-                                id: newId,
-                                url: path
-                            )
+                    self.data[newId] = .topic(
+                        HelpTopic(
+                            id: newId,
+                            url: path
                         )
                     )
                 }
@@ -66,36 +61,33 @@ public actor HelpEngine {
     
     /// Walks the default pacakge help directory, recording all groups (folders) and topics (files) it finds.
     @discardableResult
-    public static func walkDirectory(engine: HelpEngine, fileManager: FileManager = .default) async -> Bool {
+    public func walkDirectory() async -> Bool {
         guard let url = Bundle.main.url(forResource: "Help", withExtension: nil) else {
             print("Unable to find help content base directory.")
             return false
         }
         
-        return await Self.walkDirectory(engine: engine, baseURL: url, fileManager: fileManager)
+        return await self.walkDirectory(baseURL: url)
     }
     
     /// Walks a specific base URL, recording all groups (folders) and topics (files) it finds.
     @discardableResult
-    public static func walkDirectory(engine: HelpEngine, baseURL url: URL, fileManager: FileManager = .default) async -> Bool {
+    public func walkDirectory(baseURL url: URL) async -> Bool {
         let rootId = HelpResourceID(parts: [])
         //The root must be written in the data as a TopicGroup, so the directory must be walked.
-        guard let children = await Self.walkDirectory(engine: engine, topID: rootId, url: url, fileManager: fileManager) else {
+        guard let children = await self.walkDirectory(topID: rootId, url: url) else {
             return false
         }
         
-        await engine.directRegister(
-            id: rootId,
-            to: .group(
-                HelpGroup(
-                    id: rootId,
-                    url: url,
-                    children: children
-                )
+        self.data[rootId] = .group(
+            HelpGroup(
+                id: rootId,
+                url: url,
+                children: children
             )
         )
         
-        await engine.registerWalk()
+        self.walked = true
         return true
     }
     
@@ -117,18 +109,6 @@ public actor HelpEngine {
         self.cache.clear()
     }
     
-    /// Used to set the current rootID value of the engine.
-    private func setRootId(_ to: HelpResourceID) {
-        self.rootId = to
-    }
-    /// Directly inserts `to` with  key `id`.
-    private func directRegister(id: HelpResourceID, to: HelpResource) {
-        self.data[id] = to
-    }
-    /// Tells the engine that walking (loading) is complete.
-    private func registerWalk() {
-        self.walked = true
-    }
     /// Ensures that the cache is not too full.
     private func registerCache(id: HelpResourceID) {
         if let oldId = cache.append(id) {
