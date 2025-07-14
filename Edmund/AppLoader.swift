@@ -9,25 +9,12 @@ import EdmundCore
 import EdmundWidgetCore
 import SwiftData
 import SwiftUI
+import Observation
 
-public struct HelpEngineKey : EnvironmentKey {
-    public typealias Value = HelpEngine;
-    
-    public static var defaultValue: HelpEngine {
-        .init()
-    }
-}
-public extension EnvironmentValues {
-    var helpEngine: HelpEngine {
-        get { self[HelpEngineKey.self] }
-        set { self[HelpEngineKey.self] = newValue }
-    }
-}
-
-public struct LoadedApp {
+public struct LoadedAppContext : @unchecked Sendable {
     public let container: ContainerBundle;
-    public let unique: UniqueEngine;
     public let categories: CategoriesContext;
+    public let unique: UniqueEngine;
     public let help: HelpEngine;
 }
 
@@ -43,92 +30,133 @@ public struct AppLoadError : Error, Sendable {
 public enum AppState {
     case error(AppLoadError)
     case loading
-    case loaded(LoadedApp)
+    case loaded(LoadedAppContext)
 }
 
+@MainActor
 @Observable
-public class AppLoader {
-    @MainActor
-    public init() {
-        Task {
-            await load()
-        }
+public class AppLoadingState {
+    public var state: AppState = .loading;
+}
+
+public actor AppLoaderEngine {
+    public init(unique: UniqueEngine, help: HelpEngine) {
+        self.loaded = nil;
+        self.unique = unique
+        self.help = help
+        self.loadHelpTask = nil;
     }
     
-    public var state: AppState = .loading;
+    public var loaded: LoadedAppContext?;
+    public var unique: UniqueEngine;
+    public var help: HelpEngine;
+    public var loadHelpTask: Task<Void, Never>?;
     
     @MainActor
-    public func load() async {
-        let container: ContainerBundle;
-        let uniqueContext: UniqueContext;
-        let unique: UniqueEngine;
-        let categories: CategoriesContext;
-        let help: HelpEngine;
-        
+    private static func getModelContext(state: AppLoadingState) async -> ContainerBundle? {
         do {
 #if DEBUG
-            container = try Containers.debugContainer()
+            return try Containers.debugContainer()
 #else
-            container = try Containers.mainContainer()
+            return try Containers.mainContainer()
 #endif
         }
         catch let e {
-            withAnimation {
-                self.state = .error(.init(with: .modelContainer, message: "\(e)"))
-            }
-            return;
+            state.state = .error(
+                AppLoadError(
+                    with: .modelContainer,
+                    message: "\(e)"
+                )
+            )
+            
+            return nil
         }
-        
+    }
+    
+    @MainActor
+    private static func getUniqueContext(state: AppLoadingState, context: ModelContext) -> UniqueContext? {
         do {
-            uniqueContext = try UniqueContext(container.context)
+            return try UniqueContext(context)
         }
         catch let e {
-            withAnimation {
-                self.state = .error(.init(with: .unique, message: "\(e)"))
-            }
-            return;
+            state.state = .error(
+                AppLoadError(
+                    with: .unique,
+                    message: "\(e)"
+                )
+            )
+            
+            return nil
         }
-        
-        unique = UniqueEngine(uniqueContext)
-        
+    }
+    
+    @MainActor
+    private static func getCategories(state: AppLoadingState, context: ModelContext) -> CategoriesContext? {
         do {
-            categories = try CategoriesContext(container.context)
+            return try CategoriesContext(context)
         }
-        catch let e {
-            withAnimation {
-                self.state = .error(.init(with: .categories, message: "\(e)"))
+        catch let e{
+            state.state = .error(
+                AppLoadError(
+                    with: .categories,
+                    message: "\(e)"
+                )
+            )
+            
+            return nil
+        }
+    }
+    
+    private func setLoaded(_ data: LoadedAppContext) {
+        self.loaded = data
+    }
+
+    public func loadApp(state: AppLoadingState) async {
+        await MainActor.run {
+            state.state = .loading
+        }
+        //Reset the unique and help engines, just in case
+        await help.reset()
+        await unique.reset()
+        
+        if let loaded = self.loaded {
+            await MainActor.run {
+                state.state = .loaded(loaded)
             }
-            return;
         }
         
-        var warning: [String] = []
-        
-        if let provider: WidgetDataProvider = .init() {
-            do {
-                try await provider.append(data: UpcomingBillsWidgetManager(context: container.context))
-                try await provider.prepareWidget()
-            }
-            catch let e {
-                let message = "Unable to save the upcoming bills. \(e)";
-                print(message);
-                warning.append(message)
-            }
-        }
-        
-        help = HelpEngine()
-        Task {
+        self.loadHelpTask = Task {
             await help.walkDirectory()
         }
+
+        let context: LoadedAppContext? = await Task { @MainActor in
+            guard let container = await Self.getModelContext(state: state) else {
+                return nil
+            }
+            
+            guard let uniqueContext = Self.getUniqueContext(state: state, context: container.context) else {
+                return nil
+            }
+            
+            guard let categories = Self.getCategories(state: state, context: container.context) else {
+                return nil
+            }
+            
+            await unique.fill(uniqueContext)
+            
+            return await LoadedAppContext(container: container, categories: categories, unique: self.unique, help: self.help)
+        }.value
         
-        let loaded = LoadedApp(container: container, unique: unique, categories: categories, help: help)
-        withAnimation {
-            self.state = .loaded(loaded)
-        }
+        self.loaded = context
     }
 }
 
 struct AppWindowGate<Content> : View where Content: View {
-    var loader: AppLoader;
+    init(state: AppLoadingState, @ViewBuilder content: @escaping () -> Content) {
+        self.state = state
+        self.content = content
+    }
+    var state: AppLoadingState;
     let content: () -> Content;
     
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
@@ -142,17 +170,21 @@ struct AppWindowGate<Content> : View where Content: View {
     }
     
     var body: some View {
-        switch loader.state {
-            case .loading: VStack {
-                Text("Please wait while Edmund loads")
-                ProgressView()
-                    .progressViewStyle(.linear)
-            }
-            .preferredColorScheme(colorScheme)
-            .padding()
-            case .error(let e): AppErrorView(error: e)
+        switch state.state {
+            case .loading:
+                VStack {
+                    Text("Please wait while Edmund loads")
+                    ProgressView()
+                        .progressViewStyle(.linear)
+                }.preferredColorScheme(colorScheme)
+                    .padding()
+                
+            case .error(let e):
+                AppErrorView(error: e)
                     .preferredColorScheme(colorScheme)
-            case .loaded(let a): self.content()
+                
+            case .loaded(let a):
+                self.content()
                     .preferredColorScheme(colorScheme)
                     .environment(\.categoriesContext, a.categories)
                     .environment(\.uniqueEngine, a.unique)

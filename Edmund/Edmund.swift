@@ -13,10 +13,26 @@ import EdmundWidgetCore
 @main
 struct EdmundApp: App {
     init() {
-        self.loader = .init()
+        let help = HelpEngine();
+        let unique = UniqueEngine();
+        let loader = AppLoaderEngine(unique: unique, help: help)
+        
+        self.help = help
+        self.unique = unique
+        self.loader = loader
+    
+        let state = AppLoadingState();
+        self.state = state
+        
+        Task {
+            await loader.loadApp(state: state)
+        }
     }
     
-    var loader: AppLoader;
+    let loader: AppLoaderEngine;
+    let help: HelpEngine;
+    let unique: UniqueEngine;
+    let state: AppLoadingState;
     
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
@@ -31,7 +47,7 @@ struct EdmundApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AppWindowGate(loader: loader) {
+            AppWindowGate(state: state) {
                 MainView()
             }
         }.commands {
@@ -40,7 +56,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     Homepage()
                 }
             }
@@ -48,7 +64,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.ledger.rawValue, id: PageDestinations.ledger.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     LedgerTable()
                 }
             }
@@ -56,7 +72,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.balance.rawValue, id: PageDestinations.balance.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     BalanceSheet()
                 }
             }
@@ -64,7 +80,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.bills.rawValue, id: PageDestinations.bills.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     AllBillsViewEdit()
                     
                 }
@@ -73,7 +89,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     AllBudgetsInspect()
                 }
             }
@@ -81,7 +97,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.org.rawValue, id: PageDestinations.org.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     OrganizationHome()
                 }
             }
@@ -89,7 +105,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.accounts.rawValue, id: PageDestinations.accounts.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     AccountsIE()
                 }
             }
@@ -97,7 +113,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.categories.rawValue, id: PageDestinations.categories.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     CategoriesIE()
                 }
             }
@@ -105,7 +121,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.credit.rawValue, id: PageDestinations.credit.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     CreditCardHelper()
                 }
             }
@@ -113,7 +129,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.audit.rawValue, id: PageDestinations.audit.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     BalanceVerifier()
                 }
             }
@@ -121,20 +137,22 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.jobs.rawValue, id: PageDestinations.jobs.key) {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     AllJobsViewEdit()
                 }
             }
         }
         
         WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
-            TransactionsEditor(kind: kind.wrappedValue ?? .simple)
+            AppWindowGate(state: state) {
+                TransactionsEditor(kind: kind.wrappedValue ?? .simple)
+            }
         }
         
 #if os(macOS)
         WindowGroup("Expired Bills", id: "expiredBills") {
             NavigationStack {
-                AppWindowGate(loader: loader) {
+                AppWindowGate(state: state) {
                     AllExpiredBillsVE()
                 }
             }
@@ -147,15 +165,15 @@ struct EdmundApp: App {
         
         Settings {
             SettingsView()
+                .environment(\.helpEngine, help)
                 .preferredColorScheme(colorScheme)
         }
 #endif
         
         WindowGroup("Help", id: "help") {
-            /*
-            HelpView()
+            HelpTreePresenter()
+                .environment(\.helpEngine, help)
                 .preferredColorScheme(colorScheme)
-            */
         }
     }
 }

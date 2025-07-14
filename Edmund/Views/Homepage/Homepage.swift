@@ -119,7 +119,7 @@ struct Homepage : View {
             }
         #if os(iOS)
             .sheet(isPresented: $helpBinding) {
-                HelpView()
+                HelpTreePresenter()
             }.sheet(isPresented: $settingsBinding) {
                 SettingsView()
             }

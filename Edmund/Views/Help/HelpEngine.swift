@@ -302,18 +302,18 @@ public actor HelpEngine {
     
     /// Loads the entire engine's tree, and returns the top level resources.
     /// See the documentation for `.getGroup(id:)` for information about errors.
-    public func getTree() async throws(GroupFetchError) -> [LoadedHelpResource] {
-        try await self.getGroup(id: rootId).children
+    public func getTree() async throws(GroupFetchError) -> LoadedHelpGroup {
+        try await self.getGroup(id: rootId)
     }
     /// Loads the engire engine's tree and places the result into a `WholeTreeLoadHandle`, as updates occur.
     /// - Parameters:
     ///     - deposit: The location to send updates about the fetch to.
-    public func getTree(deposit: WholeTreeLoadHandle) async {
+    public func getTree(deposit: GroupLoadHandle) async {
         await MainActor.run {
             deposit.status = .loading
         }
         
-        let result: [LoadedHelpResource];
+        let result: LoadedHelpGroup;
         do {
             result = try await self.getTree()
         }
@@ -328,5 +328,19 @@ public actor HelpEngine {
         await MainActor.run {
             deposit.status = .loaded(result)
         }
+    }
+}
+
+public struct HelpEngineKey : EnvironmentKey {
+    public typealias Value = HelpEngine;
+    
+    public static var defaultValue: HelpEngine {
+        .init()
+    }
+}
+public extension EnvironmentValues {
+    var helpEngine: HelpEngine {
+        get { self[HelpEngineKey.self] }
+        set { self[HelpEngineKey.self] = newValue }
     }
 }

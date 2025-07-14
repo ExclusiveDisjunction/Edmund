@@ -33,6 +33,33 @@ public struct LoadedHelpGroup : HelpResourceCore, Identifiable, Sendable {
     public let id: HelpResourceID;
     /// The children groups and topics of the current group.
     public let children: [LoadedHelpResource];
+    
+    public func findChild(id: HelpResourceID) -> LoadedHelpResource? {
+        for child in children {
+            if child.id == id {
+                return child
+            }
+            
+            if case .group(let g) = child {
+                if let result = g.findChild(id: id) {
+                    return result
+                }
+            }
+        }
+        
+        return nil
+    }
+    
+    public var topicChildren: [TopicRequest] {
+        children.compactMap {
+            if case .topic(let t) = $0 { return t } else { return nil }
+        }
+    }
+    public var groupChildren: [LoadedHelpGroup] {
+        children.compactMap {
+            if case .group(let t) = $0 { return t } else { return nil }
+        }
+    }
 }
 
 /// Either a `TopicRequest` or a `LoadedHelpGroup` instance for presenting on the UI.

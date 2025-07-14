@@ -8,19 +8,96 @@
 import SwiftUI
 import MarkdownUI
 
-struct TopicPresenter : View, HelpPresenterView {
-    init(_ key: HelpResourceID) {
-        self.key = key
+struct TopicContentPresenter : View {
+    let over: LoadedHelpTopic;
+    
+    var body: some View {
+        ScrollView {
+            Markdown(over.content)
+                .background(
+                    RoundedRectangle(cornerSize: CGSize(width: 15, height: 15))
+                        .fill(.background.secondary)
+                )
+        }
     }
+}
+
+struct TopicPagePresenter : View {
+    let over: LoadedHelpTopic;
     
-    private let key: HelpResourceID;
+    var body: some View {
+        VStack {
+            HStack {
+                Text(over.name)
+                    .font(.title)
+                Spacer()
+            }
+            
+            HStack {
+                Text("Topic")
+                    .font(.subheadline)
+                    .italic()
+                
+                Spacer()
+            }
+            
+            TopicContentPresenter(over: over)
+        }
+    }
+}
+
+public struct UnloadedTopicPagePresenter : View {
+    public init(over: TopicRequest) {
+        self.over = over
+        self.handle = .init(id: over.id)
+    }
+    public let over: TopicRequest;
     
-    private func refresh(_ engine: HelpEngine, _ data: TopicLoadHandle) async {
-        await engine.getTopic(deposit: data)
+    @Environment(\.helpEngine) private var helpEngine;
+    @Bindable private var handle: TopicLoadHandle;
+    @State private var oldTask: Task<Void, Never>? = nil;
+    
+    func refresh() {
+        if let task = oldTask {
+            task.cancel()
+        }
+        
+        let engine = self.helpEngine;
+        let handle = self.handle;
+        
+        oldTask = Task {
+            await engine.getTopic(deposit: handle)
+        }
     }
     
     @ViewBuilder
-    private func errorView(_ e: TopicFetchError) -> some View {
+    private var loading: some View {
+        Spacer()
+        
+        Text("Loading")
+        ProgressView()
+            .progressViewStyle(.linear)
+        
+        Spacer()
+    }
+    
+    public var body: some View {
+        switch handle.status {
+            case .loading:
+                loading
+                    .onAppear(perform: refresh)
+            case .error(let e):
+                TopicErrorView(e: e)
+            case .loaded(let t):
+                TopicPagePresenter(over: t)
+        }
+    }
+}
+
+struct TopicErrorView : View {
+    let e: TopicFetchError
+    
+    var body: some View {
         switch e {
             case .engineLoading:
                 Text("The help system is not done loading. Please wait, and refresh.")
@@ -40,22 +117,23 @@ struct TopicPresenter : View, HelpPresenterView {
                 Text("Please report this issue.")
         }
     }
+}
+
+struct TopicPresenter : View, HelpPresenterView {
+    init(_ key: HelpResourceID) {
+        self.key = key
+    }
     
-    @ViewBuilder
-    private func loadedView(_ v: LoadedHelpTopic) -> some View {
-        ScrollView {
-            Markdown(v.content)
-                .background(
-                    RoundedRectangle(cornerSize: CGSize(width: 15, height: 15))
-                        .fill(.background.secondary)
-                )
-        }
+    private let key: HelpResourceID;
+    
+    private func refresh(_ engine: HelpEngine, _ data: TopicLoadHandle) async {
+        await engine.getTopic(deposit: data)
     }
     
     var body: some View {
-        HelpResourcePresenter(key, refresh: refresh, header: { id in
+        VStack {
             HStack {
-                Text(id.name)
+                Text(key.name)
                     .font(.title)
                 Spacer()
             }
@@ -67,7 +145,9 @@ struct TopicPresenter : View, HelpPresenterView {
                 
                 Spacer()
             }
-        }, error: errorView, content: loadedView)
+            
+            HelpResourcePresenter(key, refresh: refresh, error: TopicErrorView.init, content: TopicContentPresenter.init)
+        }.padding()
     }
 }
 

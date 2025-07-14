@@ -14,6 +14,10 @@ import Foundation
 public struct HelpResourceID : Hashable, Equatable, Sendable, RawRepresentable, Codable, CustomStringConvertible {
     public typealias RawValue = String
     
+    /// Constructs the blank ID, representing the root of the help tree. 
+    public init() {
+        self.parts = []
+    }
     /// Constructs the ID from a series of pre-separated strings.
     public init(parts: [String]) {
         self.parts = parts.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }

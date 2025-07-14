@@ -56,16 +56,6 @@ public struct UniqueContext {
     public let allJobs: [any TraditionalJob];
 }
 
-/// A specific lightweight action to instruct the `UniqueEngine` to perform some action.
-public enum UniqueEngineAction {
-    /// Instructs the engine to determine that ID is taken.
-    case validate
-    //// Instructs the engine to reserve that ID
-    case insert
-    /// Instructs the engine to de-reserve that ID
-    case remove
-}
-
 /// An error that occurs when the unique engine cannot validate a claim to an ID, but was assumed to be a free value.
 public struct UniqueFailureError<T> : Error where T: Sendable, T: Hashable {
     /// The ID that was taken already
@@ -86,26 +76,25 @@ public actor UniqueEngine {
     public init() {
         self.data = .init();
     }
-    /// Creates the engine with data from a `ModelContext`.
+    
+    /// Creates the engine with data from a `UniqueContext`.
     /// This will fill all sets with the currently taken IDs.
+    /// Note that this function will crash the program if any ID is non-unique.
     @MainActor
-    public init(_ data: UniqueContext) {
-        self.init()
-        
-        let allSets = [
-            ( ObjectIdentifier(Account.self),              Set(data.acc.map      { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier(SubAccount.self),           Set(data.subAcc.map   { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier(Category.self),             Set(data.cat.map      { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier(SubCategory.self),          Set(data.subCat.map   { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier((any BillBase).self),       Set(data.allBills.map { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier((any TraditionalJob).self), Set(data.allJobs.map  { AnyHashable($0.id) } ) )
+    public func fill(_ using: UniqueContext) async {
+        let allSets: [(ObjectIdentifier, Set<AnyHashable>)] = [
+            ( ObjectIdentifier(Account.self),              Set(using.acc.map      { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier(SubAccount.self),           Set(using.subAcc.map   { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier(Category.self),             Set(using.cat.map      { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier(SubCategory.self),          Set(using.subCat.map   { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier((any BillBase).self),       Set(using.allBills.map { AnyHashable($0.id) } ) ),
+            ( ObjectIdentifier((any TraditionalJob).self), Set(using.allJobs.map  { AnyHashable($0.id) } ) )
         ];
         
-        let data: [ObjectIdentifier: Set<AnyHashable>] = .init(uniqueKeysWithValues: allSets)
-        
-        Task {
-            await self.setData(data: data)
-        }
+        await self.setData(data: .init(uniqueKeysWithValues: allSets))
+    }
+    public func reset() {
+        self.data = [:]
     }
     
     private func setData(data: Dictionary<ObjectIdentifier, Set<AnyHashable>>) async {
