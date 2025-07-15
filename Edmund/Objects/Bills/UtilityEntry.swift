@@ -8,8 +8,10 @@
 import SwiftUI
 import EdmundCore
 
-extension UtilityEntry: TypeTitled {
-    public static var typeDisplay: TypeTitleStrings {
-        .init(singular: "Utility Entry", plural: "Utility Entries", inspect: "Inspect Utility Entry", edit: "Edit Utility Entry", add: "Add Utility Entry")
-    }
-}
+/*
+ extension UtilityEntry: TypeTitled {
+ public static var typeDisplay: TypeTitleStrings {
+ .init(singular: "Utility Entry", plural: "Utility Entries", inspect: "Inspect Utility Entry", edit: "Edit Utility Entry", add: "Add Utility Entry")
+ }
+ }
+ */

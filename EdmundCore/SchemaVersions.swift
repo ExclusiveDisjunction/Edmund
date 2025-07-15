@@ -21,7 +21,7 @@ public enum EdmundModelsV1 : VersionedSchema {
             
             Self.Bill.self,
             Self.Utility.self,
-            Self.UtilityEntry.self,
+            //Self.UtilityEntry.self,
             
             Self.HourlyJob.self,
             Self.SalariedJob.self,

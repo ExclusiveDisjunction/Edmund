@@ -58,7 +58,7 @@ public struct UtilityInspect : View {
             
             LongTextEditWithLabel(value: $bill.notes, minWidth: minWidth, maxWidth: maxWidth)
         }.sheet(isPresented: $showingSheet) {
-            UtilityEntriesInspect(children: bill.children)
+            UtilityEntriesInspect(over: bill)
         }.sheet(isPresented: $showingChart) {
             VStack {
                 UtilityEntriesGraph(source: bill)

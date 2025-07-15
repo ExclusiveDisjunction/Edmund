@@ -8,6 +8,7 @@
 import SwiftData
 import Foundation
 
+/*
 public struct UtilityEntryID : Hashable, Sendable, Equatable, CustomStringConvertible {
     public let index: Int;
     public let parent: BillBaseID?;
@@ -101,3 +102,4 @@ public class UtilityEntrySnapshot: Identifiable, Hashable, Equatable, ElementSna
         lhs.amount == rhs.amount && lhs.date == rhs.date
     }
 }
+*/

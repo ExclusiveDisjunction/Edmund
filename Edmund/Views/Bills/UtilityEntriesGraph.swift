@@ -14,14 +14,17 @@ import EdmundCore
 public struct UtilityEntriesGraph : View {
     public var source: Utility;
     
+    /*
     private var children: [UtilityEntry] {
         source.children.sorted(by: { $0.date < $1.date } )
     }
+     */
     
     public var body: some View {
         VStack {
             Text("Price Over Time").font(.title2)
             
+            /*
             Chart {
                 ForEach(children, id: \.id) { point in
                     LineMark(
@@ -34,6 +37,7 @@ public struct UtilityEntriesGraph : View {
                 .chartLegend(.visible)
                 .chartXAxisLabel("Date")
                 .chartYAxisLabel("Amount")
+             */
         }
     }
 }

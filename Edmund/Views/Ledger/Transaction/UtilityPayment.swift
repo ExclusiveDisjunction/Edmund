@@ -56,10 +56,7 @@ struct UtilityPayment : TransactionEditorProtocol {
         modelContext.insert(transaction);
         
         if doStore {
-            let entry = UtilityEntry(date, amount);
-            entry.parent = target;
-            
-            modelContext.insert(entry);
+            target.points.append(amount)
         }
         
         return nil;

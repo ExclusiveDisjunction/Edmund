@@ -99,6 +99,73 @@ public func computeNextBillDueDate(start: Date, end: Date?, period: TimePeriods,
     
     return nextDate
 }
+public struct TimePeriodWalker {
+    public init(start: Date, end: Date?, period: TimePeriods, calendar: Calendar) {
+        if let end = end {
+            assert(start < end, "The start date cannot be greater than or equal to the end date.")
+        }
+        
+        self.start = start
+        self.end = end
+        self.period = period.asComponents
+        self.calendar = calendar
+        self.current = start
+    }
+    
+    public let start: Date;
+    public let end: Date?;
+    public let calendar: Calendar;
+    public private(set) var current: Date?;
+    private let period: DateComponents;
+    
+    public mutating func reset() {
+        self.current = start
+    }
+    
+    public mutating func step() -> Date? {
+        guard let current = self.current else {
+            return nil
+        }
+        
+        guard let nextDate: Date = calendar.date(byAdding: period, to: current) else {
+            return nil
+        }
+        
+        if let end = end, nextDate > end {
+            self.current = nil
+            return nil
+        }
+        else {
+            self.current = nextDate
+            return nextDate
+        }
+    }
+    public mutating func step(periods: Int) -> [Date]? {
+        guard let current = self.current else {
+            return nil
+        }
+        
+        var result: [Date] = [];
+        var n = periods;
+        while n >= 0 {
+            if let nextDate = self.step() {
+                result.append(nextDate)
+                n -= 1
+            }
+            else {
+                // The current next date could not be obtained. If this is because the current is nil (only happens when the end has been passed, we can just return now.
+                if self.current == nil {
+                    return result
+                }
+                else {
+                    return nil //This means there was an internal error
+                }
+            }
+        }
+        
+        return result
+    }
+}
 
 public extension BillBase {
     func computeNextDueDate(relativeTo: Date = .now) -> Date? {

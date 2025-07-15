@@ -10,6 +10,9 @@
     "(no account)" : {
 
     },
+    "(No date)" : {
+
+    },
     "(No information)" : {
 
     },
@@ -180,9 +183,6 @@
 
     },
     "Add Utility" : {
-
-    },
-    "Add Utility Entry" : {
 
     },
     "Added On:" : {
@@ -815,9 +815,6 @@
     "Edit Utility" : {
 
     },
-    "Edit Utility Entry" : {
-
-    },
     "Edmund" : {
       "localizations" : {
         "de" : {
@@ -1210,9 +1207,6 @@
 
     },
     "Inspect Utility" : {
-
-    },
-    "Inspect Utility Entry" : {
 
     },
     "Interest" : {
@@ -2310,12 +2304,6 @@
           }
         }
       }
-    },
-    "Utility Entries" : {
-
-    },
-    "Utility Entry" : {
-
     },
     "Variance" : {
       "localizations" : {

@@ -9,38 +9,67 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
+
+
 /// The inspection view for Utility Entries.  This provides the layout for viewing all datapoints.
 public struct UtilityEntriesInspect : View {
-    public var children: [UtilityEntry];
-    @State private var selected = Set<UtilityEntry.ID>();
+    public var over: Utility;
+    
+    @State private var cache: [UtilityEntryRow<Decimal>] = [];
+    @State private var selected = Set<UUID>();
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.dismiss) private var dismiss;
+    @Environment(\.calendar) private var calendar;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    private func refresh() {
+        var dates = TimePeriodWalker(start: over.startDate, end: over.endDate, period: over.period, calendar: calendar)
+        self.cache = over.points.map { amount in
+            UtilityEntryRow(amount: amount, date: dates.step())
+        }
+    }
     
     public var body: some View {
         VStack {
             Text("Datapoints").font(.title2)
             
-            if horizontalSizeClass == .compact {
-                List(children, selection: $selected) { child in
-                    HStack {
+            Table(cache, selection: $selected) {
+                TableColumn("Amount") { child in
+                    if horizontalSizeClass == .compact {
+                        HStack {
+                            Text(child.amount, format: .currency(code: currencyCode))
+                            
+                            Spacer()
+                            
+                            Text("On", comment: "[Amount] on [Date]")
+                            if let date = child.date {
+                                Text(date.formatted(date: .abbreviated, time: .omitted))
+                            }
+                            else {
+                                Text("(No date)")
+                                    .italic()
+                            }
+                            
+                        }
+                    }
+                    else {
                         Text(child.amount, format: .currency(code: currencyCode))
-                        Text("On", comment: "[Amount] on [Date]")
-                        Text(child.date.formatted(date: .abbreviated, time: .omitted))
                     }
                 }
-            }
-            else {
-                Table(children, selection: $selected) {
-                    TableColumn("Amount") { child in
-                        Text(child.amount, format: .currency(code: currencyCode))
+                TableColumn("Date") { child in
+                    if let date = child.date {
+                        Text(date.formatted(date: .abbreviated, time: .omitted))
                     }
-                    TableColumn("Date") { child in
-                        Text(child.date.formatted(date: .abbreviated, time: .omitted))
+                    else {
+                        Text("(No date)")
+                            .italic()
                     }
                 }
-            }
+            }.onAppear(perform: refresh)
+                .onChange(of: over.points) { _, _ in
+                    refresh()
+                }
             
             Spacer()
             
@@ -57,6 +86,6 @@ public struct UtilityEntriesInspect : View {
 }
 
 #Preview {
-    UtilityEntriesInspect(children: Utility.exampleUtility[0].children)
+    UtilityEntriesInspect(over: Utility.exampleUtility[0])
         .padding()
 }

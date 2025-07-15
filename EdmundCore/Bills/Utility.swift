@@ -20,14 +20,15 @@ extension EdmundModelsV1 {
             self.init("", amounts: [], company: "", start: Date.now)
         }
         /// Creates the utility with all fields
-        public init(_ name: String, amounts: [UtilityEntry], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
+        public init(_ name: String, amounts: [Decimal], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
             self.name = name
             self.startDate = start
             self.endDate = end
             self.rawPeriod = period.rawValue
-            self.children = amounts
+            //self.children = amounts
             self.company = company
             self.location = location
+            self.points = amounts;
         }
         
         public static let objId: ObjectIdentifier = .init((any BillBase).self)
@@ -41,8 +42,9 @@ extension EdmundModelsV1 {
         public var company: String = "";
         public var location: String? = nil;
         public var notes: String = "";
-        public var destination: SubAccount? = nil;
-        public var autoPay: Bool = true;
+        public var autoPay: Bool = true
+        
+        public var points: [Decimal];
         
         @Transient
         private var _nextDueDate: Date? = nil;
@@ -70,12 +72,9 @@ extension EdmundModelsV1 {
         
         /// The period as a raw value
         private var rawPeriod: Int = 0;
-        /// The associated instances of being charged for this bill
-        @Relationship(deleteRule: .cascade, inverse: \UtilityEntry.parent)
-        public var children: [UtilityEntry] = []
         
         public var amount: Decimal {
-            children.count == 0 ? Decimal() : children.reduce(0.0, { $0 + $1.amount } ) / Decimal(children.count)
+            points.count == 0 ? Decimal() : points.reduce(0.0, { $0 + $1 } ) / Decimal(points.count)
         }
         public var kind: BillsKind {
             .utility
@@ -93,7 +92,7 @@ extension EdmundModelsV1 {
         }
         public func update(_ from: UtilitySnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
             try await self.updateFromBase(snap: from, unique: unique)
-            try! await mergeAndUpdateChildren(list: &self.children, merging: from.children, context: modelContext, unique: unique)
+            //try! await mergeAndUpdateChildren(list: &self.children, merging: from.children, context: modelContext, unique: unique)
         }
         
         /// Example utilities that can be used to show UI filler.
@@ -102,10 +101,11 @@ extension EdmundModelsV1 {
             .init(
                 "Gas",
                 amounts: [
-                    .init(Date.fromParts(2025, 1, 25)!, 25),
-                    .init(Date.fromParts(2025, 2, 25)!, 23),
-                    .init(Date.fromParts(2025, 3, 25)!, 28),
-                    .init(Date.fromParts(2025, 4, 25)!, 27)],
+                    25,
+                    23,
+                    28,
+                    27
+                ],
                 company: "TECO",
                 location: "The Retreat",
                 start: Date.fromParts(2025, 1, 25)!,
@@ -114,10 +114,11 @@ extension EdmundModelsV1 {
             .init(
                 "Electric",
                 amounts: [
-                    .init(Date.fromParts(2025, 1, 17)!, 30),
-                    .init(Date.fromParts(2025, 2, 17)!, 31),
-                    .init(Date.fromParts(2025, 3, 17)!, 35),
-                    .init(Date.fromParts(2025, 4, 17)!, 32)],
+                    30,
+                    31,
+                    35,
+                    32
+                ],
                 company: "Lakeland Eletric",
                 location: "The Retreat",
                 start: Date.fromParts(2025, 1, 17)!,
@@ -126,10 +127,11 @@ extension EdmundModelsV1 {
             .init(
                 "Water",
                 amounts: [
-                    .init(Date.fromParts(2025, 1, 2)!, 10),
-                    .init(Date.fromParts(2025, 2, 2)!, 12),
-                    .init(Date.fromParts(2025, 3, 2)!, 14),
-                    .init(Date.fromParts(2025, 4, 2)!, 15)],
+                    10,
+                    12,
+                    14,
+                    15
+                ],
                 company: "The Retreat",
                 location: "The Retreat",
                 start: Date.fromParts(2025, 1, 25)!,
@@ -142,30 +144,59 @@ extension EdmundModelsV1 {
 
 public typealias Utility = EdmundModelsV1.Utility
 
+public class UtilityEntryRow<T> : Identifiable {
+    public init(amount: T, date: Date?, id: UUID = UUID()) {
+        self.amount = amount
+        self.date = date
+        self.id = id
+    }
+    
+    public let amount: T;
+    public var date: Date?;
+    public let id: UUID;
+}
+extension UtilityEntryRow : Hashable, Equatable where T: Hashable, T: Equatable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(amount)
+        hasher.combine(date)
+        hasher.combine(id)
+    }
+    
+    public static func ==(lhs: UtilityEntryRow<T>, rhs: UtilityEntryRow<T>) -> Bool {
+        lhs.amount == rhs.amount && lhs.date == rhs.date && lhs.id == rhs.id
+    }
+}
+
 /// The snapshot class used for `Utility`.
 @Observable
 public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
     public override init() {
-        self.children = []
+        self.points = [];
         
         super.init()
     }
     public init(_ from: Utility) {
-        self.children = from.children.map { UtilityEntrySnapshot($0) }
+        var walker = TimePeriodWalker(start: from.startDate, end: from.endDate, period: from.period, calendar: .current)
+        self.points = from.points.map {
+            UtilityEntryRow(
+                amount: .init(rawValue: $0),
+                date: walker.step()
+            )
+        };
         
         super.init(from)
     }
     
     /// The associated children to this instance
-    public var children: [UtilityEntrySnapshot];
+    public var points: [UtilityEntryRow<CurrencyValue>];
     
     /// The total amount that this utility snapshot contains, based on `children`.
     public var amount: Decimal {
-        if children.isEmpty {
+        if points.isEmpty {
             return Decimal()
         }
         else {
-            return children.reduce(Decimal(), { $0 + $1.amount.rawValue } ) / Decimal(children.count)
+            return points.reduce(Decimal(), { $0 + $1.amount.rawValue } ) / Decimal(points.count)
         }
     }
     
@@ -174,9 +205,9 @@ public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
             return topResult;
         }
         
-        for child in self.children {
-            if let result = child.validate(unique: unique) {
-                return result
+        for child in self.points {
+            guard child.amount >= 0 else {
+                return .negativeAmount
             }
         }
         
@@ -184,11 +215,11 @@ public final class UtilitySnapshot : BillBaseSnapshot, ElementSnapshot {
     }
     
     public override func hash(into hasher: inout Hasher) {
-        hasher.combine(children)
+        hasher.combine(points)
         
         super.hash(into: &hasher)
     }
     public static func ==(lhs: UtilitySnapshot, rhs: UtilitySnapshot) -> Bool {
-        (lhs as BillBaseSnapshot) == (rhs as BillBaseSnapshot) && lhs.children == rhs.children
+        (lhs as BillBaseSnapshot) == (rhs as BillBaseSnapshot) && lhs.points == rhs.points
     }
 }
