@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum WidgetChoice: Int, CaseIterable, Identifiable, Codable {
+enum WidgetChoice: Int, CaseIterable, Identifiable, Codable, Displayable {
     case bills = 0,
          simpleBalances = 1,
          detailedBalances = 2,
@@ -16,11 +16,11 @@ enum WidgetChoice: Int, CaseIterable, Identifiable, Codable {
          //payday = 5,
          none = 6
     
-    var name: LocalizedStringKey {
+    var display: LocalizedStringKey {
         switch self {
             case .bills:            "Upcoming Bills"
-            case .simpleBalances:   "Simple Balances"
-            case .detailedBalances: "Detailed Balances"
+            case .simpleBalances:   "Balance Overview"
+            case .detailedBalances: "Balances"
             case .spendingGraph:    "Spending Graph"
             case .moneyGraph:       "Balances Graph"
             //case .payday:           "Payday Info"
@@ -39,7 +39,7 @@ struct ChoicePicker : View {
             VStack {
                 Picker("", selection: _choice) {
                     ForEach(WidgetChoice.allCases, id: \.id) { choice in
-                        Text(choice.name).tag(choice)
+                        Text(choice.display).tag(choice)
                     }
                 }.padding()
                     .foregroundStyle(.primary)

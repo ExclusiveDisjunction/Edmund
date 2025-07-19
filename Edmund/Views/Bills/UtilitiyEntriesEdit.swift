@@ -17,6 +17,9 @@ public struct UtilityEntriesEdit : View {
     
     @Bindable public var snapshot: UtilitySnapshot;
     @State private var selected = Set<UUID>();
+    #if os(iOS)
+    @State private var showPopover = false;
+    #endif
     
     @Environment(\.dismiss) private var dismiss;
     @Environment(\.calendar) private var calendar;
@@ -34,38 +37,41 @@ public struct UtilityEntriesEdit : View {
         //snapshot.children.removeAll(where: { selected.contains($0.id) } )
     }
     
-    /*
-    /// Creates the context menu used for the list and table elements of the view.
-    @ViewBuilder
-    private func selectionContextMenu(_ selection: Set<UtilityEntrySnapshot.ID>) -> some View {
-        Button(action: add_new) {
-            Label("Add", systemImage: "plus")
-        }
-        
-        if !selection.isEmpty {
-            Button(action: {
-                withAnimation {
-                    //self.snapshot.children.removeAll(where: { selection.contains($0.id)} )
-                }
-            }) {
-                Label("Remove", systemImage: "trans")
-                    .foregroundStyle(.red)
-            }
-        }
-    }
-     */
-    
     private func adjustDates() {
-        var walker = TimePeriodWalker(start: snapshot.startDate, end: snapshot.endDate, period: snapshot.period, calendar: calendar)
+        var walker = TimePeriodWalker(start: snapshot.startDate, end: snapshot.hasEndDate ? snapshot.endDate : nil, period: snapshot.period, calendar: calendar)
         
         snapshot.points.forEach {
             $0.date = walker.step()
         }
     }
     
+    @ViewBuilder
+    private var form: some View {
+        Form {
+            DatePicker("Start Date:", selection: $snapshot.startDate, displayedComponents: .date)
+            Toggle("Has End Date", isOn: $snapshot.hasEndDate)
+            
+            if snapshot.hasEndDate {
+                DatePicker("End Date:", selection: $snapshot.endDate, displayedComponents: .date)
+            }
+            
+            
+            Picker("Frequency:", selection: $snapshot.period) {
+                ForEach(TimePeriods.allCases) { period in
+                    Text(period.display).tag(period)
+                }
+            }
+        }
+    }
+    
     public var body: some View {
         VStack {
             Text("Utility Charges").font(.title2)
+            
+            #if os(macOS)
+            form
+            #endif
+            
             HStack {
                 Button(action: add_new) {
                     Image(systemName: "plus")
@@ -74,9 +80,16 @@ public struct UtilityEntriesEdit : View {
                     Image(systemName: "trash").foregroundStyle(.red)
                 }.buttonStyle(.borderless)
                 
-                #if os(iOS)
+#if os(iOS)
+                Button(action: { showPopover = true } ) {
+                    Image(systemName: "pencil")
+                }.popover(isPresented: $showPopover) {
+                    form
+                }
+                
+                
                 EditButton()
-                #endif
+#endif
             }
             
             List($snapshot.points, editActions: [.delete, .move], selection: $selected) { $child in
@@ -92,6 +105,7 @@ public struct UtilityEntriesEdit : View {
                     else {
                         Text("(No date)")
                             .italic()
+                            .foregroundStyle(.red)
                     }
                 }
             }

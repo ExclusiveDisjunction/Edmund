@@ -322,6 +322,9 @@
         }
       }
     },
+    "Balance Overview" : {
+
+    },
     "Balance Sheet" : {
       "localizations" : {
         "de" : {
@@ -345,6 +348,9 @@
 
     },
     "Balanced" : {
+
+    },
+    "Balances" : {
 
     },
     "Balances Graph" : {
@@ -730,9 +736,6 @@
 
     },
     "Destination" : {
-
-    },
-    "Detailed Balances" : {
 
     },
     "Devotion" : {
@@ -1942,9 +1945,6 @@
         }
       }
     },
-    "Simple Balances" : {
-
-    },
     "Sorry, but it looks like that topic or group could not be loaded." : {
 
     },
@@ -2304,6 +2304,9 @@
           }
         }
       }
+    },
+    "Utility Charges" : {
+
     },
     "Variance" : {
       "localizations" : {

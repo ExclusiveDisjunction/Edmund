@@ -117,7 +117,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
 }
 
 struct MainView: View {
-    @State private var page: PageDestinations.ID? = nil;
+    @State private var page: PageDestinations.ID? = .home;
     
     @Environment(\.undoManager) private var undoManager;
     @Environment(\.modelContext) private var modelContext;
@@ -172,7 +172,7 @@ struct MainView: View {
         } detail: {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
-        }
+        }.navigationSplitViewStyle(.prominentDetail)
     }
 }
 

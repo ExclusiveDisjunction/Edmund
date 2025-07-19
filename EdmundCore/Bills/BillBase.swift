@@ -123,25 +123,25 @@ public struct TimePeriodWalker {
     }
     
     public mutating func step() -> Date? {
-        guard let current = self.current else {
+        guard let current = self.current else { //This value will be the return value
             return nil
         }
         
-        guard let nextDate: Date = calendar.date(byAdding: period, to: current) else {
+        guard let nextDate: Date = calendar.date(byAdding: period, to: current) else { //this value will be the value in the next call
             return nil
         }
         
         if let end = end, nextDate > end {
             self.current = nil
-            return nil
         }
         else {
             self.current = nextDate
-            return nextDate
         }
+        
+        return current
     }
     public mutating func step(periods: Int) -> [Date]? {
-        guard let current = self.current else {
+        guard self.current != nil else {
             return nil
         }
         

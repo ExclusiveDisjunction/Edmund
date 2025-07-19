@@ -15,7 +15,7 @@ struct ChoiceRenderer : View {
         VStack {
             if choice != .none {
                 HStack {
-                    Text(choice.name)
+                    Text(choice.display)
                         .font(.headline)
                     Spacer()
                 }
