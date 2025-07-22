@@ -84,8 +84,8 @@ struct TransactionMenu<Label> : View where Label: View {
                     openEditor(.refund)
                 })
                 
-                Button(TransactionKind.audit.display, action: {
-                    openEditor(.audit)
+                Button(TransactionKind.balanceCorrection.display, action: {
+                    openEditor(.balanceCorrection)
                 })
             } label: {
                 Text("Income")

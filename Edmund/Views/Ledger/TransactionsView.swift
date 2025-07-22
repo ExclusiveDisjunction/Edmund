@@ -25,7 +25,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
          payday
     case billPay    (StrictBillsKind),
          utilityPay
-    case audit
+    case balanceCorrection
     case transfer   (TransferKind)
     
 #if os(macOS)
@@ -34,20 +34,20 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
     
     var display: LocalizedStringKey {
         switch self {
-            case .simple:          "Transaction"
-            case .composite:       "Composite Transaction"
+            case .simple:            "Transaction"
+            case .composite:         "Composite Transaction"
 #if os(macOS)
-            case .grouped:         "Batch Transactions"
+            case .grouped:           "Batch Transactions"
 #endif
-            case .creditCard:      "Credit Card Transactions"
-            case .personalLoan:    "Personal Loan"
-            case .refund:          "Refund"
-            case .miscIncome:      "Miscellaneous Income"
-            case .payday:          "Payday"
-            case .billPay(let v):  v.display
-            case .utilityPay:      "Utility"
-            case .audit:           "Audit"
-            case .transfer(let v): v.display
+            case .creditCard:        "Credit Card Transactions"
+            case .personalLoan:      "Personal Loan"
+            case .refund:            "Refund"
+            case .miscIncome:        "Miscellaneous Income"
+            case .payday:            "Payday"
+            case .billPay(let v):    v.display
+            case .utilityPay:        "Utility"
+            case .balanceCorrection: "Balance Correction"
+            case .transfer(let v):   v.display
         }
     }
     
@@ -128,7 +128,7 @@ struct TransactionsEditor : View {
             case .payday:          PaydayEditor()
             case .billPay(let v):  BillPayment(kind: v)
             case .utilityPay:      UtilityPayment()
-            case .audit:           Audit()
+            case .balanceCorrection:           BalanceCorrection()
             case .transfer(let v): Transfer(v)
         }
     }
