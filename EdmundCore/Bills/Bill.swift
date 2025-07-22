@@ -50,7 +50,6 @@ extension EdmundModelsV1 {
         public var endDate: Date? = nil;
         public var company: String = "";
         public var location: String? = nil;
-        public var notes: String = "";
         public var autoPay: Bool = true;
         
         @Transient

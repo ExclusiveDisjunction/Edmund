@@ -75,10 +75,11 @@ public struct BillSchematic : Sendable {
     public let end: Date?;
     public let period: TimePeriods;
     public var nextDue: Date? {
-        return computeNextBillDueDate(start: start, end: end, period: period)
+        return self.nextDueDate(from: .now)
     }
     public func nextDueDate(from: Date) -> Date? {
-        return computeNextBillDueDate(start: start, end: end, period: period, relativeTo: from)
+        var walker = TimePeriodWalker(start: start, end: end, period: period, calendar: .current)
+        return walker.walkToDate(relativeTo: from)
     }
 }
 

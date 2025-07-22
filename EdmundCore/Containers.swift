@@ -220,6 +220,20 @@ public struct Containers {
     }
     
     @MainActor
+    private static var _emptyContainer: ContainerBundle? = nil;
+    @MainActor
+    public static func emptyMemoryContainer() throws -> ContainerBundle {
+        if let container = _emptyContainer {
+            return container
+        }
+        else {
+            let result = try prepareContainer(loc: .inMemory)
+            _emptyContainer = result
+            return result
+        }
+    }
+    
+    @MainActor
     private static var _mainContainer: ContainerBundle? = nil;
     /// The main container used by the app. This stores the data for the app in non-debug based contexts.
     @MainActor

@@ -53,23 +53,10 @@ public struct UtilityInspect : View {
                     }
                 }
             }
-            
-            Divider()
-            
-            LongTextEditWithLabel(value: $bill.notes, minWidth: minWidth, maxWidth: maxWidth)
         }.sheet(isPresented: $showingSheet) {
             UtilityEntriesInspect(over: bill)
         }.sheet(isPresented: $showingChart) {
-            VStack {
-                UtilityEntriesGraph(source: bill)
-                
-                Spacer()
-                
-                HStack {
-                    Spacer()
-                    Button("Ok", action: { showingChart = false } ).buttonStyle(.borderedProminent)
-                }
-            }.padding()
+            UtilityEntriesGraph(source: bill)
         }
     }
 }

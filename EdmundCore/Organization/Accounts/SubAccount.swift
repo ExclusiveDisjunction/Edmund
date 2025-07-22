@@ -11,7 +11,7 @@ import SwiftData
 extension EdmundModelsV1 {
     /// Represents a sub-section under an account for transaction grouping.
     @Model
-    public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, NamedElement, TransactionHolder, CustomStringConvertible {
+    public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, NamedElement, VoidableElement, TransactionHolder, CustomStringConvertible {
         public typealias Snapshot = SubAccountSnapshot;
         
         public convenience init() {
@@ -33,6 +33,7 @@ extension EdmundModelsV1 {
             .init(parent: self.parentName, name: self.name)
         }
         public var name: String = "";
+        public private(set) var isVoided: Bool = false
         @Relationship
         public var parent: Account? = nil;
         @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account)
@@ -46,6 +47,20 @@ extension EdmundModelsV1 {
         public var percentDevotions: [PercentDevotion] = [];
         @Relationship(deleteRule: .nullify, inverse: \RemainderDevotion.account)
         public var remainderDevotions: [RemainderDevotion] = [];
+        
+        public func setVoidStatus(_ new: Bool) {
+            guard new != isVoided else {
+                return;
+            }
+            
+            if new {
+                self.isVoided = true;
+                transactions?.forEach { $0.setVoidStatus(true) }
+            }
+            else {
+                self.isVoided = false;
+            }
+        }
         
         public var description: String {
             "Sub Account \(id)"

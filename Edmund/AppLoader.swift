@@ -132,6 +132,7 @@ public actor AppLoaderEngine {
         }
         
         await unique.fill(uniqueContext)
+        
         let unique = await self.unique;
         let help   = await self.help;
         

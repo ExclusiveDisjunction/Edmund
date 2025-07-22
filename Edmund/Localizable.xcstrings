@@ -1040,6 +1040,9 @@
         }
       }
     },
+    "Has End Date" : {
+
+    },
     "Has End Date:" : {
 
     },
@@ -2068,6 +2071,9 @@
           }
         }
       }
+    },
+    "Subscriptions can usually be canceled whenever, while bills have stricter requirements." : {
+
     },
     "Supporting Projects" : {
 

@@ -52,10 +52,6 @@ public struct UtilityEdit : View {
                     }
                 }
             }
-            
-            Divider()
-            
-            LongTextEditWithLabel(value: $snapshot.notes, minWidth: minWidth, maxWidth: maxWidth)
         }.sheet(isPresented: $showingSheet) {
             UtilityEntriesEdit(snapshot: snapshot)
         }

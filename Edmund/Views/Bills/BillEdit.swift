@@ -49,7 +49,8 @@ public struct BillEdit : View {
                         }
                     }.labelsHidden()
                         .pickerStyle(.segmented)
-                    Spacer()
+                    
+                    TooltipButton("Subscriptions can usually be canceled whenever, while bills have stricter requirements.")
                 }
             }
         }

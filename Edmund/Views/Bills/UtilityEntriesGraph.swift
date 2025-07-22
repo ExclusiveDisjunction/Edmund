@@ -14,21 +14,23 @@ import EdmundCore
 public struct UtilityEntriesGraph : View {
     public var source: Utility;
     
-    /*
-    private var children: [UtilityEntry] {
-        source.children.sorted(by: { $0.date < $1.date } )
+    @Environment(\.calendar) private var calendar;
+    @Environment(\.dismiss) private var dismiss;
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
+    private var children: [UtilityEntryRow<Decimal>] {
+        var walker = TimePeriodWalker(start: source.startDate, end: source.endDate, period: source.period, calendar: calendar);
+        return source.points.map { UtilityEntryRow(amount: $0, date: walker.step()) }
     }
-     */
     
     public var body: some View {
         VStack {
             Text("Price Over Time").font(.title2)
             
-            /*
             Chart {
                 ForEach(children, id: \.id) { point in
                     LineMark(
-                        x: .value("Date", point.date),
+                        x: .value("Date", point.date ?? .distantFuture),
                         y: .value("Amount", point.amount),
                         series: .value("Name", source.name)
                     )
@@ -37,8 +39,13 @@ public struct UtilityEntriesGraph : View {
                 .chartLegend(.visible)
                 .chartXAxisLabel("Date")
                 .chartYAxisLabel("Amount")
-             */
-        }
+            
+            HStack {
+                Spacer()
+                Button("Ok", action: { dismiss() } )
+                    .buttonStyle(.borderedProminent)
+            }
+        }.padding(.bottom)
     }
 }
 

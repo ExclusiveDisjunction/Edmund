@@ -42,7 +42,8 @@ struct UndoTests {
         let container = try Containers.debugContainer()
     
         let context = try UniqueContext(container.context)
-        let unique = UniqueEngine(context)
+        let unique = UniqueEngine();
+        await unique.fill(context)
         
         let new = Account("Testing Account", kind: .checking, creditLimit: nil, interest: 0.1, location: nil, children: [])
         writeAddWrapper(data: new, undoManager: undo, unique: unique)
@@ -67,7 +68,8 @@ struct UndoTests {
         let container = try Containers.debugContainer()
         
         let context = try UniqueContext(container.context)
-        let unique = UniqueEngine(context)
+        let unique = UniqueEngine();
+        await unique.fill(context)
         
         guard let object = try container.context.fetch(FetchDescriptor<Account>()).first else {
             throw CocoaError(.fileNoSuchFile)

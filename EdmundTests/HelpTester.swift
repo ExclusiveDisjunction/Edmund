@@ -18,10 +18,10 @@ struct HelpTester {
                 return (engine, false)
             }
             
-            return (engine, await HelpEngine.walkDirectory(engine: engine, baseURL: url))
+            return (engine, await engine.walkDirectory(baseURL: url))
         }
         else {
-            return (engine, await HelpEngine.walkDirectory(engine: engine))
+            return (engine, await engine.walkDirectory())
         }
     }
     
@@ -63,7 +63,7 @@ struct HelpTester {
         
         #expect(result)
      
-        let root: [LoadedHelpResource] = try await engine.getTree()
+        let root: LoadedHelpGroup = try await engine.getTree()
         let a: LoadedHelpGroup         = try await engine.getGroup(id: .init(rawValue: "Group1"))
         let b: LoadedHelpGroup         = try await engine.getGroup(id: .init(rawValue: "Group2"))
         let c: LoadedHelpGroup         = try await engine.getGroup(id: .init(rawValue: "Group3"))
@@ -74,6 +74,6 @@ struct HelpTester {
         #expect(c.children.isEmpty)
         #expect(d.children.isEmpty)
         
-        #expect(root.count == 7)
+        #expect(root.children.count == 7)
     }
 }

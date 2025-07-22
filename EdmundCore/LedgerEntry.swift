@@ -11,7 +11,7 @@ import Foundation;
 extension EdmundModelsV1 {
     /// A record into the ledger, representing a single transaction.
     @Model
-    public final class LedgerEntry : Identifiable, SnapshotableElement, NamedElement {
+    public final class LedgerEntry : Identifiable, SnapshotableElement, VoidableElement, NamedElement {
         public typealias Snapshot = LedgerEntrySnapshot;
         
         /// Creates an empty transaction
@@ -52,6 +52,7 @@ extension EdmundModelsV1 {
         public var addedOn: Date = Date.now;
         /// The lcoation where it happened.
         public var location: String = "";
+        public private(set) var isVoided: Bool = false
         /// The associated parent sub category
         @Relationship
         public var category: SubCategory? = nil;
@@ -62,6 +63,10 @@ extension EdmundModelsV1 {
         /// The net difference between credit and debit
         public var balance: Decimal {
             credit - debit
+        }
+        
+        public func setVoidStatus(_ new: Bool) {
+            self.isVoided = new;
         }
         
         public func makeSnapshot() -> LedgerEntrySnapshot {

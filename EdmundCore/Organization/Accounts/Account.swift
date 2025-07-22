@@ -18,7 +18,7 @@ public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
 extension EdmundModelsV1 {
     /// Represents a location to store money, via the use of inner sub-accounts.
     @Model
-    public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement, CustomStringConvertible {
+    public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement, VoidableElement, CustomStringConvertible {
         public typealias Snapshot = AccountSnapshot;
         
         public convenience init() {
@@ -56,6 +56,7 @@ extension EdmundModelsV1 {
         public var interest: Decimal? = nil;
         /// An optional description of where the account is physically
         public var location: String? = nil;
+        public private(set) var isVoided: Bool = false
         /// The kind of account, used to make swift data happy.
         private var rawKind: Int = AccountKind.checking.rawValue;
         /// The account kind
@@ -70,6 +71,20 @@ extension EdmundModelsV1 {
         /// The children for this account. Money is not held in the account itself, it is held in the sub accounts.
         @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent)
         public var children: [SubAccount]
+        
+        public func setVoidStatus(_ new: Bool) {
+            guard new != isVoided else {
+                return
+            }
+            
+            if new {
+                self.isVoided = true
+                children.forEach { $0.setVoidStatus(true) }
+            }
+            else {
+                self.isVoided = false;
+            }
+        }
         
         public static func == (lhs: Account, rhs: Account) -> Bool {
             lhs.name == rhs.name

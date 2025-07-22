@@ -36,6 +36,13 @@ public struct UtilityEntriesEdit : View {
         }
         //snapshot.children.removeAll(where: { selected.contains($0.id) } )
     }
+    private func deleteSelected() {
+        withAnimation {
+            snapshot.points.removeAll(where: { selected.contains($0.id) } )
+            
+            adjustDates()
+        }
+    }
     
     private func adjustDates() {
         var walker = TimePeriodWalker(start: snapshot.startDate, end: snapshot.hasEndDate ? snapshot.endDate : nil, period: snapshot.period, calendar: calendar)
@@ -76,9 +83,11 @@ public struct UtilityEntriesEdit : View {
                 Button(action: add_new) {
                     Image(systemName: "plus")
                 }.buttonStyle(.borderless)
-                Button(action: {}) {
+#if os(macOS)
+                Button(action: deleteSelected) {
                     Image(systemName: "trash").foregroundStyle(.red)
                 }.buttonStyle(.borderless)
+#endif
                 
 #if os(iOS)
                 Button(action: { showPopover = true } ) {
@@ -92,31 +101,47 @@ public struct UtilityEntriesEdit : View {
 #endif
             }
             
-            List($snapshot.points, editActions: [.delete, .move], selection: $selected) { $child in
-                HStack {
-                    CurrencyField(child.amount)
-                    
-                    Spacer()
-                    
-                    Text("on")
-                    if let date = child.date {
-                        Text(date.formatted(date: .numeric, time: .omitted))
+            List(selection: $selected) {
+                ForEach($snapshot.points) { $child in
+                    HStack {
+                        CurrencyField(child.amount)
+                        
+                        Spacer()
+                        
+                        Text("on")
+                        if let date = child.date {
+                            Text(date.formatted(date: .numeric, time: .omitted))
+                        }
+                        else {
+                            Text("(No date)")
+                                .italic()
+                                .foregroundStyle(.red)
+                        }
                     }
-                    else {
-                        Text("(No date)")
-                            .italic()
-                            .foregroundStyle(.red)
+                }.onDelete { set in
+                    withAnimation {
+                        snapshot.points.remove(atOffsets: set)
+                        adjustDates()
+                    }
+                }.onMove { set, offset in
+                    snapshot.points.move(fromOffsets: set, toOffset: offset)
+                    
+                    withAnimation {
+                        adjustDates()
                     }
                 }
-            }
-            .onChange(of: snapshot.points) { _, _ in
-                adjustDates()
             }.onChange(of: snapshot.startDate) { _, _ in
-                adjustDates()
+                withAnimation {
+                    adjustDates()
+                }
             }.onChange(of: snapshot.endDate) { _, _ in
-                adjustDates()
+                withAnimation {
+                    adjustDates()
+                }
             }.onChange(of: snapshot.period) { _, _ in
-                adjustDates()
+                withAnimation {
+                    adjustDates()
+                }
             }
             
             Spacer()

@@ -67,38 +67,10 @@ public protocol BillBase : Identifiable<BillBaseID>, AnyObject, UniqueElement, S
     /// An optional location used to uniquely identify a bill.
     /// For example, say you have an electric bill for two different apartments, but the same electric company. The bills would be indistiquishable, but this can help separate it.
     var location: String? { get set }
-    /// Any associated notes about the bill.
-    var notes: String { get set }
     /// When true, it is known that the bill will automatically be debited to the account.
     var autoPay: Bool { get set }
 }
 
-public func computeNextBillDueDate(start: Date, end: Date?, period: TimePeriods, relativeTo: Date = .now, calendar: Calendar = .current) -> Date? {
-    guard start <= relativeTo else {
-        if let end = end, start > end {
-            return nil
-        }
-        
-        return start
-    }
-    
-    var nextDate = start
-    let interval = period.asComponents
-    
-    while nextDate <= relativeTo {
-        if let advanced = calendar.date(byAdding: interval, to: nextDate) {
-            nextDate = advanced
-        } else {
-            return nil
-        }
-    }
-    
-    if let end = end, nextDate > end {
-        return nil
-    }
-    
-    return nextDate
-}
 public struct TimePeriodWalker {
     public init(start: Date, end: Date?, period: TimePeriods, calendar: Calendar) {
         if let end = end {
@@ -140,6 +112,33 @@ public struct TimePeriodWalker {
         
         return current
     }
+    public mutating func walkToDate(relativeTo: Date) -> Date? {
+        guard start <= relativeTo else {
+            if let end = end, start > end {
+                return nil
+            }
+            
+            return start
+        }
+        
+        guard var current = self.current else {
+            return nil
+        }
+        
+        while current <= relativeTo {
+            guard let value = self.step() else {
+                return nil
+            }
+            
+            current = value
+        }
+        
+        if let end = end, current > end {
+            return nil
+        }
+        
+        return current
+    }
     public mutating func step(periods: Int) -> [Date]? {
         guard self.current != nil else {
             return nil
@@ -169,7 +168,8 @@ public struct TimePeriodWalker {
 
 public extension BillBase {
     func computeNextDueDate(relativeTo: Date = .now) -> Date? {
-        return computeNextBillDueDate(start: self.startDate, end: self.endDate, period: self.period, relativeTo: relativeTo)
+        var walker = TimePeriodWalker(start: self.startDate, end: self.endDate, period: self.period, calendar: .current)
+        return walker.walkToDate(relativeTo: relativeTo)
     }
     /// When true, the `endDate` exists, and it is in the past.
     var isExpired: Bool {
@@ -204,7 +204,6 @@ public extension BillBase {
         self.startDate = startDate
         self.endDate = snap.hasEndDate ? endDate : nil
         self.period = period
-        self.notes = notes
         self.autoPay = autoPay
     }
 }
@@ -253,7 +252,6 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.company = ""
         self.hasLocation = false
         self.location = ""
-        self.notes = ""
         self.autoPay = true
     }
     /// Constructs a snapshot around an instance of a `BillBase`.
@@ -266,7 +264,6 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.company = from.company
         self.hasLocation = from.location != nil
         self.location = from.location ?? String()
-        self.notes = from.notes
         self.autoPay = from.autoPay;
         self.oldId = from.id;
     }
@@ -289,8 +286,6 @@ public class BillBaseSnapshot: Hashable, Equatable {
     public var hasLocation: Bool;
     /// The location of the bill (like apartment)
     public var location: String;
-    /// Any notes about the bill
-    public var notes: String;
     /// If the bill has autopay setup or not
     public var autoPay: Bool;
     
@@ -320,11 +315,10 @@ public class BillBaseSnapshot: Hashable, Equatable {
         hasher.combine(period)
         hasher.combine(company)
         hasher.combine(location)
-        hasher.combine(notes)
         hasher.combine(autoPay)
     }
     public static func ==(lhs: BillBaseSnapshot, rhs: BillBaseSnapshot) -> Bool {
-        guard lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.hasEndDate == rhs.hasEndDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.hasLocation == rhs.hasLocation && lhs.notes == rhs.notes && lhs.autoPay == rhs.autoPay else { return false }
+        guard lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.hasEndDate == rhs.hasEndDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.hasLocation == rhs.hasLocation && lhs.autoPay == rhs.autoPay else { return false }
         
         if lhs.hasLocation && lhs.location != rhs.location { return false }
         if lhs.hasEndDate && lhs.endDate != rhs.endDate { return false }

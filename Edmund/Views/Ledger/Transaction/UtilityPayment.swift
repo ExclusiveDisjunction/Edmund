@@ -56,7 +56,7 @@ struct UtilityPayment : TransactionEditorProtocol {
         modelContext.insert(transaction);
         
         if doStore {
-            target.points.append(amount)
+            target.addPoint(amount: amount)
         }
         
         return nil;
