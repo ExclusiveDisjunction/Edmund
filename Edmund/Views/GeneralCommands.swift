@@ -9,8 +9,27 @@ import SwiftUI;
 
 struct GeneralCommands : Commands {
     @Environment(\.openWindow) var openWindow;
+    @FocusedValue(\.currentPage) var currentPage;
     
     var body: some Commands {
+        CommandGroup(after: .windowArrangement) {
+            Divider()
+            
+            if let $currentPage = currentPage {
+                Picker("Current Page", selection: $currentPage) {
+                    Text(PageDestinations.home.rawValue).tag(PageDestinations.home)
+                    
+                    ForEach(PageDestinations.groups) { group in
+                        Section(group.name) {
+                            ForEach(group.content) { page in
+                                Text(page.rawValue).tag(page)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         CommandMenu("Ledger") {
             Button("Ledger") {
                 openWindow(id: "ledger")
@@ -76,7 +95,6 @@ struct GeneralCommands : Commands {
             }.keyboardShortcut("e", modifiers: [.command, .shift])
         }
         
-        #if os(macOS)
         CommandGroup(replacing: CommandGroupPlacement.help) {
             Button("Help") {
                 openWindow(id: "help")
@@ -85,6 +103,5 @@ struct GeneralCommands : Commands {
                 openWindow(id: "about")
             }
         }
-        #endif
     }
 }

@@ -116,11 +116,18 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     }
 }
 
+fileprivate struct PageDestinationsKey : FocusedValueKey {
+    typealias Value = Binding<PageDestinations?>;
+}
+extension FocusedValues {
+    var currentPage: Binding<PageDestinations?>? {
+        get { self[PageDestinationsKey.self] }
+        set { self[PageDestinationsKey.self] = newValue }
+    }
+}
+
 struct MainView: View {
     @State private var page: PageDestinations.ID? = .home;
-    
-    @Environment(\.undoManager) private var undoManager;
-    @Environment(\.modelContext) private var modelContext;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
@@ -173,6 +180,7 @@ struct MainView: View {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
         }.navigationSplitViewStyle(.prominentDetail)
+            .focusedValue(\.currentPage, $page)
     }
 }
 
