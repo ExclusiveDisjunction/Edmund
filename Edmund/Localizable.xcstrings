@@ -365,6 +365,9 @@
     "Balances Report" : {
 
     },
+    "Bank" : {
+
+    },
     "Basic" : {
 
     },
@@ -766,6 +769,9 @@
 
     },
     "Do not show as Accounting Style" : {
+
+    },
+    "Do you want to delete these sub accounts, and all associated transactions?" : {
 
     },
     "Donation" : {

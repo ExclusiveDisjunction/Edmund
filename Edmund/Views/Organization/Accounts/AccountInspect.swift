@@ -113,8 +113,7 @@ public struct AccountInspect : View {
                     
                 }
             }.sheet(isPresented: $showSubAccounts) {
-                SubAccountsInspect(children: data.children)
-                    .padding()
+                SubAccountsInspect(source: data)
             }
         }
     }

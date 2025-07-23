@@ -87,6 +87,29 @@ extension EdmundModelsV1 {
             self.parent = parent
         }
         
+        @MainActor
+        public func tryNewName(name: String, unique: UniqueEngine) async -> Bool {
+            let newId = BoundPairID(parent: self.parentName, name: name)
+            
+            guard newId != self.id else { return true; }
+            
+            return await unique.isIdOpen(key: .init(SubAccount.self), id: newId)
+        }
+        @MainActor
+        public func takeNewName(name: String, unique: UniqueEngine) async throws(UniqueFailureError<BoundPairID>) {
+            guard name != self.name else {
+                return;
+            }
+            
+            let newId = BoundPairID(parent: self.parentName, name: name)
+            let result = await unique.swapId(key: Self.objId, oldId: self.id, newId: newId)
+            guard result else {
+                throw .init(value: newId)
+            }
+            
+            self.name = name;
+        }
+        
         public static func ==(lhs: SubAccount, rhs: SubAccount) -> Bool {
             lhs.name == rhs.name && lhs.parent == rhs.parent
         }

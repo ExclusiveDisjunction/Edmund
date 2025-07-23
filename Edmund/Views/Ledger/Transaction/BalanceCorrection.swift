@@ -47,17 +47,17 @@ struct BalanceCorrection: TransactionEditorProtocol {
             return .internalError
         }
         
-        let amount = mode == .setAmount ? amount.rawValue : (currentBalance ?? 0) - amount.rawValue;
+        let amount = mode == .setAmount ? amount.rawValue : -(currentBalance ?? 0) + amount.rawValue;
         guard let account = account else {
             return .empty
         }
         
         let transaction = LedgerEntry(
-            name: "Audit",
+            name: NSLocalizedString("Audit", comment: ""),
             credit: amount >= 0 ? amount : 0,
             debit: amount < 0 ? -amount : 0,
             date: date,
-            location: "Bank",
+            location: NSLocalizedString("Bank", comment: ""),
             category: categories.accountControl.audit,
             account: account
         );
