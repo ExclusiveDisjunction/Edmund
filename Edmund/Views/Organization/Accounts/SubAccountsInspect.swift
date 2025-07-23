@@ -33,15 +33,38 @@ public struct SubAccountsInspect : View {
     @State private var cache: [Row] = [];
     @State private var selection: Set<Row.ID> = .init();
     @State private var adding: Bool = false;
+    @State private var working: String = "";
+    @State private var failedAttempts: CGFloat = .init();
     @Bindable private var delete = DeletingManifest<Row>();
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.dismiss) private var dismiss;
     @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.loggerSystem) private var loggers;
+    @Environment(\.modelContext) private var modelContext;
     
     private func refresh() {
         cache = source.children.map { Row($0) }
+    }
+    @MainActor
+    private func addNew() async {
+        let name = working.trimmingCharacters(in: .whitespacesAndNewlines);
+        if !name.isEmpty {
+            let newId = BoundPairID(parent: source.name, name: name);
+            
+            if await uniqueEngine.reserveId(key: SubAccount.objId, id: newId) {
+                let new = SubAccount(parent: source)
+                new.name = name;
+                
+                modelContext.insert(new);
+                adding = false;
+                return;
+            }
+        }
+        
+        withAnimation {
+            failedAttempts += 1;
+        }
     }
     @MainActor
     private func submitFor(_ row: Row) async {
@@ -69,14 +92,29 @@ public struct SubAccountsInspect : View {
     public var body: some View {
         VStack {
             HStack {
-                Text("Sub Accounts")
-                    .font(.headline)
-                
                 Spacer()
                 
                 Button(action: { adding = true }) {
                     Image(systemName: "plus")
                 }.buttonStyle(.borderless)
+                    .popover(isPresented: $adding) {
+                        HStack {
+                            Text("Name:")
+                                .frame(width: 50)
+                            TextField("", text: $working)
+                                .textFieldStyle(.roundedBorder)
+                                .onSubmit {
+                                    Task {
+                                        await addNew()
+                                    }
+                                }
+                                .onDisappear {
+                                    working = "";
+                                }
+                                .modifier(ShakeEffect(animatableData: CGFloat(failedAttempts)))
+                                .frame(minWidth: 170)
+                        }.padding()
+                    }
                 
                 Button(action: {
                     delete.deleteSelected(selection, on: cache, warning: warning)
@@ -129,33 +167,23 @@ public struct SubAccountsInspect : View {
                         }
                     }
             }.frame(minHeight: 200)
-                .contextMenu(forSelectionType: Row.ID.self) { selection in
-                    Button(action: { adding = true }) {
-                        Label("Add", systemImage: "plus")
-                    }.buttonStyle(.borderless)
-                    
-                    Button(action: {
-                        delete.deleteSelected(selection, on: cache, warning: warning)
-                    } ) {
-                        Label("Remove", systemImage: "trash")
-                            .foregroundStyle(.red)
-                    }
-                        .disabled(selection.isEmpty)
+            .contextMenu(forSelectionType: Row.ID.self) { selection in
+                Button(action: { adding = true }) {
+                    Label("Add", systemImage: "plus")
+                }.buttonStyle(.borderless)
+                
+                Button(action: {
+                    delete.deleteSelected(selection, on: cache, warning: warning)
+                } ) {
+                    Label("Remove", systemImage: "trash")
+                        .foregroundStyle(.red)
                 }
-            
-            Spacer()
-            
-            HStack {
-                Spacer()
-                Button("Ok") {
-                    dismiss()
-                }.buttonStyle(.borderedProminent)
+                    .disabled(selection.isEmpty)
             }
         }.onAppear(perform: refresh)
             .onChange(of: source.children) { _, _ in
                 refresh()
             }
-            .padding()
             .confirmationDialog("Do you want to delete these sub accounts, and all associated transactions?", isPresented: $delete.isDeleting) {
                 AbstractDeletingActionConfirm(delete) { item, context in
                     context.delete(item.data)

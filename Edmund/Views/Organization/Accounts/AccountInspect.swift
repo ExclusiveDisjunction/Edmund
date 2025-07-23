@@ -9,14 +9,12 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-/// The inspect view for Account.
-public struct AccountInspect : View {
+public struct AccountsPropertiesInspect : View {
     public init(_ data: Account) {
-        self.data = data;
+        self.data = data
     }
     
     private var data: Account;
-    @State private var showSubAccounts = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
@@ -100,21 +98,30 @@ public struct AccountInspect : View {
                         Spacer()
                     }
                 }
-                
-                GridRow {
-                    Text("")
-                    
-                    HStack {
-                        Button("Sub Accounts") {
-                            showSubAccounts = true;
-                        }
-                        Spacer()
-                    }
-                    
-                }
-            }.sheet(isPresented: $showSubAccounts) {
-                SubAccountsInspect(source: data)
             }
+        }
+    }
+}
+
+/// The inspect view for Account.
+public struct AccountInspect : View {
+    public init(_ data: Account) {
+        self.data = data;
+    }
+    
+    private var data: Account;
+    
+    public var body: some View {
+        TabView {
+            AccountsPropertiesInspect(data)
+                .tabItem {
+                    Text("Properties")
+                }
+            
+            SubAccountsInspect(source: data)
+                .tabItem {
+                    Text("Sub Accounts")
+                }
         }
     }
 }

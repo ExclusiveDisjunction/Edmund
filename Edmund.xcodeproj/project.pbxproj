@@ -155,8 +155,6 @@
 				Views/Help/Old/Help.swift,
 				Views/Help/Old/TopicRenderer.swift,
 				Views/Help/Old/Topics.swift,
-				Views/Organization/Categories/CategoryEdit.swift,
-				Views/Organization/Categories/CategoryInspect.swift,
 				Views/Organization/NamedPair/NamedPairChildEdit.swift,
 			);
 			platformFiltersByRelativePath = {
