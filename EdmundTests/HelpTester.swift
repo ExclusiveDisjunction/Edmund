@@ -63,7 +63,7 @@ struct HelpTester {
         
         #expect(result)
      
-        let root: LoadedHelpGroup = try await engine.getTree()
+        let root: LoadedHelpGroup      = try await engine.getTree()
         let a: LoadedHelpGroup         = try await engine.getGroup(id: .init(rawValue: "Group1"))
         let b: LoadedHelpGroup         = try await engine.getGroup(id: .init(rawValue: "Group2"))
         let c: LoadedHelpGroup         = try await engine.getGroup(id: .init(rawValue: "Group3"))

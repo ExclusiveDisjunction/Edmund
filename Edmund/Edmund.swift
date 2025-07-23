@@ -122,18 +122,10 @@ struct EdmundApp: App {
             }
         }
         
-        WindowGroup(PageDestinations.credit.rawValue, id: PageDestinations.credit.key) {
-            NavigationStack {
-                AppWindowGate(state: state) {
-                    CreditCardHelper()
-                }
-            }
-        }
-        
         WindowGroup(PageDestinations.audit.rawValue, id: PageDestinations.audit.key) {
             NavigationStack {
                 AppWindowGate(state: state) {
-                    BalanceVerifier()
+                    Auditor()
                 }
             }
         }

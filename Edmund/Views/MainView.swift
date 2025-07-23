@@ -27,8 +27,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     
     case ledger = "Ledger"
     case balance = "Balance Sheet"
-    case credit = "Credit Card Audit"
-    case audit = "Audits"
+    case audit = "Auditor"
     
     case bills = "Bills"
     
@@ -48,8 +47,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             .init(name: "Ledger", content: [
                 .ledger,
                 .balance,
-                .audit,
-                .credit
+                .audit
             ]),
             .init(name: "Bills", content: [
                 .bills
@@ -73,7 +71,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 
             case .ledger: "ledger"
             case .balance: "balanceSheet"
-            case .credit: "creditHelper"
             case .audit: "auditHelper"
                 
             case .bills: "bills"
@@ -107,8 +104,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 
             case .accounts: AccountsIE()
             case .categories: CategoriesIE()
-            case .credit: CreditCardHelper()
-            case .audit: BalanceVerifier()
+            case .audit: Auditor()
                 
             case .jobs: AllJobsViewEdit()
             default: Text("Work in progress").navigationTitle(self.rawValue)

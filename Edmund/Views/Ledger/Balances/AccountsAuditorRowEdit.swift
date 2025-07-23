@@ -9,7 +9,7 @@ import SwiftUI
 import EdmundCore
 
 @Observable
-class BalanceVerifyRow : Identifiable {
+class AccountsAuditorRow : Identifiable {
     init(account: Account, balance: Decimal) {
         self.id = UUID();
         self.account = account;
@@ -33,8 +33,8 @@ class BalanceVerifyRow : Identifiable {
     }
 }
 
-struct BalanceVerifyRowEdit : View {
-    @Bindable var over: BalanceVerifyRow;
+struct AccountsAuditorRowEdit : View {
+    @Bindable var over: AccountsAuditorRow;
     let isSheet: Bool;
     
     @Environment(\.dismiss) private var dismiss;
@@ -114,7 +114,7 @@ struct BalanceVerifyRowEdit : View {
 }
 
 #Preview {
-    let object = BalanceVerifyRow(account: Account.exampleAccount, balance: 15)
-    BalanceVerifyRowEdit(over: object, isSheet: false)
+    let object = AccountsAuditorRow(account: Account.exampleAccount, balance: 15)
+    AccountsAuditorRowEdit(over: object, isSheet: false)
         .padding()
 }

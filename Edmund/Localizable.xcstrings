@@ -10,6 +10,9 @@
     "(no account)" : {
 
     },
+    "(No balance)" : {
+
+    },
     "(No date)" : {
 
     },
@@ -285,7 +288,7 @@
         }
       }
     },
-    "Audits" : {
+    "Auditor" : {
 
     },
     "Autopay:" : {
@@ -322,6 +325,12 @@
         }
       }
     },
+    "Balance Correction" : {
+
+    },
+    "Balance Goal" : {
+
+    },
     "Balance Overview" : {
 
     },
@@ -340,9 +349,6 @@
           }
         }
       }
-    },
-    "Balance Verification" : {
-
     },
     "Balance:" : {
 
@@ -595,13 +601,10 @@
         }
       }
     },
-    "Credit Card Audit" : {
-
-    },
-    "Credit Card Helper" : {
-
-    },
     "Credit Card Transactions" : {
+
+    },
+    "Credit Cards" : {
 
     },
     "Credit Limit" : {
@@ -954,6 +957,9 @@
     "Finalized" : {
 
     },
+    "Fixed Amount" : {
+
+    },
     "For Item:" : {
 
     },
@@ -1003,6 +1009,9 @@
 
     },
     "Gift" : {
+
+    },
+    "Goal:" : {
 
     },
     "Graph" : {
@@ -1139,9 +1148,6 @@
       "shouldTranslate" : false
     },
     "If this is a common or persistent issue, please report it." : {
-
-    },
-    "If you need assistance with this tool, please see the help topic." : {
 
     },
     "Import" : {
@@ -1454,6 +1460,9 @@
 
     },
     "Net Spending" : {
+
+    },
+    "New Balance:" : {
 
     },
     "Next Due Date" : {

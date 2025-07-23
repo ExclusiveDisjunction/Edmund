@@ -47,7 +47,7 @@ struct BalanceCorrection: TransactionEditorProtocol {
             return .internalError
         }
         
-        let amount = amount.rawValue;
+        let amount = mode == .setAmount ? amount.rawValue : (currentBalance ?? 0) - amount.rawValue;
         guard let account = account else {
             return .empty
         }
@@ -105,13 +105,24 @@ struct BalanceCorrection: TransactionEditorProtocol {
                 }
                 
                 GridRow {
-                    Text(mode == .byBalance ? "Amount:" : "Goal:")
+                    Text("Mode:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    Picker("", selection: $mode) {
+                        ForEach(Mode.allCases) { mode in
+                            Text(mode.display).tag(mode.id)
+                        }
+                    }.labelsHidden().pickerStyle(.segmented)
+                }
+                
+                GridRow {
+                    Text(mode == .setAmount ? "Amount:" : "Goal:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     CurrencyField(amount)
                 }
                 
-                if mode == .byBalance {
+                if mode == .setAmount {
                     GridRow {
                         Text("New Balance:")
                             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
