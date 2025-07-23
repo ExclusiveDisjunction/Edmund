@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-public enum BudgetSortField : CaseIterable, Identifiable, Displayable {
+public enum IncomeDividerSortField : CaseIterable, Identifiable, Displayable {
     case name
     case amount
     case lastUpdated
@@ -39,8 +39,8 @@ public enum BudgetSortField : CaseIterable, Identifiable, Displayable {
 }
 
 @Observable
-public class BudgetSearchCriteria: Hashable, Equatable {
-    public init(query: String = "", sortBy: BudgetSortField = .name, ascending: Bool = true, hideFinalized: Bool = true) {
+public class IncomeDividerSearchCriteria: Hashable, Equatable {
+    public init(query: String = "", sortBy: IncomeDividerSortField = .name, ascending: Bool = true, hideFinalized: Bool = true) {
         self.query = query
         self.sortBy = sortBy
         self.ascending = ascending
@@ -48,7 +48,7 @@ public class BudgetSearchCriteria: Hashable, Equatable {
     }
     
     public var query: String
-    public var sortBy: BudgetSortField
+    public var sortBy: IncomeDividerSortField
     public var ascending: Bool
     public var hideFinalized: Bool
     
@@ -58,18 +58,18 @@ public class BudgetSearchCriteria: Hashable, Equatable {
         hasher.combine(ascending)
     }
     
-    public static func ==(lhs: BudgetSearchCriteria, rhs: BudgetSearchCriteria) -> Bool {
+    public static func ==(lhs: IncomeDividerSearchCriteria, rhs: IncomeDividerSearchCriteria) -> Bool {
         lhs.query == rhs.query && lhs.sortBy == rhs.sortBy && lhs.ascending == rhs.ascending
     }
 }
 
 @Observable
-public class BudgetSearchVM {
+public class IncomeDivisionSearchVM {
     public init() {
         
     }
     
-    public var criteria: BudgetSearchCriteria = .init();
+    public var criteria: IncomeDividerSearchCriteria = .init();
     private var _cache: [IncomeDividerInstance] = []
     
     public func update(_ data: [IncomeDividerInstance]) {
@@ -96,7 +96,7 @@ public class BudgetSearchVM {
 
 
 
-struct AllBudgetsSearch : View {
+struct AllIncomeDivisionsSearch : View {
     init(result: Binding<IncomeDividerInstance.ID?>) {
         self._result = result
         self.query = .init()
@@ -106,7 +106,7 @@ struct AllBudgetsSearch : View {
     
     @Query private var budgets: [IncomeDividerInstance];
     @Bindable private var inspect: InspectionManifest<IncomeDividerInstance> = .init();
-    @Bindable private var query: BudgetSearchVM
+    @Bindable private var query: IncomeDivisionSearchVM
     @State private var showPopover = false;
     
     @Environment(\.dismiss) private var dismiss;
@@ -181,7 +181,7 @@ struct AllBudgetsSearch : View {
     var body: some View {
         VStack {
             HStack {
-                Text("Budget Search")
+                Text("Income Division Search")
                     .font(.title2)
                 Spacer()
             }
@@ -203,7 +203,7 @@ struct AllBudgetsSearch : View {
                                 Toggle("Hide Finalized", isOn: $query.criteria.hideFinalized)
                                 
                                 Picker("Sort By", selection: $query.criteria.sortBy) {
-                                    ForEach(BudgetSortField.allCases, id: \.id) { field in
+                                    ForEach(IncomeDividerSortField.allCases, id: \.id) { field in
                                         Text(field.display).tag(field)
                                     }
                                 }
@@ -237,7 +237,7 @@ struct AllBudgetsSearch : View {
                 query.update(budgets)
             }
             .sheet(item: $inspect.value) { item in
-                BudgetCloseInspect(data: item)
+                IncomeDivisionCloseInspect(data: item)
             }
     }
 }
@@ -248,7 +248,7 @@ struct AllBudgetsSearch : View {
     
     DebugContainerView {
         NavigationStack {
-            AllBudgetsSearch(result: binding)
+            AllIncomeDivisionsSearch(result: binding)
         }
     }
 }

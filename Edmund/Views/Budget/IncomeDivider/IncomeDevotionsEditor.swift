@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetDevotionsEditor : View {
+struct IncomeDevotionsEditor : View {
     @Bindable var snapshot: IncomeDividerInstanceSnapshot;
     @State private var selection: Set<AnyDevotionSnapshot.ID> = .init();
     

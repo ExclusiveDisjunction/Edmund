@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetRemainderEditor : View {
+struct IncomeDivisionRemainderEditor : View {
     @Bindable var remainder: DevotionSnapshotBase;
     @Binding var hasRemainder: Bool;
     var remainderValue: Decimal;

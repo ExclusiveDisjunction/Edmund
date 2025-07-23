@@ -9,17 +9,19 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-public struct BudgetInspect : View {
+public struct IncomeDivisionInspect : View {
     public var data: IncomeDividerInstance
     
     public var body: some View {
         TabView {
-            BudgetPropertiesInspect(data: data)
-                .tabItem {
-                    Text("Properties")
-                }
+            VStack {
+                IncomeDivisionPropertiesInspect(data: data)
+                Spacer()
+            }.tabItem {
+                Text("Properties")
+            }
             
-            BudgetDevotionsInspect(data: data)
+            IncomeDevotionsInspect(data: data)
                 .tabItem {
                     Text("Devotions")
                 }
@@ -29,7 +31,7 @@ public struct BudgetInspect : View {
 
 #Preview {
     DebugContainerView {
-        BudgetInspect(data: try! .getExampleBudget())
+        IncomeDivisionInspect(data: try! .getExampleBudget())
             .padding()
     }
 }

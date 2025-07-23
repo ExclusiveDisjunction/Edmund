@@ -98,7 +98,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .ledger: LedgerTable()
             case .balance: BalanceSheet()
                 
-            case .incomeDivider: AllBudgetsInspect()
+            case .incomeDivider: AllIncomeDivisionsIE()
                 
             case .bills: AllBillsViewEdit()
                 
@@ -121,12 +121,24 @@ extension FocusedValues {
         set { self[PageDestinationsKey.self] = newValue }
     }
 }
+fileprivate struct LockedPagesKey : EnvironmentKey {
+    typealias Value = Binding<Bool>;
+    static var defaultValue: Binding<Bool> {
+        .constant(false)
+    }
+}
+public extension EnvironmentValues {
+    var pagesLocked: Binding<Bool> {
+        get { self[LockedPagesKey.self] }
+        set { self[LockedPagesKey.self] = newValue }
+    }
+}
 
 struct MainView: View {
     @State private var page: PageDestinations.ID? = .home;
+    @State private var locked: Bool = false;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    @Environment(\.openWindow) private var openWindow;
     
     private static let allowPopouts: Bool = {
 #if os(macOS)
@@ -137,18 +149,30 @@ struct MainView: View {
 #endif
     }()
     
-    @ViewBuilder
-    private func textFor(_ page: PageDestinations) -> some View {
-        if Self.allowPopouts {
-            Text(page.rawValue)
-                .contextMenu {
-                    Button("Open in new Window", action: {
-                        openWindow(id: page.key)
-                    })
-                }
+    struct PageContent : View {
+        let page: PageDestinations;
+        
+        @Environment(\.openWindow) private var openWindow;
+        @Environment(\.isEnabled) private var isEnabled;
+        
+        @ViewBuilder
+        var text: some View {
+            if MainView.allowPopouts {
+                Text(page.rawValue)
+                    .contextMenu {
+                        Button("Open in new Window", action: {
+                            openWindow(id: page.key)
+                        })
+                    }
+            }
+            else {
+                Text(page.rawValue)
+            }
         }
-        else {
-            Text(page.rawValue)
+        
+        var body: some View {
+            text
+                .opacity(isEnabled ? 1.0 : 0.7)
         }
     }
     
@@ -160,21 +184,29 @@ struct MainView: View {
                     .padding(.bottom)
                     .backgroundStyle(.background.secondary)
                 
+                if locked {
+                    Text("Please finish editing & save to change the page")
+                        .italic()
+                        .multilineTextAlignment(.center)
+                }
+                
                 List(selection: $page) {
                     Text(PageDestinations.home.rawValue).id(PageDestinations.home)
+                        .disabled(locked)
                     
                     ForEach(PageDestinations.groups) { group in
                         Section(group.name) {
                             ForEach(group.content) {
-                                textFor($0)
+                                PageContent(page: $0)
                             }
                         }
                     }
-                }
+                }.disabled(locked)
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
+                .environment(\.pagesLocked, $locked)
         }.navigationSplitViewStyle(.prominentDetail)
             .focusedValue(\.currentPage, $page)
     }

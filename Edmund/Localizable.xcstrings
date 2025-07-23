@@ -161,13 +161,13 @@
     "Add Bill" : {
 
     },
-    "Add Budget" : {
-
-    },
     "Add Category" : {
 
     },
     "Add Hourly Job" : {
+
+    },
+    "Add Income Division" : {
 
     },
     "Add new" : {
@@ -209,7 +209,7 @@
       }
     },
     "Amount Free:" : {
-      "comment" : "This in context is the amount of money left from the income of the budget, minus all devotions. This is similar to variance."
+      "comment" : "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance."
     },
     "Amount Kind:" : {
 
@@ -452,12 +452,6 @@
           }
         }
       }
-    },
-    "Budget Search" : {
-
-    },
-    "Budget:" : {
-
     },
     "Budgeting Period" : {
       "localizations" : {
@@ -803,9 +797,6 @@
     "Edit Bill" : {
 
     },
-    "Edit Budget" : {
-
-    },
     "Edit Category" : {
 
     },
@@ -813,6 +804,9 @@
 
     },
     "Edit Hourly Job" : {
+
+    },
+    "Edit Income Division" : {
 
     },
     "Edit Salaried Job" : {
@@ -1165,7 +1159,16 @@
     "Income Divider" : {
 
     },
+    "Income Division" : {
+
+    },
     "Income Division Close Look" : {
+
+    },
+    "Income Division Search" : {
+
+    },
+    "Income Division:" : {
 
     },
     "Income Kind:" : {
@@ -1710,6 +1713,9 @@
     "Please ensure that you select at least one non-locked element." : {
 
     },
+    "Please finish editing & save to change the page" : {
+
+    },
     "Please report any translation errors." : {
 
     },
@@ -1902,7 +1908,7 @@
     "Scroll" : {
 
     },
-    "Search Budgets" : {
+    "Search Divisions" : {
 
     },
     "Search:" : {
@@ -2380,7 +2386,7 @@
         }
       }
     },
-    "Warning! Finalizing a budget will apply transactions to the ledger. Do you want to continue?" : {
+    "Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?" : {
 
     },
     "Week" : {

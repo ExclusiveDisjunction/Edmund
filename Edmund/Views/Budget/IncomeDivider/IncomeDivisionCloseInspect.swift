@@ -1,29 +1,32 @@
 //
-//  BudgetPropertiesInspect.swift
+//  BudgetCloseInspect.swift
 //  Edmund
 //
-//  Created by Hollan Sellars on 6/28/25.
+//  Created by Hollan Sellars on 7/6/25.
 //
 
-import SwiftUI
-import SwiftData
 import EdmundCore
+import SwiftUI
 
-struct BudgetPropertiesInspect : View {
-    var data: IncomeDividerInstance;
+struct IncomeDivisionCloseInspect : View {
+    let data: IncomeDividerInstance;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @Environment(\.dismiss) private var dismiss;
     
-#if os(macOS)
-    private let minWidth: CGFloat = 80;
-    private let maxWidth: CGFloat = 90;
-#else
+    #if os(macOS)
     private let minWidth: CGFloat = 90;
     private let maxWidth: CGFloat = 100;
-#endif
+    #else
+    private let minWidth: CGFloat = 100;
+    private let maxWidth: CGFloat = 110;
+    #endif
     
     var body: some View {
         VStack {
+            Text("Income Division Close Look")
+                    .font(.title2)
+            
             Grid {
                 GridRow {
                     Text("Name:")
@@ -36,7 +39,7 @@ struct BudgetPropertiesInspect : View {
                 }
                 
                 GridRow {
-                    Text("Amount:")
+                    Text("Income:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
@@ -46,17 +49,7 @@ struct BudgetPropertiesInspect : View {
                 }
                 
                 GridRow {
-                    Text("Income Kind:")
-                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Text(data.kind.display)
-                        Spacer()
-                    }
-                }
-                
-                GridRow {
-                    Text("Deposit to:")
+                    Text("Deposit To:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
@@ -64,6 +57,35 @@ struct BudgetPropertiesInspect : View {
                         Spacer()
                     }
                 }
+                
+                GridRow {
+                    Text("Last Viewed:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(data.lastViewed.formatted(date: .abbreviated, time: .shortened))
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Last Edited:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(data.lastUpdated.formatted(date: .abbreviated, time: .shortened))
+                        Spacer()
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                
+                Button("Ok", action: { dismiss() } )
+                    .buttonStyle(.borderedProminent)
             }
         }.padding()
     }
@@ -71,6 +93,6 @@ struct BudgetPropertiesInspect : View {
 
 #Preview {
     DebugContainerView {
-        BudgetPropertiesInspect(data: try! .getExampleBudget())
+        IncomeDivisionCloseInspect(data: try! .getExampleBudget())
     }
 }

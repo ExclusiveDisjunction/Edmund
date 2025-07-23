@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetIE : View {
+struct IncomdeDividerIE : View {
     var data: IncomeDividerInstance;
     var snapshot: IncomeDividerInstanceSnapshot?;
     var hash: Int;
@@ -29,7 +29,7 @@ struct BudgetIE : View {
     }
 }
 
-struct AllBudgetsInspect : View {
+struct AllIncomeDivisionsIE : View {
     @Query(sort: [SortDescriptor(\IncomeDividerInstance.name, order: .forward)]) private var budgetInstances: [IncomeDividerInstance];
     @State private var selectedBudgetID: IncomeDividerInstance.ID?;
     @State private var selectedBudget: IncomeDividerInstance?;
@@ -45,6 +45,7 @@ struct AllBudgetsInspect : View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.pagesLocked) private var pagesLocked;
     
     private static func computedAmount(_ budget: IncomeDividerInstance, _ target: AnyDevotion) -> Decimal {
         switch target {
@@ -121,9 +122,10 @@ struct AllBudgetsInspect : View {
             
             ToolbarItem(placement: .secondaryAction) {
                 Button(action: {
-                    editingBudget = budget
+                    //editingBudget = budget
+                    pagesLocked.wrappedValue = !pagesLocked.wrappedValue
                 }) {
-                    Label("Edit Budget", systemImage: "pencil")
+                    Label("Edit Income Division", systemImage: "pencil")
                 }
             }
             
@@ -150,7 +152,7 @@ struct AllBudgetsInspect : View {
                     Text("Copy from another")
                 }
             } label: {
-                Label("Add Budget", systemImage: "plus")
+                Label("Add Income Division", systemImage: "plus")
             }
         }
         
@@ -158,7 +160,7 @@ struct AllBudgetsInspect : View {
             Button(action: {
                 isSearching = true;
             }) {
-                Label("Search Budgets", systemImage: "magnifyingglass")
+                Label("Search Divisions", systemImage: "magnifyingglass")
             }
         }
     }
@@ -166,7 +168,7 @@ struct AllBudgetsInspect : View {
     var body: some View {
         VStack {
             HStack {
-                Text("Budget:")
+                Text("Income Division:")
                 
                 Picker("", selection: $selectedBudgetID) {
                     Text("None")
@@ -185,13 +187,15 @@ struct AllBudgetsInspect : View {
             Divider()
             
             if let budget = selectedBudget {
+                IncomeDivisionInspect(data: budget)
+                /*
                 HStack {
                     Text("Total Income:")
                     Text(budget.amount, format: .currency(code: currencyCode))
                     
                     Spacer()
                     
-                    Text("Amount Free:", comment: "This in context is the amount of money left from the income of the budget, minus all devotions. This is similar to variance.")
+                    Text("Amount Free:", comment: "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance.")
                     Text(budget.variance, format: .currency(code: currencyCode))
                 }
                 
@@ -201,6 +205,7 @@ struct AllBudgetsInspect : View {
                 else {
                     fullSize(budget)
                 }
+                 */
             }
             else {
                 Spacer()
@@ -210,7 +215,7 @@ struct AllBudgetsInspect : View {
                     
             }
         }.padding()
-            .navigationTitle("Budget")
+            .navigationTitle("Income Division")
             .onChange(of: selectedBudgetID) { _, newValue in
                 let new: IncomeDividerInstance?;
                 if let id = newValue, let target = budgetInstances.first(where: { $0.id == id } ) {
@@ -227,10 +232,10 @@ struct AllBudgetsInspect : View {
             }
             .toolbar(content: toolbarContent)
             .sheet(isPresented: $isSearching) {
-                AllBudgetsSearch(result: $selectedBudgetID)
+                AllIncomeDivisionsSearch(result: $selectedBudgetID)
             }
             .sheet(isPresented: $isAdding) {
-                BudgetAddView($selectedBudgetID)
+                IncomeDivisionAdd($selectedBudgetID)
             }
             .sheet(isPresented: $showGraph) {
                 if let selected = selectedBudget {
@@ -243,7 +248,7 @@ struct AllBudgetsInspect : View {
                     }
                 }
             }
-            .confirmationDialog("Warning! Finalizing a budget will apply transactions to the ledger. Do you want to continue?", isPresented: $finalizeWarning, titleVisibility: .visible) {
+            .confirmationDialog("Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?", isPresented: $finalizeWarning, titleVisibility: .visible) {
                 Button("Ok", action: {
                     if let budget = selectedBudget {
                         apply(budget)
@@ -263,6 +268,6 @@ struct AllBudgetsInspect : View {
 
 #Preview {
     DebugContainerView {
-        AllBudgetsInspect()
+        AllIncomeDivisionsIE()
     }
 }

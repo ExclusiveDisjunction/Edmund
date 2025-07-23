@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-public struct BudgetEdit : View {
+public struct IncomeDivisionEdit : View {
     public init(_ snap: IncomeDividerInstanceSnapshot) {
         self.snapshot = snap;
     }
@@ -18,17 +18,17 @@ public struct BudgetEdit : View {
     
     public var body: some View {
         TabView {
-            BudgetPropertiesEditor(snapshot: snapshot)
+            IncomeDivisionPropertiesEditor(snapshot: snapshot)
                 .tabItem {
                     Text("Properties")
                 }
             
-            BudgetDevotionsEditor(snapshot: snapshot)
+            IncomeDevotionsEditor(snapshot: snapshot)
                 .tabItem {
                     Text("Devotions")
                 }
             
-            BudgetRemainderEditor(remainder: snapshot.remainder, hasRemainder: $snapshot.hasRemainder, remainderValue: snapshot.remainderValue)
+            IncomeDivisionRemainderEditor(remainder: snapshot.remainder, hasRemainder: $snapshot.hasRemainder, remainderValue: snapshot.remainderValue)
                 .tabItem {
                     Text("Remainder")
                 }
@@ -40,6 +40,6 @@ public struct BudgetEdit : View {
 
 #Preview {
     DebugContainerView {
-        BudgetEdit(.init(try! IncomeDividerInstance.getExampleBudget()))
+        IncomeDivisionEdit(.init(try! IncomeDividerInstance.getExampleBudget()))
     }
 }

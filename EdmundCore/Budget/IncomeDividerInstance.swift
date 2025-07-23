@@ -129,7 +129,7 @@ extension EdmundModelsV1 {
             let taxes     = acc.getOrInsert(parent: "Checking", child: "Taxes"    )
             let main      = acc.getOrInsert(parent: "Savings",  child: "Main"     )
             
-            let result = IncomeDividerInstance(name: "Example Budget", amount: 450, kind: .pay, depositTo: pay)
+            let result = IncomeDividerInstance(name: "Example Division", amount: 450, kind: .pay, depositTo: pay)
             
             result.amounts = [
                 .init(name: "Bills", amount: 137.50, account: bills, group: .need),

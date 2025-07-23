@@ -9,14 +9,14 @@ import SwiftUI
 import EdmundCore
 
 extension EdmundModelsV1.IncomeDividerInstance : EditableElement, InspectableElement {
-    public typealias EditView = BudgetEdit
-    public typealias InspectView = BudgetInspect;
+    public typealias EditView = IncomeDivisionEdit
+    public typealias InspectView = IncomeDivisionInspect;
     
     public func makeInspectView() -> some View {
-        BudgetInspect(data: self)
+        IncomeDivisionInspect(data: self)
     }
-    public static func makeEditView(_ snap: Snapshot) -> BudgetEdit {
-        BudgetEdit(snap)
+    public static func makeEditView(_ snap: Snapshot) -> IncomeDivisionEdit {
+        IncomeDivisionEdit(snap)
     }
 }
 

@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetAddView : View {
+struct IncomeDivisionAdd : View {
     init(_ id: Binding<IncomeDividerInstance.ID?>? = nil) {
         self.id = id;
     }
@@ -71,7 +71,7 @@ struct BudgetAddView : View {
     
     var body: some View {
         VStack {
-            Text("Add Budget")
+            Text("Add Income Division")
                 .font(.title2)
             
             Grid {
@@ -136,6 +136,6 @@ struct BudgetAddView : View {
 
 #Preview {
     DebugContainerView {
-        BudgetAddView()
+        IncomeDivisionAdd()
     }
 }

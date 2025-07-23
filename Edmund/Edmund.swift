@@ -93,7 +93,7 @@ struct EdmundApp: App {
         WindowGroup(PageDestinations.incomeDivider.rawValue, id: PageDestinations.incomeDivider.key) {
             NavigationStack {
                 AppWindowGate(state: state) {
-                    AllBudgetsInspect()
+                    AllIncomeDivisionsIE()
                 }
             }
         }

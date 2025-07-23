@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetDevotionsInspect : View {
+struct IncomeDevotionsInspect : View {
     var data: IncomeDividerInstance
     @State private var selection: Set<AnyDevotion.ID> = .init();
     
@@ -80,19 +80,29 @@ struct BudgetDevotionsInspect : View {
     }
     
     var body: some View {
-        if horizontalSizeClass == .compact {
-            compact
-                .padding()
-        }
-        else {
-            fullSize
-                .padding()
-        }
+        VStack {
+            HStack {
+                Text("Total Income:")
+                Text(data.amount, format: .currency(code: currencyCode))
+                
+                Spacer()
+                
+                Text("Amount Free:", comment: "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance.")
+                Text(data.variance, format: .currency(code: currencyCode))
+            }
+            
+            if horizontalSizeClass == .compact {
+                compact
+            }
+            else {
+                fullSize
+            }
+        }.padding()
     }
 }
 
 #Preview {
     DebugContainerView {
-        BudgetDevotionsInspect(data: try! .getExampleBudget())
+        IncomeDevotionsInspect(data: try! .getExampleBudget())
     }
 }
