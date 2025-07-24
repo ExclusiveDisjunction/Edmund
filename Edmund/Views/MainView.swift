@@ -207,8 +207,7 @@ struct MainView: View {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
                 .environment(\.pagesLocked, $locked)
-        }.navigationSplitViewStyle(.prominentDetail)
-            .focusedValue(\.currentPage, $page)
+        }.focusedValue(\.currentPage, $page)
     }
 }
 

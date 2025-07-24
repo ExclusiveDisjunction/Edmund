@@ -10,11 +10,11 @@ import SwiftData
 import EdmundCore
 
 public struct IncomeDivisionEdit : View {
-    public init(_ snap: IncomeDividerInstanceSnapshot) {
+    public init(_ snap: IncomeDivisionSnapshot) {
         self.snapshot = snap;
     }
     
-    @Bindable private var snapshot: IncomeDividerInstanceSnapshot;
+    @Bindable private var snapshot: IncomeDivisionSnapshot;
     
     public var body: some View {
         TabView {
@@ -24,6 +24,7 @@ public struct IncomeDivisionEdit : View {
                 }
             
             IncomeDevotionsEditor(snapshot: snapshot)
+                .padding()
                 .tabItem {
                     Text("Devotions")
                 }
@@ -40,6 +41,6 @@ public struct IncomeDivisionEdit : View {
 
 #Preview {
     DebugContainerView {
-        IncomeDivisionEdit(.init(try! IncomeDividerInstance.getExampleBudget()))
+        IncomeDivisionEdit(.init(try! IncomeDivision.getExampleBudget()))
     }
 }

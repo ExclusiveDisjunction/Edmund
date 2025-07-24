@@ -9,7 +9,7 @@ import EdmundCore
 import SwiftUI
 
 struct IncomeDivisionCloseInspect : View {
-    let data: IncomeDividerInstance;
+    let data: IncomeDivision;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @Environment(\.dismiss) private var dismiss;

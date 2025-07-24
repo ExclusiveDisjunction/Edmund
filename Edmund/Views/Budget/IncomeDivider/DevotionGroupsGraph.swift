@@ -22,7 +22,7 @@ struct DevotionGroupsGraph: View {
         var id: DevotionGroup { group }
     }
     
-    public init(from: IncomeDividerInstance, isSheet: Bool = true) {
+    public init(from: IncomeDivision, isSheet: Bool = true) {
         self.isSheet = isSheet
         
         let all = from.allDevotions;

@@ -39,8 +39,8 @@ extension EdmundModelsV1 {
         @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account)
         public var transactions: [LedgerEntry]? = nil;
         
-        @Relationship(deleteRule: .nullify, inverse: \IncomeDividerInstance.depositTo)
-        public var budgetInstances: [IncomeDividerInstance] = [];
+        @Relationship(deleteRule: .nullify, inverse: \IncomeDivision.depositTo)
+        public var budgetInstances: [IncomeDivision] = [];
         @Relationship(deleteRule: .nullify, inverse: \AmountDevotion.account)
         public var amountDevotions: [AmountDevotion] = [];
         @Relationship(deleteRule: .nullify, inverse: \PercentDevotion.account)

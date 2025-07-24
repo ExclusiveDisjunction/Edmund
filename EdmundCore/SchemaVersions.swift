@@ -26,7 +26,7 @@ public enum EdmundModelsV1 : VersionedSchema {
             Self.HourlyJob.self,
             Self.SalariedJob.self,
             
-            Self.IncomeDividerInstance.self,
+            Self.IncomeDivision.self,
             Self.AmountDevotion.self,
             Self.PercentDevotion.self,
             Self.RemainderDevotion.self

@@ -26,7 +26,7 @@ public enum IncomeDividerSortField : CaseIterable, Identifiable, Displayable {
         }
     }
     
-    public func sorted(data: [IncomeDividerInstance], asc: Bool) -> [IncomeDividerInstance] {
+    public func sorted(data: [IncomeDivision], asc: Bool) -> [IncomeDivision] {
         let order: SortOrder = asc ? .forward : .reverse
         
         switch self {
@@ -70,11 +70,11 @@ public class IncomeDivisionSearchVM {
     }
     
     public var criteria: IncomeDividerSearchCriteria = .init();
-    private var _cache: [IncomeDividerInstance] = []
+    private var _cache: [IncomeDivision] = []
     
-    public func update(_ data: [IncomeDividerInstance]) {
+    public func update(_ data: [IncomeDivision]) {
         let queryStr = self.criteria.query.trimmingCharacters(in: .whitespaces).lowercased()
-        var filtered: [IncomeDividerInstance];
+        var filtered: [IncomeDivision];
         if queryStr.isEmpty {
             filtered = data
         }
@@ -89,7 +89,7 @@ public class IncomeDivisionSearchVM {
         self._cache = criteria.sortBy.sorted(data: filtered, asc: criteria.ascending)
     }
     
-    public var cache: [IncomeDividerInstance] {
+    public var cache: [IncomeDivision] {
         _cache
     }
 }
@@ -97,15 +97,15 @@ public class IncomeDivisionSearchVM {
 
 
 struct AllIncomeDivisionsSearch : View {
-    init(result: Binding<IncomeDividerInstance.ID?>) {
+    init(result: Binding<IncomeDivision.ID?>) {
         self._result = result
         self.query = .init()
     }
     
-    @Binding var result: IncomeDividerInstance.ID?;
+    @Binding var result: IncomeDivision.ID?;
     
-    @Query private var budgets: [IncomeDividerInstance];
-    @Bindable private var inspect: InspectionManifest<IncomeDividerInstance> = .init();
+    @Query private var budgets: [IncomeDivision];
+    @Bindable private var inspect: InspectionManifest<IncomeDivision> = .init();
     @Bindable private var query: IncomeDivisionSearchVM
     @State private var showPopover = false;
     
@@ -115,7 +115,7 @@ struct AllIncomeDivisionsSearch : View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @ViewBuilder
-    private func contextMenuSel(_ selection: Set<IncomeDividerInstance.ID>) -> some View {
+    private func contextMenuSel(_ selection: Set<IncomeDivision.ID>) -> some View {
         Button {
             if let id = selection.first, let item = query.cache.first(where: { $0.id == id }), selection.count == 1 {
                 inspect.open(item, mode: .inspect)
@@ -130,7 +130,7 @@ struct AllIncomeDivisionsSearch : View {
         Table(query.cache, selection: $result) {
             TableColumn("Name", value: \.name)
             if !query.criteria.hideFinalized {
-                TableColumn("Finalized") { (budget: IncomeDividerInstance) in
+                TableColumn("Finalized") { (budget: IncomeDivision) in
                     Text(budget.isFinalized ? "Yes" : "No")
                 }
             }
@@ -156,7 +156,7 @@ struct AllIncomeDivisionsSearch : View {
             .width(160)
 #endif
         }.frame(minHeight: 250)
-            .contextMenu(forSelectionType: IncomeDividerInstance.ID.self, menu: contextMenuSel)
+            .contextMenu(forSelectionType: IncomeDivision.ID.self, menu: contextMenuSel)
     }
     
     @ViewBuilder
@@ -175,7 +175,7 @@ struct AllIncomeDivisionsSearch : View {
                 .tint(.green)
             }
         }.frame(minHeight: 250)
-            .contextMenu(forSelectionType: IncomeDividerInstance.ID.self, menu: contextMenuSel)
+            .contextMenu(forSelectionType: IncomeDivision.ID.self, menu: contextMenuSel)
     }
     
     var body: some View {

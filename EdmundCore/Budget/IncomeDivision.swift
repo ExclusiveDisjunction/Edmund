@@ -11,8 +11,8 @@ import SwiftData
 
 extension EdmundModelsV1 {
     @Model
-    public final class IncomeDividerInstance : Identifiable, SnapshotableElement, DefaultableElement {
-        public typealias Snapshot = IncomeDividerInstanceSnapshot;
+    public final class IncomeDivision : Identifiable, SnapshotableElement, DefaultableElement {
+        public typealias Snapshot = IncomeDivisionSnapshot;
         
         public convenience init() {
             self.init(name: "", amount: 0, kind: .pay)
@@ -73,13 +73,13 @@ extension EdmundModelsV1 {
             }
         }
         
-        public func makeSnapshot() -> IncomeDividerInstanceSnapshot {
+        public func makeSnapshot() -> IncomeDivisionSnapshot {
             .init(self)
         }
-        public static func makeBlankSnapshot() -> IncomeDividerInstanceSnapshot {
+        public static func makeBlankSnapshot() -> IncomeDivisionSnapshot {
             .init()
         }
-        public func update(_ snap: IncomeDividerInstanceSnapshot, unique: UniqueEngine) async {
+        public func update(_ snap: IncomeDivisionSnapshot, unique: UniqueEngine) async {
             if let oldRemainder = self.remainder, snap.hasRemainder {
                 oldRemainder.update(snap.remainder, unique: unique)
             }
@@ -121,7 +121,7 @@ extension EdmundModelsV1 {
             formatter.string(from: lastViewed).lowercased().contains(criteria)
         }
         
-        public static func exampleBudget(acc: inout BoundPairTree<Account>) -> IncomeDividerInstance {
+        public static func exampleBudget(acc: inout BoundPairTree<Account>) -> IncomeDivision {
             let pay       = acc.getOrInsert(parent: "Checking", child: "Pay"      )
             let bills     = acc.getOrInsert(parent: "Checking", child: "Bills"    )
             let groceries = acc.getOrInsert(parent: "Checking", child: "Groceries")
@@ -129,7 +129,7 @@ extension EdmundModelsV1 {
             let taxes     = acc.getOrInsert(parent: "Checking", child: "Taxes"    )
             let main      = acc.getOrInsert(parent: "Savings",  child: "Main"     )
             
-            let result = IncomeDividerInstance(name: "Example Division", amount: 450, kind: .pay, depositTo: pay)
+            let result = IncomeDivision(name: "Example Division", amount: 450, kind: .pay, depositTo: pay)
             
             result.amounts = [
                 .init(name: "Bills", amount: 137.50, account: bills, group: .need),
@@ -145,19 +145,19 @@ extension EdmundModelsV1 {
         }
         
         @MainActor
-        public static func getExampleBudget() throws -> IncomeDividerInstance {
+        public static func getExampleBudget() throws -> IncomeDivision {
             let container = try Containers.debugContainer();
-            let item = (try container.context.fetch(FetchDescriptor<IncomeDividerInstance>())).first!
+            let item = (try container.context.fetch(FetchDescriptor<IncomeDivision>())).first!
             
             return item;
         }
     }
 }
 
-public typealias IncomeDividerInstance = EdmundModelsV1.IncomeDividerInstance
+public typealias IncomeDivision = EdmundModelsV1.IncomeDivision
 
 @Observable
-public final class IncomeDividerInstanceSnapshot : Hashable, Equatable, ElementSnapshot {
+public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot {
     public init() {
         self.name = ""
         self.amount = .init()
@@ -167,7 +167,7 @@ public final class IncomeDividerInstanceSnapshot : Hashable, Equatable, ElementS
         self.hasRemainder = true
         self.remainder = .init()
     }
-    public init(_ from: IncomeDividerInstance) {
+    public init(_ from: IncomeDivision) {
         self.name = from.name;
         self.amount = .init(rawValue: from.amount)
         self.kind = from.kind
@@ -215,7 +215,7 @@ public final class IncomeDividerInstanceSnapshot : Hashable, Equatable, ElementS
         hasher.combine(hasRemainder)
         hasher.combine(remainder)
     }
-    public static func ==(lhs: IncomeDividerInstanceSnapshot, rhs: IncomeDividerInstanceSnapshot) -> Bool {
+    public static func ==(lhs: IncomeDivisionSnapshot, rhs: IncomeDivisionSnapshot) -> Bool {
         let start = lhs.name == rhs.name && lhs.amount == rhs.amount && lhs.kind == rhs.kind && lhs.depositTo == rhs.depositTo && lhs.devotions == rhs.devotions && lhs.hasRemainder == rhs.hasRemainder;
         if lhs.hasRemainder && rhs.hasRemainder {
             return start && lhs.remainder == rhs.remainder

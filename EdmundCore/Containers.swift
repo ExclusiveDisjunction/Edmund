@@ -73,7 +73,7 @@ public struct DefaultDebugCreator : ExampleCreator {
             context.insert(entry);
         }
         
-        context.insert(IncomeDividerInstance.exampleBudget(acc: &accTree))
+        context.insert(IncomeDivision.exampleBudget(acc: &accTree))
     }
 }
 public struct TransactionSpreadCreator : ExampleCreator {

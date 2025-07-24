@@ -14,7 +14,7 @@ extension EdmundModelsV1 {
         public convenience init() {
             self.init(name: "", amount: 0)
         }
-        public init(name: String, amount: Decimal, parent: IncomeDividerInstance? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
+        public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
             self.id = id
             self.parent = parent;
             self.name = name;
@@ -36,7 +36,7 @@ extension EdmundModelsV1 {
             }
         }
         @Relationship
-        public var parent: IncomeDividerInstance?;
+        public var parent: IncomeDivision?;
         @Relationship
         public var account: SubAccount?;
         

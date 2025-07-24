@@ -10,7 +10,7 @@ import SwiftData
 import EdmundCore
 
 struct IncomeDevotionsInspect : View {
-    var data: IncomeDividerInstance
+    var data: IncomeDivision
     @State private var selection: Set<AnyDevotion.ID> = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;

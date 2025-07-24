@@ -9,159 +9,118 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct IncomdeDividerIE : View {
-    var data: IncomeDividerInstance;
-    var snapshot: IncomeDividerInstanceSnapshot?;
-    var hash: Int;
-    
-    private var isEditing: Bool {
-        snapshot != nil
-    }
-    private var unsavedChanges: Bool {
-        snapshot != nil && hash != snapshot?.hashValue
-    }
-    
-    var body: some View {
-        VStack {
-            
-        }.interactiveDismissDisabled(unsavedChanges)
-            
-    }
-}
-
 struct AllIncomeDivisionsIE : View {
-    @Query(sort: [SortDescriptor(\IncomeDividerInstance.name, order: .forward)]) private var budgetInstances: [IncomeDividerInstance];
-    @State private var selectedBudgetID: IncomeDividerInstance.ID?;
-    @State private var selectedBudget: IncomeDividerInstance?;
-    @State private var selectedDevotions: Set<AnyDevotion.ID> = .init();
-    @State private var editingBudget: IncomeDividerInstance?;
+    @Query(sort: [SortDescriptor(\IncomeDivision.name, order: .forward)]) private var budgetInstances: [IncomeDivision];
+    @State private var selectedBudgetID: IncomeDivision.ID?;
+    @State private var selectedBudget: IncomeDivision?;
+    @State private var editingSnapshot: IncomeDivisionSnapshot?;
     
-    @State private var showInspector: Bool = false;
-    @State private var isSearching: Bool = false;
-    @State private var isAdding: Bool = false;
+    @State private var showDeleteWarning: Bool = false;
+    @State private var showSearching: Bool = false;
+    @State private var showAdding: Bool = false;
     @State private var showGraph: Bool = false;
     @State private var finalizeWarning: Bool = false;
+    
+    @Bindable private var warning: ValidationWarningManifest = .init();
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.modelContext) private var modelContext;
     @Environment(\.pagesLocked) private var pagesLocked;
+    @Environment(\.loggerSystem) private var loggerSystem;
     
-    private static func computedAmount(_ budget: IncomeDividerInstance, _ target: AnyDevotion) -> Decimal {
-        switch target {
-            case .amount(let a): a.amount
-            case .percent(let p): p.amount * budget.amount
-            case .remainder(_): budget.remainderValue
-            default: .nan
-        }
-    }
-    private func apply(_ budget: IncomeDividerInstance) {
-        fatalError()
+    private var isEditing: Bool {
+        editingSnapshot != nil
     }
     
-    @ViewBuilder
-    private func fullSize(_ budget: IncomeDividerInstance) -> some View {
-        Table(budget.allDevotions, selection: $selectedDevotions) {
-            TableColumn("Name", value: \.name)
-            TableColumn("Devotion") { row in
-                switch row {
-                    case .amount(let a): Text(a.amount, format: .currency(code: currencyCode))
-                    case .percent(let p): Text(p.amount, format: .percent)
-                    case .remainder(_): Text("Remainder")
-                    default: Text("internalError")
-                }
-            }
-            TableColumn("Amount") { row in
-                Text(Self.computedAmount(budget, row), format: .currency(code: currencyCode))
-            }
-            TableColumn("Group") { row in
-                Text(row.group.display)
-            }
-            TableColumn("Destination") { row in
-                CompactNamedPairInspect(row.account)
-            }
-#if os(macOS)
-            .width(150)
-#endif
-        }
-    }
+   
     
-    @ViewBuilder
-    private func compact(_ budget: IncomeDividerInstance) -> some View {
-        HStack {
-            Text("Name")
-                .font(.subheadline)
-                .bold()
-                .padding(.leading)
+    @MainActor
+    private func finalize(_ income: IncomeDivision) {
+        
+    }
+    @MainActor
+    private func submitEdit(_ snap: IncomeDivisionSnapshot) async {
+        withAnimation {
             
-            Spacer()
-            
-            Text("Amount")
-                .font(.subheadline)
-                .bold()
-        }.padding([.leading, .trailing, .top])
-        List(budget.allDevotions, selection: $selectedDevotions) { devotion in
-            HStack {
-                Text(devotion.name)
-                Spacer()
-                Text(Self.computedAmount(budget, devotion), format: .currency(code: currencyCode))
-            }
         }
     }
     
     @ToolbarContentBuilder
     private func toolbarContent() -> some ToolbarContent {
-        if let budget = selectedBudget {
-            ToolbarItem(placement: .secondaryAction) {
-                Button(action: {
-                    showGraph = true
-                }) {
-                    Label("Graph", systemImage: "chart.pie")
-                }
-            }
-            
-            ToolbarItem(placement: .secondaryAction) {
-                Button(action: {
-                    //editingBudget = budget
-                    pagesLocked.wrappedValue = !pagesLocked.wrappedValue
-                }) {
-                    Label("Edit Income Division", systemImage: "pencil")
-                }
-            }
-            
-            ToolbarItem(placement: .secondaryAction) {
-                Button(action: {
-                    finalizeWarning = true
-                }) {
-                    Label("Finalize", systemImage: "checkmark")
-                }
-            }
+        ToolbarItem(placement: .secondaryAction) {
+            Button {
+                showGraph = true
+            } label: {
+                Label("Graph", systemImage: "chart.pie")
+            }.disabled(selectedBudget == nil || isEditing)
+        }
+        
+        ToolbarItem(placement: .secondaryAction) {
+            Button {
+                finalizeWarning = true
+            } label: {
+                Label("Finalize", systemImage: "square.and.arrow.up.badge.checkmark")
+            }.disabled(selectedBudget == nil || isEditing)
         }
         
         ToolbarItem(placement: .primaryAction) {
             Menu {
-                Button(action: {
-                    isAdding = true;
-                }) {
-                    Text("Add new")
+                Button {
+                    showAdding = true;
+                } label: {
+                    Text("Blank")
                 }
                 
-                Button(action: {
-                    fatalError()
-                }) {
-                    Text("Copy from another")
+                Button {
+                    
+                } label: {
+                    Text("Duplicate...")
                 }
             } label: {
-                Label("Add Income Division", systemImage: "plus")
-            }
+                Label("Add", systemImage: "plus")
+            }.disabled(isEditing)
         }
         
         ToolbarItem(placement: .primaryAction) {
-            Button(action: {
-                isSearching = true;
-            }) {
-                Label("Search Divisions", systemImage: "magnifyingglass")
-            }
+            Button{
+                guard let budget = selectedBudget else {
+                    return
+                }
+                
+                if let snap = editingSnapshot {
+                    Task {
+                        await submitEdit(snap)
+                    }
+                }
+                else {
+                    withAnimation {
+                        editingSnapshot = budget.makeSnapshot()
+                        pagesLocked.wrappedValue = true
+                    }
+                }
+                
+            } label: {
+                Label(isEditing ? "Save" : "Edit", systemImage: isEditing ? "checkmark" : "pencil")
+            }.disabled(selectedBudget == nil)
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                showDeleteWarning = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+                    .foregroundStyle(.red)
+            }.disabled(selectedBudget == nil || isEditing)
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                showSearching = true;
+            } label: {
+                Label("Search", systemImage: "magnifyingglass")
+            }.disabled(isEditing)
         }
     }
     
@@ -172,12 +131,13 @@ struct AllIncomeDivisionsIE : View {
                 
                 Picker("", selection: $selectedBudgetID) {
                     Text("None")
-                        .tag(nil as IncomeDividerInstance.ID?)
+                        .tag(nil as IncomeDivision.ID?)
                     ForEach(budgetInstances, id: \.id) {
                         Text($0.name).tag($0.id)
                             .strikethrough($0.isFinalized)
                     }
                 }.labelsHidden()
+                    .disabled(isEditing)
                 
                 #if os(iOS)
                 Spacer()
@@ -186,26 +146,11 @@ struct AllIncomeDivisionsIE : View {
             
             Divider()
             
-            if let budget = selectedBudget {
+            if let snapshot = editingSnapshot {
+                IncomeDivisionEdit(snapshot)
+            }
+            else if let budget = selectedBudget {
                 IncomeDivisionInspect(data: budget)
-                /*
-                HStack {
-                    Text("Total Income:")
-                    Text(budget.amount, format: .currency(code: currencyCode))
-                    
-                    Spacer()
-                    
-                    Text("Amount Free:", comment: "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance.")
-                    Text(budget.variance, format: .currency(code: currencyCode))
-                }
-                
-                if horizontalSizeClass == .compact {
-                    compact(budget)
-                }
-                else {
-                    fullSize(budget)
-                }
-                 */
             }
             else {
                 Spacer()
@@ -217,7 +162,7 @@ struct AllIncomeDivisionsIE : View {
         }.padding()
             .navigationTitle("Income Division")
             .onChange(of: selectedBudgetID) { _, newValue in
-                let new: IncomeDividerInstance?;
+                let new: IncomeDivision?;
                 if let id = newValue, let target = budgetInstances.first(where: { $0.id == id } ) {
                     target.lastViewed = .now
                     new = target
@@ -231,10 +176,11 @@ struct AllIncomeDivisionsIE : View {
                 }
             }
             .toolbar(content: toolbarContent)
-            .sheet(isPresented: $isSearching) {
+            .toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
+            .sheet(isPresented: $showSearching) {
                 AllIncomeDivisionsSearch(result: $selectedBudgetID)
             }
-            .sheet(isPresented: $isAdding) {
+            .sheet(isPresented: $showAdding) {
                 IncomeDivisionAdd($selectedBudgetID)
             }
             .sheet(isPresented: $showGraph) {
@@ -251,17 +197,29 @@ struct AllIncomeDivisionsIE : View {
             .confirmationDialog("Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?", isPresented: $finalizeWarning, titleVisibility: .visible) {
                 Button("Ok", action: {
                     if let budget = selectedBudget {
-                        apply(budget)
+                        finalize(budget)
                     }
                     else {
-                        print("Note: Budget finalize was called, but the budget was not selected.")
+                        print("Note: Division finalize was called, but the budget was not selected.")
                     }
                 })
                 
                 Button("Cancel", role: .cancel, action: { finalizeWarning = false })
             }
-            .inspector(isPresented: $showInspector) {
+            .confirmationDialog("Warning! Deleting an income division will remove all information associated with it. This action cannot be undone. Do you want to continue?", isPresented: $showDeleteWarning, titleVisibility: .visible) {
+                Button("Ok") {
+                    if let selectedBudget = selectedBudget {
+                        withAnimation {
+                            self.selectedBudgetID = nil;
+                            
+                            modelContext.delete(selectedBudget)
+                        }
+                    }
+                }
                 
+                Button("Cancel", role: .cancel) {
+                    showDeleteWarning = false;
+                }
             }
     }
 }
