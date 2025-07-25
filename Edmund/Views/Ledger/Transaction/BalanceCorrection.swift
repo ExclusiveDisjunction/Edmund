@@ -74,7 +74,6 @@ struct BalanceCorrection: TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($account)
-                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                         .onChange(of: account) { _, newAcc in
                             Task {
                                 await MainActor.run {

@@ -27,6 +27,8 @@ public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElemen
     var name: String { get set }
     var account: SubAccount? { get set }
     var group: DevotionGroup { get set }
+    
+    func duplicate() -> Self;
 }
 
 @Observable

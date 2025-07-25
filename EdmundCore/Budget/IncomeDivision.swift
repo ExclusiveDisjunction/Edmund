@@ -58,11 +58,15 @@ extension EdmundModelsV1 {
         public var allDevotions: [AnyDevotion] {
             return amounts.map { .amount($0) } + percents.map { .percent($0) } + (remainder != nil ? [.remainder(remainder!)] : [] )
         }
-        public var remainderValue: Decimal {
+        ///The total amount of money taken up by `amounts` and `percents`.
+        public var devotionsTotal: Decimal {
             let setTotal = amounts.reduce(0.0, { $0 + $1.amount } )
             let percentTotal = percents.reduce(0.0, { $0 + $1.amount * self.amount } )
             
-            return self.amount - setTotal - percentTotal
+            return setTotal + percentTotal
+        }
+        public var remainderValue: Decimal {
+            return self.amount - devotionsTotal
         }
         public var variance: Decimal {
             if self.remainder != nil {
@@ -71,6 +75,20 @@ extension EdmundModelsV1 {
             else {
                 return self.amount - remainderValue
             }
+        }
+        
+        public func duplicate() -> IncomeDivision {
+            IncomeDivision(
+                name: self.name,
+                amount: self.amount,
+                kind: self.kind,
+                depositTo: self.depositTo,
+                lastViewed: .now,
+                lastUpdated: .now,
+                amounts: self.amounts.map { $0.duplicate() },
+                percents: self.percents.map { $0.duplicate() },
+                remainder: self.remainder?.duplicate()
+            )
         }
         
         public func makeSnapshot() -> IncomeDivisionSnapshot {

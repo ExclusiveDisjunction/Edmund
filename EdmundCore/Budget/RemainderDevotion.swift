@@ -38,6 +38,10 @@ extension EdmundModelsV1 {
         @Relationship
         public var account: SubAccount?;
         
+        public func duplicate() -> RemainderDevotion {
+            return .init(name: self.name, parent: self.parent, account: self.account, group: self.group)
+        }
+        
         public func makeSnapshot() -> DevotionSnapshotBase {
             .init(self)
         }

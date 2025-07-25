@@ -31,7 +31,7 @@ public struct ElementEditor<T> : View where T: EditableElement, T: PersistentMod
     @Bindable private var editing: T.Snapshot;
     @State private var editHash: Int;
     @Bindable private var uniqueError: StringWarningManifest = .init();
-    @Bindable private var validationError: BaseWarningManifest<ValidationFailure> = .init()
+    @Bindable private var validationError: WarningManifest<ValidationFailure> = .init()
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;

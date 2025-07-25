@@ -131,7 +131,6 @@ struct ManyTransferTable : View {
                 Spacer()
                 
                 NamedPairPicker($item.account)
-                    .namedPairPickerStyle(.vertical)
             }.swipeActions(edge: .trailing) {
                 Button {
                     data.removeAll(where: { $0.id == item.id } )

@@ -54,7 +54,7 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @StateObject private var editing: EditingManifest<T>;
     
     @Bindable private var uniqueError: StringWarningManifest = .init();
-    @Bindable private var validationError: BaseWarningManifest<ValidationFailure> = .init()
+    @Bindable private var validationError: WarningManifest<ValidationFailure> = .init()
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.undoManager) private var undoManager;

@@ -79,7 +79,6 @@ public struct LedgerEntryEdit : View {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 NamedPairPicker($snapshot.category)
-                    .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
             }
             Divider()
             GridRow {
@@ -87,7 +86,6 @@ public struct LedgerEntryEdit : View {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 NamedPairPicker($snapshot.account)
-                    .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
             }
         }
     }

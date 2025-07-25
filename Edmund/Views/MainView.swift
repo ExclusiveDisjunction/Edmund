@@ -191,8 +191,7 @@ struct MainView: View {
                 }
                 
                 List(selection: $page) {
-                    Text(PageDestinations.home.rawValue).id(PageDestinations.home)
-                        .disabled(locked)
+                    PageContent(page: .home)
                     
                     ForEach(PageDestinations.groups) { group in
                         Section(group.name) {

@@ -167,9 +167,6 @@
     "Add Hourly Job" : {
 
     },
-    "Add Income Division" : {
-
-    },
     "Add Salaried Job" : {
 
     },
@@ -428,9 +425,6 @@
       }
     },
     "Bills & Budget" : {
-
-    },
-    "Blank" : {
 
     },
     "Bottom Section" : {
@@ -720,10 +714,10 @@
         }
       }
     },
-    "Deposit Account" : {
+    "Deleting an income division will remove all information associated with it. This action cannot be undone. Note: All finalized transactions will still be in the ledger. Do you want to continue?" : {
 
     },
-    "Deposit Into:" : {
+    "Deposit Account" : {
 
     },
     "Deposit to:" : {
@@ -777,7 +771,10 @@
     "Done" : {
 
     },
-    "Duplicate..." : {
+    "Duplicate From:" : {
+
+    },
+    "Duplicate?" : {
 
     },
     "Edit" : {
@@ -1554,6 +1551,9 @@
     "None" : {
 
     },
+    "Not all accounts are filled out. Please ensure all devotions, remainders and deposits have their associated account & sub account." : {
+
+    },
     "Notes:" : {
 
     },
@@ -1708,9 +1708,6 @@
 
     },
     "Please ensure all fields are not too small." : {
-
-    },
-    "Please ensure that the name is not empty, the income is not negative, and an account is selected." : {
 
     },
     "Please ensure that you select at least one non-locked element." : {
@@ -1920,7 +1917,7 @@
     "Search:" : {
 
     },
-    "Select a budget to begin" : {
+    "Select an income division to begin" : {
 
     },
     "Select One" : {
@@ -2157,6 +2154,9 @@
     "There are unsaved changes, do you wish to continue?" : {
 
     },
+    "There cannot be a remaining balance. Please use all funds so that the balance is zero. Note, you can use the remainder to correct this." : {
+
+    },
     "This app is not translated with professional translators." : {
 
     },
@@ -2164,6 +2164,12 @@
 
     },
     "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted." : {
+
+    },
+    "This income division has already been finalized, and cannot be finalized again." : {
+
+    },
+    "This income division is finalized. This means no other edits can take place." : {
 
     },
     "This is not an issue caused by you, but the developer." : {
@@ -2392,10 +2398,7 @@
         }
       }
     },
-    "Warning! Deleting an income division will remove all information associated with it. This action cannot be undone. Do you want to continue?" : {
-
-    },
-    "Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?" : {
+    "Warning!" : {
 
     },
     "Week" : {

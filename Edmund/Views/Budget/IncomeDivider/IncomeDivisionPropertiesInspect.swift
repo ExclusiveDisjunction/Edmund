@@ -24,6 +24,11 @@ struct IncomeDivisionPropertiesInspect : View {
     
     var body: some View {
         VStack {
+            if data.isFinalized {
+                Text("This income division is finalized. This means no other edits can take place.")
+                    .italic()
+            }
+            
             Grid {
                 GridRow {
                     Text("Name:")

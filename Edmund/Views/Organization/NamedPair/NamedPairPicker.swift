@@ -25,7 +25,10 @@ public struct NamedPairPicker<C> : View where C: BoundPair, C: TypeTitled, C: Pe
     @Binding private var target: C?;
     @State private var selectedParent: C.P?;
     @Query private var parents: [C.P];
+    @available(*, deprecated, message: "The style is automatically deduced based on horizontalSizeClass")
     private var style: NamedPairPickerStyle = .horizontal;
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @ViewBuilder
     private var parentPicker: some View {
@@ -55,6 +58,7 @@ public struct NamedPairPicker<C> : View where C: BoundPair, C: TypeTitled, C: Pe
         }.labelsHidden()
     }
     
+    @available(*, deprecated, message: "The style is automatically deduced based on horizontalSizeClass")
     public func namedPairPickerStyle(_ style: NamedPairPickerStyle) -> some View {
         var result = self
         result.style = style
@@ -62,7 +66,7 @@ public struct NamedPairPicker<C> : View where C: BoundPair, C: TypeTitled, C: Pe
     }
     
     public var body: some View {
-        if style == .vertical {
+        if horizontalSizeClass == .compact {
             VStack {
                 parentPicker
                 childPicker

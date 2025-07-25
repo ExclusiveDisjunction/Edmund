@@ -35,50 +35,79 @@ struct IncomeDevotionsEditor : View {
         }
     }
     
+    @ViewBuilder
+    private var headerRow : some View {
+        HStack {
+            Text("Income:")
+            Text(snapshot.amount.rawValue, format: .currency(code: currencyCode))
+            Spacer()
+        }
+        
+        HStack {
+            Text("Remainder Amount:")
+            Text(snapshot.remainderValue, format: .currency(code: currencyCode))
+            
+            if horizontalSizeClass == .compact {
+                Spacer()
+            }
+        }
+        
+        HStack {
+            Text("Amount Free:")
+                .bold()
+            Text(snapshot.moneyLeft, format: .currency(code: currencyCode))
+                .bold()
+            
+            if horizontalSizeClass == .compact {
+                Spacer()
+            }
+        }
+        
+        HStack {
+            if horizontalSizeClass == .compact {
+                Spacer()
+            }
+            
+            Button {
+                withAnimation {
+                    snapshot.devotions.append(.amount(.init()))
+                }
+            } label: {
+                Image(systemName: "dollarsign")
+            }.buttonStyle(.borderless)
+            
+            Button {
+                withAnimation {
+                    snapshot.devotions.append(.percent(.init()))
+                }
+            } label: {
+                Image(systemName: "percent")
+            }.buttonStyle(.borderless)
+            
+            Button {
+                removeSelected()
+            } label: {
+                Image(systemName: "trash")
+                    .foregroundStyle(.red)
+            }.buttonStyle(.borderless)
+            
+#if os(iOS)
+            EditButton()
+#endif
+        }
+    }
+    
     var body: some View {
         VStack {
-            HStack {
-                Text("Income:")
-                Text(snapshot.amount.rawValue, format: .currency(code: currencyCode))
-                
-                Spacer()
-                
-                if horizontalSizeClass != .compact {
-                    Text("Remainder Amount:")
-                    Text(snapshot.remainderValue, format: .currency(code: currencyCode))
+            if horizontalSizeClass == .compact {
+                VStack {
+                    headerRow
                 }
-                
-                Text("Amount Free:")
-                    .bold()
-                Text(snapshot.moneyLeft, format: .currency(code: currencyCode))
-                    .bold()
-                
-                Button {
-                    withAnimation {
-                        snapshot.devotions.append(.amount(.init()))
-                    }
-                } label: {
-                    Image(systemName: "dollarsign")
-                }.buttonStyle(.borderless)
-                
-                Button {
-                    withAnimation {
-                        snapshot.devotions.append(.percent(.init()))
-                    }
-                } label: {
-                    Image(systemName: "percent")
-                }.buttonStyle(.borderless)
-                 
-                Button {
-                    removeSelected()
-                } label: {
-                    Image(systemName: "trash")
-                        .foregroundStyle(.red)
-                }.buttonStyle(.borderless)
-                
-                #if os(iOS)
-                EditButton()
-                #endif
+            }
+            else {
+                HStack {
+                    headerRow
+                }
             }
             
             Table($snapshot.devotions, selection: $selection) {
@@ -96,7 +125,7 @@ struct IncomeDevotionsEditor : View {
                                 closeLook = dev
                             } label: {
                                 Label("Close Look", systemImage: "magnifyingglass")
-                            }
+                            }.tint(.green)
                         }
                     }
                     else {

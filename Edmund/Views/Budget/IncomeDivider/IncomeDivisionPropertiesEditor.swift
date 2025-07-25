@@ -45,8 +45,7 @@ struct IncomeDivisionPropertiesEditor : View {
                         ForEach(IncomeKind.allCases, id: \.id) { kind in
                             Text(kind.display).tag(kind)
                         }
-                    }.pickerStyle(.segmented)
-                        .labelsHidden()
+                    }.labelsHidden()
                 }
                 
                 GridRow {

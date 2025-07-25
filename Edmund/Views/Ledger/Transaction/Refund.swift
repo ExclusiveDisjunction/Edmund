@@ -99,7 +99,6 @@ struct Refund : TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($account)
-                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
             }
         })

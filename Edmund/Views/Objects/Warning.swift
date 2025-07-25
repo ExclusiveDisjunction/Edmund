@@ -45,7 +45,7 @@ public struct StringWarning: Identifiable, WarningBasis {
 
 /// An observable class that provides warning funcntionality. It includes a memeber, `isPresented`, which can be bound. This value will become `true` when the internal `warning` is not `nil`.
 @Observable
-public class BaseWarningManifest<T> where T: WarningBasis {
+public class WarningManifest<T> where T: WarningBasis {
     public init() {
         warning = nil;
     }
@@ -63,7 +63,7 @@ public class BaseWarningManifest<T> where T: WarningBasis {
 }
 
 /// A specalized version of `BaseWarningManifest<T>` that works for `WarningKind` values.
-public typealias SelectionWarningManifest = BaseWarningManifest<SelectionWarningKind>;
+public typealias SelectionWarningManifest = WarningManifest<SelectionWarningKind>;
 /// A specalized version of `BaseWarningManifest<T>` that works for `WarningMessage` values.
-public typealias StringWarningManifest = BaseWarningManifest<StringWarning>
-public typealias ValidationWarningManifest = BaseWarningManifest<ValidationFailure>
+public typealias StringWarningManifest = WarningManifest<StringWarning>
+public typealias ValidationWarningManifest = WarningManifest<ValidationFailure>

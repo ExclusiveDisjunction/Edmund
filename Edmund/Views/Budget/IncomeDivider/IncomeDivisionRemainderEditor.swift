@@ -57,7 +57,6 @@ struct IncomeDivisionRemainderEditor : View {
                                 Text(group.display).tag(group)
                             }
                         }.labelsHidden()
-                            .pickerStyle(.segmented)
                     }
                     
                     GridRow {

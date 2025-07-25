@@ -97,16 +97,17 @@ public class IncomeDivisionSearchVM {
 
 
 struct AllIncomeDivisionsSearch : View {
-    init(result: Binding<IncomeDivision.ID?>) {
+    init(result: Binding<IncomeDivision?>) {
         self._result = result
-        self.query = .init()
+        self._selection = .init(initialValue: result.wrappedValue?.id)
     }
     
-    @Binding var result: IncomeDivision.ID?;
+    @Binding var result: IncomeDivision?;
+    @State private var selection: IncomeDivision.ID?;
     
     @Query private var budgets: [IncomeDivision];
     @Bindable private var inspect: InspectionManifest<IncomeDivision> = .init();
-    @Bindable private var query: IncomeDivisionSearchVM
+    @Bindable private var query: IncomeDivisionSearchVM = .init()
     @State private var showPopover = false;
     
     @Environment(\.dismiss) private var dismiss;
@@ -127,8 +128,27 @@ struct AllIncomeDivisionsSearch : View {
     
     @ViewBuilder
     private var fullSized: some View {
-        Table(query.cache, selection: $result) {
-            TableColumn("Name", value: \.name)
+        Table(query.cache, selection: $selection) {
+            TableColumn("Name") { budget in
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        Text(budget.name)
+                        Spacer()
+                        Text(budget.amount, format: .currency(code: currencyCode))
+                    }.swipeActions(edge: .trailing) {
+                        Button {
+                            inspect.open(budget, mode: .inspect)
+                        } label: {
+                            Label("Close Look", systemImage: "magnifyingglass")
+                        }
+                        .tint(.green)
+                    }
+                }
+                else {
+                    Text(budget.name)
+                }
+            }
+            
             if !query.criteria.hideFinalized {
                 TableColumn("Finalized") { (budget: IncomeDivision) in
                     Text(budget.isFinalized ? "Yes" : "No")
@@ -155,25 +175,6 @@ struct AllIncomeDivisionsSearch : View {
 #if os(macOS)
             .width(160)
 #endif
-        }.frame(minHeight: 250)
-            .contextMenu(forSelectionType: IncomeDivision.ID.self, menu: contextMenuSel)
-    }
-    
-    @ViewBuilder
-    private var compact: some View {
-        List(query.cache, selection: $result) { budget in
-            HStack {
-                Text(budget.name)
-                Spacer()
-                Text(budget.amount, format: .currency(code: currencyCode))
-            }.swipeActions(edge: .trailing) {
-                Button {
-                    inspect.open(budget, mode: .inspect)
-                } label: {
-                    Label("Close Look", systemImage: "magnifyingglass")
-                }
-                .tint(.green)
-            }
         }.frame(minHeight: 250)
             .contextMenu(forSelectionType: IncomeDivision.ID.self, menu: contextMenuSel)
     }
@@ -216,12 +217,7 @@ struct AllIncomeDivisionsSearch : View {
                     }
             }
             
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                fullSized
-            }
+            fullSized
             
             HStack {
                 Spacer()
@@ -236,6 +232,14 @@ struct AllIncomeDivisionsSearch : View {
             .onChange(of: query.criteria.hashValue) { _, _ in
                 query.update(budgets)
             }
+            .onChange(of: selection) { _, newValue in
+                guard let id = newValue, let target = query.cache.first(where: { $0.id == id } ) else {
+                    result = nil
+                    return;
+                }
+                
+                result = target;
+            }
             .sheet(item: $inspect.value) { item in
                 IncomeDivisionCloseInspect(data: item)
             }
@@ -243,12 +247,8 @@ struct AllIncomeDivisionsSearch : View {
 }
 
 #Preview {
-    var id: UUID? = UUID();
-    let binding = Binding(get: { id }, set: { id = $0 } )
     
     DebugContainerView {
-        NavigationStack {
-            AllIncomeDivisionsSearch(result: binding)
-        }
+        AllIncomeDivisionsSearch(result: .constant(nil))
     }
 }

@@ -103,7 +103,6 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                     
                     HStack {
                         NamedPairPicker($dest)
-                            .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                         Spacer()
                     }
                 }

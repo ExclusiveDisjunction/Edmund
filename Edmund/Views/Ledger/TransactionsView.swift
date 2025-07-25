@@ -69,7 +69,7 @@ struct TransactionEditorFrame<Content> : View where Content: View {
     let kind: TransactionKind;
     private let apply: () async -> ValidationFailure?;
     private let content: () -> Content;
-    @Bindable private var warning: BaseWarningManifest<ValidationFailure>;
+    @Bindable private var warning: WarningManifest<ValidationFailure>;
     
     @Environment(\.dismiss) private var dismiss;
     

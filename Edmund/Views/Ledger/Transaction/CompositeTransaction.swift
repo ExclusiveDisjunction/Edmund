@@ -134,14 +134,12 @@ struct CompositeTransaction : TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($snapshot.category)
-                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
                 GridRow {
                     Text("Account:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     NamedPairPicker($snapshot.account)
-                        .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                 }
                 
                 Divider()

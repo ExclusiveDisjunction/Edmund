@@ -72,7 +72,6 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                         Text("Account:")
                         
                         NamedPairPicker($account)
-                            .namedPairPickerStyle(horizontalSizeClass == .compact ? .vertical : .horizontal)
                     }
                     HStack {
                         Text("Date:")
