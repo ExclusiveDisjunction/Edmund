@@ -145,7 +145,7 @@ struct AllIncomeDivisionsIE : View {
     private func toolbarContent() -> some ToolbarContent {
         ToolbarItem(placement: .secondaryAction) {
             Button {
-                showGraph = true
+                showSheet = .graph
             } label: {
                 Label("Graph", systemImage: "chart.pie")
             }.disabled(selectedBudget == nil || isEditing)
@@ -166,7 +166,7 @@ struct AllIncomeDivisionsIE : View {
         
         ToolbarItem(placement: .primaryAction) {
             Button {
-                showAdding = true;
+                showSheet = .adding;
             } label: {
                 Label("Add", systemImage: "plus")
             }.disabled(isEditing)
@@ -215,7 +215,7 @@ struct AllIncomeDivisionsIE : View {
         
         ToolbarItem(placement: .primaryAction) {
             Button {
-                showSearching = true;
+                showSheet = .searching;
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
             }.disabled(isEditing)
@@ -262,7 +262,7 @@ struct AllIncomeDivisionsIE : View {
         else {
             VStack {
                 Text("internalError")
-                Button("Ok", action: { showGraph = false } )
+                Button("Ok", action: { showSheet = nil } )
             }
         }
     }
@@ -304,7 +304,7 @@ struct AllIncomeDivisionsIE : View {
             .confirmationDialog("Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?", isPresented: $showFinalizeNotice, titleVisibility: .visible) {
                 Button("Ok", action: finalizePressed)
                 
-                Button("Cancel", role: .cancel, action: { finalizeWarning = false })
+                Button("Cancel", role: .cancel, action: { showFinalizeNotice = false })
             }
         
             .alert("Error", isPresented: $finalizeWarning.isPresented) {
@@ -322,7 +322,7 @@ struct AllIncomeDivisionsIE : View {
             } message: {
                 Text(warning.message ?? "internalError")
             }
-            
+        
             .alert("Warning!", isPresented: $showDeleteWarning) {
                 Button("Ok", action: deletePressed)
                 
@@ -331,7 +331,8 @@ struct AllIncomeDivisionsIE : View {
                 }
             } message: {
                 Text("Deleting an income division will remove all information associated with it. This action cannot be undone. Note: All finalized transactions will still be in the ledger. Do you want to continue?")
-            }.navigationBarBackButtonHidden(isEditing)
+            }
+            .navigationBarBackButtonHidden(isEditing)
     }
 }
 
