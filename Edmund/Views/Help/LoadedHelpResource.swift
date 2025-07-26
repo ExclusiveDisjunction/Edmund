@@ -50,7 +50,7 @@ public struct LoadedHelpGroup : HelpResourceCore, Identifiable, Sendable {
         return nil
     }
     
-    public var topicChildren: [TopicRequest] {
+    public var topicChildren: [LoadedHelpTopic] {
         children.compactMap {
             if case .topic(let t) = $0 { return t } else { return nil }
         }
@@ -64,7 +64,7 @@ public struct LoadedHelpGroup : HelpResourceCore, Identifiable, Sendable {
 
 /// Either a `TopicRequest` or a `LoadedHelpGroup` instance for presenting on the UI.
 public enum LoadedHelpResource : Parentable, HelpResourceCore, Sendable, Identifiable {
-    case topic(TopicRequest)
+    case topic(LoadedHelpTopic)
     case group(LoadedHelpGroup)
     
     public var id: HelpResourceID {

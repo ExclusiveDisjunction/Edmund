@@ -17,6 +17,7 @@ public struct LoadedAppContext : @unchecked Sendable {
     public let categories: CategoriesContext;
     public let unique: UniqueEngine;
     public let help: HelpEngine;
+    public let logger: LoggerSystem;
 }
 
 public enum AppLoadErrorKind : Sendable {
@@ -41,7 +42,7 @@ public class AppLoadingState {
 }
 
 public actor AppLoaderEngine {
-    public init(unique: UniqueEngine, help: HelpEngine, log: Logger? = nil) {
+    public init(unique: UniqueEngine, help: HelpEngine, log: LoggerSystem) {
         self.loaded = nil;
         self.unique = unique
         self.help = help
@@ -49,7 +50,7 @@ public actor AppLoaderEngine {
         self.log = log
     }
     
-    private let log: Logger?;
+    private let log: LoggerSystem;
     public var loaded: LoadedAppContext?;
     public var unique: UniqueEngine;
     public var help: HelpEngine;
@@ -116,17 +117,17 @@ public actor AppLoaderEngine {
     
     @MainActor
     private func getAppContext(state: AppLoadingState) async -> LoadedAppContext? {
-        log?.info("Obtaining model container")
+        log.app.info("Obtaining model container")
         guard let container = await Self.getModelContext(state: state) else {
             return nil;
         }
         
-        log?.info("Obtaining unique context")
+        log.app.info("Obtaining unique context")
         guard let uniqueContext = Self.getUniqueContext(state: state, context: container.context) else {
             return nil
         }
         
-        log?.info("Obtaining categories context")
+        log.app.info("Obtaining categories context")
         guard let categories = Self.getCategories(state: state, context: container.context) else {
             return nil
         }
@@ -136,9 +137,9 @@ public actor AppLoaderEngine {
         let unique = await self.unique;
         let help   = await self.help;
         
-        log?.info("App load context is complete.")
+        log.app.info("App load context is complete.")
         
-        return LoadedAppContext(container: container, categories: categories, unique: unique, help: help)
+        return LoadedAppContext(container: container, categories: categories, unique: unique, help: help, logger: log)
     }
 
     public func loadApp(state: AppLoadingState) async {
@@ -146,9 +147,9 @@ public actor AppLoaderEngine {
             state.state = .loading
         }
         
-        log?.info("Begining app loading process")
+        log.app.info("Begining app loading process")
         if let loaded = self.loaded {
-            log?.info("App was previously loaded, keeping that state.")
+            log.app.info("App was previously loaded, keeping that state.")
             await MainActor.run {
                 state.state = .loaded(loaded)
             }
@@ -159,19 +160,19 @@ public actor AppLoaderEngine {
         await help.reset()
         await unique.reset()
         self.loadHelpTask = Task {
-            log?.info("Instructing help engine to walk it's files.")
+            log.app.info("Instructing help engine to walk it's files.")
             await help.walkDirectory()
         }
 
         self.loaded = await self.getAppContext(state: state)
         if let loaded = self.loaded {
-            log?.info("The app was loaded sucessfully.")
+            log.app.info("The app was loaded sucessfully.")
             await MainActor.run {
                 state.state = .loaded(loaded)
             }
         }
         else {
-            log?.error("The app could not be loaded properly.")
+            log.app.error("The app could not be loaded properly.")
         }
     }
 }
@@ -215,6 +216,7 @@ struct AppWindowGate<Content> : View where Content: View {
                     .environment(\.uniqueEngine, a.unique)
                     .environment(\.helpEngine, a.help)
                     .environment(\.modelContext, a.container.context)
+                    .environment(\.loggerSystem, a.logger)
                 
         }
     }

@@ -43,16 +43,15 @@ struct SubCategoryAdder : View {
                     dismiss()
                     return
                 }
-                
-                withAnimation(.default) {
-                    nameAttempts += 1;
-                }
             }
-            else {
-                withAnimation(.default) {
-                    parentAttempts += 1;
-                }
+            
+            withAnimation(.default) {
+                nameAttempts += 1;
             }
+        }
+        
+        withAnimation(.default) {
+            parentAttempts += 1;
         }
     }
     

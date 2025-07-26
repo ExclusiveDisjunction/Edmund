@@ -19,8 +19,9 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
     @Published var hash: Int;
     
     func openWith(_ data: T) {
-        self.snapshot = data.makeSnapshot()
-        self.hash = self.snapshot!.hashValue
+        let snap = data.makeSnapshot();
+        self.snapshot = snap;
+        self.hash = snap.hashValue
     }
     func reset() {
         self.snapshot = nil;
@@ -57,9 +58,9 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @Bindable private var validationError: WarningManifest<ValidationFailure> = .init()
     
     @Environment(\.modelContext) private var modelContext;
-    @Environment(\.undoManager) private var undoManager;
-    @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.dismiss) private var dismiss;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.loggerSystem) private var loggerSystem;
     
     /// Determines if the mode is currently editing.
     private var isEdit: Bool {
@@ -69,9 +70,13 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     /// If in edit mode, it will determine if the input is valid. It will show an error otherwise.
     @MainActor
     private func validate() async -> Bool {
-        if let snapshot = editing.snapshot, let result = await snapshot.validate(unique: uniqueEngine) {
-            validationError.warning = result
-            return false;
+        if let snapshot = editing.snapshot, snapshot.hashValue != editing.hash {
+            loggerSystem?.data.debug("ElementIE determined there are unsaved edits. Attempting to validate.")
+            if let result = await snapshot.validate(unique: uniqueEngine) {
+                validationError.warning = result
+                loggerSystem?.data.info("ElementIE could not validate the element with error \(result)")
+                return false;
+            }
         }
         
         return true
@@ -80,28 +85,8 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @MainActor
     private func apply() async -> Bool {
         if let editing = editing.snapshot {
-            undoManager?.beginUndoGrouping()
-            
             if mode == .add {
                 modelContext.insert(data)
-                if let uniqueElement = data as? any UniqueElement {
-                    let id = uniqueElement.getObjectId()
-                    let wrapper = UndoAddUniqueWrapper(id: id, element: data, unique: uniqueEngine)
-                    wrapper.registerWith(manager: undoManager)
-                }
-                else {
-                    let wrapper = UndoAddWrapper(element: data)
-                    wrapper.registerWith(manager: undoManager)
-                }
-                
-                undoManager?.setActionName("add")
-            }
-            else {
-                let previous = data.makeSnapshot()
-                let wrapper = UndoSnapshotApplyWrapper(item: data, snapshot: previous, engine: uniqueEngine)
-                wrapper.registerWith(manager: undoManager)
-                
-                undoManager?.setActionName("update")
             }
             
             do {
@@ -111,8 +96,6 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
                 uniqueError.warning = .init(e.localizedDescription);
                 return false;
             }
-            
-            undoManager?.endUndoGrouping()
         }
         
         return true;
@@ -142,20 +125,20 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
     @MainActor
     private func toggleMode() {
         Task {
-            if editing.snapshot == nil {
-                // Go into edit mode
-                self.editing.openWith(data)
-                return
-            }
-            
-            // Do nothing if we have an invalid state.
-            guard await validate() else { return }
-            
-            if editing.snapshot?.hashValue != editing.hash {
-                warningConfirm = true
+            if let snapshot = editing.snapshot {
+                loggerSystem?.data.debug("Mode toggle from edit to inspect, current vs old hash: \(snapshot.hashValue) vs \(editing.hash)")
+                if snapshot.hashValue != editing.hash {
+                    guard await validate() else { return }
+                    
+                    warningConfirm = true
+                }
+                else {
+                    editing.reset()
+                }
             }
             else {
-                self.editing.reset()
+                // Go into edit mode
+                self.editing.openWith(data)
             }
         }
     }

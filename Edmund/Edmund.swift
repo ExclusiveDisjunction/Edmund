@@ -16,7 +16,7 @@ struct EdmundApp: App {
         let log = LoggerSystem();
         let help = HelpEngine(log.help);
         let unique = UniqueEngine(log.unique);
-        let loader = AppLoaderEngine(unique: unique, help: help, log: log.app)
+        let loader = AppLoaderEngine(unique: unique, help: help, log: log)
         
         self.help = help
         self.unique = unique

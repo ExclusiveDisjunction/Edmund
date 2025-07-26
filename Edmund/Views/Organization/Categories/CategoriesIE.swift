@@ -78,10 +78,10 @@ struct CategoriesIE : View {
                     }
                 }
             }
-            .sheet(isPresented: $addingCategory) {
+            .sheet(isPresented: $addingCategory, onDismiss: refresh) {
                 CategoryAdder()
             }
-            .sheet(isPresented: $addingSubCategory) {
+            .sheet(isPresented: $addingSubCategory, onDismiss: refresh) {
                 SubCategoryAdder()
             }
             .alert("Warning", isPresented: $warning.isPresented, actions: {

@@ -57,27 +57,23 @@ struct AllJobsViewEdit : View {
     }
     
     @ViewBuilder
-    private var compact: some View {
-        List(cache, selection: $selection) { wrapper in
-            HStack {
-                Text(wrapper.data.position)
-                Spacer()
-                Text("Avg. Pay:")
-                Text(wrapper.data.estimatedProfit, format: .currency(code: currencyCode))
-            }.swipeActions(edge: .trailing) {
-                SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-            }
-        }.contextMenu(forSelectionType: TraditionalJobWrapper.ID.self) { selection in
-            SelectionContextMenu(selection, data: cache, inspect: inspect, delete: deleting, warning: warning)
-        }
-    }
-    
-    @ViewBuilder
     private var wide: some View {
         Table(cache, selection: $selection) {
             TableColumn("Position") { wrapper in
-                Text(wrapper.data.position)
-            }
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        Text(wrapper.data.position)
+                        Spacer()
+                        Text("Avg. Pay:")
+                        Text(wrapper.data.estimatedProfit, format: .currency(code: currencyCode))
+                    }.swipeActions(edge: .trailing) {
+                        SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                    }
+                }
+                else {
+                    Text(wrapper.data.position)
+                }
+            }.width(170)
             TableColumn("Company") { wrapper in
                 Text(wrapper.data.company)
             }
@@ -89,7 +85,7 @@ struct AllJobsViewEdit : View {
             }
             TableColumn("Estimated Pay") { wrapper in
                 Text(wrapper.data.estimatedProfit, format: .currency(code: currencyCode))
-            }
+            }.width(min: 150)
         }.contextMenu(forSelectionType: TraditionalJobWrapper.ID.self) { selection in
             SelectionContextMenu(selection, data: cache, inspect: inspect, delete: deleting, warning: warning)
         }
@@ -122,14 +118,8 @@ struct AllJobsViewEdit : View {
     }
     
     var body: some View {
-        VStack {
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                wide
-            }
-        }.padding()
+        wide
+            .padding()
             .navigationTitle("Jobs")
             .onAppear(perform: refresh)
             .sheet(item: $inspect.value) { wrapper in

@@ -78,8 +78,8 @@ struct LoadedHelpGroupPresenter : View {
             VStack {
                 if let selected = selected {
                     switch selected {
-                        case .topic(let request):
-                            UnloadedTopicPagePresenter(over: request)
+                        case .topic(let topic):
+                            TopicPagePresenter(over: topic)
                         case .group(let group):
                             HelpGroupPagePresenter(over: group, selectedID: $selectedID)
                     }
@@ -120,6 +120,10 @@ struct GroupFetchErrorPresenter : View {
                     Text("Edmund could not find that topic.")
                     Text("This is not an issue caused by you, but the developer.")
                     Text("Please report this issue.")
+                    
+                case .topicLoad(let t):
+                    Text("A sub-topic could not be loaded. Here are the errors:")
+                    TopicErrorView(e: t)
             }
         }
     }
@@ -148,11 +152,10 @@ struct TopicGroupPresenter : View, HelpPresenterView {
 
 #Preview {
     let engine = HelpEngine()
-    let _ = Task {
-        await engine.walkDirectory()
-    }
-    
     
     TopicGroupPresenter(.init(rawValue: "Help"))
         .environment(\.helpEngine, engine)
+        .task {
+            await engine.walkDirectory()
+        }
 }

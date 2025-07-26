@@ -19,6 +19,7 @@ public enum GroupFetchError : Error, Sendable {
     case notFound
     case isATopic
     case engineLoading
+    case topicLoad(TopicFetchError)
 }
 
 /// A status system used to indicate the stage in which a resource (`T`) gets fetched.

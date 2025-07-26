@@ -45,17 +45,13 @@ struct Auditor : View {
             .navigationTitle("Auditor")
             .onAppear(perform: refresh)
             .toolbar {
+                TopicGroupToolbarButton("Help/Auditing", placement: .secondaryAction)
+                
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: refresh) {
                         Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
                     }
                 }
-                
-                #if os(iOS)
-                ToolbarItem(placement: .primaryAction) {
-                    EditButton()
-                }
-                #endif
             }
     }
 }

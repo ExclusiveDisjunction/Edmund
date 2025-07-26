@@ -104,10 +104,11 @@ public actor HelpEngine {
     /// All topics and groups recognized by the engine.
     private var data: [HelpResourceID : HelpResource]
     /// The ID of values that have been cached.
-    private var cache: LimitedQueue<HelpResourceID> = .init(capacity: 20, with: .init(parts: []));
+    private var cache: LimitedQueue<HelpResourceID> = .init(capacity: 50, with: .init(parts: []));
     
     /// Instructs the engine to wipe all data.
     public func reset() async {
+        logger?.info("Help engine was asked to reset")
         if !walked { return }
         
         self.walked = false
@@ -117,6 +118,7 @@ public actor HelpEngine {
     
     /// Ensures that the cache is not too full.
     private func registerCache(id: HelpResourceID) {
+        logger?.info("HelpEngine is caching id \(id)")
         if let oldId = cache.append(id) {
             //Get the old element
             
@@ -131,6 +133,50 @@ public actor HelpEngine {
         }
     }
     
+    private func getOrLoadTopic(topic: HelpTopic, cache: Bool = true) async throws -> LoadedHelpTopic {
+        let topicContent: String;
+        if let content = topic.content {
+            logger?.debug("The topic was cached, returning that value")
+            topicContent = content;
+        }
+        else {
+            logger?.debug("The topic was not cached, loading and then registering cache.")
+            let url = topic.url;
+            topicContent = try await Task(priority: .medium) {
+                    return try String(contentsOf: url)
+                }.value
+            
+            if cache {
+                var topic = topic;
+                self.registerCache(id: topic.id)
+                topic.content = topicContent
+                data[topic.id] = .topic(topic) //Update with new content
+            }
+            
+            
+        }
+        
+        return LoadedHelpTopic(id: topic.id, content: topicContent)
+    }
+    /// Simply loads the topic's files, without doing checks and deep logging.
+    private func getTopicDirect(id: HelpResourceID) async throws(TopicFetchError) -> LoadedHelpTopic {
+        guard let resx = data[id] else {
+            logger?.error("The requested topic was not found.")
+            throw .notFound
+        }
+        
+        guard case .topic(let topic) = resx else {
+            logger?.error("The requested topic was actually a group")
+            throw .isAGroup
+        }
+        
+        do {
+            return try await self.getOrLoadTopic(topic: topic, cache: false)
+        }
+        catch let e {
+            throw .fileReadError(e.localizedDescription)
+        }
+    }
     /// Loads a topic from the engine from a specified `HelpResourceID`.
     /// If the topic could not be found/resolved correctly, or the engine is loading, this will throw an error.
     /// - Parameters:
@@ -138,39 +184,27 @@ public actor HelpEngine {
     /// - Returns:
     ///     - A `LoadedHelpTopic`, containing all topic information.
     public func getTopic(id: HelpResourceID) async throws(TopicFetchError) -> LoadedHelpTopic {
+        logger?.info("Topic \(id) has been requested")
         guard walked else {
+            logger?.error("Topic requested before the engine has completed loading.")
             throw .engineLoading
         }
         
         guard let resx = data[id] else {
+            logger?.error("The requested topic was not found.")
             throw .notFound
         }
         
-        guard case .topic(var topic) = resx else {
+        guard case .topic(let topic) = resx else {
+            logger?.error("The requested topic was actually a group")
             throw .isAGroup
         }
         
-        if let content = topic.content {
-            return .init(id: topic.id, content: content)
+        do {
+            return try await self.getOrLoadTopic(topic: topic)
         }
-        else {
-            let content: String;
-            let url = topic.url;
-            do {
-                content = try await Task(priority: .background) {
-                    return try String(contentsOf: url)
-                }.value
-            }
-            catch let e {
-                throw .fileReadError(e.localizedDescription)
-            }
-            
-            self.registerCache(id: id)
-            topic.content = content
-            data[id] = .topic(topic) //Update with new content
-            
-            let loaded = LoadedHelpTopic(id: id, content: content)
-            return loaded
+        catch let e {
+            throw .fileReadError(e.localizedDescription)
         }
     }
     /// Loads a topic from the engine from a specified `TopicRequest`.
@@ -223,7 +257,7 @@ public actor HelpEngine {
     ///     - group: The root node to start walking from
     /// - Returns:
     ///     - All children under `group`, as loaded resources.
-    private func walkGroup(group: HelpGroup) async -> [LoadedHelpResource] {
+    private func walkGroup(group: HelpGroup) async throws(TopicFetchError) -> [LoadedHelpResource] {
         var result: [LoadedHelpResource] = [];
         for child in group.children {
             guard let resolved = data[child] else {
@@ -233,13 +267,14 @@ public actor HelpEngine {
             
             switch resolved {
                 case .group(let g):
-                    let children = await self.walkGroup(group: g)
+                    let children = try await self.walkGroup(group: g)
                     result.append(
                         .group(LoadedHelpGroup(id: g.id, children: children))
                     )
                 case .topic(let t):
+                    let loaded = try await self.getTopicDirect(id: t.id)
                     result.append(
-                        .topic(TopicRequest(id: t.id))
+                        .topic(loaded)
                     )
             }
         }
@@ -253,20 +288,32 @@ public actor HelpEngine {
     /// - Returns:
     ///     - A `LoadedHelpGroup` instance with information to load all children resources.
     public func getGroup(id: HelpResourceID) async throws(GroupFetchError) -> LoadedHelpGroup {
+        logger?.info("Loading group with id \(id)")
         guard walked else {
+            logger?.error("A group was requested before the help engine has loaded")
             throw .engineLoading
         }
         
         guard let resx = data[id] else {
+            logger?.error("The group with id \(id) was not found.")
             throw .notFound
         }
         
         guard case .group(let group) = resx else {
+            logger?.error("The group with id \(id) was actually a topic.")
             throw .isATopic
         }
         
+        logger?.debug("Walking group.")
         //From this point on, we have the group, we need to resolve all children recursivley.
-        let children = await self.walkGroup(group: group);
+        let children: [LoadedHelpResource];
+        do {
+            children = try await self.walkGroup(group: group);
+        }
+        catch let e {
+            throw .topicLoad(e)
+        }
+        
         let root = LoadedHelpGroup(id: id, children: children);
         
         return root;

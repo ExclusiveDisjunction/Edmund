@@ -46,53 +46,44 @@ struct TopicPagePresenter : View {
     }
 }
 
-public struct UnloadedTopicPagePresenter : View {
-    public init(over: TopicRequest) {
-        self.over = over
-        self.handle = .init(id: over.id)
-    }
-    public let over: TopicRequest;
-    
-    @Environment(\.helpEngine) private var helpEngine;
-    @Bindable private var handle: TopicLoadHandle;
-    @State private var oldTask: Task<Void, Never>? = nil;
-    
-    func refresh() {
-        if let task = oldTask {
-            task.cancel()
-        }
-        
-        let engine = self.helpEngine;
-        let handle = self.handle;
-        
-        oldTask = Task {
-            await engine.getTopic(deposit: handle)
-        }
-    }
-    
-    @ViewBuilder
-    private var loading: some View {
-        Spacer()
-        
-        Text("Loading")
-        ProgressView()
-            .progressViewStyle(.linear)
-        
-        Spacer()
-    }
-    
-    public var body: some View {
-        switch handle.status {
-            case .loading:
-                loading
-                    .onAppear(perform: refresh)
-            case .error(let e):
-                TopicErrorView(e: e)
-            case .loaded(let t):
-                TopicPagePresenter(over: t)
-        }
-    }
-}
+/*
+ public struct UnloadedTopicPagePresenter : View {
+ public init(over: TopicRequest) {
+ self.over = over
+ self.handle = .init(id: over.id)
+ }
+ public let over: TopicRequest;
+ 
+ @Environment(\.helpEngine) private var helpEngine;
+ @Bindable private var handle: TopicLoadHandle;
+ @State private var oldTask: Task<Void, Never>? = nil;
+ 
+ @ViewBuilder
+ private var loading: some View {
+ Spacer()
+ 
+ Text("Loading")
+ ProgressView()
+ .progressViewStyle(.linear)
+ 
+ Spacer()
+ }
+ 
+ public var body: some View {
+ switch handle.status {
+ case .loading:
+ loading
+ .task {
+ await helpEngine.getTopic(deposit: handle)
+ }
+ case .error(let e):
+ TopicErrorView(e: e)
+ case .loaded(let t):
+ TopicPagePresenter(over: t)
+ }
+ }
+ }
+ */
 
 struct TopicErrorView : View {
     let e: TopicFetchError

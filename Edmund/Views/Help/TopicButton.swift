@@ -48,7 +48,7 @@ struct TopicButtonBase<P> : View where P: HelpPresenterView {
                 case .label: Label("Help", systemImage: "questionmark.circle")
             }
         }.sheet(isPresented: $showSheet) {
-            TopicPresenter(self.key)
+            P(self.key)
         }
     }
 }
