@@ -128,6 +128,14 @@ public enum AnyDevotionSnapshot : Identifiable, Hashable, Equatable {
         }
     }
     
+    @MainActor
+    public func validate(unique: UniqueEngine) -> ValidationFailure? {
+        switch self {
+            case .amount(let a): a.validate(unique: unique)
+            case .percent(let p): p.validate(unique: unique)
+        }
+    }
+    
     public func hash(into hasher: inout Hasher) {
         switch self {
             case .amount(let a): hasher.combine(a)

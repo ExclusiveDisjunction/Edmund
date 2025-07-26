@@ -52,7 +52,12 @@ public class DevotionSnapshotBase : Identifiable, Hashable, Equatable, ElementSn
     public var account: SubAccount?;
     
     public func validate(unique: UniqueEngine) -> ValidationFailure? {
-        return .internalError
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty && account != nil else {
+            return .empty
+        }
+        
+        return nil;
     }
     
     public func hash(into hasher: inout Hasher) {

@@ -23,6 +23,7 @@ struct AccountsIE : View {
     @Query(sort: [SortDescriptor(\Account.name, order: .forward)] ) private var accounts: [Account];
     @State private var wrappers: [AccountWrapper] = [];
     @State private var selection = Set<AccountWrapper.ID>();
+    @State private var showingSubAccounts: AccountWrapper? = nil;
     
     @Bindable private var inspecting = InspectionManifest<AccountWrapper>();
     @Bindable private var delete = DeletingManifest<AccountWrapper>();
@@ -98,7 +99,41 @@ struct AccountsIE : View {
             }
         }.contextMenu(forSelectionType: AccountWrapper.ID.self) { selection in
             SelectionContextMenu(selection, data: wrappers, inspect: inspecting, delete: delete, warning: warning)
+            
+            Divider()
+            
+            Button {
+                if let id = selection.first, let element = wrappers.first(where: { $0.id == id } ) {
+                    showingSubAccounts = element
+                }
+            } label: {
+                Label("Sub Accounts", systemImage: "list.bullet.rectangle")
+            }.disabled(selection.count != 1)
         }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: {
+                inspecting.open(.init(.init()), mode: .add)
+            }) {
+                Label("Add", systemImage: "plus")
+            }
+        }
+        
+        if horizontalSizeClass != .compact {
+            GeneralIEToolbarButton(on: wrappers, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+            GeneralIEToolbarButton(on: wrappers, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
+        }
+        
+        GeneralDeleteToolbarButton(on: wrappers, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
+        
+#if os(iOS)
+        ToolbarItem(placement: .primaryAction) {
+            EditButton()
+        }
+#endif
     }
     
     var body: some View {
@@ -107,30 +142,15 @@ struct AccountsIE : View {
         }.padding()
             .navigationTitle("Accounts")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        inspecting.open(.init(.init()), mode: .add)
-                    }) {
-                        Label("Add", systemImage: "plus")
-                    }
-                }
-                
-                if horizontalSizeClass != .compact {
-                    GeneralIEToolbarButton(on: wrappers, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
-                    GeneralIEToolbarButton(on: wrappers, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
-                }
-                
-                GeneralDeleteToolbarButton(on: wrappers, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
-                
-                #if os(iOS)
-                ToolbarItem(placement: .primaryAction) {
-                    EditButton()
-                }
-                #endif
+                toolbarContent
             }
             .toolbarRole(.editor)
             .sheet(item: $inspecting.value) { item in
                 ElementIE(item.data, mode: inspecting.mode)
+            }
+            .sheet(item: $showingSubAccounts) { acc in
+                SubAccountsIE(acc.data, isSheet: true)
+                    .padding()
             }
             .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: {

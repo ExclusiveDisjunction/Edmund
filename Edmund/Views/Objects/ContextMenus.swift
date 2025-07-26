@@ -115,17 +115,15 @@ public struct SelectionContextMenu<T> : View where T: Identifiable {
     }
     
     public var body: some View {
-        if selection.count == 1 {
-            if canView {
-                Button(action: handleView ) {
-                    Label("Inspect", systemImage: "info.circle")
-                }
-            }
-            
-            Button(action: handleEdit  ) {
-                Label("Edit", systemImage: "pencil")
-            }
+        if canView {
+            Button(action: handleView ) {
+                Label("Inspect", systemImage: "info.circle")
+            }.disabled(selection.count != 1)
         }
+        
+        Button(action: handleEdit) {
+            Label("Edit", systemImage: "pencil")
+        }.disabled(selection.count != 1)
         
         Button(action: handleDelete) {
             Label("Delete", systemImage: "trash").foregroundStyle(.red)

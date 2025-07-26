@@ -51,6 +51,7 @@ struct AllIncomeDivisionsIE : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.categoriesContext) private var categoriesContext;
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.pagesLocked) private var pagesLocked;
     @Environment(\.loggerSystem) private var loggerSystem;
     
@@ -138,7 +139,20 @@ struct AllIncomeDivisionsIE : View {
     }
     @MainActor
     private func submitEdit(_ snap: IncomeDivisionSnapshot) async {
+        guard let snapshot = editingSnapshot, let selected = selectedBudget else {
+            loggerSystem?.data.warning("Submit edit was called, but there is no active snapshot or selected budget.")
+            return
+        }
         
+        if let error = snapshot.validate(unique: uniqueEngine) {
+            warning.warning = error
+            return;
+        }
+        else {
+            await selected.update(snapshot, unique: uniqueEngine)
+        }
+        
+        cancelEdit()
     }
     
     @ToolbarContentBuilder

@@ -98,6 +98,13 @@ extension EdmundModelsV1 {
             .init()
         }
         public func update(_ snap: IncomeDivisionSnapshot, unique: UniqueEngine) async {
+            let name = snap.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.name = name
+            self.amount = snap.amount.rawValue
+            self.kind = snap.kind
+            self.depositTo = snap.depositTo
+            self.lastUpdated = .now
+            
             if let oldRemainder = self.remainder, snap.hasRemainder {
                 oldRemainder.update(snap.remainder, unique: unique)
             }
@@ -221,7 +228,26 @@ public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot
     }
     
     public func validate(unique: UniqueEngine) -> ValidationFailure? {
-        return .internalError
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty && depositTo != nil else {
+            return .empty
+        }
+        
+        guard amount.rawValue >= 0 else {
+            return .negativeAmount
+        }
+        
+        if let failure = remainder.validate(unique: unique) {
+            return failure
+        }
+        
+        for devotion in devotions {
+            if let failure = devotion.validate(unique: unique) {
+                return failure
+            }
+        }
+        
+        return nil
     }
     
     public func hash(into hasher: inout Hasher) {

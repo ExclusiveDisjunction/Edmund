@@ -41,7 +41,7 @@ extension EdmundModelsV1 {
         public var account: SubAccount?;
         
         public func duplicate() -> PercentDevotion {
-            return .init(name: self.name, amount: self.amount, parent: self.parent, account: self.account, group: self.group)
+            return .init(name: self.name, amount: self.amount, parent: nil, account: self.account, group: self.group)
         }
         
         public func makeSnapshot() -> PercentDevotionSnapshot {
@@ -75,7 +75,18 @@ public final class PercentDevotionSnapshot : DevotionSnapshotBase {
     public var amount: PercentValue;
     
     public override func validate(unique: UniqueEngine) -> ValidationFailure? {
-        return .internalError
+        if let result = super.validate(unique: unique) {
+            return result
+        }
+        
+        if amount.rawValue < 0 {
+            return .negativeAmount
+        }
+        else if amount.rawValue > 1 {
+            return .tooLargeAmount
+        }
+        
+        return nil
     }
     
     public override func hash(into hasher: inout Hasher) {

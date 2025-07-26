@@ -192,11 +192,12 @@ struct MainView: View {
                 
                 List(selection: $page) {
                     PageContent(page: .home)
+                        .tag(PageDestinations.home)
                     
                     ForEach(PageDestinations.groups) { group in
                         Section(group.name) {
                             ForEach(group.content) {
-                                PageContent(page: $0)
+                                PageContent(page: $0).tag($0)
                             }
                         }
                     }

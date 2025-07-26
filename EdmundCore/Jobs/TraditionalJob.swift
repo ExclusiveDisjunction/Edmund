@@ -136,7 +136,7 @@ public class TraditionalJobSnapshot : JobSnapshot {
         super.init(from)
     }
     
-    @ObservationIgnored private var oldId: TraditionalJobID;
+    @ObservationIgnored private let oldId: TraditionalJobID;
     
     public var company: String;
     public var position: String;
@@ -151,12 +151,12 @@ public class TraditionalJobSnapshot : JobSnapshot {
             return topResult
         }
         
-        if oldId == id {
-            let idOpen = await unique.isIdOpen(key: .init((any TraditionalJob).self), id: id)
+        if oldId != id {
+            let idOpen = await unique.isIdOpen(key: HourlyJob.objId, id: id)
             guard idOpen else { return .unique }
         }
         
-        guard !company.isEmpty || !position.isEmpty else { return .empty }
+        guard !company.isEmpty && !position.isEmpty else { return .empty }
         
         return nil
     }

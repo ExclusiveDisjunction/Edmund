@@ -41,7 +41,7 @@ extension EdmundModelsV1 {
         public var account: SubAccount?;
         
         public func duplicate() -> AmountDevotion {
-            return .init(name: self.name, amount: self.amount, parent: self.parent, account: self.account, group: self.group)
+            return .init(name: self.name, amount: self.amount, parent: nil, account: self.account, group: self.group)
         }
         
         public func makeSnapshot() -> AmountDevotionSnapshot {
@@ -75,7 +75,15 @@ public final class AmountDevotionSnapshot : DevotionSnapshotBase {
     public var amount: CurrencyValue;
     
     public override func validate(unique: UniqueEngine) -> ValidationFailure? {
-        return .internalError
+        if let result = super.validate(unique: unique) {
+            return result
+        }
+        
+        if amount.rawValue < 0 {
+            return .negativeAmount
+        }
+        
+        return nil
     }
     
     public override func hash(into hasher: inout Hasher) {

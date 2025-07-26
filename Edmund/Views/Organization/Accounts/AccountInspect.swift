@@ -118,7 +118,7 @@ public struct AccountInspect : View {
                     Text("Properties")
                 }
             
-            SubAccountsInspect(source: data)
+            SubAccountsIE(data)
                 .tabItem {
                     Text("Sub Accounts")
                 }

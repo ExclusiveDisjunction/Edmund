@@ -10,8 +10,13 @@ import SwiftData
 import EdmundCore
 
 /// A view used to inspect, edit, and remove the sub accounts from a specific account.
-public struct SubAccountsInspect : View {
-    public let source: Account;
+public struct SubAccountsIE : View {
+    public init(_ source: Account, isSheet: Bool = false) {
+        self.source = source
+        self.isSheet = isSheet
+    }
+    private let source: Account;
+    private let isSheet: Bool;
     
     @Observable
     class Row : Identifiable {
@@ -39,12 +44,12 @@ public struct SubAccountsInspect : View {
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.dismiss) private var dismiss;
+    @Environment(\.modelContext) private var modelContext;
     @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.loggerSystem) private var loggers;
-    @Environment(\.modelContext) private var modelContext;
     
     private func refresh() {
-        cache = source.children.map { Row($0) }
+        cache = source.children.sorted(using: KeyPathComparator(\.name)).map { Row($0) }
     }
     @MainActor
     private func addNew() async {
@@ -89,8 +94,22 @@ public struct SubAccountsInspect : View {
         }
     }
     
+    @ViewBuilder
+    private var header: some View {
+        
+    }
+    
     public var body: some View {
         VStack {
+            if isSheet {
+                HStack {
+                    Text("Sub Accounts")
+                        .font(.title2)
+                    
+                    Spacer()
+                }
+            }
+            
             HStack {
                 Spacer()
                 
@@ -167,18 +186,29 @@ public struct SubAccountsInspect : View {
                         }
                     }
             }.frame(minHeight: 200)
-            .contextMenu(forSelectionType: Row.ID.self) { selection in
-                Button(action: { adding = true }) {
-                    Label("Add", systemImage: "plus")
-                }.buttonStyle(.borderless)
-                
-                Button(action: {
-                    delete.deleteSelected(selection, on: cache, warning: warning)
-                } ) {
-                    Label("Remove", systemImage: "trash")
-                        .foregroundStyle(.red)
+                .contextMenu(forSelectionType: Row.ID.self) { selection in
+                    Button(action: { adding = true }) {
+                        Label("Add", systemImage: "plus")
+                    }.buttonStyle(.borderless)
+                    
+                    Button(action: {
+                        delete.deleteSelected(selection, on: cache, warning: warning)
+                    } ) {
+                        Label("Remove", systemImage: "trash")
+                            .foregroundStyle(.red)
+                    }
+                        .disabled(selection.isEmpty)
                 }
-                    .disabled(selection.isEmpty)
+            
+            if isSheet {
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    
+                    Button("Ok", action: { dismiss() } )
+                        .buttonStyle(.borderedProminent)
+                }
             }
         }.onAppear(perform: refresh)
             .onChange(of: source.children) { _, _ in
@@ -199,5 +229,5 @@ public struct SubAccountsInspect : View {
 }
 
 #Preview {
-    SubAccountsInspect(source: Account.exampleAccount)
+    SubAccountsIE(Account.exampleAccount)
 }
