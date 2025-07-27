@@ -122,8 +122,12 @@ extension EdmundModelsV1 {
             
             let newAmounts = snap.devotions.compactMap { if case .amount(let a) = $0 { return a } else { return nil }}
             let newPercents = snap.devotions.compactMap { if case .percent(let a) = $0 { return a } else { return nil }}
-            try! await mergeAndUpdateChildren(list: &amounts, merging: newAmounts, context: modelContext, unique: unique) //Amount devotions cannot throw
-            try! await mergeAndUpdateChildren(list: &percents, merging: newPercents, context: modelContext, unique: unique)
+            
+            let amountsUpdater = ChildUpdater(source: amounts, snapshots: newAmounts, context: modelContext, unique: unique)
+            let percentsUpdater = ChildUpdater(source: percents, snapshots: newPercents, context: modelContext, unique: unique)
+            
+            self.amounts = try! await amountsUpdater.mergeById()
+            self.percents = try! await percentsUpdater.mergeById()
             
             self.lastUpdated = .now
             

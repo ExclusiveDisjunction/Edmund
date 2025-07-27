@@ -23,7 +23,7 @@ public enum DevotionGroup : Int, Identifiable, CaseIterable {
     public var id: Self { self }
 }
 
-public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElement, DefaultableElement  {
+public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElement, DefaultableElement, SnapshotConstructableElement  {
     var name: String { get set }
     var account: SubAccount? { get set }
     var group: DevotionGroup { get set }

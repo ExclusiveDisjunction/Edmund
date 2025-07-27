@@ -11,12 +11,19 @@ import Observation
 
 extension EdmundModelsV1 {
     @Model
-    public class BudgetIncome : Identifiable, SnapshotableElement {
+    public final class BudgetIncome : Identifiable, SnapshotableElement, SnapshotConstructableElement {
         public init(name: String, amount: Decimal, date: Date?, parent: BudgetMonth? = nil, id: UUID = UUID()) {
             self.name = name
             self.id = id
             self.amount = amount
             self.date = date
+        }
+        public convenience init(snapshot: BudgetIncomeSnapshot, unique: UniqueEngine) {
+            self.init(
+                name: snapshot.name.trimmingCharacters(in: .whitespacesAndNewlines),
+                amount: snapshot.amount.rawValue,
+                date: snapshot.date
+            )
         }
         
         public var id: UUID;

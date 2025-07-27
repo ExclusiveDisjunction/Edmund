@@ -47,8 +47,14 @@ extension EdmundModelsV1 {
         public static func makeBlankSnapshot() -> BudgetMonthSnapshot {
             .init()
         }
-        public func update(_ from: BudgetMonthSnapshot, unique: UniqueEngine) {
+        public func update(_ from: BudgetMonthSnapshot, unique: UniqueEngine) async {
+            let incomeUpdater = ChildUpdater(source: income, snapshots: from.income, context: modelContext, unique: unique);
+            let savingsUpdater = ChildUpdater(source: savingsGoals, snapshots: from.savingsGoals, context: modelContext, unique: unique);
+            let spendingUpdater = ChildUpdater(source: spendingGoals, snapshots: from.spendingGoals, context: modelContext, unique: unique);
             
+            self.spendingGoals = try! await spendingUpdater.joinByLength()
+            self.savingsGoals = try! await savingsUpdater.joinByLength()
+            self.income = try! await incomeUpdater.joinByLength()
         }
     }
 }

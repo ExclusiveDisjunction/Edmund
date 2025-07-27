@@ -14,6 +14,14 @@ extension EdmundModelsV1 {
         public convenience init() {
             self.init(name: "", amount: 0)
         }
+        public convenience init(snapshot: PercentDevotionSnapshot, unique: UniqueEngine) {
+            self.init(
+                name: snapshot.name.trimmingCharacters(in: .whitespacesAndNewlines),
+                amount: snapshot.amount.rawValue,
+                parent: nil, account: snapshot.account,
+                group: snapshot.group
+            )
+        }
         public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
             self.id = id
             self.parent = parent;
