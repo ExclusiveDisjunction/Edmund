@@ -10,11 +10,21 @@ import SwiftData
 import Observation
 
 extension EdmundModelsV1 {
+    public protocol BudgetGoal : Identifiable<UUID>, SnapshotableElement {
+        associatedtype T: BoundPair & PersistentModel
+        
+        var amount: Decimal { get set }
+        var association: T? { get set }
+        var parent: BudgetMonth? { get set }
+        
+        func duplicate() -> Self;
+    }
+    
     @Model
-    public class BudgetGoal<T> : Identifiable, SnapshotableElement where T: BoundPair, T: PersistentModel {
-        public init(category: T?, amount: Decimal, parent: BudgetMonth? = nil, id: UUID = UUID()) {
+    public final class BudgetSpendingGoal : BudgetGoal {
+        public init(category: SubCategory?, amount: Decimal, parent: BudgetMonth? = nil, id: UUID = UUID()) {
             self.id = id
-            self.category = category
+            self.association = category
             self.amount = amount
             self.parent = parent
         }
@@ -22,50 +32,79 @@ extension EdmundModelsV1 {
         public var id: UUID;
         public var amount: Decimal;
         @Relationship
-        public var category: T?;
+        public var association: SubCategory?;
         @Relationship
         public var parent: BudgetMonth?;
         
-        public func duplicate() -> BudgetGoal<T> {
-            .init(category: self.category, amount: self.amount, parent: nil)
+        public func duplicate() -> BudgetSpendingGoal {
+            .init(category: self.association, amount: self.amount, parent: nil)
         }
         
-        public func makeSnapshot() -> BudgetGoalSnapshot<T> {
+        public func makeSnapshot() -> BudgetGoalSnapshot<SubCategory> {
             return .init(self)
         }
-        public static func makeBlankSnapshot() -> BudgetGoalSnapshot<T> {
+        public static func makeBlankSnapshot() -> BudgetGoalSnapshot<SubCategory> {
             return .init()
         }
-        public func update(_ from: BudgetGoalSnapshot<T>, unique: UniqueEngine) {
-            self.category = from.category
+        public func update(_ from: BudgetGoalSnapshot<SubCategory>, unique: UniqueEngine) {
+            self.association = from.association
             self.amount = amount
         }
     }
     
-    public typealias BudgetSpendingGoal = BudgetGoal<SubCategory>;
-    public typealias BudgetSavingsGoal = BudgetGoal<SubAccount>;
+    @Model
+    public final class BudgetSavingsGoal : BudgetGoal {
+        public init(account: SubAccount?, amount: Decimal, parent: BudgetMonth? = nil, id: UUID = UUID()) {
+            self.id = id
+            self.association = account
+            self.amount = amount
+            self.parent = parent
+        }
+        
+        public var id: UUID;
+        public var amount: Decimal;
+        @Relationship
+        public var association: SubAccount?;
+        @Relationship
+        public var parent: BudgetMonth?;
+        
+        public func duplicate() -> BudgetSavingsGoal {
+            .init(account: self.association, amount: self.amount, parent: nil)
+        }
+        
+        public func makeSnapshot() -> BudgetGoalSnapshot<SubAccount> {
+            return .init(self)
+        }
+        public static func makeBlankSnapshot() -> BudgetGoalSnapshot<SubAccount> {
+            return .init()
+        }
+        public func update(_ from: BudgetGoalSnapshot<SubAccount>, unique: UniqueEngine) {
+            self.association = from.association
+            self.amount = amount
+        }
+    }
 }
 
-public typealias BudgetGoal = EdmundModelsV1.BudgetGoal;
+public typealias BudgetGoal = EdmundModelsV1.BudgetGoal
 public typealias BudgetSpendingGoal = EdmundModelsV1.BudgetSpendingGoal
 public typealias BudgetSavingsGoal = EdmundModelsV1.BudgetSavingsGoal
 
 @Observable
 public class BudgetGoalSnapshot<T> : ElementSnapshot where T: BoundPair {
     public init() {
-        self.category = nil
+        self.association = nil
         self.amount = .init()
     }
-    public init(_ data: BudgetGoal<T>) {
-        self.category = data.category
+    public init<V>(_ data: V) where V: BudgetGoal, V.T == T {
+        self.association = data.association
         self.amount = .init(rawValue: data.amount)
     }
     
-    public var category: T?;
+    public var association: T?;
     public var amount: CurrencyValue;
     
     public func validate(unique: UniqueEngine) -> ValidationFailure? {
-        if category == nil {
+        if association == nil {
             return .empty
         }
         
@@ -77,11 +116,11 @@ public class BudgetGoalSnapshot<T> : ElementSnapshot where T: BoundPair {
     }
     
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(category)
+        hasher.combine(association)
         hasher.combine(amount)
     }
     public static func ==(lhs: BudgetGoalSnapshot<T>, rhs: BudgetGoalSnapshot<T>) -> Bool {
-        lhs.category == rhs.category && lhs.amount == rhs.amount
+        lhs.association == rhs.association && lhs.amount == rhs.amount
     }
 }
 

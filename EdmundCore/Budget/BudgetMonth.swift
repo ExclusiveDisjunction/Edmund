@@ -48,7 +48,7 @@ extension EdmundModelsV1 {
             .init()
         }
         public func update(_ from: BudgetMonthSnapshot, unique: UniqueEngine) {
-            fatalError()
+            
         }
     }
 }

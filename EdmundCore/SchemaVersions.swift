@@ -29,7 +29,12 @@ public enum EdmundModelsV1 : VersionedSchema {
             Self.IncomeDivision.self,
             Self.AmountDevotion.self,
             Self.PercentDevotion.self,
-            Self.RemainderDevotion.self
+            Self.RemainderDevotion.self,
+            
+            Self.BudgetMonth.self,
+            Self.BudgetSavingsGoal.self,
+            Self.BudgetSpendingGoal.self,
+            Self.BudgetIncome.self
         ]
     }
 }

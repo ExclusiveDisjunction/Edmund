@@ -69,6 +69,9 @@ public struct UtilityEntriesEdit : View {
                 }
             }
         }
+        #if os(iOS)
+        .frame(minWidth: 250, minHeight: 300)
+        #endif
     }
     
     public var body: some View {
@@ -139,6 +142,11 @@ public struct UtilityEntriesEdit : View {
                     adjustDates()
                 }
             }.onChange(of: snapshot.period) { _, _ in
+                withAnimation {
+                    adjustDates()
+                }
+            }
+            .onAppear() {
                 withAnimation {
                     adjustDates()
                 }

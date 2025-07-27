@@ -45,7 +45,7 @@ public struct UtilityEntriesGraph : View {
                 Button("Ok", action: { dismiss() } )
                     .buttonStyle(.borderedProminent)
             }
-        }.padding(.bottom)
+        }.padding()
     }
 }
 

@@ -126,8 +126,9 @@ public struct SelectionContextMenu<T> : View where T: Identifiable {
         }.disabled(selection.count != 1)
         
         Button(action: handleDelete) {
-            Label("Delete", systemImage: "trash").foregroundStyle(.red)
-        }
+            Label("Delete", systemImage: "trash")
+                .foregroundStyle(.red)
+        }.foregroundStyle(.red)
     }
 }
 

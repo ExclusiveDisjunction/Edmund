@@ -46,6 +46,7 @@ struct IncomeDivisionRemainderEditor : View {
                             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                         
                         TextField("", text: $remainder.name)
+                            .textFieldStyle(.roundedBorder)
                     }
                     
                     GridRow {

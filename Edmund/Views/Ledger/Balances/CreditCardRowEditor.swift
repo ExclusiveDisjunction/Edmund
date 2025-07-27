@@ -13,7 +13,8 @@ class CreditCardRow : Identifiable {
     init(account: Account, balance: Decimal) {
         self.id = UUID();
         self.account = account;
-        self.avalibleCredit = .init(rawValue: account.creditLimit ?? .nan);
+        let rawBalance = (account.creditLimit ?? .nan) - balance;
+        self.avalibleCredit = .init(rawValue: rawBalance);
         self.balance = balance
     }
     

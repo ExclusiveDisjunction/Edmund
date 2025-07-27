@@ -40,6 +40,11 @@ public protocol SnapshotableElement : ElementBase, PersistentModel {
     @MainActor
     func update(_ from: Snapshot, unique: UniqueEngine) async throws(UniqueFailureError<Self.ID>);
 }
+public protocol SnapshotConstructableElement : SnapshotableElement {
+    @MainActor
+    init(snapshot: Self.Snapshot, unique: UniqueEngine) async throws(UniqueFailureError<Self.ID>);
+}
+
 /// Represents a class that can be used to hold the values of an element for editing.
 public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
     /// Determines if the current values are acceptable to display to the user.

@@ -50,7 +50,7 @@ struct EdmundApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AppWindowGate(state: state) {
+            AppWindowGate(appLoader: loader, state: state) {
                 MainView()
             }
         }.commands {
@@ -59,7 +59,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     Homepage()
                 }
             }
@@ -67,7 +67,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.ledger.rawValue, id: PageDestinations.ledger.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     LedgerTable()
                 }
             }
@@ -75,7 +75,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.balance.rawValue, id: PageDestinations.balance.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     BalanceSheet()
                 }
             }
@@ -83,7 +83,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.bills.rawValue, id: PageDestinations.bills.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     AllBillsViewEdit()
                     
                 }
@@ -92,7 +92,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.incomeDivider.rawValue, id: PageDestinations.incomeDivider.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     AllIncomeDivisionsIE()
                 }
             }
@@ -100,7 +100,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     Text("Work in progress")
                 }
             }
@@ -108,7 +108,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.accounts.rawValue, id: PageDestinations.accounts.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     AccountsIE()
                 }
             }
@@ -116,7 +116,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.categories.rawValue, id: PageDestinations.categories.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     CategoriesIE()
                 }
             }
@@ -124,7 +124,7 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.audit.rawValue, id: PageDestinations.audit.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     Auditor()
                 }
             }
@@ -132,14 +132,14 @@ struct EdmundApp: App {
         
         WindowGroup(PageDestinations.jobs.rawValue, id: PageDestinations.jobs.key) {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     AllJobsViewEdit()
                 }
             }
         }
         
         WindowGroup("Transaction Editor", id: "transactionEditor", for: TransactionKind.self) { kind in
-            AppWindowGate(state: state) {
+            AppWindowGate(appLoader: loader, state: state) {
                 TransactionsEditor(kind: kind.wrappedValue ?? .simple)
             }
         }
@@ -147,7 +147,7 @@ struct EdmundApp: App {
 #if os(macOS)
         WindowGroup("Expired Bills", id: "expiredBills") {
             NavigationStack {
-                AppWindowGate(state: state) {
+                AppWindowGate(appLoader: loader, state: state) {
                     AllExpiredBillsVE()
                 }
             }

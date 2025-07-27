@@ -6,12 +6,54 @@
 //
 
 import SwiftUI
+import SwiftData
+
+public let bugFormLink: URL = URL(string: "https://docs.google.com/forms/d/e/1FAIpQLSc4KedjEgIuSnzqhHv6onfxKZZtLlnj3d5kXLJGaOFu70a9Yg/viewform?usp=header")!
 
 struct AppErrorView : View {
     let error: AppLoadError;
+    let state: AppLoadingState;
     
     private let minWidth: CGFloat = 90;
     private let maxWidth: CGFloat = 100;
+    
+    @Environment(\.openURL) private var openURL;
+    @Environment(\.appLoader) private var appLoader;
+    @State private var errorMsg: String = "";
+    @State private var showError: Bool = false;
+    
+    private func reload() {
+        if let loader = appLoader {
+            Task {
+                await loader.reset()
+                await loader.loadApp(state: state)
+            }
+        }
+    }
+    private func wipe() {
+        //#if DEBUG
+        //return
+        //#else
+        
+        let config = ModelConfiguration()
+        let url = config.url
+        print("Wiping model container at \(url)")
+        
+        do {
+            try FileManager.default.removeItem(at: url)
+        }
+        catch let e {
+            errorMsg = e.localizedDescription
+            showError = true
+        }
+        
+        reload()
+    
+        //#endif
+    }
+    private func report() {
+        openURL(bugFormLink)
+    }
     
     var body: some View {
         VStack {
@@ -29,23 +71,22 @@ struct AppErrorView : View {
             
             HStack {
                 Button {
-                    
+                    report()
                 } label: {
                     Label("Report Issue", systemImage: "exclamationmark.bubble")
                 }
                 
                 Button {
-                    
-                } label: {
-                    Label("Export Data", systemImage: "square.and.arrow.up")
-                }
-                
-                Button {
-                    
+                    wipe()
                 } label: {
                     Label("Wipe All Data", systemImage: "trash")
                         .foregroundStyle(.red)
                 }
+                /*
+                 #if DEBUG
+                 .disabled(true)
+                 #endif
+                 */
             }
             
             Divider()

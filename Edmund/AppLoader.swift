@@ -56,6 +56,12 @@ public actor AppLoaderEngine {
     public var help: HelpEngine;
     public var loadHelpTask: Task<Void, Never>?;
     
+    public func reset() async {
+        self.loaded = nil;
+        await self.unique.reset()
+        await self.help.reset()
+    }
+    
     @MainActor
     private static func getModelContext(state: AppLoadingState) async -> ContainerBundle? {
         do {
@@ -177,11 +183,27 @@ public actor AppLoaderEngine {
     }
 }
 
+fileprivate struct AppLoaderEngineKey : EnvironmentKey {
+    typealias Value = AppLoaderEngine?
+    
+    static var defaultValue: AppLoaderEngine? {
+        nil
+    }
+}
+public extension EnvironmentValues {
+    var appLoader: AppLoaderEngine? {
+        get { self[AppLoaderEngineKey.self] }
+        set { self[AppLoaderEngineKey.self] = newValue }
+    }
+}
+
 struct AppWindowGate<Content> : View where Content: View {
-    init(state: AppLoadingState, @ViewBuilder content: @escaping () -> Content) {
+    init(appLoader: AppLoaderEngine, state: AppLoadingState, @ViewBuilder content: @escaping () -> Content) {
+        self.appLoader = appLoader
         self.state = state
         self.content = content
     }
+    var appLoader: AppLoaderEngine;
     var state: AppLoadingState;
     let content: () -> Content;
     
@@ -206,8 +228,9 @@ struct AppWindowGate<Content> : View where Content: View {
                     .padding()
                 
             case .error(let e):
-                AppErrorView(error: e)
+                AppErrorView(error: e, state: state)
                     .preferredColorScheme(colorScheme)
+                    .environment(\.appLoader, appLoader)
                 
             case .loaded(let a):
                 self.content()
@@ -221,3 +244,4 @@ struct AppWindowGate<Content> : View where Content: View {
         }
     }
 }
+
