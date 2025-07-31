@@ -73,6 +73,9 @@ public struct DefaultDebugCreator : ExampleCreator {
             context.insert(entry);
         }
         
+        let budget = BudgetMonth.exampleBudgetMonth(cat: &catTree, acc: &accTree)
+        context.insert(budget)
+        
         context.insert(IncomeDivision.exampleBudget(acc: &accTree))
     }
 }

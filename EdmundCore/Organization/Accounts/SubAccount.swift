@@ -39,7 +39,7 @@ extension EdmundModelsV1 {
         @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.account)
         public var transactions: [LedgerEntry]? = nil;
         
-        @Relationship(deleteRule: .nullify, inverse: \BudgetSavingsGoal.parent)
+        @Relationship(deleteRule: .nullify, inverse: \BudgetSavingsGoal.association)
         public var savingsGoals: [BudgetSavingsGoal] = [];
         
         @Relationship(deleteRule: .nullify, inverse: \IncomeDivision.depositTo)

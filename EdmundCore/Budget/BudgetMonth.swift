@@ -26,7 +26,15 @@ extension EdmundModelsV1 {
             Calendar.current.date(from: .init(year: date.year, month: date.month, day: 1))
         }
         public var end: Date? {
-            Calendar.current.date(from: .init(year: date.year, month: date.month, day: 0))
+            let calendar = Calendar.current;
+            
+            guard let currentFirstDay = self.start,
+                  let followingFirstDay = calendar.date(byAdding: .month, value: 1, to: currentFirstDay),
+                  let currentLastDay = calendar.date(byAdding: .day, value: -1, to: followingFirstDay) else {
+                      return nil
+                  }
+            
+            return currentLastDay
         }
         @Relationship(deleteRule: .cascade, inverse: \BudgetSpendingGoal.parent)
         public var spendingGoals: [BudgetSpendingGoal];
@@ -90,8 +98,28 @@ extension EdmundModelsV1 {
         }
         
         @MainActor
-        public func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
+        public static func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
             return BudgetMonth(date: forDate)
+        }
+        @MainActor
+        public static func exampleBudgetMonth(cat: inout BoundPairTree<Category>, acc: inout BoundPairTree<Account>) -> BudgetMonth {
+            let result = BudgetMonth(date: .init(2025, 7))
+            
+            result.income = [
+                .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(2025, 7, 10)),
+                .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(2025, 7, 25))
+            ]
+            result.spendingGoals = [
+                .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100),
+                .init(category: cat.getOrInsert(parent: "Home", child: "Groceries"), amount: 250),
+                .init(category: cat.getOrInsert(parent: "Car", child: "Gas"), amount: 120)
+            ]
+            result.savingsGoals = [
+                .init(account: acc.getOrInsert(parent: "Savings", child: "Main"), amount: 400),
+                .init(account: acc.getOrInsert(parent: "Checking", child: "Taxes"), amount: 100)
+            ]
+            
+            return result
         }
     }
 }

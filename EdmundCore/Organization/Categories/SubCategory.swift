@@ -36,7 +36,7 @@ extension EdmundModelsV1 {
         public var parent: Category? = nil;
         @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category)
         public var transactions: [LedgerEntry]? = nil;
-        @Relationship(deleteRule: .nullify, inverse: \BudgetSpendingGoal.parent)
+        @Relationship(deleteRule: .nullify, inverse: \BudgetSpendingGoal.association)
         public var spendingGoals: [BudgetSpendingGoal] = [];
         public var isLocked: Bool;
         

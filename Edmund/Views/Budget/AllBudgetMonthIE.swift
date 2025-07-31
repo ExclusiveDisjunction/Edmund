@@ -71,6 +71,12 @@ struct AllBudgetMonthIE : View {
     
     @State private var cache: [BudgetMonthDisplayer] = [];
     
+    private func refresh() {
+        cache = budgetMonths.map {
+            .inspect($0)
+        }
+    }
+    
     var body: some View {
         List {
             Button("Load More") {
@@ -110,7 +116,7 @@ struct AllBudgetMonthIE : View {
             .navigationTitle("Budgets")
             .toolbar {
                 
-            }
+            }.onAppear(perform: refresh)
     }
 }
 
