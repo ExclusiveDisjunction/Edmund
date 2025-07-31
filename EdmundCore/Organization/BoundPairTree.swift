@@ -59,14 +59,6 @@ public struct BoundPairTreeRow<T> where T: BoundPairParent, T.C.P == T {
             yield children[position]
         }
     }
-    
-    @available(*, deprecated, message: "this function does not perform as expected, do not use it.")
-    public mutating func getOrInsert(name: String) -> T.C {
-        let new = T.C()
-        new.parent = target;
-        new.name = name;
-        return self.children[name, default: new]
-    }
 }
 
 public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
@@ -115,7 +107,7 @@ public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
             return target
         }
         else {
-            let new = T();
+            var new = T();
             new.name = name
             
             self.data[name] = .init(target: new, children: .init());
@@ -127,17 +119,17 @@ public struct BoundPairTree<T> where T: BoundPairParent, T.C.P == T {
             return target
         }
         else if var target = self.data[parent] {
-            let new = T.C(parent: target.target)
+            var new = T.C(parent: target.target)
             new.name = child
             
             target.children[child] = new
             return new
         }
         else {
-            let newParent = T()
+            var newParent = T()
             newParent.name = parent
             var newRow = try! BoundPairTreeRow(target: newParent, children: [])
-            let newChild = T.C(parent: newParent)
+            var newChild = T.C(parent: newParent)
             newChild.name = child
             newRow.children[child] = newChild;
             

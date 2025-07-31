@@ -47,13 +47,10 @@ public struct BoundPairID : Hashable, Equatable, RawRepresentable, Sendable, Cus
 }
 
 /// Represents a basis used between bound pair parents and bound pairs.
-public protocol PairBasis : Identifiable, PersistentModel, Hashable, Equatable {
-    /// The name of the element
-    var name: String { get set }
-}
+public protocol PairBasis : Identifiable, PersistentModel, Hashable, Equatable, NamedElement { }
 
 /// Represents a type that parents a `BoundPair` value.
-public protocol BoundPairParent : PairBasis, Identifiable<String> {
+public protocol BoundPairParent : AnyObject, PairBasis, Identifiable<String> {
     /// The child type that this type parents.
     associatedtype C: BoundPair;
     
@@ -64,7 +61,7 @@ public protocol BoundPairParent : PairBasis, Identifiable<String> {
 }
 
 /// A type that has a specific parent, and a name.
-public protocol BoundPair : PairBasis, Identifiable<BoundPairID> {
+public protocol BoundPair : AnyObject, PairBasis, Identifiable<BoundPairID> {
     /// The parent type
     associatedtype P: BoundPairParent;
     
@@ -84,12 +81,7 @@ public extension BoundPair {
     
     /// Returns the parent's name, if the parent is provided.
     var parentName: String? {
-        get { parent?.name }
-        set(v) {
-            if let parent = self.parent, let value = v {
-                parent.name = value
-            }
-        }
+        parent?.name 
     }
 }
 

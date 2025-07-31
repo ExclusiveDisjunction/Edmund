@@ -15,9 +15,9 @@ struct SimpleBalancesView : View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func loadBalances() -> [SimpleBalance] {
-        BalanceResolver.computeBalances(accounts)
+        BalanceResolver(accounts)
+            .computeBalances()
             .intoSimpleBalances()
-            .sorted(using: KeyPathComparator(\.balance, order: .reverse))
     }
     
     var body: some View {

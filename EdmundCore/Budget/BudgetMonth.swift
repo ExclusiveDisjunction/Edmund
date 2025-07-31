@@ -12,9 +12,8 @@ import Observation
 extension EdmundModelsV1 {
     @Model
     public class BudgetMonth : Identifiable, SnapshotableElement {
-        public init(start: Date, end: Date, spendingGoals: [BudgetSpendingGoal] = [], savingsGoals: [BudgetSavingsGoal] = [], income: [BudgetIncome] = [], id: UUID = UUID()) {
-            self.start = start
-            self.end = end
+        public init(date: MonthYear, spendingGoals: [BudgetSpendingGoal] = [], savingsGoals: [BudgetSavingsGoal] = [], income: [BudgetIncome] = [], id: UUID = UUID()) {
+            self.date = date
             self.spendingGoals = spendingGoals
             self.savingsGoals = savingsGoals
             self.income = income
@@ -22,8 +21,13 @@ extension EdmundModelsV1 {
         }
         
         public var id: UUID;
-        public var start: Date;
-        public var end: Date;
+        public var date: MonthYear;
+        public var start: Date? {
+            nil
+        }
+        public var end: Date? {
+            nil
+        }
         @Relationship(deleteRule: .cascade, inverse: \BudgetSpendingGoal.parent)
         public var spendingGoals: [BudgetSpendingGoal];
         @Relationship(deleteRule: .cascade, inverse: \BudgetSavingsGoal.parent)
@@ -31,10 +35,13 @@ extension EdmundModelsV1 {
         @Relationship(deleteRule: .cascade, inverse: \BudgetIncome.parent)
         public var income: [BudgetIncome];
         
+        public var title: String {
+            "SDIYBT"
+        }
+        
         public func dupliate() -> BudgetMonth {
             .init(
-                start: self.start,
-                end: self.end,
+                date: self.date,
                 spendingGoals: self.spendingGoals.map { $0.duplicate() },
                 savingsGoals: self.savingsGoals.map { $0.duplicate() },
                 income: self.income.map { $0.duplicate() }
@@ -70,7 +77,7 @@ public class BudgetMonthSnapshot : ElementSnapshot {
         self.income = []
     }
     public init(_ data: BudgetMonth) {
-        self.dates = (data.start, data.end);
+        self.dates = (data.start ?? .distantPast, data.end ?? .distantFuture);
         self.savingsGoals = data.savingsGoals.map { $0.makeSnapshot() }
         self.spendingGoals = data.spendingGoals.map { $0.makeSnapshot() }
         self.income = data.income.map { $0.makeSnapshot() }

@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 public let bugFormLink: URL = URL(string: "https://docs.google.com/forms/d/e/1FAIpQLSc4KedjEgIuSnzqhHv6onfxKZZtLlnj3d5kXLJGaOFu70a9Yg/viewform?usp=header")!
+public let featureFormLink: URL = URL(string: "https://docs.google.com/forms/d/e/1FAIpQLSewKses93mZERpF5LTmZwnEMhRyyS8p1XQ4_yUnYfgDpuEjhg/viewform?usp=sharing&ouid=107738640373490198091")!
 
 struct AppErrorView : View {
     let error: AppLoadError;

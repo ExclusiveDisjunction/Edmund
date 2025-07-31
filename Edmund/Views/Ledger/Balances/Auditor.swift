@@ -15,15 +15,15 @@ struct Auditor : View {
     @State private var creditRows: [CreditCardRow] = [];
     
     private func refresh() {
-        let balances = BalanceResolver.computeBalances(accounts);
+        let balances = BalanceResolver(accounts).computeBalances();
         
-        self.auditRows = balances.map { AccountsAuditorRow(account: $0.key, balance: $0.value.0 - $0.value.1) }
+        self.auditRows = balances.map { AccountsAuditorRow(account: $0.key, balance: $0.value.balance) }
         
         self.creditRows = balances.filter { $0.key.creditLimit != nil }
             .map { bal in
                 CreditCardRow(
                     account: bal.key,
-                    balance: bal.value.1 - bal.value.0
+                    balance: bal.value.balance
                 )
             }
     }

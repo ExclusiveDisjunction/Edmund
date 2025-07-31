@@ -15,10 +15,10 @@ struct MoneyGraph : View {
     @State private var balances: [SimpleBalance]?;
     
     private func load() -> [SimpleBalance] {
-        BalanceResolver.computeBalances(accounts)
+        BalanceResolver(accounts)
+            .computeBalances()
             .intoSimpleBalances()
             .filter { $0.balance > 0 }
-            .sorted(using: KeyPathComparator(\.balance, order: .reverse))
     }
     
     var body: some View {

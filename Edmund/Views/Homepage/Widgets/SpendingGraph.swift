@@ -57,7 +57,7 @@ struct SpendingGraph : View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func load() -> [SpendingComputation] {
-        let split = TransactionResolver.splitByMonth(entries);
+        let split = TransactionResolver(entries).splitByMonth()
         return Array(split.map(SpendingComputation.init).sorted(using: KeyPathComparator(\SpendingComputation.monthYear, order: .forward)).prefix(showingLast))
     }
     

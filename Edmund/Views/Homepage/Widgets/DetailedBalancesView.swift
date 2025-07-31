@@ -16,9 +16,9 @@ struct DetailedBalancesView : View {
     
     let cmp = KeyPathComparator(\DetailedBalance.balance, order: .reverse)
     private func loadBalances() -> [DetailedBalance] {
-        BalanceResolver.computeSubBalances(accounts)
+        BalanceResolver(accounts)
+            .computeSubBalances()
             .intoDetailedBalances()
-            .sortedByBalances();
     }
     
     var body: some View {

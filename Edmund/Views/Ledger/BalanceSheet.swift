@@ -24,9 +24,9 @@ struct BalanceSheet: View {
         computed = nil;
     }
     private func computeBalances() -> [DetailedBalance] {
-        BalanceResolver.computeSubBalances(accounts)
+        BalanceResolver(accounts)
+            .computeSubBalances()
             .intoDetailedBalances()
-            .sortedByBalances()
     }
     
     /// The view for each sub account
