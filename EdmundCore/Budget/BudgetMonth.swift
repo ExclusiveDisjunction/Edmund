@@ -21,12 +21,12 @@ extension EdmundModelsV1 {
         }
         
         public var id: UUID;
-        public var date: MonthYear;
+        public private(set) var date: MonthYear;
         public var start: Date? {
-            nil
+            Calendar.current.date(from: .init(year: date.year, month: date.month, day: 1))
         }
         public var end: Date? {
-            nil
+            Calendar.current.date(from: .init(year: date.year, month: date.month, day: 0))
         }
         @Relationship(deleteRule: .cascade, inverse: \BudgetSpendingGoal.parent)
         public var spendingGoals: [BudgetSpendingGoal];
@@ -35,8 +35,33 @@ extension EdmundModelsV1 {
         @Relationship(deleteRule: .cascade, inverse: \BudgetIncome.parent)
         public var income: [BudgetIncome];
         
+        @Transient
+        private var _title: String? = nil;
+        @Transient
+        private var _titleHash: Int = 0;
         public var title: String {
-            "SDIYBT"
+            if let result = _title, _titleHash == date.hashValue {
+                return result
+            }
+            else {
+                let formatter = DateFormatter()
+                formatter.locale = Locale.current
+                formatter.setLocalizedDateFormatFromTemplate("MMMM") // Full month name
+                
+                let result: String;
+                if let date = Calendar.current.date(from: DateComponents(month: date.month)) {
+                    result = formatter.string(from: date)
+                    _title = result
+                    _titleHash = date.hashValue
+                }
+                else {
+                    result = NSLocalizedString("internalError", comment: "")
+                    _title = nil
+                    _titleHash = 0
+                }
+                
+                return result
+            }
         }
         
         public func dupliate() -> BudgetMonth {
@@ -62,6 +87,11 @@ extension EdmundModelsV1 {
             self.spendingGoals = try! await spendingUpdater.joinByLength()
             self.savingsGoals = try! await savingsUpdater.joinByLength()
             self.income = try! await incomeUpdater.joinByLength()
+        }
+        
+        @MainActor
+        public func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
+            return BudgetMonth(date: forDate)
         }
     }
 }
