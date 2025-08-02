@@ -121,6 +121,13 @@ extension EdmundModelsV1 {
             
             return result
         }
+        @MainActor
+        public static func getExampleBudget() throws -> BudgetMonth {
+            let container = try Containers.debugContainer();
+            let item = (try container.context.fetch(FetchDescriptor<BudgetMonth>()))[0]
+            
+            return item;
+        }
     }
 }
 
@@ -133,15 +140,18 @@ public class BudgetMonthSnapshot : ElementSnapshot {
         self.savingsGoals = []
         self.spendingGoals = []
         self.income = []
+        self.title = "New Budget"
     }
     public init(_ data: BudgetMonth) {
         self.dates = (data.start ?? .distantPast, data.end ?? .distantFuture);
         self.savingsGoals = data.savingsGoals.map { $0.makeSnapshot() }
         self.spendingGoals = data.spendingGoals.map { $0.makeSnapshot() }
         self.income = data.income.map { $0.makeSnapshot() }
+        self.title = data.title
     }
     
     @ObservationIgnored private var dates: (Date, Date)?;
+    @ObservationIgnored public let title: String;
     
     public var spendingGoals: [BudgetSpendingGoalSnapshot];
     public var savingsGoals: [BudgetSavingsGoalSnapshot];

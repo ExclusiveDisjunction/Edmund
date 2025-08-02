@@ -13,6 +13,11 @@ struct BudgetMonthEdit : View {
     
     var body: some View {
         VStack {
+            HStack {
+                Text(source.title)
+                    .font(.title)
+                Spacer()
+            }
             Spacer()
         }
     }
