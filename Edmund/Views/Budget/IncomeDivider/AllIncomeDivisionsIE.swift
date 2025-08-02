@@ -138,8 +138,8 @@ struct AllIncomeDivisionsIE : View {
         }
     }
     @MainActor
-    private func submitEdit(_ snap: IncomeDivisionSnapshot) async {
-        guard let snapshot = editingSnapshot, let selected = selectedBudget else {
+    private func submitEdit(_ snapshot: IncomeDivisionSnapshot) async {
+        guard let selected = selectedBudget else {
             loggerSystem?.data.warning("Submit edit was called, but there is no active snapshot or selected budget.")
             return
         }

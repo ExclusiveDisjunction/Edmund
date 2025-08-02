@@ -53,6 +53,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 .bills
             ]),
             .init(name: "Budgeting & Pay", content: [
+                .budget,
                 .incomeDivider,
                 .jobs,
             ]),
@@ -99,6 +100,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .balance: BalanceSheet()
                 
             case .incomeDivider: AllIncomeDivisionsIE()
+            case .budget: AllBudgetMonthIE()
                 
             case .bills: AllBillsViewEdit()
                 
@@ -107,7 +109,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .audit: Auditor()
                 
             case .jobs: AllJobsViewEdit()
-            default: Text("Work in progress").navigationTitle(self.rawValue)
         }
     }
 }

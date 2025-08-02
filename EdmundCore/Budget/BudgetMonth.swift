@@ -54,10 +54,10 @@ extension EdmundModelsV1 {
             else {
                 let formatter = DateFormatter()
                 formatter.locale = Locale.current
-                formatter.setLocalizedDateFormatFromTemplate("MMMM") // Full month name
+                formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy") // Full month name
                 
                 let result: String;
-                if let date = Calendar.current.date(from: DateComponents(month: date.month)) {
+                if let date = Calendar.current.date(from: DateComponents(year: date.year, month: date.month)) {
                     result = formatter.string(from: date)
                     _title = result
                     _titleHash = date.hashValue

@@ -22,6 +22,9 @@
     "(No parent), %@" : {
       "comment" : "Same as above, used in similar contexts"
     },
+    "(Select a Month & Year)" : {
+
+    },
     "/" : {
       "localizations" : {
         "de" : {
@@ -450,6 +453,9 @@
         }
       }
     },
+    "Budget for:" : {
+
+    },
     "Budgeting Period" : {
       "localizations" : {
         "pl" : {
@@ -719,6 +725,9 @@
           }
         }
       }
+    },
+    "Deleting a budget cannot be undone. Are you sure you want to continue?" : {
+
     },
     "Deleting an income division will remove all information associated with it. This action cannot be undone. Note: All finalized transactions will still be in the ledger. Do you want to continue?" : {
 
@@ -1322,9 +1331,6 @@
     "Left Side" : {
 
     },
-    "Load More" : {
-
-    },
     "Loading" : {
 
     },
@@ -1726,6 +1732,9 @@
 
     },
     "Please report this issue." : {
+
+    },
+    "Please select a budget to begin" : {
 
     },
     "Please select only one element." : {

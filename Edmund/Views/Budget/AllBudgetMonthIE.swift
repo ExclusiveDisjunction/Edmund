@@ -9,114 +9,149 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetMonthEdit : View {
-    @Bindable var snapshot: BudgetMonthSnapshot
+struct AllBudgetMonthIE : View {
+    @State private var selected: BudgetMonth? = nil;
+    @State private var snapshot: BudgetMonthSnapshot? = nil;
     
-    var body: some View {
+    @State private var showDeleteWarning: Bool = false;
     
+    @Bindable private var warning: ValidationWarningManifest = .init();
+    
+    @Environment(\.loggerSystem) private var loggerSystem;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.pagesLocked) private var pagesLocked;
+    @Environment(\.modelContext) private var modelContext;
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    
+    private var isEditing: Bool {
+        snapshot != nil
     }
-}
-
-struct BudgetMonthInspect : View {
-    let data: BudgetMonth
     
-    var body: some View {
+    private func cancelEdit() {
+        withAnimation {
+            snapshot = nil;
+        }
+    }
+    
+    private func deletePressed() {
+        if let selected = selected {
+            self.selected = nil;
+            self.snapshot = nil;
+            
+            modelContext.delete(selected)
+        }
+    }
+    
+    @MainActor
+    private func submitEdit(_ snapshot: BudgetMonthSnapshot) async {
+        guard let selected = selected else {
+            loggerSystem?.data.warning("Submit edit was called, but there is no active snapshot or selected budget.")
+            return
+        }
         
-    }
-}
-
-struct BudgetMonthEditInstance : Identifiable {
-    let source: BudgetMonth
-    let snapshot: BudgetMonthSnapshot
-    let hash: Int
-    
-    var id : UUID {
-        source.id
-    }
-    var title: String {
-        source.title
-    }
-}
-
-enum BudgetMonthDisplayer : Identifiable {
-    case inspect(BudgetMonth)
-    case edit(BudgetMonthEditInstance)
-    
-    var id: UUID {
-        switch self {
-            case .inspect(let m): m.id
-            case .edit(let e): e.id
-        }
-    }
-    
-    var title: String {
-        switch self {
-            case .inspect(let i): i.title
-            case .edit(let e): e.title
-        }
-    }
-    
-    var isEdit: Bool {
-        if case .edit(_) = self {
-            return true
+        if let error = snapshot.validate(unique: uniqueEngine) {
+            warning.warning = error
+            return
         }
         else {
-            return false
+            await selected.update(snapshot, unique: uniqueEngine)
         }
+        
+        cancelEdit()
     }
-}
-
-struct AllBudgetMonthIE : View {
-    @Query private var budgetMonths: [BudgetMonth];
     
-    @State private var cache: [BudgetMonthDisplayer] = [];
-    
-    private func refresh() {
-        cache = budgetMonths.map {
-            .inspect($0)
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                
+            } label: {
+                Label("Add", systemImage: "plus")
+            }
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                guard let selected = selected else {
+                    return
+                }
+                
+                if let snap = snapshot {
+                    Task {
+                        await submitEdit(snap)
+                    }
+                }
+                else {
+                    withAnimation {
+                        snapshot = selected.makeSnapshot()
+                    }
+                }
+            } label: {
+                Label(isEditing ? "Save" : "Edit", systemImage: isEditing ? "checkmark" : "pencil")
+            }.disabled(selected == nil)
+        }
+        
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                if isEditing {
+                    cancelEdit()
+                }
+                else {
+                    showDeleteWarning = true
+                }
+            } label: {
+                Label(isEditing ? "Cancel" : "Delete", systemImage: isEditing ? "xmark" : "trash")
+                    .foregroundStyle(.red)
+            }.disabled(selected == nil)
         }
     }
     
     var body: some View {
-        List {
-            Button("Load More") {
-                
-            }.buttonStyle(.borderless)
+        VStack {
+            BudgetMonthPicker(selected: $selected)
+                .disabled(isEditing)
             
-            ForEach(cache) { month in
-                Section {
-                    
-                } header: {
-                    HStack {
-                        Text(month.title)
-                            .font(.title2)
-                        
-                        Spacer()
-                        
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: month.isEdit ? "checkmark" : "pencil")
-                        }
-                        
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "trash")
-                                .foregroundStyle(.red)
-                        }.disabled(month.isEdit)
-                    }
-                }
+            if let snapshot = snapshot {
+                BudgetMonthEdit(source: snapshot)
             }
-            
-            Button("Load More") {
+            else if let selected = selected {
+                BudgetMonthInspect(over: selected)
+            }
+            else {
+                Spacer()
                 
-            }.buttonStyle(.borderless)
+                Text("Please select a budget to begin")
+                    .italic()
+                
+                Spacer()
+            }
         }.padding()
             .navigationTitle("Budgets")
             .toolbar {
+                toolbarContent
+            }.toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
+            .navigationBarBackButtonHidden(isEditing)
+            .onChange(of: snapshot) { _, newValue in
+                pagesLocked.wrappedValue = (newValue != nil)
+            }
+        
+            .alert("Error", isPresented: $warning.isPresented) {
+                Button("Ok") {
+                    warning.isPresented = false
+                }
+            } message: {
+                Text(warning.message ?? "internalError")
+            }
+        
+            .alert("Warning!", isPresented: $showDeleteWarning) {
+                Button("Ok", action: deletePressed)
                 
-            }.onAppear(perform: refresh)
+                Button("Cancel", role: .cancel) {
+                    showDeleteWarning = false;
+                }
+            } message: {
+                Text("Deleting a budget cannot be undone. Are you sure you want to continue?")
+            }
     }
 }
 
