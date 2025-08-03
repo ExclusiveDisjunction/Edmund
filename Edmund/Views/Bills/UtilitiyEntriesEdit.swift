@@ -133,7 +133,16 @@ public struct UtilityEntriesEdit : View {
                         adjustDates()
                     }
                 }
-            }.onChange(of: snapshot.startDate) { _, _ in
+            }.frame(minHeight: 140, idealHeight: 200, maxHeight: 250)
+            
+            Spacer()
+            
+            HStack {
+                Spacer()
+                Button("Ok", action: { dismiss() } ).buttonStyle(.borderedProminent)
+            }
+        }.padding()
+            .onChange(of: snapshot.startDate) { _, _ in
                 withAnimation {
                     adjustDates()
                 }
@@ -151,14 +160,6 @@ public struct UtilityEntriesEdit : View {
                     adjustDates()
                 }
             }
-            
-            Spacer()
-            
-            HStack {
-                Spacer()
-                Button("Ok", action: { dismiss() } ).buttonStyle(.borderedProminent)
-            }
-        }.padding()
     }
 }
 

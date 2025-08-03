@@ -19,6 +19,14 @@ enum TransferKind : CaseIterable, Identifiable, Equatable, Hashable, Codable, Di
             case .manyMany: return "Many-to-Many"
         }
     }
+    var title: LocalizedStringKey {
+        switch self {
+            case.oneOne: return "One-to-One Transfer"
+            case .oneMany: return "One-to-Many Transfer"
+            case .manyOne: return "Many-to-One Transfer"
+            case .manyMany: return "Many-to-Many Transfer"
+        }
+    }
     
     var id: Self { self }
 }

@@ -51,6 +51,25 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
         }
     }
     
+    var title: LocalizedStringKey {
+        switch self {
+            case .simple:            "Simple Transaction"
+            case .composite:         "Composite Transaction"
+#if os(macOS)
+            case .grouped:           "Batch Transactions"
+#endif
+            case .creditCard:        "Credit Card Transactions"
+            case .personalLoan:      "Personal Loan"
+            case .refund:            "Refund"
+            case .miscIncome:        "Miscellaneous Income"
+            case .payday:            "Payday"
+            case .billPay(let v):    v.title
+            case .utilityPay:        "Utility Payment"
+            case .balanceCorrection: "Balance Correction"
+            case .transfer(let v):   v.title
+        }
+    }
+    
     var id: Self { self }
 }
 
@@ -90,7 +109,7 @@ struct TransactionEditorFrame<Content> : View where Content: View {
     
     var body: some View {
         VStack {
-            Text(kind.display)
+            Text(kind.title)
                 .font(.title2)
             
             content()

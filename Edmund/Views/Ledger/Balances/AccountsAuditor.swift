@@ -53,9 +53,11 @@ struct AccountsAuditor: View {
             }
         }.contextMenu(forSelectionType: AccountsAuditorRow.ID.self) { selection in
             if let id = selection.first, let row = rows.first(where: { $0.id == id } ), selection.count == 1 {
-                Button("Closer Look", action: {
+                Button{
                     inspecting = row
-                })
+                } label: {
+                    Label("Close Look", systemImage: "magnifyingglass")
+                }
             }
         }
     }

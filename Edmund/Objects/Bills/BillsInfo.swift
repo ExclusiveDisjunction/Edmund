@@ -26,6 +26,14 @@ extension StrictBillsKind : Displayable {
             default: "internalError"
         }
     }
+    
+    public var title: LocalizedStringKey {
+        switch self {
+            case .subscription: "Subscription Payment"
+            case .bill: "Bill Payment"
+            default: "internalError"
+        }
+    }
 }
 
 extension BillsSort : Displayable {

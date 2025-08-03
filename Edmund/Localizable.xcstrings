@@ -92,6 +92,9 @@
         }
       }
     },
+    "Account Audit Close Look" : {
+
+    },
     "Account:" : {
       "localizations" : {
         "de" : {
@@ -550,12 +553,6 @@
     "Close Look" : {
 
     },
-    "Closer look" : {
-
-    },
-    "Closer Look" : {
-
-    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -600,6 +597,9 @@
           }
         }
       }
+    },
+    "Credit Card Audit Close Look" : {
+
     },
     "Credit Card Transactions" : {
 
@@ -745,6 +745,9 @@
 
     },
     "Destination" : {
+
+    },
+    "Destination:" : {
 
     },
     "Devotion" : {
@@ -1375,6 +1378,9 @@
         }
       }
     },
+    "Many-to-Many Transfer" : {
+
+    },
     "Many-to-One" : {
       "localizations" : {
         "de" : {
@@ -1390,6 +1396,9 @@
           }
         }
       }
+    },
+    "Many-to-One Transfer" : {
+
     },
     "Memo" : {
       "localizations" : {
@@ -1613,6 +1622,9 @@
         }
       }
     },
+    "One-to-Many Transfer" : {
+
+    },
     "One-to-One" : {
       "localizations" : {
         "de" : {
@@ -1628,6 +1640,9 @@
           }
         }
       }
+    },
+    "One-to-One Transfer" : {
+
     },
     "Oops!" : {
 
@@ -1744,6 +1759,9 @@
 
     },
     "Please visit the project on GitHub:" : {
+
+    },
+    "Please wait for the calculations to complete" : {
 
     },
     "Please wait while Edmund loads" : {
@@ -1979,6 +1997,9 @@
         }
       }
     },
+    "Simple Transaction" : {
+
+    },
     "Sorry, but it looks like that topic or group could not be loaded." : {
 
     },
@@ -1998,6 +2019,9 @@
       "comment" : "Account source"
     },
     "Special Thanks To:" : {
+
+    },
+    "Spending" : {
 
     },
     "Spending Graph" : {
@@ -2102,6 +2126,9 @@
           }
         }
       }
+    },
+    "Subscription Payment" : {
+
     },
     "Subscriptions can usually be canceled whenever, while bills have stricter requirements." : {
 
@@ -2352,6 +2379,9 @@
       }
     },
     "Utility Charges" : {
+
+    },
+    "Utility Payment" : {
 
     },
     "Variance" : {

@@ -49,13 +49,20 @@ struct CreditCardRowEditor : View {
     private let minWidth: CGFloat = 115;
     private let maxWidth: CGFloat = 120;
 #else
-    private let minWidth: CGFloat = 110;
-    private let maxWidth: CGFloat = 120;
+    private let minWidth: CGFloat = 120;
+    private let maxWidth: CGFloat = 130;
 #endif
     
     
     var body: some View {
         VStack {
+            HStack {
+                Text("Credit Card Audit Close Look")
+                    .font(.title2)
+                
+                Spacer()
+            }.padding(.bottom)
+            
             Grid {
                 GridRow {
                     Text("Name:")

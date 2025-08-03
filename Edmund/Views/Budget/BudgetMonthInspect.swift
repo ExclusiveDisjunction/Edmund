@@ -71,6 +71,12 @@ struct BudgetMonthInspectCache {
     let savings: [BudgetMonthGoalInfo<SubAccount>];
 }
 
+enum BudgetMonthDataStatus<T> {
+    case loading
+    case error(Date?, Date?)
+    case loaded(T)
+}
+
 @Observable
 class BudgetMonthInspectManifest {
     public init(over: BudgetMonth) {

@@ -12,6 +12,7 @@ import EdmundCore
 struct IncomeDevotionsInspect : View {
     var data: IncomeDivision
     @State private var selection: Set<AnyDevotion.ID> = .init();
+    @State private var closeLook: AnyDevotion? = nil;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
@@ -27,35 +28,26 @@ struct IncomeDevotionsInspect : View {
     }
     
     @ViewBuilder
-    private var compact: some View {
-        VStack {
-            HStack {
-                Text("Name")
-                    .font(.subheadline)
-                    .bold()
-                    .padding(.leading)
-                
-                Spacer()
-                
-                Text("Amount")
-                    .font(.subheadline)
-                    .bold()
-            }.padding([.leading, .trailing, .top])
-            
-            List(data.allDevotions, selection: $selection) { devotion in
-                HStack {
-                    Text(devotion.name)
-                    Spacer()
-                    Text(computedAmount(devotion), format: .currency(code: currencyCode))
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
     private var fullSize: some View {
         Table(data.allDevotions, selection: $selection) {
-            TableColumn("Name", value: \.name)
+            TableColumn("Name") { row in
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        Text(row.name)
+                        Spacer()
+                        Text(computedAmount(row), format: .currency(code: currencyCode))
+                    }.swipeActions(edge: .trailing) {
+                        Button {
+                            closeLook = row
+                        } label: {
+                            Label("Close Look", systemImage: "magnifyingglass")
+                        }.tint(.green)
+                    }
+                }
+                else {
+                    Text(row.name)
+                }
+            }
             TableColumn("Devotion") { row in
                 switch row {
                     case .amount(let a): Text(a.amount, format: .currency(code: currencyCode))
@@ -91,13 +83,11 @@ struct IncomeDevotionsInspect : View {
                 Text(data.variance, format: .currency(code: currencyCode))
             }
             
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                fullSize
-            }
+            fullSize
         }.padding()
+            .sheet(item: $closeLook) { item in
+                AnyDevotionCloseLook(data: item, owner: data)
+            }
     }
 }
 
