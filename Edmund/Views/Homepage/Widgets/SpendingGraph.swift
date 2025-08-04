@@ -11,28 +11,30 @@ import Charts
 import EdmundCore
 
 struct SpendingComputation: Identifiable, Sendable {
-    init(_ monthYear: MonthYear, _ data: [LedgerEntry]) {
+    init(_ monthYear: MonthYear, _ data: [LedgerEntry], id: UUID = UUID()) {
         self.monthYear = monthYear
-        let computed = data.reduce((0.0, 0.0), { acc, trans in
-            (acc.0 + trans.credit, acc.1 + trans.debit)
+        self.id = id
+        self.balance = data.reduce(BalanceInformation(), { acc, trans in
+            acc + BalanceInformation(credit: trans.credit, debit: trans.debit)
         })
         
-        self.credit = computed.0
-        self.debit = computed.1
-        self.id = UUID()
+        let dateFormatter = DateFormatter()
+        dateFormatter.calendar = .current
+        dateFormatter.locale = .current
+        dateFormatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
+        
+        if let date = Calendar.current.date(from: DateComponents(year: monthYear.year, month: monthYear.month)) {
+            label = dateFormatter.string(from: date)
+        }
+        else {
+            label = NSLocalizedString("internalError", comment: "")
+        }
     }
     
     let id: UUID;
     let monthYear: MonthYear;
-    let credit: Decimal;
-    let debit: Decimal;
-    var balance: Decimal {
-        self.credit - self.debit
-    }
-    
-    var label: String {
-        self.monthYear.asDate.formatted(date: .abbreviated, time: .omitted)
-    }
+    let label: String;
+    let balance: BalanceInformation;
 }
 
 enum SpendingGraphMode: Int, Identifiable, CaseIterable, Sendable {
@@ -58,7 +60,14 @@ struct SpendingGraph : View {
     
     private func load() -> [SpendingComputation] {
         let split = TransactionResolver(entries).splitByMonth()
-        return Array(split.map(SpendingComputation.init).sorted(using: KeyPathComparator(\SpendingComputation.monthYear, order: .forward)).prefix(showingLast))
+        return Array(
+            split
+                .map {
+                    SpendingComputation($0.key, $0.value)
+                }
+                .sorted(using: KeyPathComparator(\.monthYear, order: .forward))
+                .prefix(showingLast)
+        )
     }
     
     var body: some View {
@@ -73,21 +82,21 @@ struct SpendingGraph : View {
             Chart(resolved) { pair in
                 if spendingGraphMode == .net {
                     BarMark(
-                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
-                        y: .value(Text(pair.balance, format: .currency(code: currencyCode)), pair.balance)
+                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                        y: .value(Text(pair.balance.balance, format: .currency(code: currencyCode)), pair.balance.balance)
                     )
-                    .foregroundStyle(pair.balance < 0 ? .red : .green)
+                    .foregroundStyle(pair.balance.balance < 0 ? .red : .green)
                 }
                 else {
                     BarMark(
-                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
-                        y: .value(Text(pair.credit, format: .currency(code: currencyCode)), pair.credit)
+                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                        y: .value(Text(pair.balance.credit, format: .currency(code: currencyCode)), pair.balance.credit)
                     )
                     .foregroundStyle(.green)
                     
                     BarMark(
-                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate, unit: .month),
-                        y: .value(Text(-pair.debit, format: .currency(code: currencyCode)), -pair.debit)
+                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                        y: .value(Text(-pair.balance.debit, format: .currency(code: currencyCode)), -pair.balance.debit)
                     )
                     .foregroundStyle(.red)
                 }

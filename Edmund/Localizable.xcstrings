@@ -25,6 +25,12 @@
     "(Select a Month & Year)" : {
 
     },
+    "(Select)" : {
+
+    },
+    "**Note:** If you copy from a budget, the dates from the incomes will not carry over." : {
+      "comment" : "Keep the ** around the Note part"
+    },
     "/" : {
       "localizations" : {
         "de" : {
@@ -170,6 +176,9 @@
     "Add Bill" : {
 
     },
+    "Add Budget" : {
+
+    },
     "Add Category" : {
 
     },
@@ -272,6 +281,9 @@
         }
       }
     },
+    "April" : {
+
+    },
     "Ascending" : {
 
     },
@@ -292,6 +304,9 @@
       }
     },
     "Auditor" : {
+
+    },
+    "August" : {
 
     },
     "Autopay:" : {
@@ -582,6 +597,12 @@
     "Composite Transaction" : {
 
     },
+    "Copy from another budget" : {
+
+    },
+    "Copy from:" : {
+
+    },
     "Credit" : {
       "localizations" : {
         "de" : {
@@ -637,9 +658,6 @@
       }
     },
     "Current Balance:" : {
-
-    },
-    "Current Page" : {
 
     },
     "Customize" : {
@@ -699,6 +717,9 @@
     "Debit:" : {
 
     },
+    "December" : {
+
+    },
     "Delete" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -748,6 +769,9 @@
 
     },
     "Destination:" : {
+
+    },
+    "Details:" : {
 
     },
     "Devotion" : {
@@ -874,6 +898,9 @@
     "Edmund Help" : {
 
     },
+    "Edmund is not able to present this budget. Please report this issue." : {
+
+    },
     "Edmund was not able to obtain the guide's contents." : {
 
     },
@@ -954,13 +981,13 @@
     "Expired Bills" : {
 
     },
-    "Export" : {
-
-    },
     "Export as PDF" : {
       "shouldTranslate" : false
     },
     "Expression:" : {
+
+    },
+    "February" : {
 
     },
     "Filter" : {
@@ -973,6 +1000,12 @@
 
     },
     "Fixed Amount" : {
+
+    },
+    "for" : {
+
+    },
+    "For a given year, you can only have one budget per month. If a budget exists for a given month, it cannot be chosen, and will be struck through." : {
 
     },
     "For Item:" : {
@@ -1020,10 +1053,13 @@
     "General" : {
 
     },
-    "Generate Report" : {
+    "Gift" : {
 
     },
-    "Gift" : {
+    "Goal" : {
+
+    },
+    "Goal Close Look" : {
 
     },
     "Goal:" : {
@@ -1066,6 +1102,12 @@
           }
         }
       }
+    },
+    "Has Date" : {
+
+    },
+    "Has Date:" : {
+
     },
     "Has End Date" : {
 
@@ -1165,10 +1207,10 @@
     "If this is a common or persistent issue, please report it." : {
 
     },
-    "Import" : {
+    "Income" : {
 
     },
-    "Income" : {
+    "Income Close Look" : {
 
     },
     "Income Divider" : {
@@ -1198,7 +1240,7 @@
     "Individual Spending" : {
 
     },
-    "Initialize Ledger" : {
+    "Initial Balance" : {
 
     },
     "Inspect" : {
@@ -1273,7 +1315,16 @@
     "James Larson" : {
       "shouldTranslate" : false
     },
+    "January" : {
+
+    },
     "Jobs" : {
+
+    },
+    "July" : {
+
+    },
+    "June" : {
 
     },
     "Kind" : {
@@ -1400,6 +1451,12 @@
     "Many-to-One Transfer" : {
 
     },
+    "March" : {
+
+    },
+    "May" : {
+
+    },
     "Memo" : {
       "localizations" : {
         "de" : {
@@ -1434,6 +1491,12 @@
     "Money In:" : {
 
     },
+    "Money Left" : {
+
+    },
+    "Money Left:" : {
+
+    },
     "Money Out" : {
 
     },
@@ -1456,6 +1519,9 @@
           }
         }
       }
+    },
+    "Month:" : {
+
     },
     "Monthly" : {
 
@@ -1578,6 +1644,12 @@
     "Notes:" : {
 
     },
+    "November" : {
+
+    },
+    "October" : {
+
+    },
     "Ok" : {
       "localizations" : {
         "de" : {
@@ -1684,6 +1756,12 @@
     "Over" : {
 
     },
+    "Over By" : {
+
+    },
+    "Over By:" : {
+
+    },
     "Pay" : {
 
     },
@@ -1743,6 +1821,9 @@
     "Please finish editing & save to change the page" : {
 
     },
+    "Please put in a valid year (after 1900)." : {
+
+    },
     "Please report any translation errors." : {
 
     },
@@ -1750,6 +1831,9 @@
 
     },
     "Please select a budget to begin" : {
+
+    },
+    "Please select a month." : {
 
     },
     "Please select only one element." : {
@@ -1761,7 +1845,7 @@
     "Please visit the project on GitHub:" : {
 
     },
-    "Please wait for the calculations to complete" : {
+    "Please wait while Edmund does some math" : {
 
     },
     "Please wait while Edmund loads" : {
@@ -1829,6 +1913,12 @@
         }
       }
     },
+    "Progress" : {
+
+    },
+    "Progress:" : {
+
+    },
     "Properties" : {
 
     },
@@ -1884,10 +1974,19 @@
     "Repayment" : {
 
     },
+    "Report a bug" : {
+
+    },
+    "Report a bug..." : {
+
+    },
     "Report Issue" : {
 
     },
-    "Reset Ledger" : {
+    "Request a feature" : {
+
+    },
+    "Request a feature..." : {
 
     },
     "Reversed Accounting Style" : {
@@ -1946,6 +2045,9 @@
       "comment" : "Select One bill\nSelect One utility"
     },
     "Semi-Anually" : {
+
+    },
+    "September" : {
 
     },
     "Set-Aside Cost" : {
@@ -2142,6 +2244,9 @@
     "Take from" : {
 
     },
+    "Target:" : {
+
+    },
     "Tax Estimator" : {
 
     },
@@ -2161,6 +2266,19 @@
 
     },
     "The help system is not done loading. Please wait, and refresh." : {
+
+    },
+    "The start and/or end dates of the budget could not be obtained. Values: %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The start and/or end dates of the budget could not be obtained. Values: %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "The transactions could not be obtained from the data store. Inner error: %@" : {
 
     },
     "The unique engine could not be loaded." : {
@@ -2263,9 +2381,6 @@
 
     },
     "Transactions" : {
-
-    },
-    "Transactions List" : {
 
     },
     "Transactions Report" : {
@@ -2512,6 +2627,9 @@
           }
         }
       }
+    },
+    "Year:" : {
+
     },
     "Yes" : {
 

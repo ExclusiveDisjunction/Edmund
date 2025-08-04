@@ -13,6 +13,7 @@ struct AllBudgetMonthIE : View {
     @State private var selected: BudgetMonth? = nil;
     @State private var snapshot: BudgetMonthSnapshot? = nil;
     
+    @State private var isAdding: Bool = false;
     @State private var showDeleteWarning: Bool = false;
     
     @Bindable private var warning: ValidationWarningManifest = .init();
@@ -64,10 +65,10 @@ struct AllBudgetMonthIE : View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
             Button {
-                
+                isAdding = true;
             } label: {
                 Label("Add", systemImage: "plus")
-            }
+            }.disabled(isEditing)
         }
         
         ToolbarItem(placement: .primaryAction) {
@@ -88,7 +89,7 @@ struct AllBudgetMonthIE : View {
                 }
             } label: {
                 Label(isEditing ? "Save" : "Edit", systemImage: isEditing ? "checkmark" : "pencil")
-            }.disabled(selected == nil)
+            }
         }
         
         ToolbarItem(placement: .primaryAction) {
@@ -102,13 +103,13 @@ struct AllBudgetMonthIE : View {
             } label: {
                 Label(isEditing ? "Cancel" : "Delete", systemImage: isEditing ? "xmark" : "trash")
                     .foregroundStyle(.red)
-            }.disabled(selected == nil)
+            }
         }
     }
     
     var body: some View {
         VStack {
-            BudgetMonthPicker(selected: $selected)
+            BudgetMonthPicker(selected: $selected, label: "Budget for:")
                 .disabled(isEditing)
             
             if let snapshot = snapshot {
@@ -133,6 +134,10 @@ struct AllBudgetMonthIE : View {
             .navigationBarBackButtonHidden(isEditing)
             .onChange(of: snapshot) { _, newValue in
                 pagesLocked.wrappedValue = (newValue != nil)
+            }
+        
+            .sheet(isPresented: $isAdding) {
+                BudgetMonthAdd(source: $selected, snapshot: $snapshot)
             }
         
             .alert("Error", isPresented: $warning.isPresented) {

@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "New Icon-iOS-Default-1024x1024@1x.png",
+      "filename" : "iOSLogo1024.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "New Icon-iOS-Dark-1024x1024@1x.png",
+      "filename" : "iOSDarkLogo1024.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,67 +25,67 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "New Icon-iOS-TintedDark-1024x1024@1x.png",
+      "filename" : "iOSTintedLogo1024.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
     },
     {
-      "filename" : "New Icon-macOS-Default-16x16@1x.png",
+      "filename" : "Logo16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "New Icon-macOS-Default-16x16@2x.png",
+      "filename" : "Logo32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "New Icon-macOS-Default-16x16@2x 1.png",
+      "filename" : "Logo32 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "New Icon-macOS-Default-32x32@2x.png",
+      "filename" : "Logo64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "New Icon-macOS-Default-128x128@1x.png",
+      "filename" : "Logo128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "New Icon-macOS-Default-128x128@2x.png",
+      "filename" : "Logo256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "New Icon-macOS-Default-128x128@2x 1.png",
+      "filename" : "Logo256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "New Icon-macOS-Default-256x256@2x 1.png",
+      "filename" : "Logo512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "New Icon-macOS-Default-256x256@2x.png",
+      "filename" : "Logo512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "New Icon-macOS-Default-1024x1024@1x.png",
+      "filename" : "Logo1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

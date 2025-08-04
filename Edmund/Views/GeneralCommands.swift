@@ -9,26 +9,30 @@ import SwiftUI;
 
 struct GeneralCommands : Commands {
     @Environment(\.openWindow) var openWindow;
+    @Environment(\.openURL) private var openURL;
+    
     @FocusedValue(\.currentPage) var currentPage;
     
     var body: some Commands {
-        CommandGroup(after: .windowArrangement) {
-            Divider()
-            
-            if let $currentPage = currentPage {
-                Picker("Current Page", selection: $currentPage) {
-                    Text(PageDestinations.home.rawValue).tag(PageDestinations.home)
-                    
-                    ForEach(PageDestinations.groups) { group in
-                        Section(group.name) {
-                            ForEach(group.content) { page in
-                                Text(page.rawValue).tag(page)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        /*
+         CommandGroup(after: .windowArrangement) {
+         Divider()
+         
+         if let $currentPage = currentPage {
+         Picker("Current Page", selection: $currentPage) {
+         Text(PageDestinations.home.rawValue).tag(PageDestinations.home)
+         
+         ForEach(PageDestinations.groups) { group in
+         Section(group.name) {
+         ForEach(group.content) { page in
+         Text(page.rawValue).tag(page)
+         }
+         }
+         }
+         }
+         }
+         }
+         */
         
         CommandMenu("Ledger") {
             Button("Ledger") {
@@ -41,12 +45,15 @@ struct GeneralCommands : Commands {
             
             Divider()
             
+#if os(macOS)
             TransactionMenu {
                 Text("Transaction Templates")
             }
+#endif
             
             Divider()
             
+            /*
             Button("Initialize Ledger") {
                 
             }.disabled(true)
@@ -84,6 +91,7 @@ struct GeneralCommands : Commands {
             }.disabled(true)
             
             #endif
+             */
         }
         
         CommandMenu("Bills") {
@@ -101,6 +109,13 @@ struct GeneralCommands : Commands {
             }
             Button("About") {
                 openWindow(id: "about")
+            }
+            
+            Button("Report a bug...") {
+                openURL(bugFormLink)
+            }
+            Button("Request a feature...") {
+                openURL(featureFormLink)
             }
         }
     }

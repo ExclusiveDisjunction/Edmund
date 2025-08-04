@@ -246,22 +246,39 @@ public struct BalanceResolver<T> where T: BoundPairParent, T.C: TransactionHolde
     }
 }
 
-public struct MonthYear : Hashable, Codable, Comparable, Sendable {
+public struct MonthYear : Hashable, Codable, Comparable, Sendable, CustomStringConvertible {
     public init(_ year: Int, _ month: Int) {
         self.year = year
         self.month = month
     }
-    public init(date: Date) {
-        let comp = Calendar.current.dateComponents(Set([Calendar.Component.year, Calendar.Component.month]), from: date);
-        self.year = comp.year ?? 0
-        self.month = comp.month ?? 0
+    public init?(date: Date, calendar: Calendar = .current) {
+        let comp = calendar.dateComponents([.year, .month], from: date);
+        guard let year = comp.year, let month = comp.month else {
+            return nil;
+        }
+        self.year = year
+        self.month = month
     }
     
     public let year: Int;
     public let month: Int;
     
-    public var asDate: Date {
-        Calendar.current.date(from: DateComponents(year: self.year, month: self.month, day: 1)) ?? Date.distantFuture
+    public var description: String {
+        "Month: \(month) Year: \(year)"
+    }
+    
+    public var asDate: Date? {
+        self.asDate(calendar: .current)
+    }
+    public func asDate(calendar: Calendar) -> Date? {
+        calendar.date(from: .init(year: self.year, month: self.month, day: 1))
+    }
+    
+    public static var currentMonthYear: MonthYear? {
+        self.init(date: .now)
+    }
+    public static func currentMonthYear(calendar: Calendar) -> MonthYear? {
+        self.init(date: .now, calendar: calendar)
     }
     
     public static func < (lhs: MonthYear, rhs: MonthYear) -> Bool {
@@ -287,7 +304,9 @@ public struct TransactionResolver {
         var result: [MonthYear: [LedgerEntry]] = [:];
         
         for entry in entries {
-            let monthYear = MonthYear(date: entry.date);
+            guard let monthYear = MonthYear(date: entry.date) else {
+                continue;
+            }
             
             if result[monthYear] == nil {
                 result[monthYear] = [];

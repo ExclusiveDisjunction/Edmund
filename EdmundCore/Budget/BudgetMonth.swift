@@ -72,9 +72,9 @@ extension EdmundModelsV1 {
             }
         }
         
-        public func dupliate() -> BudgetMonth {
+        public func dupliate(date: MonthYear) -> BudgetMonth {
             .init(
-                date: self.date,
+                date: date,
                 spendingGoals: self.spendingGoals.map { $0.duplicate() },
                 savingsGoals: self.savingsGoals.map { $0.duplicate() },
                 income: self.income.map { $0.duplicate() }
@@ -103,11 +103,12 @@ extension EdmundModelsV1 {
         }
         @MainActor
         public static func exampleBudgetMonth(cat: inout BoundPairTree<Category>, acc: inout BoundPairTree<Account>) -> BudgetMonth {
-            let result = BudgetMonth(date: .init(2025, 7))
+            let date = MonthYear.currentMonthYear!;
+            let result = BudgetMonth(date: date)
             
             result.income = [
-                .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(2025, 7, 10)),
-                .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(2025, 7, 25))
+                .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(date.year, date.month, 10)),
+                .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(date.year, date.month, 25))
             ]
             result.spendingGoals = [
                 .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100),

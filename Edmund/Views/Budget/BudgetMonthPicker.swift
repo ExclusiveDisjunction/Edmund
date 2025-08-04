@@ -34,6 +34,7 @@ struct BudgetMonthPicker : View {
     @Query private var source: [BudgetMonth];
     @State private var id: YearRowID? = nil;
     @Binding var selected: BudgetMonth?;
+    let label: LocalizedStringKey;
     
     @State private var cache: [YearSection] = [];
     
@@ -46,8 +47,7 @@ struct BudgetMonthPicker : View {
             oldList.append(month)
             yearDict[month.date.year] = oldList;
         }
-        
-        self.id = nil;
+    
         self.cache = yearDict.map { (key, value) in
             let id = UUID()
             let children = value.map { child in
@@ -82,7 +82,7 @@ struct BudgetMonthPicker : View {
     }
     
     var body: some View {
-        Picker("Budget for:", selection: $id) {
+        Picker(label, selection: $id) {
             Text("(Select a Month & Year)").tag(nil as YearRowID?)
             
             ForEach(cache) { section in

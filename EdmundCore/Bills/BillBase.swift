@@ -201,8 +201,8 @@ public extension BillBase {
         self.name = name
         self.company = company
         self.location = snap.hasLocation ? location : nil
-        self.startDate = startDate
-        self.endDate = snap.hasEndDate ? endDate : nil
+        self.startDate = snap.startDate
+        self.endDate = snap.hasEndDate ? snap.endDate : nil
         self.period = period
         self.autoPay = autoPay
     }

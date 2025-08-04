@@ -34,7 +34,7 @@ extension EdmundModelsV1 {
         public var parent: BudgetMonth?;
         
         public func duplicate() -> BudgetIncome {
-            .init(name: self.name, amount: self.amount, date: self.date, parent: nil)
+            .init(name: self.name, amount: self.amount, date: nil, parent: nil)
         }
         
         public func makeSnapshot() -> BudgetIncomeSnapshot {

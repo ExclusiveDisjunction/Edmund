@@ -11,6 +11,7 @@ import EdmundCore
 
 struct Homepage : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.openURL) private var openURL;
     @State private var modifyHomescreen = false;
     
     #if os(iOS)
@@ -109,9 +110,31 @@ struct Homepage : View {
                     Label("Settings", systemImage: "gear")
                 }
                 
+                #if os(iOS)
+                Menu {
+                    Button(action: showHelp) {
+                        Label("Help", systemImage: "questionmark")
+                    }
+                    
+                    Button {
+                        openURL(bugFormLink)
+                    } label: {
+                        Label("Report a bug", systemImage: "ladybug")
+                    }
+                    
+                    Button {
+                        openURL(featureFormLink)
+                    } label: {
+                        Label("Request a feature", systemImage: "lightbulb.max")
+                    }
+                } label: {
+                    Label("Help", systemImage: "questionmark")
+                }
+                #else
                 Button(action: showHelp) {
                     Label("Help", systemImage: "questionmark")
                 }
+                #endif
             }
             .sheet(isPresented: $modifyHomescreen) {
                 HomepageEditor(isSheet: true)

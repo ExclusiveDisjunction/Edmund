@@ -24,8 +24,8 @@ public struct LedgerEntryInspect : View {
     public let labelMinWidth: CGFloat = 60;
     public let labelMaxWidth: CGFloat = 70;
 #else
-    public let labelMinWidth: CGFloat = 80;
-    public let labelMaxWidth: CGFloat = 85;
+    public let labelMinWidth: CGFloat = 90;
+    public let labelMaxWidth: CGFloat = 95;
 #endif
     
     public var body: some View {

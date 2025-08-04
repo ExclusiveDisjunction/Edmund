@@ -22,7 +22,8 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
     case personalLoan,
          refund
     case miscIncome,
-         payday
+         payday,
+         initialBalance
     case billPay    (StrictBillsKind),
          utilityPay
     case balanceCorrection
@@ -48,6 +49,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
             case .utilityPay:        "Utility"
             case .balanceCorrection: "Balance Correction"
             case .transfer(let v):   v.display
+            case .initialBalance:    "Initial Balance"
         }
     }
     
@@ -67,6 +69,7 @@ enum TransactionKind : Identifiable, Hashable, Equatable, Codable, Displayable {
             case .utilityPay:        "Utility Payment"
             case .balanceCorrection: "Balance Correction"
             case .transfer(let v):   v.title
+            case .initialBalance:    "Initial Balance"
         }
     }
     
@@ -149,6 +152,7 @@ struct TransactionsEditor : View {
             case .utilityPay:      UtilityPayment()
             case .balanceCorrection:           BalanceCorrection()
             case .transfer(let v): Transfer(v)
+            case .initialBalance:   InitialBalance()
         }
     }
 }

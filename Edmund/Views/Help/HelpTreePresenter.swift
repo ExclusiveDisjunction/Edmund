@@ -37,7 +37,7 @@ struct HelpTreePresenter : View {
             }
             
             Spacer()
-        }
+        }.padding()
     }
     
     var body: some View {
@@ -55,7 +55,7 @@ struct HelpTreePresenter : View {
                         .padding()
                     
                     Spacer()
-                }
+                }.padding()
             case .loaded(let v):
                 LoadedHelpGroupPresenter(data: v, title: NSLocalizedString("Edmund Help", comment: ""))
         }

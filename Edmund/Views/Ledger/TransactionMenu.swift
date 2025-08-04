@@ -72,6 +72,7 @@ struct TransactionMenu<Label> : View where Label: View {
                 Button(TransactionKind.payday.display, action: {
                     openEditor(.payday)
                 }).disabled(true).help("futureRelease")
+                
                 Button(TransactionKind.personalLoan.display, action: {
                     openEditor(.personalLoan)
                 })
@@ -86,6 +87,10 @@ struct TransactionMenu<Label> : View where Label: View {
                 
                 Button(TransactionKind.balanceCorrection.display, action: {
                     openEditor(.balanceCorrection)
+                })
+                
+                Button(TransactionKind.initialBalance.display, action: {
+                    openEditor(.payday)
                 })
             } label: {
                 Text("Income")

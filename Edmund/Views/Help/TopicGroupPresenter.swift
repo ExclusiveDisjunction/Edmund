@@ -57,7 +57,7 @@ struct HelpGroupPagePresenter : View {
 struct LoadedHelpGroupPresenter : View {
     init(data: LoadedHelpGroup) {
         self.data = data
-        self.navigationTitle = data.name
+        self.navigationTitle = data.name.isEmpty ? "Edmund Help" : data.name
     }
     init(data: LoadedHelpGroup, title: String) {
         self.data = data
@@ -71,8 +71,13 @@ struct LoadedHelpGroupPresenter : View {
     
     var body: some View {
         NavigationSplitView {
-            List(data.children, children: \.children, selection: $selectedID) { element in
-                Text(element.name)
+            VStack {
+                Text("Help")
+                    .font(.title2)
+                
+                List(data.children, children: \.children, selection: $selectedID) { element in
+                    Text(element.name)
+                }
             }
         } detail: {
             VStack {
