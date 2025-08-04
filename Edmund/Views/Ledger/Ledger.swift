@@ -17,6 +17,7 @@ struct LedgerTable: View {
     
     @State private var selected = Set<LedgerEntry.ID>();
     @State private var transKind: TransactionKind?;
+    @State private var totals: BalanceInformation = .init();
     
     @Bindable private var warning: SelectionWarningManifest = .init();
     @Bindable private var inspect: InspectionManifest<LedgerEntry> = .init();
@@ -28,6 +29,7 @@ struct LedgerTable: View {
     
     @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
     
     private func popout() {
         openWindow(id: "ledger")
@@ -126,10 +128,30 @@ struct LedgerTable: View {
             else {
                 fullSized
             }
+            
+            if showLedgerFooter {
+                HStack {
+                    Spacer()
+                    
+                    Text("Total Credit:")
+                    Text(totals.credit, format: .currency(code: currencyCode))
+                    
+                    Text("Total Debits:")
+                    Text(totals.debit, format: .currency(code: currencyCode))
+                    
+                    Text("Total Balance:")
+                        .bold()
+                    Text(totals.balance, format: .currency(code: currencyCode))
+                        .bold()
+                }
+            }
         }.padding()
             .navigationTitle("Ledger")
             .toolbar(id: "ledgerToolbar") { toolbar }
             .toolbarRole(.editor)
+            .onChange(of: selected) { _, new in
+                self.totals = data.filter { new.contains($0.id) }.reduce(BalanceInformation()) { $0 + BalanceInformation(credit: $1.credit, debit : $1.debit) }
+            }
             .sheet(item: $transKind) { kind in
                 TransactionsEditor(kind: kind)
             }

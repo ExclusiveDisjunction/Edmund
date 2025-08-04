@@ -25,16 +25,14 @@ struct SettingsView : View {
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
+    @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
 #if os(macOS)
     @AppStorage("preferTransWindow") private var preferTransWindow: Bool = false;
 #endif
     
 #if os(macOS)
-    private let minWidth: CGFloat = 100;
-    private let maxWidth: CGFloat = 110;
-#else
-    private let minWidth: CGFloat = 110;
-    private let maxWidth: CGFloat = 120;
+    private let minWidth: CGFloat = 120;
+    private let maxWidth: CGFloat = 130;
 #endif
     
     static let currencyCodes: [LocaleCurrencyCode] = Locale.commonISOCurrencyCodes.map { LocaleCurrencyCode(code: $0) }
@@ -83,6 +81,17 @@ struct SettingsView : View {
                             Text(code.code).tag(code.id)
                         }
                     }.labelsHidden()
+                }
+                
+                GridRow {
+                    Text("Show Ledger Footer")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Toggle("", isOn: $showLedgerFooter)
+                            .labelsHidden()
+                        Spacer()
+                    }
                 }
                 
                 GridRow {
@@ -192,6 +201,8 @@ struct SettingsView : View {
                         Text(code.code).tag(code.id)
                     }
                 }
+                
+                Toggle("Show Ledger Footer", isOn: $showLedgerFooter)
             }
             
             Section() {

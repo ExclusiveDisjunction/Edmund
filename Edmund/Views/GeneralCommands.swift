@@ -13,6 +13,8 @@ struct GeneralCommands : Commands {
     
     @FocusedValue(\.currentPage) var currentPage;
     
+    @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
+    
     var body: some Commands {
         /*
          CommandGroup(after: .windowArrangement) {
@@ -52,6 +54,8 @@ struct GeneralCommands : Commands {
 #endif
             
             Divider()
+            
+            Toggle("Show Ledger Footer", isOn: $showLedgerFooter)
             
             /*
             Button("Initialize Ledger") {
