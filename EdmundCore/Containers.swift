@@ -9,12 +9,17 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-public protocol ExampleCreator {
+/// A type that can be used to fill in dummy data for a `ModelContext`.
+public protocol ContainerDataFiller {
+    /// Given the `context`, fill out the container's values.
+    /// - Parameters:
+    ///     - context: The `ModelContext` to insert to.
     @MainActor
     func fill(context: ModelContext) throws;
 }
 
-public struct UniqueElementsCreator : ExampleCreator {
+/// A creator that is used for testing uniquness by the `UniqueEngine`.
+public struct UniqueElementsCreator : ContainerDataFiller {
     public func fill(context: ModelContext) {
         let accounts = Account.exampleAccounts
         let categories = Category.exampleCategories;
@@ -40,7 +45,9 @@ public struct UniqueElementsCreator : ExampleCreator {
         context.insert(SalariedJob.exampleJob)
     }
 }
-public struct DefaultDebugCreator : ExampleCreator {
+
+/// A creator that creates many different kinds of UI ready data.
+public struct DefaultDebugCreator : ContainerDataFiller {
     public func fill(context: ModelContext) throws {
         let accounts = Account.exampleAccounts
         var accTree = try BoundPairTree(data: accounts)
@@ -79,7 +86,8 @@ public struct DefaultDebugCreator : ExampleCreator {
         context.insert(IncomeDivision.exampleBudget(acc: &accTree))
     }
 }
-public struct TransactionSpreadCreator : ExampleCreator {
+/// A creator that creates transactions that are spread out so that graphs can be tested.
+public struct TransactionSpreadCreator : ContainerDataFiller {
     public func fill(context: ModelContext) {
         let account = SubAccount("Test Sub Account", parent: .init("Test Account"))
         let category = SubCategory("Test Sub Category", parent: .init("Test Category"))
@@ -115,26 +123,42 @@ public struct TransactionSpreadCreator : ExampleCreator {
     }
 }
 
+/// A description of where a `Container` instance will be stored.
 public enum ContainerLocation {
+    /// Stored as the default location provided by Swift.
     case simple
+    /// A container that will be stored in memory only.
     case inMemory
+    /// A container that has a physical location on Disk to store at.
     case onDisk(String)
+    /// A container that will be stored using CloudKit.
     case cloudKit(ModelConfiguration.CloudKitDatabase)
 }
 
-public struct ContainerBundle {
+/// A resolved bundle of SwiftData needed types for the UI to bind to.
+public struct Container {
     public let container: ModelContainer
     public let context: ModelContext
     public let undo: UndoManager
 }
 
+/// A debug tool that will automatically force open the `Containers.debugContainer`, and present some content. The content will have the model container bound to the UI's environment.
+/// - Note: This is designed for use in `#Preview` expansions. It is not intended for use in the main UI.
+/// - Warning: Do not use this in a release context.
 public struct DebugContainerView<Content> : View where Content: View {
+    /// Creates the view with an inner view.
+    /// - Parameters:
+    ///     - content: A closure that is used to present some `View` with the loaded debug container.
+    /// - Note: This will force try the `Containers.debugContainer()` function. If that function throws unexpectedly, this will crash the program.
+    /// - Warning: Do not use this in a release context.
     public init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content
         self.container = try! Containers.debugContainer()
     }
+    /// The content to present with the `ModelContext`.
     public let content: () -> Content;
-    public let container: ContainerBundle;
+    /// The resolved `Container` instance to bind to.
+    public let container: Container;
     
     public var body: some View {
         content()
@@ -151,7 +175,7 @@ public struct Containers {
     private static let schema: Schema = .init(interestedTypes)
     
     @MainActor
-    private static func prepareContainer(loc: ContainerLocation) throws -> ContainerBundle {
+    private static func prepareContainer(loc: ContainerLocation) throws -> Container {
         let configuration: ModelConfiguration = switch loc {
             case .onDisk(let name):  .init(name, schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
             case .simple:            .init(      schema: schema, isStoredInMemoryOnly: false, allowsSave: true, cloudKitDatabase: .none)
@@ -169,8 +193,13 @@ public struct Containers {
         return .init(container: container, context: context, undo: undoManager)
     }
     
+    /// Creates an in-memory `Container` instance using some `ContainerDataFiller`.
+    /// - Parameters:
+    ///     - using: The filler that will add blank data to the `Container` instance.
+    /// - Warning: Do not use this in a release context.
+    /// - Throws: Anything that SwiftData throws while creating the instance.
     @MainActor
-    private static func makeDebugContainer<T>(using: T) throws -> ContainerBundle where T: ExampleCreator {
+    private static func makeDebugContainer<T>(using: T) throws -> Container where T: ContainerDataFiller {
         let container = try prepareContainer(loc: .inMemory)
         
         try using.fill(context: container.context)
@@ -179,9 +208,12 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _uniqueDebugContainer: ContainerBundle? = nil;
+    private static var _uniqueDebugContainer: Container? = nil;
+    /// A Container that can be used for testing the `UniqueEngine`.
+    /// - Warning: Do not use this in a release context.
+    /// - Throws: Anything that SwiftData throws while creating the instance.
     @MainActor
-    public static func uniqueDebugContainer() throws -> ContainerBundle {
+    public static func uniqueDebugContainer() throws -> Container {
         if let container = _uniqueDebugContainer {
             return container
         }
@@ -193,10 +225,12 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _debugContainer: ContainerBundle? = nil;
+    private static var _debugContainer: Container? = nil;
     /// A container that contains temporary, simple data used for showcasing.
+    /// - Warning: Do not use this in a release context.
+    /// - Throws: Anything that SwiftData throws while creating the instance.
     @MainActor
-    public static func debugContainer() throws -> ContainerBundle {
+    public static func debugContainer() throws -> Container {
         if let container = _debugContainer {
             return container
         }
@@ -208,10 +242,12 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _transactionsWithSpreadContainer: ContainerBundle? = nil;
+    private static var _transactionsWithSpreadContainer: Container? = nil;
     /// A model container with just transactions. it shows a spread with amounts & dates so that the UI elements can be tested.
+    /// - Warning: Do not use this in a release context.
+    /// - Throws: Anything that SwiftData throws while creating the instance.
     @MainActor
-    public static func transactionsWithSpreadContainer() throws -> ContainerBundle {
+    public static func transactionsWithSpreadContainer() throws -> Container {
         if let container = _transactionsWithSpreadContainer {
             return container
         }
@@ -223,9 +259,11 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _emptyContainer: ContainerBundle? = nil;
+    private static var _emptyContainer: Container? = nil;
+    /// Creates an empty container stored in memory
+    /// - Throws: Anything that SwiftData throws while creating the instance.
     @MainActor
-    public static func emptyMemoryContainer() throws -> ContainerBundle {
+    public static func emptyMemoryContainer() throws -> Container {
         if let container = _emptyContainer {
             return container
         }
@@ -237,10 +275,11 @@ public struct Containers {
     }
     
     @MainActor
-    private static var _mainContainer: ContainerBundle? = nil;
+    private static var _mainContainer: Container? = nil;
     /// The main container used by the app. This stores the data for the app in non-debug based contexts.
+    /// - Throws: Anything that SwiftData throws while creating the instance.
     @MainActor
-    public static func mainContainer() throws -> ContainerBundle {
+    public static func mainContainer() throws -> Container {
         if let container = _mainContainer {
             return container
         }

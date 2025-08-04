@@ -10,14 +10,16 @@ import SwiftData
 
 
 
-public protocol WidgetDataManager : Sendable {
+public protocol WidgetDataBundle : Sendable {
     associatedtype Output: Codable, Sendable
     static var outputName: String { get }
     
     func process() async -> Output;
 }
-public extension WidgetDataManager {
-    static func extractFromProvider(provider: WidgetDataProvider) async throws -> Self.Output {
-        return try await provider.read(name: Self.outputName)
-    }
-}
+/*
+ public extension WidgetDataBundle {
+ static func extractFromProvider(provider: WidgetDataProvider) async throws -> Self.Output {
+ return try await provider.read(name: Self.outputName)
+ }
+ }
+ */

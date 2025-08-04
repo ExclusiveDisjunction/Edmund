@@ -103,7 +103,7 @@ extension EdmundModelsV1 {
         }
         @MainActor
         public static func exampleBudgetMonth(cat: inout BoundPairTree<Category>, acc: inout BoundPairTree<Account>) -> BudgetMonth {
-            let date = MonthYear.currentMonthYear!;
+            let date = MonthYear.now!;
             let result = BudgetMonth(date: date)
             
             result.income = [

@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftData
 import EdmundCore
-import EdmundWidgetCore
 
 struct UpcomingBillsView : View {
     @State private var loadedBills: [UpcomingBill]? = nil;

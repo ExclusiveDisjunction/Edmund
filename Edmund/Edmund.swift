@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftData
 import EdmundCore
-import EdmundWidgetCore
 
 @main
 struct EdmundApp: App {

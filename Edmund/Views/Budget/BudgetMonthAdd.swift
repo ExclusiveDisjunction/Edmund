@@ -198,7 +198,7 @@ struct BudgetMonthAdd : View {
             }
         }.padding()
             .onAppear {
-                self.year = MonthYear.currentMonthYear?.year ?? 2025
+                self.year = MonthYear.now?.year ?? 2025
             }
             .alert("Error", isPresented: $showError) {
                 Button("Ok") {

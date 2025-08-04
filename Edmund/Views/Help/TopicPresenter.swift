@@ -14,10 +14,6 @@ struct TopicContentPresenter : View {
     var body: some View {
         ScrollView {
             Markdown(over.content)
-                .background(
-                    RoundedRectangle(cornerSize: CGSize(width: 15, height: 15))
-                        .fill(.background.secondary)
-                )
         }
     }
 }

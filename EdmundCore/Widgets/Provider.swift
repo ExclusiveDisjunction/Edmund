@@ -27,7 +27,7 @@ public actor WidgetDataEngine {
     public fileprivate(set) var finalized: [ProcessedData];
     
     /// Writes a specific `WidgetDataManager`'s content into the engine.
-    public func include<T>(from: T) async throws where T: WidgetDataManager {
+    public func include<T>(from: T) async throws where T: WidgetDataBundle {
         let name = T.outputName;
         let result = await from.process()
         let data = try JSONEncoder().encode(result)
@@ -62,7 +62,7 @@ public struct WidgetDataProvider : Sendable, Copyable {
     
     public static let defaultStore: String = "group.com.exdisj.Edmund.WidgetData";
     
-    public func append<T>(data: T) async throws where T: WidgetDataManager {
+    public func append<T>(data: T) async throws where T: WidgetDataBundle {
         try await self.engine.include(from: data)
     }
     
@@ -90,50 +90,4 @@ public struct WidgetDataProvider : Sendable, Copyable {
         
         WidgetCenter.shared.reloadAllTimelines()
     }
-    
-    /* I dont even know if this is needed...
-     #if os(iOS)
-     public static let backgroundTaskID: String = "com.exdisj.edmund.widgetRefresh"
-     
-     private consuming func handleAppRefresh(task: BGTask) {
-     scheduleWidgetRefresh()
-     
-     task.expirationHandler = {
-     print("The widget refresh background task has been canceled")
-     }
-     
-     Task {
-     do {
-     try await self.prepareWidget()
-     }
-     catch let e {
-     print("Unable to save background task work \(e)")
-     task.setTaskCompleted(success: false)
-     }
-     task.setTaskCompleted(success: true)
-     }
-     
-     }
-     
-     private func scheduleWidgetRefresh() {
-     let request = BGAppRefreshTaskRequest(identifier: Self.backgroundTaskID)
-     request.earliestBeginDate = Date(timeIntervalSinceNow: 10 * 24 * 60) //10 days
-     
-     do {
-     try BGTaskScheduler.shared.submit(request)
-     print("Background task scheduled")
-     }
-     catch {
-     print("The background task could not be scheduled, error: \(error)")
-     }
-     }
-     public func registerWidgetRefresh() {
-     BGTaskScheduler.shared.register(
-     forTaskWithIdentifier: Self.backgroundTaskID,
-     using: nil,
-     launchHandler: handleAppRefresh
-     )
-     }
-     #endif
-     */
 }

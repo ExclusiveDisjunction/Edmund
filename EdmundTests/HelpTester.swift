@@ -9,6 +9,8 @@ import Testing
 import Edmund
 import Foundation
 
+// This test relies on extra resources being added in, and will not be included in the final build product. 
+/*
 struct HelpTester {
     private func loadEngine(debug: Bool) async -> (HelpEngine, Bool) {
         let engine = HelpEngine()
@@ -77,3 +79,5 @@ struct HelpTester {
         #expect(root.children.count == 7)
     }
 }
+
+*/

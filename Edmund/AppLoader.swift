@@ -6,14 +6,13 @@
 //
 
 import EdmundCore
-import EdmundWidgetCore
 import SwiftData
 import SwiftUI
 import Observation
 import os
 
 public struct LoadedAppContext : @unchecked Sendable {
-    public let container: ContainerBundle;
+    public let container: Container;
     public let categories: CategoriesContext;
     public let unique: UniqueEngine;
     public let help: HelpEngine;
@@ -63,7 +62,7 @@ public actor AppLoaderEngine {
     }
     
     @MainActor
-    private static func getModelContext(state: AppLoadingState) async -> ContainerBundle? {
+    private static func getModelContext(state: AppLoadingState) async -> Container? {
         do {
 #if DEBUG
             return try Containers.debugContainer()

@@ -23,6 +23,8 @@ public protocol Queryable {
     /// The type used for filtering
     associatedtype FilterType: Filterable
     
+    /// Sorts a given input data using the attached sorting type.
     static func sort(_ data: [Self], using: SortType, order: SortOrder) -> [Self];
+    /// Filters a given input using the attached set of filter types.
     static func filter(_ data: [Self], using: Set<FilterType>) -> [Self];
 }

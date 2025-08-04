@@ -11,7 +11,7 @@ import SwiftData
 
 struct UtilityTesting {
     @MainActor
-    private func makeContext() async throws -> (ContainerBundle, UniqueEngine, Utility) {
+    private func makeContext() async throws -> (Container, UniqueEngine, Utility) {
         let container = try Containers.emptyMemoryContainer();
         let unique = UniqueEngine();
         let entry = Utility("Testing Bill", amounts: [0, 0, 0, 0], company: "Testing", start: .now)
