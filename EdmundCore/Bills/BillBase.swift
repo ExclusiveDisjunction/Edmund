@@ -203,8 +203,8 @@ public extension BillBase {
         self.location = snap.hasLocation ? location : nil
         self.startDate = snap.startDate
         self.endDate = snap.hasEndDate ? snap.endDate : nil
-        self.period = period
-        self.autoPay = autoPay
+        self.period = snap.period
+        self.autoPay = snap.autoPay
     }
 }
 /// Since SwiftUI does not allow direct access of `any BillBase`, this will allow for defined, identifable access.

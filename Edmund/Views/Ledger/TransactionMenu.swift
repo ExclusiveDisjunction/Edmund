@@ -90,7 +90,7 @@ struct TransactionMenu<Label> : View where Label: View {
                 })
                 
                 Button(TransactionKind.initialBalance.display, action: {
-                    openEditor(.payday)
+                    openEditor(.initialBalance)
                 })
             } label: {
                 Text("Income")
