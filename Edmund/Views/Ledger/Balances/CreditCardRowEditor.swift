@@ -13,7 +13,7 @@ class CreditCardRow : Identifiable {
     init(account: Account, balance: Decimal) {
         self.id = UUID();
         self.account = account;
-        let rawBalance = (account.creditLimit ?? .nan) - balance;
+        let rawBalance = balance + (account.creditLimit ?? .nan);
         self.avalibleCredit = .init(rawValue: rawBalance);
         self.balance = balance
     }
@@ -30,10 +30,10 @@ class CreditCardRow : Identifiable {
     let balance: Decimal;
     
     var expectedBalance: Decimal {
-        creditLimit - avalibleCredit.rawValue
+        avalibleCredit.rawValue - creditLimit
     }
     var variance: Decimal {
-        balance - expectedBalance
+        expectedBalance - balance
     }
 }
 
@@ -147,7 +147,7 @@ struct CreditCardRowEditor : View {
 }
 
 #Preview {
-    let data = CreditCardRow(account: Account.exampleCreditAccount, balance: 15.00);
+    let data = CreditCardRow(account: Account.exampleCreditAccount, balance: -15.00);
     
     CreditCardRowEditor(over: data, isSheet: true)
         .padding()
