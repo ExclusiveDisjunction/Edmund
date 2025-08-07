@@ -12,6 +12,7 @@ import EdmundCore
 /// A view representing all jobs currently stored.
 struct AllJobsViewEdit : View {
     @State private var selection = Set<TraditionalJobWrapper.ID>();
+    @State private var cache: [TraditionalJobWrapper] = [];
     
     @Bindable private var inspect: InspectionManifest<TraditionalJobWrapper> = .init();
     @Bindable private var deleting: DeletingManifest<TraditionalJobWrapper> = .init();
@@ -19,19 +20,12 @@ struct AllJobsViewEdit : View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
-    
-#if os(iOS)
-    private let openWindowPlacement: ToolbarItemPlacement = .topBarLeading
-#else
-    private let openWindowPlacement: ToolbarItemPlacement = .automatic
-#endif
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @Query private var hourly: [HourlyJob];
     @Query private var salary: [SalariedJob];
-    
-    @State private var cache: [TraditionalJobWrapper] = [];
     
     private func refresh() {
         self.cache = ((hourly as [any TraditionalJob]) + (salary as [any TraditionalJob]))
@@ -49,9 +43,15 @@ struct AllJobsViewEdit : View {
         withAnimation {
             if let hourly = data.data as? HourlyJob {
                 context.delete(hourly)
+                Task {
+                    await uniqueEngine.releaseId(key: HourlyJob.objId, id: hourly.id)
+                }
             }
             else if let salaried = data.data as? SalariedJob {
                 context.delete(salaried)
+                Task {
+                    await uniqueEngine.releaseId(key: SalariedJob.objId, id: salaried.id)
+                }
             }
         }
     }
@@ -61,14 +61,10 @@ struct AllJobsViewEdit : View {
         Table(cache, selection: $selection) {
             TableColumn("Position") { wrapper in
                 if horizontalSizeClass == .compact {
-                    HStack {
-                        Text(wrapper.data.position)
-                        Spacer()
-                        Text("Avg. Pay:")
-                        Text(wrapper.data.estimatedProfit, format: .currency(code: currencyCode))
-                    }.swipeActions(edge: .trailing) {
-                        SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-                    }
+                    Text(wrapper.data.position)
+                        .swipeActions(edge: .trailing) {
+                            SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                        }
                 }
                 else {
                     Text(wrapper.data.position)

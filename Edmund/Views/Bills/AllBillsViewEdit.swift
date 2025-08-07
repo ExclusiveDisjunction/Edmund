@@ -24,19 +24,15 @@ struct AllBillsViewEdit : View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.modelContext) var modelContext;
     
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
     
-    @Environment(\.modelContext) var modelContext;
-        
     @Query private var bills: [Bill]
     @Query private var utilities: [Utility]
-    
-    private var sortedBills: [BillBaseWrapper] {
-        query.cached
-    }
     
     private func refresh() {
         let filteredBills = bills.filter { showExpiredBills || !$0.isExpired }
@@ -45,30 +41,33 @@ struct AllBillsViewEdit : View {
         let combined: [any BillBase] = filteredBills + filteredUtilities;
         query.apply(combined.map { BillBaseWrapper($0) } )
     }
-    private func add_bill(_ kind: StrictBillsKind = .bill) {
+    private func addBill(_ kind: StrictBillsKind = .bill) {
         withAnimation {
             let raw = Bill(name: "", kind: kind, amount: 0, company: "",start: Date.now, end: nil, period: .monthly)
             refresh()
             inspect.open(BillBaseWrapper(raw), mode: .add)
         }
     }
-    private func add_utility() {
+    private func addUtility() {
         withAnimation {
             let raw = Utility("", amounts: [], company: "", start: Date.now)
             refresh()
             inspect.open(BillBaseWrapper(raw), mode: .add)
         }
     }
-    private func toggle_inspector() {
-        showingChart.toggle()
-    }
     private func deleteFromModel(data: BillBaseWrapper, context: ModelContext) {
         withAnimation {
             if let bill = data.data as? Bill {
                 context.delete(bill)
+                Task {
+                    await uniqueEngine.releaseId(key: Bill.objId, id: bill.id)
+                }
             }
             else if let utility = data.data as? Utility {
                 context.delete(utility)
+                Task {
+                    await uniqueEngine.releaseId(key: Utility.objId, id: utility.id)
+                }
             }
         }
     }
@@ -85,23 +84,24 @@ struct AllBillsViewEdit : View {
     }
     
     @ViewBuilder
-    private var compact: some View {
-        List(self.sortedBills, selection: $tableSelected) { wrapper in
-            HStack {
-                Text(wrapper.data.name)
-                Spacer()
-                Text(wrapper.data.amount, format: .currency(code: currencyCode))
-                Text("/")
-                Text(wrapper.data.period.perName)
-            }.swipeActions(edge: .trailing) {
-                SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-            }
-        }
-    }
-    @ViewBuilder
     private var wide: some View {
-        Table(self.sortedBills, selection: $tableSelected) {
-            TableColumn("Name", value: \.data.name)
+        Table(query.cached, selection: $tableSelected) {
+            TableColumn("Name") { wrapper in
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        Text(wrapper.data.name)
+                        Spacer()
+                        Text(wrapper.data.amount, format: .currency(code: currencyCode))
+                        Text("/")
+                        Text(wrapper.data.period.perName)
+                    }.swipeActions(edge: .trailing) {
+                        SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                    }
+                }
+                else {
+                    Text(wrapper.data.name)
+                }
+            }
             TableColumn("Kind") { wrapper in
                 Text(wrapper.data.kind.display)
             }
@@ -134,7 +134,7 @@ struct AllBillsViewEdit : View {
                 Text((wrapper.data.isExpired ? Decimal() : wrapper.data.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
             }
         }.contextMenu(forSelectionType: BillBaseWrapper.ID.self) { selection in
-            SelectionContextMenu(selection, data: sortedBills, inspect: inspect, delete: deleting, warning: warning)
+            SelectionContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
         }
         #if os(macOS)
         .frame(minWidth: 320)
@@ -148,7 +148,9 @@ struct AllBillsViewEdit : View {
         }
         
         ToolbarItem(id: "graph", placement: .secondaryAction) {
-            Button(action: toggle_inspector) {
+            Button {
+                showingChart = true
+            } label: {
                 Label(showingChart ? "Hide Graph" : "Show Graph", systemImage: "chart.pie")
             }
         }
@@ -169,15 +171,15 @@ struct AllBillsViewEdit : View {
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
                 Button("Bill", action: {
-                    add_bill(.bill)
+                    addBill(.bill)
                 })
                 
                 Button("Subscription", action: {
-                    add_bill(.subscription)
+                    addBill(.subscription)
                 })
                 
                 Button("Utility", action: {
-                    add_utility()
+                    addUtility()
                 })
             } label: {
                 Label("Add", systemImage: "plus")
@@ -257,12 +259,7 @@ struct AllBillsViewEdit : View {
     
     var body: some View {
         VStack {
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                wide
-            }
+            wide
             
             HStack {
                 Spacer()

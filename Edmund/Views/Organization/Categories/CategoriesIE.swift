@@ -29,9 +29,15 @@ struct CategoriesIE : View {
         withAnimation {
             if let category = data.target as? EdmundCore.Category {
                 context.delete(category)
+                Task {
+                    await uniqueEngine.releaseId(key: EdmundCore.Category.objId, id: category.id)
+                }
             }
-            else if let SubCategory = data.target as? SubCategory {
-                context.delete(SubCategory)
+            else if let subCat = data.target as? SubCategory {
+                context.delete(subCat)
+                Task {
+                    await uniqueEngine.releaseId(key: SubCategory.objId, id: subCat.id)
+                }
             }
         }
     }

@@ -15,9 +15,9 @@ public class DeletingManifest<T> where T: Identifiable {
     public init() { }
     
     /// The objects to delete.
-    public var action: [T]?;
+    public final var action: [T]?;
     /// A bindable value that returns true when the `action` is not `nil` and the list is not empty.
-    public var isDeleting: Bool {
+    public final var isDeleting: Bool {
         get {
             guard let action = action else { return false }
             
@@ -43,7 +43,7 @@ public class DeletingManifest<T> where T: Identifiable {
     }
     
     /// Removes all elements in `on` that are in `selection`, showing a warning if a failure occurs.
-    public func deleteSelected(_ selection: Set<T.ID>, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
+    public final func deleteSelected(_ selection: Set<T.ID>, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
         guard !selection.isEmpty else { warning.warning = .noneSelected; return }
         
         let targets = on.filter { selection.contains($0.id) }
@@ -52,7 +52,7 @@ public class DeletingManifest<T> where T: Identifiable {
         self.action = targets
     }
     /// Removes one element from `on` that matches the id `selection`, showing a warning if a failure occurs.
-    public func deleteSelected(_ selection: T.ID, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
+    public final func deleteSelected(_ selection: T.ID, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
         deleteSelected([selection], on: on, warning: warning)
     }
 }
@@ -78,6 +78,7 @@ public struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
     
     @Environment(\.uniqueEngine) private var uniqueEngine;
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.loggerSystem) private var loggerSystem;
     
     @ViewBuilder
     private var cancelButton: some View {
@@ -89,6 +90,7 @@ public struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
     public var body: some View {
         if let deleting = deleting.action {
             Button("Delete") {
+                loggerSystem?.data.debug("Performing delete on \(deleting.count) objects without uniqueness constraints.")
                 for data in deleting {
                     delete(data, self.modelContext)
                 }
@@ -108,6 +110,7 @@ extension AbstractDeletingActionConfirm where T: UniqueElement, T.ID: Sendable {
     public var body: some View {
         if let deleting = deleting.action {
             Button("Delete") {
+                loggerSystem?.data.debug("Performing delete on \(deleting.count) objects with uniqueness constraints.")
                 for data in deleting {
                     let id = data.id;
                     Task {
@@ -146,6 +149,26 @@ public struct DeletingActionConfirm<T>: View where T: PersistentModel{
     public var body: some View {
         AbstractDeletingActionConfirm(deleting, delete: { model, context in
             context.delete(model)
+        }, post: postAction)
+    }
+}
+public struct UniqueDeletingActionConfirm<T> : View where T: PersistentModel, T: UniqueElement, T.ID: Sendable {
+    private var deleting: DeletingManifest<T>;
+    private let postAction: (() -> Void)?;
+    
+    public init(_ deleting: DeletingManifest<T>, post: (() -> Void)? = nil) {
+        self.deleting = deleting
+        self.postAction = post
+    }
+    
+    @Environment(\.uniqueEngine) private var uniqueEngine;
+    
+    public var body: some View {
+        AbstractDeletingActionConfirm(self.deleting, delete: { model, context in
+            context.delete(model)
+            Task {
+                await uniqueEngine.releaseId(key: T.objId, id: model.id)
+            }
         }, post: postAction)
     }
 }

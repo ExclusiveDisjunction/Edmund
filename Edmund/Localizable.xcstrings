@@ -324,9 +324,6 @@
     "Average Hours:" : {
 
     },
-    "Avg. Pay:" : {
-      "comment" : "Average pay abbreviated"
-    },
     "Balance" : {
       "localizations" : {
         "de" : {

@@ -30,24 +30,13 @@ struct AccountsIE : View {
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.uniqueEngine) private var uniqueEngine;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func refresh() {
         wrappers = accounts.map { .init($0) }
     }
-    
-    /*
-     @ViewBuilder
-     private var compact: some View {
-     List(accounts, selection: $selection) { account in
-     
-     }.contextMenu(forSelectionType: Account.ID.self) { selection in
-     SelectionContextMenu(selection, data: accounts, inspect: inspecting, delete: delete, warning: warning)
-     }
-     }
-     
-     */
     
     @ViewBuilder
     private var expanded: some View {
@@ -162,6 +151,9 @@ struct AccountsIE : View {
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting, titleVisibility: .visible) {
                 AbstractDeletingActionConfirm(delete) { account, context in
                     context.delete(account.data)
+                    Task {
+                        await uniqueEngine.releaseId(key: Account.objId, id: account.data.id)
+                    }
                 }
             }.onAppear(perform: refresh)
             .onChange(of: accounts) { _, _ in
