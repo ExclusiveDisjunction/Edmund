@@ -25,8 +25,8 @@ struct SubCategoryAdder : View {
     private let minWidth: CGFloat = 50;
     private let maxWidth: CGFloat = 60;
 #else
-    private let minWidth: CGFloat = 55;
-    private let maxWidth: CGFloat = 65;
+    private let minWidth: CGFloat = 65;
+    private let maxWidth: CGFloat = 75;
 #endif
     
     @MainActor
