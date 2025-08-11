@@ -57,8 +57,23 @@ struct BudgetMonthIncomeEdit : View {
             
             Table($snapshot.income, selection: $selection) {
                 TableColumn("Name") { $row in
-                    TextField("", text: $row.name)
-                        .textFieldStyle(.roundedBorder)
+                    if horizontalSizeClass == .compact {
+                        HStack {
+                            Text(row.name)
+                            Spacer()
+                            Text(row.amount.rawValue, format: .currency(code: currencyCode))
+                        }.swipeActions(edge: .trailing) {
+                            Button {
+                                closeLook = row
+                            } label: {
+                                Label("Close Look", systemImage: "magnifyingglass")
+                            }.tint(.green)
+                        }
+                    }
+                    else {
+                        TextField("", text: $row.name)
+                            .textFieldStyle(.roundedBorder)
+                    }
                 }
                 
                 TableColumn("Amount") { $row in

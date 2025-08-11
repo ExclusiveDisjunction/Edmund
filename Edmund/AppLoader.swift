@@ -137,7 +137,12 @@ public actor AppLoaderEngine {
             return nil
         }
         
-        await unique.fill(uniqueContext)
+        do {
+            try await unique.fill(uniqueContext)
+        }
+        catch let e {
+            state.state = .error(AppLoadError(with: .unique, message: e.localizedDescription))
+        }
         
         let unique = await self.unique;
         let help   = await self.help;

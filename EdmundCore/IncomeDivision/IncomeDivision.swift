@@ -241,8 +241,10 @@ public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot
             return .negativeAmount
         }
         
-        if let failure = remainder.validate(unique: unique) {
-            return failure
+        if hasRemainder {
+            if let failure = remainder.validate(unique: unique) {
+                return failure
+            }
         }
         
         for devotion in devotions {

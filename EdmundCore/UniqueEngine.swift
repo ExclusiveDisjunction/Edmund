@@ -56,6 +56,67 @@ public struct UniqueContext {
     /// All hourly & salaried jobs in the context.
     public let allJobs: [any TraditionalJob];
 }
+public enum UniqueID : Hashable, Sendable {
+    case name(String)
+    case pair(BoundPairID)
+    case bills(BillBaseID)
+    case jobs(TraditionalJobID)
+}
+public struct UniqueContextSets {
+    public init(_ context: UniqueContext) throws(UniqueFailureError<UniqueID>) {
+        var acc: Set<String> = .init();
+        var cat: Set<String> = .init();
+        var subAcc: Set<BoundPairID> = .init();
+        var subCat: Set<BoundPairID> = .init();
+        var bills: Set<BillBaseID> = .init();
+        var jobs: Set<TraditionalJobID> = .init();
+        
+        for item in context.acc {
+            if !acc.insert(item.id).inserted {
+                throw .init(value: .name(item.id))
+            }
+        }
+        for item in context.cat {
+            if !cat.insert(item.id).inserted {
+                throw .init(value: .name(item.id))
+            }
+        }
+        for item in context.subAcc {
+            if !subAcc.insert(item.id).inserted {
+                throw .init(value: .pair(item.id))
+            }
+        }
+        for item in context.subCat {
+            if !subCat.insert(item.id).inserted {
+                throw .init(value: .pair(item.id))
+            }
+        }
+        for item in context.allBills {
+            if !bills.insert(item.id).inserted {
+                throw .init(value: .bills(item.id))
+            }
+        }
+        for item in context.allJobs {
+            if !jobs.insert(item.id).inserted {
+                throw .init(value: .jobs(item.id))
+            }
+        }
+        
+        self.acc = acc
+        self.cat = cat
+        self.subAcc = subAcc
+        self.subCat = subCat
+        self.bills = bills
+        self.jobs = jobs
+    }
+    
+    public let acc: Set<AnyHashable>;
+    public let cat: Set<AnyHashable>;
+    public let subAcc: Set<AnyHashable>;
+    public let subCat: Set<AnyHashable>;
+    public let bills: Set<AnyHashable>;
+    public let jobs: Set<AnyHashable>;
+}
 
 /// An error that occurs when the unique engine cannot validate a claim to an ID, but was assumed to be a free value.
 public struct UniqueFailureError<T> : Error where T: Sendable, T: Hashable {
@@ -90,18 +151,18 @@ public actor UniqueEngine {
     /// This will fill all sets with the currently taken IDs.
     /// Note that this function will crash the program if any ID is non-unique.
     @MainActor
-    public func fill(_ using: UniqueContext) async {
+    public func fill(_ using: UniqueContext) async throws(UniqueFailureError<UniqueID>) {
         await logger?.info("The UniqueEngine is importing from the ModelContainer.")
-        let allSets: [(ObjectIdentifier, Set<AnyHashable>)] = [
-            ( ObjectIdentifier(Account.self),              Set(using.acc.map      { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier(SubAccount.self),           Set(using.subAcc.map   { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier(Category.self),             Set(using.cat.map      { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier(SubCategory.self),          Set(using.subCat.map   { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier((any BillBase).self),       Set(using.allBills.map { AnyHashable($0.id) } ) ),
-            ( ObjectIdentifier((any TraditionalJob).self), Set(using.allJobs.map  { AnyHashable($0.id) } ) )
-        ];
         
-        let dict = Dictionary(uniqueKeysWithValues: allSets);
+        let sets = try UniqueContextSets(using);
+        let dict = Dictionary(uniqueKeysWithValues: [
+            (Account.objId,     sets.acc    ),
+            (Category.objId,    sets.cat    ),
+            (SubAccount.objId,  sets.subAcc ),
+            (SubCategory.objId, sets.subCat ),
+            (Bill.objId,        sets.bills  ),
+            (HourlyJob.objId,   sets.jobs   )
+        ]);
         let wrapper = DataBundle(inner: dict)
         await self.setData(data: wrapper)
         await logger?.info("The UniqueEngine's import is complete.")

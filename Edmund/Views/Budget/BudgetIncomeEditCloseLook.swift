@@ -35,6 +35,7 @@ struct BudgetIncomeEditCloseLook : View {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     TextField("", text: $snapshot.name)
+                        .textFieldStyle(.roundedBorder)
                 }
                 
                 GridRow {
