@@ -9,11 +9,13 @@ import SwiftUI;
 import EdmundCore
 
 struct ManyManyTransfer : TransactionEditorProtocol {
-    @State private var top: [ManyTableEntry] = [.init()];
-    @State private var bottom: [ManyTableEntry] = [.init()];
+    private var top: ManyTableManifest = .init(isSource: true)
+    private var bottom: ManyTableManifest = .init(isSource: false)
+    @State private var date: Date = .now;
     
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.categoriesContext) private var categoriesContext;
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
 
@@ -27,46 +29,76 @@ struct ManyManyTransfer : TransactionEditorProtocol {
             return .invalidInput
         }
         
-        let topData: [LedgerEntry], bottomData: [LedgerEntry];
+        let newTrans: [LedgerEntry];
         do {
-            topData = try top.createTransactions(transfer_into: false, categories);
-            bottomData = try bottom.createTransactions(transfer_into: false, categories);
+            let topData: [LedgerEntry] = try top.createTransactions(date: date, cats: categories);
+            let bottomData: [LedgerEntry] = try bottom.createTransactions(date: date, cats: categories)
+            
+            newTrans = topData + bottomData;
         }
         catch let e {
             return e
         }
         
-        let totalData = topData + bottomData
-        
-        for transaction in totalData {
+        for transaction in newTrans {
             modelContext.insert(transaction);
         }
         
         return nil;
     }
     
+    @ViewBuilder
+    private var stats: some View {
+        HStack {
+            Text("Transfer Out:")
+            Text(top.amount, format: .currency(code: currencyCode))
+        }
+        
+        HStack {
+            Text("Transfer In:")
+            Text(bottom.amount, format: .currency(code: currencyCode))
+        }
+    }
+    
     var body : some View {
         TransactionEditorFrame(.transfer(.manyMany), apply: apply, content: {
             VStack {
-                ManyTransferTable(title: "Take from", data: $top)
-                    .frame(minHeight: 150)
-                
                 HStack {
-                    Text("Total:")
-                    Text(top.amount, format: .currency(code: currencyCode))
-                    Spacer()
+                    Text("Date:")
+                    
+                    DatePicker("", selection: $date, displayedComponents: .date)
+                        .labelsHidden()
+                    
+                    Button("Today") {
+                        date = .now
+                    }
                 }
                 
-                Divider()
-                
-                ManyTransferTable(title: "Move to", data: $bottom)
-                    .frame(minHeight: 150)
-                
-                HStack {
-                    Text("Total:")
-                    Text(bottom.amount, format: .currency(code: currencyCode))
-                    Spacer()
+                if horizontalSizeClass == .compact {
+                    VStack {
+                        stats
+                    }
                 }
+                else {
+                    HStack {
+                        stats
+                    }
+                }
+                
+                TabView {
+                    ManyTransferTable(title: nil, data: top)
+                        .frame(minHeight: 150, idealHeight: 350)
+                        .tabItem {
+                            Label("Take from", systemImage: "arrow.up.right")
+                        }
+                    
+                    ManyTransferTable(title: nil, data: bottom)
+                        .frame(minHeight: 150, idealHeight: 350)
+                        .tabItem {
+                            Label("Move To", systemImage: "arrow.down.right")
+                        }
+                }
+                
             }
         })
     }
@@ -75,6 +107,5 @@ struct ManyManyTransfer : TransactionEditorProtocol {
 #Preview {
     DebugContainerView {
         ManyManyTransfer()
-            .padding()
     }
 }

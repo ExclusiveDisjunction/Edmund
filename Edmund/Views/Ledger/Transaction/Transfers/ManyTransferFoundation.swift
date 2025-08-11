@@ -24,33 +24,62 @@ class ManyTableEntry : Identifiable {
     var account: SubAccount?;
 }
 
-extension [ManyTableEntry] {
-    /// Takes in the current information and builds `LedgerEntry` instances from it. If `transfer_into` is true, these will be in the form of "Various to [account]"
-    func createTransactions(transfer_into: Bool, _ cats: CategoriesContext) throws(ValidationFailure) -> [LedgerEntry] {
-        var result: [LedgerEntry] = [];
-        for entry in self {
-            guard let acc = entry.account else {
+@Observable
+class ManyTableManifest {
+    /// Creates a new manifest.
+    /// - Parameters:
+    ///     - isSource; When true, the transactions, when created, will be written like this instance is the source of the transfer. Specifically, this means the header will be "\(name) to Various"
+    init(isSource: Bool, entries: [ManyTableEntry] = []) {
+        self.isSource = isSource;
+        self.entries = entries;
+    }
+    
+    private let isSource: Bool;
+    var entries: [ManyTableEntry];
+    var selection: Set<ManyTableEntry.ID> = .init();
+    
+    var amount: Decimal {
+        entries.reduce(into: Decimal(), { $0 += $1.amount.rawValue } )
+    }
+    
+    func add() {
+        withAnimation {
+            entries.append(.init())
+        }
+    }
+    func removeSelected(_ selection: Set<ManyTableEntry.ID>? = nil) {
+        let trueSelection = selection != nil ? selection! : self.selection;
+        
+        withAnimation {
+            self.entries.removeAll(where: { trueSelection.contains($0.id) } )
+        }
+    }
+    
+    func createTransactions(date: Date, cats: CategoriesContext) throws(ValidationFailure) -> [LedgerEntry] {
+        var result: [LedgerEntry] = .init()
+        result.reserveCapacity(self.entries.count)
+        
+        let bank = NSLocalizedString("Bank", comment: "")
+        
+        for row in self.entries {
+            guard let acc = row.account else {
                 throw .empty
             }
+            let amount = row.amount.rawValue;
             
             result.append(
-                .init(
-                    name: (transfer_into ? "Various to " + acc.name : acc.name + " to Various"),
-                    credit: transfer_into ? entry.amount.rawValue : 0,
-                    debit: transfer_into ? 0 : entry.amount.rawValue,
-                    date: Date.now,
-                    location: "Bank",
+                LedgerEntry(
+                    name: isSource ? "\(acc.name) to Various" : "Various to \(acc.name)",
+                    credit: isSource ? 0 : amount,
+                    debit: isSource ? amount : 0,
+                    date: date,
+                    location: bank,
                     category: cats.accountControl.transfer,
-                    account: acc
-                )
-            );
+                    account: acc)
+            )
         }
         
         return result;
-    }
-    
-    var amount: Decimal {
-        self.reduce(into: Decimal(), { $0 += $1.amount.rawValue } )
     }
 }
 
@@ -92,78 +121,57 @@ struct ManyTableEntryEditor : View {
 
 struct ManyTransferTable : View {
     let title: LocalizedStringKey?;
-    @Binding var data: [ManyTableEntry];
-    @State private var editing: Binding<ManyTableEntry>? = nil;
-    @State private var selected = Set<ManyTableEntry.ID>();
+    @Bindable var data: ManyTableManifest;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func removeSelected(selection: Set<ManyTableEntry.ID>? = nil) {
-        let trueSelection: Set<ManyTableEntry.ID>;
-        if let selection = selection {
-            trueSelection = selection
-        }
-        else {
-            trueSelection = self.selected
-        }
-        
-        data.removeAll(where: { trueSelection.contains($0.id ) } )
-    }
-    
     @ViewBuilder
     private var addButton: some View {
-        Button(action: {
-            withAnimation {
-                data.append(.init())
-            }
-        }) {
+        Button {
+            data.add()
+        } label: {
             Label("Add", systemImage: "plus")
         }.buttonStyle(.borderless)
     }
     
     @ViewBuilder
-    private var compact: some View {
-        List($data, selection: $selected) { $item in
-            HStack {
-                CurrencyField(item.amount)
-                
-                Spacer()
-                
-                NamedPairPicker($item.account)
-            }.swipeActions(edge: .trailing) {
-                Button {
-                    data.removeAll(where: { $0.id == item.id } )
-                } label: {
-                    Label("Remove", systemImage: "trash")
-                }.tint(.red)
-            }
-        }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
-    }
-    
-    @ViewBuilder
     private var fullSize: some View {
-        Table($data, selection: $selected) {
+        Table($data.entries, selection: $data.selection) {
             TableColumn("Amount") { $item in
-                CurrencyField(item.amount)
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        CurrencyField(item.amount)
+                        
+                        Spacer()
+                        
+                        NamedPairPicker($item.account)
+                    }.swipeActions(edge: .trailing) {
+                        Button {
+                            withAnimation {
+                                data.entries.removeAll(where: { $0.id == item.id } )
+                            }
+                        } label: {
+                            Label("Remove", systemImage: "trash")
+                        }.tint(.red)
+                    }
+                }
+                else {
+                    CurrencyField(item.amount)
+                }
             }
             
             TableColumn("Account") { $item in
                 NamedPairPicker($item.account)
             }
-        }.contextMenu(forSelectionType: ManyTableEntry.ID.self, menu: itemContextMenu)
-    }
-    
-    @ViewBuilder
-    private func itemContextMenu(_ selection: Set<ManyTableEntry.ID>) -> some View {
-        addButton
-        
-        Button(action: {
-            withAnimation {
-                removeSelected(selection: selection)
+        }.contextMenu(forSelectionType: ManyTableEntry.ID.self) { selection in
+            addButton
+            
+            Button {
+                data.removeSelected(selection)
+            } label: {
+                Label("Remove", systemImage: "trash")
             }
-        }) {
-            Label("Remove", systemImage: "trash")
         }
     }
     
@@ -177,48 +185,34 @@ struct ManyTransferTable : View {
                 
                 Spacer()
                 
-                Button(action: {
-                    withAnimation {
-                        data.append(.init())
-                    }
-                }) {
-                    Image(systemName: "plus")
-                }.buttonStyle(.borderless)
+                addButton
                 
-                Button(action: {
-                    withAnimation {
-                        removeSelected()
-                    }
-                }) {
+                Button {
+                    data.removeSelected()
+                } label: {
                     Image(systemName: "trash")
-                }.foregroundStyle(.red)
-                    .buttonStyle(.borderless)
-                    .disabled(selected.isEmpty)
+                        .foregroundStyle(.red)
+                }.buttonStyle(.borderless)
+                    .disabled(data.selection.isEmpty)
                 
                 #if os(iOS)
                 EditButton()
                 #endif
             }
             
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                fullSize
-            }
+            fullSize
         }
     }
 }
 
 #Preview {
-    var data: [ManyTableEntry] = [.init(), .init()];
-    let binding = Binding(
-        get: { data },
-        set: { data = $0 }
-    );
+    let manifest = ManyTableManifest(isSource: true, entries: [
+        .init(),
+        .init()
+    ])
     
     DebugContainerView {
-        ManyTransferTable(title: nil, data: binding)
+        ManyTransferTable(title: nil, data: manifest)
             .padding()
     }
 }

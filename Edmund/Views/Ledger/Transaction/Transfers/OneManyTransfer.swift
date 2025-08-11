@@ -11,7 +11,7 @@ import EdmundCore
 struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;
     @State private var account: SubAccount? = nil
-    @State private var data: [ManyTableEntry] = [.init()];
+    @State private var data: ManyTableManifest = .init(isSource: false)
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
@@ -37,24 +37,23 @@ struct OneManyTransfer : TransactionEditorProtocol {
         }
         
         let subTrans: [LedgerEntry]
+        let beginTrans = LedgerEntry(
+            name: source.name + " to Various",
+            credit: 0,
+            debit: data.amount,
+            date: date,
+            location: "Bank",
+            category: categories.accountControl.transfer,
+            account: source
+        );
+        
         do {
-            subTrans = try data.createTransactions(transfer_into: true, categories)
+            let result = try data.createTransactions(date: date, cats: categories)
+            subTrans = [beginTrans] + result;
         }
         catch let e {
             return e
         }
-        
-        modelContext.insert(
-            LedgerEntry(
-                name: source.name + " to Various",
-                credit: 0,
-                debit: data.amount,
-                date: date,
-                location: "Bank",
-                category: categories.accountControl.transfer,
-                account: source
-            )
-        );
         
         for transaction in subTrans {
             modelContext.insert(transaction)
@@ -63,7 +62,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
     }
     
     var body: some View {
-        TransactionEditorFrame(.transfer(.oneMany), apply: apply, content: {
+        TransactionEditorFrame(.transfer(.oneMany), apply: apply) {
             VStack {
                 Grid {
                     GridRow {
@@ -90,24 +89,16 @@ struct OneManyTransfer : TransactionEditorProtocol {
                     }
                 }
                 
-                ManyTransferTable(title: nil, data: $data)
+                ManyTransferTable(title: nil, data: data)
                     .frame(minHeight: 250)
                 
                 HStack {
                     Text(data.amount, format: .currency(code: currencyCode))
                     Text("will be moved to", comment: "$ will be moved to")
-                    if let account = account {
-                        CompactNamedPairInspect(account)
-                    }
-                    else {
-                        Text("(no account)").italic()
-                    }
+                    CompactNamedPairInspect(account)
                 }
-
-                
-                
             }
-        })
+        }
     }
 }
 

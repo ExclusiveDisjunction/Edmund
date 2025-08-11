@@ -36,35 +36,40 @@ struct LedgerTable: View {
     }
     
     @ViewBuilder
-    private var compact: some View {
-        List(data, selection: $selected) { entry in
-            HStack {
-                Text(entry.name)
-                Spacer()
-                Text(entry.balance, format: .currency(code: currencyCode))
-            }.swipeActions(edge: .trailing) {
-                SingularContextMenu(entry, inspect: inspect, remove: deleting, asSlide: true)
-            }
-        }
-    }
-    @ViewBuilder
     private var fullSized: some View {
         Table(data, selection: $selected) {
-            TableColumn("Memo", value: \.name)
-#if os(macOS)
-                .width(200)
-#endif
+            TableColumn("Memo") { entry in
+                if horizontalSizeClass == .compact {
+                    HStack {
+                        Text(entry.name)
+                        Spacer()
+                        Text(entry.balance, format: .currency(code: currencyCode))
+                    }.swipeActions(edge: .trailing) {
+                        SingularContextMenu(entry, inspect: inspect, remove: deleting, asSlide: true)
+                    }
+                }
+                else {
+                    Text(entry.name)
+                }
+            }
+            .width(min: 120, ideal: 160, max: nil)
             
             TableColumn(ledgerStyle.displayCredit) { item in
                 Text(item.credit, format: .currency(code: currencyCode))
             }
+            .width(min: 60, ideal: 70, max: nil)
             TableColumn(ledgerStyle.displayDebit) { item in
                 Text(item.debit, format: .currency(code: currencyCode))
             }
+            .width(min: 60, ideal: 70, max: nil)
+            
             TableColumn("Date") { item in
                 Text(item.date, style: .date)
             }
+            .width(min: 100, ideal: 120, max: nil)
             TableColumn("Location", value: \.location)
+                .width(min: 140, ideal: 170, max: nil)
+            
             TableColumn("Category") { item in
                 if let category = item.category {
                     CompactNamedPairInspect(category)
@@ -73,9 +78,7 @@ struct LedgerTable: View {
                     Text("No Category")
                 }
             }
-#if os(macOS)
-            .width(200)
-#endif
+            .width(min: 170, ideal: 200, max: nil)
             TableColumn("Account") { item in
                 if let account = item.account {
                     CompactNamedPairInspect(account)
@@ -84,15 +87,10 @@ struct LedgerTable: View {
                     Text("No Account")
                 }
             }
-#if os(macOS)
-            .width(200)
-#endif
+            .width(min: 170, ideal: 200, max: nil)
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
             SelectionContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
         }
-#if os(macOS)
-        .frame(minWidth: 300)
-#endif
     }
     
     @ToolbarContentBuilder
@@ -122,12 +120,7 @@ struct LedgerTable: View {
     
     var body: some View {
         VStack {
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                fullSized
-            }
+            fullSized
             
             if showLedgerFooter {
                 HStack {

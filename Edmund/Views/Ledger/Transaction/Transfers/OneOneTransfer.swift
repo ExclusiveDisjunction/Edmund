@@ -113,6 +113,10 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                     
                     HStack {
                         DatePicker("Date", selection: $date, displayedComponents: .date).labelsHidden()
+                        
+                        Button("Today") {
+                            date = .now
+                        }
                         Spacer()
                     }
                 }

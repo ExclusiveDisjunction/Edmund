@@ -11,7 +11,7 @@ import EdmundCore
 struct ManyOneTransfer : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;
     @State private var date: Date = .now;
-    @State private var data: [ManyTableEntry] = [.init()];
+    @Bindable private var data: ManyTableManifest = .init(isSource: true);
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
@@ -30,7 +30,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
         
         var firstTrans: [LedgerEntry];
         do {
-            firstTrans = try data.createTransactions(transfer_into: false, categories)
+            firstTrans = try data.createTransactions(date: date, cats: categories)
         }
         catch let e {
             return e
@@ -69,16 +69,21 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                     }
                     
                     GridRow {
-                        Text("Account:")
+                        Text("Deposit To:")
                         
                         NamedPairPicker($account)
                     }
-                    HStack {
+                    
+                    GridRow {
                         Text("Date:")
                         
                         HStack {
                             DatePicker("", selection: $date, displayedComponents: .date)
                                 .labelsHidden()
+                            
+                            Button("Today") {
+                                date = .now
+                            }
                             
                             Spacer()
                         }
@@ -87,7 +92,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                 
                 Divider()
                 
-                ManyTransferTable(title: "Amounts:", data: $data)
+                ManyTransferTable(title: "Amounts:", data: data)
                     .frame(minHeight: 250)
 
             }

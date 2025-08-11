@@ -7,9 +7,6 @@
     "..." : {
       "shouldTranslate" : false
     },
-    "(no account)" : {
-
-    },
     "(No balance)" : {
 
     },
@@ -1523,7 +1520,7 @@
     "Monthly" : {
 
     },
-    "Move to" : {
+    "Move To" : {
 
     },
     "Name" : {
@@ -2410,6 +2407,12 @@
           }
         }
       }
+    },
+    "Transfer In:" : {
+
+    },
+    "Transfer Out:" : {
+
     },
     "Trust Fund" : {
 

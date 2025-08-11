@@ -9,14 +9,6 @@ import SwiftUI;
 import Foundation;
 import EdmundCore
 
-public extension Array {
-    func windows(_ count: Int) -> [[Element]] {
-        return (0..<self.count).map {
-            stride(from: $0, to: count, by: self.count).map { self[$0] }
-        }
-    }
-}
-
 struct CompositeTransaction : TransactionEditorProtocol {
     enum Mode : Int, Identifiable {
         case debit, credit
@@ -163,7 +155,7 @@ struct CompositeTransaction : TransactionEditorProtocol {
                         TextField("", text: $working)
                             .textFieldStyle(.roundedBorder)
 #if os(iOS)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(.numbersAndPunctuation)
 #endif
                         TooltipButton("Type in numbers, separated by commas. Values are added up.")
                     }
