@@ -32,90 +32,116 @@ final class CategoryTableRow : Identifiable, Parentable {
     var attempts: CGFloat = 0;
 }
 
-struct CategoryTableRowEdit : View {
-    init(_ data: Binding<CategoryTableRow>, delete: DeletingManifest<CategoryTableRow>) {
-        self._data = data
-        self.delete = delete;
+@Observable
+public class NameEditingRow {
+    public init(start: String) {
+        self.name = start
     }
     
-    private let delete: DeletingManifest<CategoryTableRow>;
-    @Binding private var data: CategoryTableRow;
-    @Environment(\.uniqueEngine) private var uniqueEngine;
+    public var attempts: CGFloat = 0.0;
+    public var name: String;
     
-    private static let lockedWarning: LocalizedStringKey = "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted.";
-    
+    public func validate() -> Bool {
+        let name = self.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        return !name.isEmpty
+    }
+}
+public extension NameEditingRow {
     @MainActor
-    private func submitFor(_ cat: CategoryTableRow) async {
-        let name = cat.name.trimmingCharacters(in: .whitespaces);
+    func tryApply<T>(over: T, unique: UniqueEngine) async -> Bool where T: CategoryBase {
+        let name = self.name.trimmingCharacters(in: .whitespacesAndNewlines);
         
         if !name.isEmpty {
-            if await cat.target.tryNewName(name: name, unique: uniqueEngine) {
-                await cat.target.setNewName(name: name, unique: uniqueEngine)
-                cat.isEditing = false;
-                return
+            if await over.tryNewName(name: name, unique: unique) {
+                await over.setNewName(name: name, unique: unique)
+                return true;
             }
         }
         
         withAnimation(.default) {
-            cat.attempts += 1;
+            attempts += 1;
         }
-    }
-    
-    var body: some View {
-        HStack {
-            Text(data.target.name)
-                .popover(isPresented: $data.isEditing) {
-                    HStack {
-                        Text("Name:")
-                            .frame(width: 50)
-                        TextField("", text: $data.name)
-                            .textFieldStyle(.roundedBorder)
-                            .onSubmit {
-                                Task {
-                                    await submitFor(data)
-                                }
-                            }
-                            .onDisappear {
-                                data.name = data.target.name
-                            }
-                            .modifier(ShakeEffect(animatableData: CGFloat(data.attempts)))
-                    }.padding()
-                }
-            
-            Spacer()
-            
-            if data.target.isLocked {
-                Image(systemName: "lock.fill")
-            }
-        }
-            .onTapGesture(count: 2) {
-                if !data.target.isLocked {
-                    data.isEditing = true
-                }
-            }
-            .contextMenu {
-                Button(action: {
-                    data.isEditing = true
-                }) {
-                    Label("Edit", systemImage: "pencil")
-                }.disabled(data.target.isLocked)
-                    .help(data.target.isLocked ? Self.lockedWarning : "")
-                
-                Button(action: {
-                    delete.action = [data]
-                }) {
-                    Label("Delete", systemImage: "trash")
-                }.disabled(data.target.isLocked)
-                    .foregroundStyle(.red)
-                    .help(data.target.isLocked ? Self.lockedWarning : "")
-            }
+        
+        return false
     }
 }
 
-#Preview {
-    var data = CategoryTableRow(category: Category.exampleCategory)
-    let binding = Binding(get: { data }, set: { data = $0 } )
+public struct SkinnyWrapper<T> : Identifiable {
+    public init(_ data: T, id: UUID = UUID()) {
+        self.data = data
+        self.id = id
+    }
     
-    CategoryTableRowEdit(binding, delete: .init())
-        .padding()
+    public let data: T;
+    public let id: UUID;
+}
+
+public enum EditingState {
+    case view
+    case edit(NameEditingRow)
+    case adding(NameEditingRow)
+    
+    public var isEdit: Bool {
+        self.snapshot != nil
+    }
+    public var snapshot: NameEditingRow? {
+        switch self {
+            case.view: nil
+            case .edit(let e): e
+            case .adding(let e): e
+        }
+    }
+    
+    @MainActor
+    public mutating func trySwitchMode<T>(over: T, unique: UniqueEngine, context: ModelContext) async -> Bool where T: CategoryBase, T: PersistentModel {
+        switch self {
+            case .view:
+                self = .edit(NameEditingRow(start: over.name))
+                return true
+            case .edit(let e):
+                guard await e.tryApply(over: over, unique: unique) else {
+                    return false;
+                }
+                
+                self = .view
+                return true
+            case .adding(let e):
+                guard await e.tryApply(over: over, unique: unique) else {
+                    return false;
+                }
+                
+                context.insert(over)
+                self = .view
+                return true
+        }
+    }
+}
+
+@Observable
+public class SubCategoryWrapper : Identifiable {
+    public init(_ over: SubCategory, id: UUID = UUID()) {
+        self.over = over
+        self.id = id
+        self.state = .view
+    }
+    
+    public let over: SubCategory;
+    public let id: UUID;
+    public var state: EditingState;
+}
+
+@Observable
+public class CategoryWrapper : Identifiable {
+    public init(_ over: EdmundCore.Category, id: UUID = UUID()) {
+        self.over = over
+        self.id = id
+        self.state = .view
+        self.children = over.children.map { SubCategoryWrapper($0) }
+    }
+    
+    public let over: EdmundCore.Category;
+    public let id: UUID;
+    public var state: EditingState;
+    public var children: [SubCategoryWrapper];
 }

@@ -281,6 +281,12 @@
     "April" : {
 
     },
+    "Are you sure you want to delete these categories? It will remove all sub-categories and all transactions attached to them." : {
+
+    },
+    "Are you sure you want to delete these sub-categories? It will remove all transactions attached to them." : {
+
+    },
     "Ascending" : {
 
     },
@@ -849,6 +855,9 @@
 
     },
     "Edit Sub Account" : {
+
+    },
+    "Edit Sub Accounts" : {
 
     },
     "Edit Sub Category" : {
@@ -2455,6 +2464,9 @@
       }
     },
     "Type in numbers, separated by commas. Values are added up." : {
+
+    },
+    "Type:" : {
 
     },
     "Under" : {
