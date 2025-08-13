@@ -31,6 +31,20 @@ struct UpcomingBillsView : View {
     
     var body: some View {
         LoadableView($loadedBills, process: loadBills, onLoad: { loaded in
+            #if os(macOS)
+            Table(loaded) {
+                TableColumn("Name", value: \.name)
+                    .width(min: 120, ideal: 140, max: nil)
+                TableColumn("Amount") {
+                    Text($0.amount, format: .currency(code: currencyCode))
+                }
+                .width(min: 120, ideal: 140, max: nil)
+                TableColumn("Due Date") {
+                    Text($0.dueDate.formatted(date: .abbreviated, time: .omitted))
+                }
+                .width(min: 140, ideal: 150, max: nil)
+            }
+            #else
             List(loaded) { bill in
                 HStack {
                     Text(bill.name)
@@ -40,6 +54,7 @@ struct UpcomingBillsView : View {
                     Text(bill.dueDate.formatted(date: .abbreviated, time: .omitted))
                 }
             }
+            #endif
         })
     }
 }
