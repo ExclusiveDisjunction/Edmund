@@ -151,11 +151,11 @@ struct BudgetGoalCloseLook<T> : View where T: BudgetGoal{
     @Environment(\.dismiss) private var dismiss;
     
 #if os(macOS)
-    private let minWidth: CGFloat = 70;
-    private let maxWidth: CGFloat = 80;
+    private let minWidth: CGFloat = 85;
+    private let maxWidth: CGFloat = 95;
 #else
-    private let minWidth: CGFloat = 90;
-    private let maxWidth: CGFloat = 100;
+    private let minWidth: CGFloat = 100;
+    private let maxWidth: CGFloat = 110;
 #endif
     
     
@@ -184,6 +184,17 @@ struct BudgetGoalCloseLook<T> : View where T: BudgetGoal{
                     
                     HStack {
                         Text(source.over.amount, format: .currency(code: currencyCode))
+                        Text(source.over.period.display)
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Monthly Goal:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(source.over.monthlyGoal, format: .currency(code: currencyCode))
                         
                         Spacer()
                     }
@@ -288,11 +299,16 @@ struct BudgetMonthGoalInspect<T> : View where T: BudgetGoal {
         Table(d[keyPath: source], selection: $selection) {
             TableColumn(name) { row in
                 if horizontalSizeClass == .compact {
-                    HStack {
-                        Text(row.over.amount, format: .currency(code: currencyCode))
-                        Text("for")
-                        CompactNamedPairInspect(row.over.association)
-                        Spacer()
+                    VStack {
+                        HStack {
+                            Text(row.over.amount, format: .currency(code: currencyCode))
+                            Text(row.over.period.display)
+                            Spacer()
+                        }
+                        HStack {
+                            Spacer()
+                            CompactNamedPairInspect(row.over.association)
+                        }
                     }.swipeActions(edge: .trailing) {
                         Button {
                             closeLook = row
@@ -308,6 +324,13 @@ struct BudgetMonthGoalInspect<T> : View where T: BudgetGoal {
             
             TableColumn("Goal") { row in
                 Text(row.over.amount, format: .currency(code: currencyCode))
+            }
+            TableColumn("Period") { row in
+                Text(row.over.period.display)
+            }
+            
+            TableColumn("Monthly Goal") { row in
+                Text(row.over.monthlyGoal, format: .currency(code: currencyCode))
             }
             
             TableColumn("Progress") { row in
@@ -374,7 +397,7 @@ class BudgetMonthInspectManifest {
         }
         
         do {
-            let pipeline = BudgetMonthComputePipeline(over: over, log: logger)
+            let pipeline = BudgetComputePipeline(over: over, log: logger)
             let result = try pipeline.compute(context: context)
             logger?.info("Budget month computation complete for month year \(self.over.date.description).")
             withAnimation {

@@ -13,12 +13,14 @@ struct BudgetMonthGoalCloseLook<T> : View where T: BoundPair, T: TransactionHold
     
     @Environment(\.dismiss) private var dismiss;
     
+    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
 #if os(macOS)
-    private let minWidth: CGFloat = 70;
-    private let maxWidth: CGFloat = 80;
+    private let minWidth: CGFloat = 85;
+    private let maxWidth: CGFloat = 95;
 #else
-    private let minWidth: CGFloat = 90;
-    private let maxWidth: CGFloat = 100;
+    private let minWidth: CGFloat = 100;
+    private let maxWidth: CGFloat = 110;
 #endif
     
     var body: some View {
@@ -38,10 +40,24 @@ struct BudgetMonthGoalCloseLook<T> : View where T: BoundPair, T: TransactionHold
                 }
                 
                 GridRow {
-                    Text("Amount:")
+                    Text("Goal:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    CurrencyField(over.amount)
+                    HStack {
+                        CurrencyField(over.amount)
+                        Picker("", selection: $over.period) {
+                            ForEach(MonthlyTimePeriods.allCases) { period in
+                                Text(period.display).tag(period)
+                            }
+                        }.labelsHidden()
+                    }
+                }
+                
+                GridRow {
+                    Text("Monthly Goal:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    Text(over.monthlyGoal, format: .currency(code: currencyCode))
                 }
             }
             

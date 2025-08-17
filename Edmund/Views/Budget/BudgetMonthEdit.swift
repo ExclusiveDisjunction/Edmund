@@ -172,13 +172,17 @@ struct BudgetMonthGoalEdit<T> : View where T: BoundPair, T: TransactionHolder, T
             Table(data, selection: $selection) {
                 TableColumn(title) { $row in
                     if horizontalSizeClass == .compact {
-                        HStack {
-                            Text(row.amount.rawValue, format: .currency(code: currencyCode))
-                            Text("for")
+                        VStack {
+                            HStack {
+                                Text(row.amount.rawValue, format: .currency(code: currencyCode))
+                                Text(row.period.display)
+                                Spacer()
+                            }
                             
-                            CompactNamedPairInspect(row.association)
-                            
-                            Spacer()
+                            HStack {
+                                Spacer()
+                                CompactNamedPairInspect(row.association)
+                            }
                         }.swipeActions(edge: .trailing) {
                             Button {
                                 closeLook = row
@@ -194,6 +198,18 @@ struct BudgetMonthGoalEdit<T> : View where T: BoundPair, T: TransactionHolder, T
                 
                 TableColumn("Goal") { $row in
                     CurrencyField(row.amount)
+                }
+                
+                TableColumn("Period") { $row in
+                    Picker("", selection: $row.period) {
+                        ForEach(MonthlyTimePeriods.allCases) {
+                            Text($0.display).tag($0)
+                        }
+                    }.labelsHidden()
+                }
+                
+                TableColumn("Monthly Goal") { $row in
+                    Text(row.monthlyGoal, format: .currency(code: currencyCode))
                 }
             }.contextMenu(forSelectionType: BudgetGoalSnapshot<T>.ID.self) { selection in
                 Button {

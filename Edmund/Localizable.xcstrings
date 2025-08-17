@@ -999,9 +999,6 @@
     "Fixed Amount" : {
 
     },
-    "for" : {
-
-    },
     "For a given year, you can only have one budget per month. If a budget exists for a given month, it cannot be chosen, and will be struck through." : {
 
     },
@@ -1523,6 +1520,12 @@
     "Monthly" : {
 
     },
+    "Monthly Goal" : {
+
+    },
+    "Monthly Goal:" : {
+
+    },
     "Move To" : {
 
     },
@@ -1775,6 +1778,9 @@
 
     },
     "Percentage" : {
+
+    },
+    "Period" : {
 
     },
     "Person" : {

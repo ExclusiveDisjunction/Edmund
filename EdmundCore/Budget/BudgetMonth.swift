@@ -111,13 +111,13 @@ extension EdmundModelsV1 {
                 .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(date.year, date.month, 25))
             ]
             result.spendingGoals = [
-                .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100),
-                .init(category: cat.getOrInsert(parent: "Home", child: "Groceries"), amount: 250),
-                .init(category: cat.getOrInsert(parent: "Car", child: "Gas"), amount: 120)
+                .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100, period: .biWeekly),
+                .init(category: cat.getOrInsert(parent: "Home", child: "Groceries"), amount: 400, period: .monthly),
+                .init(category: cat.getOrInsert(parent: "Car", child: "Gas"), amount: 120, period: .monthly)
             ]
             result.savingsGoals = [
-                .init(account: acc.getOrInsert(parent: "Savings", child: "Main"), amount: 400),
-                .init(account: acc.getOrInsert(parent: "Checking", child: "Taxes"), amount: 100)
+                .init(account: acc.getOrInsert(parent: "Savings", child: "Main"), amount: 400, period: .biWeekly),
+                .init(account: acc.getOrInsert(parent: "Checking", child: "Taxes"), amount: 100, period: .monthly)
             ]
             
             return result

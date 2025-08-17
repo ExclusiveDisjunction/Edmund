@@ -41,3 +41,14 @@ extension IncomeKind : Displayable {
         }
     }
 }
+
+extension MonthlyTimePeriods : Displayable {
+    public var display: LocalizedStringKey {
+        switch self {
+        case .weekly: "Weekly"
+        case .biWeekly: "Bi-Weekly"
+        case .monthly: "Monthly"
+        default: "internalError"
+        }
+    }
+}

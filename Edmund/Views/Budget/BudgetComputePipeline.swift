@@ -16,7 +16,7 @@ public struct BudgetPresentableData<T> : Identifiable where T: BudgetGoal {
     public let over: T;
     public let balance: Decimal;
     public var freeToSpend: Decimal {
-        let raw = over.amount - balance;
+        let raw = over.monthlyGoal - balance;
         
         if raw < 0 {
             return 0
@@ -26,7 +26,7 @@ public struct BudgetPresentableData<T> : Identifiable where T: BudgetGoal {
         }
     }
     public var overBy: Decimal {
-        over.amount >= balance ? 0 : balance - over.amount
+        over.monthlyGoal >= balance ? 0 : balance - over.monthlyGoal
     }
 }
 @MainActor
@@ -40,7 +40,7 @@ public enum BudgetComputationError : Error {
 }
 
 @MainActor
-struct BudgetMonthComputePipeline {
+struct BudgetComputePipeline {
     private struct PreparedData {
         let accounts: Set<SubAccount>;
         let categories: Set<SubCategory>;
