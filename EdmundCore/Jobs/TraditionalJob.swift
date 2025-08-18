@@ -82,7 +82,7 @@ internal extension TraditionalJob {
 }
 
 /// Holds an `any TraditionalJob` for use in UI code & logic.
-public struct TraditionalJobWrapper : Identifiable {
+public struct TraditionalJobWrapper : Identifiable, Equatable {
     public init(_ data: any TraditionalJob, id: UUID = UUID()) {
         self.data = data;
         self.id = id;
@@ -91,6 +91,10 @@ public struct TraditionalJobWrapper : Identifiable {
     /// The targeted data
     public var data: any TraditionalJob;
     public var id: UUID;
+    
+    public static func==(lhs: TraditionalJobWrapper, rhs: TraditionalJobWrapper) -> Bool {
+        lhs.data.id == rhs.data.id
+    }
 }
 
 @Observable

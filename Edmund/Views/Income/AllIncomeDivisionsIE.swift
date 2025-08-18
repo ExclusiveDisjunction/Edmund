@@ -36,8 +36,9 @@ struct AllIncomeDivisionsIE : View {
         var id: Self { self }
     }
     
-    @State private var selectedBudget: IncomeDivision?;
-    @State private var editingSnapshot: IncomeDivisionSnapshot?;
+    @State private var selectedID: IncomeDivision.ID? = nil;
+    @State private var selected: IncomeDivision?;
+    @State private var editing: IncomeDivisionSnapshot?;
     
     @State private var showDeleteWarning: Bool = false;
     @State private var showSheet: Sheets? = nil;
@@ -45,8 +46,6 @@ struct AllIncomeDivisionsIE : View {
     
     @Bindable private var warning: ValidationWarningManifest = .init();
     @Bindable private var finalizeWarning: WarningManifest<IncomeDivisionFinalizationError> = .init();
-    
-    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.categoriesContext) private var categoriesContext;
@@ -56,12 +55,12 @@ struct AllIncomeDivisionsIE : View {
     @Environment(\.loggerSystem) private var loggerSystem;
     
     private var isEditing: Bool {
-        editingSnapshot != nil
+        editing != nil
     }
     
     private func cancelEdit() {
         withAnimation {
-            editingSnapshot = nil;
+            editing = nil;
         }
     }
    
@@ -134,12 +133,12 @@ struct AllIncomeDivisionsIE : View {
         
         withAnimation {
             income.isFinalized = true
-            selectedBudget = nil
+            selectedID = nil
         }
     }
     @MainActor
     private func submitEdit(_ snapshot: IncomeDivisionSnapshot) async {
-        guard let selected = selectedBudget else {
+        guard let selected = selected else {
             loggerSystem?.data.warning("Submit edit was called, but there is no active snapshot or selected budget.")
             return
         }
@@ -162,12 +161,12 @@ struct AllIncomeDivisionsIE : View {
                 showSheet = .graph
             } label: {
                 Label("Graph", systemImage: "chart.pie")
-            }.disabled(selectedBudget == nil || isEditing)
+            }.disabled(selected == nil || isEditing)
         }
         
         ToolbarItem(placement: .secondaryAction) {
             Button {
-                if selectedBudget?.isFinalized == true {
+                if selected?.isFinalized == true {
                     loggerSystem?.data.warning("Finalize called on a previously finalized income division.")
                     return
                 }
@@ -175,7 +174,7 @@ struct AllIncomeDivisionsIE : View {
                 showFinalizeNotice = true
             } label: {
                 Label("Finalize", systemImage: "square.and.arrow.up.badge.checkmark")
-            }.disabled(selectedBudget == nil || isEditing || selectedBudget?.isFinalized == true)
+            }.disabled(selected == nil || isEditing || selected?.isFinalized == true)
         }
         
         ToolbarItem(placement: .primaryAction) {
@@ -188,29 +187,28 @@ struct AllIncomeDivisionsIE : View {
         
         ToolbarItem(placement: .primaryAction) {
             Button {
-                if selectedBudget?.isFinalized == true {
+                if selected?.isFinalized == true {
                     loggerSystem?.data.warning("Edit called on a finalized budget, this will be ignored")
                     return;
                 }
                 
-                guard let budget = selectedBudget else {
+                guard let budget = selected else {
                     return
                 }
                 
-                if let snap = editingSnapshot {
+                if let snap = editing {
                     Task {
                         await submitEdit(snap)
                     }
                 }
                 else {
                     withAnimation {
-                        editingSnapshot = budget.makeSnapshot()
-                        pagesLocked.wrappedValue = true
+                        editing = budget.makeSnapshot()
                     }
                 }
             } label: {
                 Label(isEditing ? "Save" : "Edit", systemImage: isEditing ? "checkmark" : "pencil")
-            }.disabled(selectedBudget == nil || selectedBudget?.isFinalized == true)
+            }.disabled(selected == nil || selected?.isFinalized == true)
         }
         
         ToolbarItem(placement: .primaryAction) {
@@ -224,7 +222,7 @@ struct AllIncomeDivisionsIE : View {
             } label: {
                 Label(isEditing ? "Cancel" : "Delete", systemImage: isEditing ? "xmark" : "trash")
                     .foregroundStyle(.red)
-            }.disabled(selectedBudget == nil)
+            }.disabled(selected == nil)
         }
         
         ToolbarItem(placement: .primaryAction) {
@@ -242,7 +240,7 @@ struct AllIncomeDivisionsIE : View {
             HStack {
                 Text("Income Division:")
                 
-                IncomeDivisionPicker("", selection: $selectedBudget)
+                IncomeDivisionPicker("", selection: $selected, id: $selectedID)
                     .labelsHidden()
                     .disabled(isEditing)
 #if os(iOS)
@@ -252,10 +250,10 @@ struct AllIncomeDivisionsIE : View {
             
             Divider()
             
-            if let snapshot = editingSnapshot {
+            if let snapshot = editing {
                 IncomeDivisionEdit(snapshot)
             }
-            else if let budget = selectedBudget {
+            else if let budget = selected {
                 IncomeDivisionInspect(data: budget)
             }
             else {
@@ -270,7 +268,7 @@ struct AllIncomeDivisionsIE : View {
     
     @ViewBuilder
     private var graph: some View {
-        if let selected = selectedBudget {
+        if let selected = selected {
             DevotionGroupsGraph(from: selected)
         }
         else {
@@ -281,8 +279,17 @@ struct AllIncomeDivisionsIE : View {
         }
     }
     
+    @ViewBuilder
+    private func sheets(_ sheet: Sheets) -> some View {
+        switch sheet {
+            case .searching: AllIncomeDivisionsSearch(selection: $selectedID)
+            case .adding: AddIncomeDivision(editingSnapshot: $editing, selectionID: $selectedID)
+            case .graph: graph
+        }
+    }
+    
     private func finalizePressed() {
-        if let budget = selectedBudget {
+        if let budget = selected {
             finalize(budget)
         }
         else {
@@ -290,11 +297,12 @@ struct AllIncomeDivisionsIE : View {
         }
     }
     private func deletePressed() {
-        if let selectedBudget = selectedBudget {
+        if let selected = selected {
             withAnimation {
-                self.selectedBudget = nil;
+                self.selectedID = nil;
+                self.editing = nil;
                 
-                modelContext.delete(selectedBudget)
+                modelContext.delete(selected)
             }
         }
     }
@@ -305,16 +313,10 @@ struct AllIncomeDivisionsIE : View {
             .navigationTitle("Income Division")
             .toolbar(content: toolbarContent)
             .toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
-            .onChange(of: editingSnapshot) { _, newValue in
+            .onChange(of: editing) { _, newValue in
                 pagesLocked.wrappedValue = newValue != nil;
             }
-            .sheet(item: $showSheet) { sheet in
-                switch sheet {
-                    case .searching: AllIncomeDivisionsSearch(result: $selectedBudget)
-                    case .adding: AddIncomeDivision(editingSnapshot: $editingSnapshot, selection: $selectedBudget)
-                    case .graph: graph
-                }
-            }
+            .sheet(item: $showSheet, content: sheets)
             .confirmationDialog("Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?", isPresented: $showFinalizeNotice, titleVisibility: .visible) {
                 Button("Ok", action: finalizePressed)
                 

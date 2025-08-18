@@ -19,6 +19,9 @@
     "(No parent), %@" : {
       "comment" : "Same as above, used in similar contexts"
     },
+    "(None)" : {
+
+    },
     "(Select a Month & Year)" : {
 
     },
@@ -579,7 +582,7 @@
         }
       }
     },
-    "Compact sizes only display scroll view." : {
+    "Compact" : {
 
     },
     "Company" : {
@@ -789,10 +792,10 @@
     "Disclosures" : {
 
     },
-    "Display the homepage as a scrollable page (iOS Default)" : {
+    "Display the homepage as one widget" : {
 
     },
-    "Display the homepage as one widget" : {
+    "Display the homepage as two widgets" : {
 
     },
     "Do not show as Accounting Style" : {
@@ -1303,6 +1306,9 @@
     "Into:" : {
 
     },
+    "iOS & iPadOS (vertical orientations) only display in Compact mode." : {
+
+    },
     "Item" : {
 
     },
@@ -1310,6 +1316,9 @@
       "shouldTranslate" : false
     },
     "January" : {
+
+    },
+    "Job:" : {
 
     },
     "Jobs" : {
@@ -1609,6 +1618,9 @@
 
     },
     "No interest" : {
+
+    },
+    "No job" : {
 
     },
     "No location" : {
@@ -2030,9 +2042,6 @@
 
     },
     "Savings" : {
-
-    },
-    "Scroll" : {
 
     },
     "Search" : {

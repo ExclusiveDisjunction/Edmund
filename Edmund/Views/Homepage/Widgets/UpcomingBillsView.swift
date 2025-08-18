@@ -49,8 +49,6 @@ struct UpcomingBillsView : View {
                 HStack {
                     Text(bill.name)
                     Spacer()
-                    Text(bill.amount, format: .currency(code: currencyCode))
-                    Text("on", comment: "$_ on [date]")
                     Text(bill.dueDate.formatted(date: .abbreviated, time: .omitted))
                 }
             }

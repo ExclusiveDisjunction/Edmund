@@ -94,16 +94,12 @@ public class IncomeDivisionSearchVM {
     }
 }
 
-
-
 struct AllIncomeDivisionsSearch : View {
-    init(result: Binding<IncomeDivision?>) {
-        self._result = result
-        self._selection = .init(initialValue: result.wrappedValue?.id)
+    init(selection: Binding<IncomeDivision.ID?>) {
+        self._selection = selection;
     }
     
-    @Binding var result: IncomeDivision?;
-    @State private var selection: IncomeDivision.ID?;
+    @Binding private var selection: IncomeDivision.ID?;
     
     @Query private var budgets: [IncomeDivision];
     @Bindable private var inspect: InspectionManifest<IncomeDivision> = .init();
@@ -232,14 +228,6 @@ struct AllIncomeDivisionsSearch : View {
             .onChange(of: query.criteria.hashValue) { _, _ in
                 query.update(budgets)
             }
-            .onChange(of: selection) { _, newValue in
-                guard let id = newValue, let target = query.cache.first(where: { $0.id == id } ) else {
-                    result = nil
-                    return;
-                }
-                
-                result = target;
-            }
             .sheet(item: $inspect.value) { item in
                 IncomeDivisionCloseInspect(data: item)
             }
@@ -247,8 +235,10 @@ struct AllIncomeDivisionsSearch : View {
 }
 
 #Preview {
+    var id: IncomeDivision.ID? = nil
+    let binding = Binding(get: { id }, set: { id = $0 } )
     
     DebugContainerView {
-        AllIncomeDivisionsSearch(result: .constant(nil))
+        AllIncomeDivisionsSearch(selection: binding)
     }
 }

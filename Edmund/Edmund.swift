@@ -100,7 +100,7 @@ struct EdmundApp: App {
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
                 AppWindowGate(appLoader: loader, state: state) {
-                    Text("Work in progress")
+                    AllBudgetMonthIE()
                 }
             }
         }

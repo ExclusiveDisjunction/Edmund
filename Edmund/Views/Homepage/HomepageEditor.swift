@@ -8,14 +8,14 @@
 import SwiftUI;
 
 enum MajorHomepageOrder : Int, CaseIterable, Identifiable, Codable {
-    case vSplit, hSplit, fullScreen, scroll
+    case vSplit, hSplit, fullScreen, compact
     
     var name: LocalizedStringKey {
         switch self {
             case .vSplit:     "Vertical Split"
             case .hSplit:     "Horizontal Split"
             case .fullScreen: "Full Screen"
-            case .scroll:     "Scroll"
+            case .compact:    "Compact"
         }
     }
     var desc: LocalizedStringKey {
@@ -23,7 +23,7 @@ enum MajorHomepageOrder : Int, CaseIterable, Identifiable, Codable {
             case .vSplit: "Split the homepage vertically"
             case .hSplit: "Split the homepage horizontally"
             case .fullScreen: "Display the homepage as one widget"
-            case .scroll: "Display the homepage as a scrollable page (iOS Default)"
+            case .compact: "Display the homepage as two widgets"
         }
     }
     var id: Self { self }
@@ -66,8 +66,6 @@ struct HomepageEditor : View {
         VStack {
             ChoicePicker(choice: $sectorA1)
             ChoicePicker(choice: $sectorA2)
-            ChoicePicker(choice: $sectorB1)
-            ChoicePicker(choice: $sectorB2)
         }
     }
     @ViewBuilder
@@ -109,7 +107,7 @@ struct HomepageEditor : View {
             
             if horizontalSizeClass == .compact {
                 HStack {
-                    Label("Compact sizes only display scroll view.", systemImage: "info.circle")
+                    Label("iOS & iPadOS (vertical orientations) only display in Compact mode.", systemImage: "info.circle")
                         .italic()
                     Spacer()
                 }
@@ -149,7 +147,7 @@ struct HomepageEditor : View {
             Divider()
             
             switch major {
-                case .scroll: scrollDisplay
+                case .compact: scrollDisplay
                 case .fullScreen: fullDisplay
                 case .vSplit: vSplitDisplay
                 case .hSplit: hSplitDisplay

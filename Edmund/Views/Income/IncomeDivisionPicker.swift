@@ -10,21 +10,23 @@ import SwiftData
 import EdmundCore
 
 struct IncomeDivisionPicker : View {
-    init(_ title: LocalizedStringKey, selection: Binding<IncomeDivision?>) {
+    init(_ title: LocalizedStringKey, selection: Binding<IncomeDivision?>, id: Binding<IncomeDivision.ID?>) {
         self.title = title
         self._selection = selection
+        self._selectedID = id
     }
     
     @Query(filter: #Predicate<IncomeDivision> { !$0.isFinalized }, sort: [SortDescriptor(\IncomeDivision.name, order: .forward)]) private var budgetInstances: [IncomeDivision];
     @Query(filter: #Predicate<IncomeDivision> { $0.isFinalized }, sort: [SortDescriptor(\IncomeDivision.name, order: .forward)]) private var finBudgetInstances: [IncomeDivision];
-    @State private var selectedID: IncomeDivision.ID?;
+    @Binding var selectedID: IncomeDivision.ID?;
     @Binding var selection: IncomeDivision?;
     
     let title: LocalizedStringKey;
     
     var body: some View {
         Picker(title, selection: $selectedID) {
-            Text("None")
+            Text("(None)")
+                .italic()
                 .tag(nil as IncomeDivision.ID?)
             
             ForEach(budgetInstances) { instance in

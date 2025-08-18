@@ -40,12 +40,9 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
         self.data = data
         self.postAction = postAction;
         self.mode = mode;
-        if mode == .inspect {
-            self._editing = .init(wrappedValue: .init(nil))
-        }
-        else {
-            self._editing = .init(wrappedValue: .init( mode == .add ? T.makeBlankSnapshot() : data.makeSnapshot()))
-        }
+        self._editing = StateObject(wrappedValue: EditingManifest(
+            mode == .inspect ? nil : data.makeSnapshot()
+        ));
     }
     
     private let data: T;

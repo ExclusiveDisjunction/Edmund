@@ -49,17 +49,9 @@ struct Homepage : View {
     
     @ViewBuilder
     private var scrollView : some View {
-        ScrollView {
-            VStack {
-                ChoiceRenderer(choice: sectorA1)
-                    .frame(minHeight: 250)
-                ChoiceRenderer(choice: sectorA2)
-                    .frame(minHeight: 250)
-                ChoiceRenderer(choice: sectorB1)
-                    .frame(minHeight: 250)
-                ChoiceRenderer(choice: sectorB2)
-                    .frame(minHeight: 250)
-            }
+        VStack {
+            ChoiceRenderer(choice: sectorA1)
+            ChoiceRenderer(choice: sectorA2)
         }
     }
     
@@ -70,7 +62,7 @@ struct Homepage : View {
             }
             else {
                 switch major {
-                    case .scroll:
+                    case .compact:
                         scrollView
                     case .fullScreen:
                         ChoiceRenderer(choice: sectorA1)
