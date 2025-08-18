@@ -9,30 +9,9 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct YearRowID : Hashable, Equatable, Sendable {
-    let parent: UUID;
-    let budget: BudgetMonth.ID;
-}
-
-struct YearRow : Identifiable {
-    let data: BudgetMonth;
-    var id: YearRowID;
-    var date: MonthYear {
-        data.date
-    }
-    var display: String {
-        data.title
-    }
-}
-struct YearSection : Identifiable {
-    let year: Int;
-    let id: UUID;
-    let children: [YearRow];
-}
-
 struct BudgetMonthPicker : View {
     @Query private var source: [BudgetMonth];
-    @State private var id: YearRowID? = nil;
+    @Binding var id: YearRowID?;
     @Binding var selected: BudgetMonth?;
     let label: LocalizedStringKey;
     

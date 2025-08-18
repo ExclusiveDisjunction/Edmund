@@ -56,6 +56,7 @@ struct BudgetMonthAdd : View {
     @State private var schema: [Month: Bool]? = nil; //Value is true for a month when the
     @State private var month: Month? = nil;
     @State private var isCopying: Bool = false;
+    @State private var copyFromID: YearRowID? = nil;
     @State private var copyFrom: BudgetMonth? = nil;
     @State private var error: ErrorKind? = nil;
     @State private var showError: Bool = false;
@@ -176,7 +177,7 @@ struct BudgetMonthAdd : View {
                     Toggle("Copy from another budget", isOn: $isCopying)
                     
                     if isCopying {
-                        BudgetMonthPicker(selected: $copyFrom, label: "Copy from:")
+                        BudgetMonthPicker(id: $copyFromID, selected: $copyFrom, label: "Copy from:")
                     }
                 } footer: {
                     Text("**Note:** If you copy from a budget, the dates from the incomes will not carry over.", comment: "Keep the ** around the Note part")

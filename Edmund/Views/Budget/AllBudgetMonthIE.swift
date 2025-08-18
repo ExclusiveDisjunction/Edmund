@@ -10,6 +10,7 @@ import SwiftData
 import EdmundCore
 
 struct AllBudgetMonthIE : View {
+    @State private var selectedID: YearRowID? = nil;
     @State private var selected: BudgetMonth? = nil;
     @State private var snapshot: BudgetMonthSnapshot? = nil;
     
@@ -36,7 +37,7 @@ struct AllBudgetMonthIE : View {
     
     private func deletePressed() {
         if let selected = selected {
-            self.selected = nil;
+            self.selectedID = nil;
             self.snapshot = nil;
             
             modelContext.delete(selected)
@@ -109,7 +110,7 @@ struct AllBudgetMonthIE : View {
     
     var body: some View {
         VStack {
-            BudgetMonthPicker(selected: $selected, label: "Budget for:")
+            BudgetMonthPicker(id: $selectedID, selected: $selected, label: "Budget for:")
                 .disabled(isEditing)
             
             if let snapshot = snapshot {

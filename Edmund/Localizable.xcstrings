@@ -16,6 +16,9 @@
     "(No information)" : {
 
     },
+    "(No job)" : {
+
+    },
     "(No parent), %@" : {
       "comment" : "Same as above, used in similar contexts"
     },
@@ -1618,9 +1621,6 @@
 
     },
     "No interest" : {
-
-    },
-    "No job" : {
 
     },
     "No location" : {
