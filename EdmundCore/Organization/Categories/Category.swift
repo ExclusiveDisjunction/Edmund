@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// A grouping structure used to associate transactions into non-account groups.
     @Model
     public final class Category : CategoryBase, BoundPairParent, UniqueElement, NamedElement, Equatable, CustomStringConvertible {
@@ -98,4 +98,4 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias Category = EdmundModelsV1.Category
+public typealias Category = EdmundModelsV1_1.Category

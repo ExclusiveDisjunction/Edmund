@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// Represents a job that has the same paycheck value each week.
     @Model
     public final class SalariedJob : Identifiable, UniqueElement, TraditionalJob, SnapshotableElement {
@@ -56,7 +56,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias SalariedJob = EdmundModelsV1.SalariedJob
+public typealias SalariedJob = EdmundModelsV1_1.SalariedJob
 
 /// The snapshot value for `SalariedJob`
 @Observable

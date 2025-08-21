@@ -8,14 +8,16 @@
 import Foundation
 import SwiftData
 
-/// Represents the different kind of accounts for more dynamic choices on the UI.
-public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
-    case credit, checking, savings, cd, trust, cash
-    
-    public var id: Self { self }
-}
 
-extension EdmundModelsV1 {
+
+extension EdmundModelsV1_1 {
+    /// Represents the different kind of accounts for more dynamic choices on the UI.
+    public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
+        case credit, checking, savings, cd, trust, cash
+        
+        public var id: Self { self }
+    }
+    
     /// Represents a location to store money, via the use of inner sub-accounts.
     @Model
     public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement, VoidableElement, CustomStringConvertible {
@@ -164,7 +166,8 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias Account = EdmundModelsV1.Account
+public typealias Account = EdmundModelsV1_1.Account
+public typealias AccountKind = EdmundModelsV1_1.AccountKind;
 
 /// The snapshot type for `Account`.
 @Observable

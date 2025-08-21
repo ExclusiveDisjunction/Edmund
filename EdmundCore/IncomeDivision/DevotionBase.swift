@@ -7,29 +7,34 @@
 
 import Foundation
 
-public enum DevotionGroup : Int, Identifiable, CaseIterable {
-    case need
-    case want
-    case savings
-    
-    public var asString: String {
-        switch self {
-            case .need: "Need"
-            case .want: "Want"
-            case .savings: "Savings"
+extension EdmundModelsV1_1 {
+    public enum DevotionGroup : Int, Identifiable, CaseIterable {
+        case need
+        case want
+        case savings
+        
+        public var asString: String {
+            switch self {
+                case .need: "Need"
+                case .want: "Want"
+                case .savings: "Savings"
+            }
         }
+        
+        public var id: Self { self }
     }
     
-    public var id: Self { self }
+    public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElement, DefaultableElement, SnapshotConstructableElement  {
+        var name: String { get set }
+        var account: SubAccount? { get set }
+        var group: DevotionGroup { get set }
+        
+        func duplicate() -> Self;
+    }
 }
 
-public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElement, DefaultableElement, SnapshotConstructableElement  {
-    var name: String { get set }
-    var account: SubAccount? { get set }
-    var group: DevotionGroup { get set }
-    
-    func duplicate() -> Self;
-}
+public typealias DevotionGroup = EdmundModelsV1_1.DevotionGroup;
+public typealias DevotionBase = EdmundModelsV1_1.DevotionBase;
 
 @Observable
 public class DevotionSnapshotBase : Identifiable, Hashable, Equatable, ElementSnapshot {

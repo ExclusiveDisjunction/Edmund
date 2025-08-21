@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import Observation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     @Model
     public class BudgetMonth : Identifiable, SnapshotableElement {
         public init(date: MonthYear, spendingGoals: [BudgetSpendingGoal] = [], savingsGoals: [BudgetSavingsGoal] = [], income: [BudgetIncome] = [], id: UUID = UUID()) {
@@ -36,6 +36,7 @@ extension EdmundModelsV1 {
             
             return currentLastDay
         }
+        
         @Relationship(deleteRule: .cascade, inverse: \BudgetSpendingGoal.parent)
         public var spendingGoals: [BudgetSpendingGoal];
         @Relationship(deleteRule: .cascade, inverse: \BudgetSavingsGoal.parent)
@@ -132,7 +133,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias BudgetMonth = EdmundModelsV1.BudgetMonth;
+public typealias BudgetMonth = EdmundModelsV1_1.BudgetMonth;
 
 @Observable
 public class BudgetMonthSnapshot : ElementSnapshot {

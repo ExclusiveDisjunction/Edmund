@@ -9,10 +9,10 @@ import SwiftUI;
 import SwiftData;
 import Foundation;
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// Represents a variable-cost bill
     @Model
-    public final class Utility: BillBase, UniqueElement, IsolatedDefaultableElement, NamedElement {
+    public final class Utility: BillBase, SnapshotableElement, UniqueElement, IsolatedDefaultableElement, NamedElement {
         public typealias Snapshot = UtilitySnapshot
         
         /// Creates the utility with blank values.
@@ -210,7 +210,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias Utility = EdmundModelsV1.Utility
+public typealias Utility = EdmundModelsV1_1.Utility
 
 @Observable
 public class UtilityEntryRow<T> : Identifiable {

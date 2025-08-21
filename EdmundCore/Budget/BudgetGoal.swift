@@ -41,7 +41,7 @@ public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Has
     public var id: Self { self }
 }
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     public protocol BudgetGoal : Identifiable<UUID>, SnapshotableElement, SnapshotConstructableElement, PersistentModel {
         associatedtype T: BoundPair & PersistentModel
         
@@ -54,13 +54,13 @@ extension EdmundModelsV1 {
     }
 }
 
-public extension BudgetGoal {
+public extension EdmundModelsV1_1.BudgetGoal {
     var monthlyGoal : Decimal {
         self.amount * period.conversionFactor(.monthly)
     }
 }
 
-public typealias BudgetGoal = EdmundModelsV1.BudgetGoal
+public typealias BudgetGoal = EdmundModelsV1_1.BudgetGoal
 
 @Observable
 public class BudgetGoalSnapshot<T> : ElementSnapshot where T: BoundPair {

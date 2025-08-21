@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     @Model
     public final class BudgetSavingsGoal : BudgetGoal {
         public init(account: SubAccount?, amount: Decimal, period: MonthlyTimePeriods, parent: BudgetMonth? = nil, id: UUID = UUID()) {
@@ -57,4 +57,4 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias BudgetSavingsGoal = EdmundModelsV1.BudgetSavingsGoal
+public typealias BudgetSavingsGoal = EdmundModelsV1_1.BudgetSavingsGoal

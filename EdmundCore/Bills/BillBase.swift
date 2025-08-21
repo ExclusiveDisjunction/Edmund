@@ -9,67 +9,72 @@ import SwiftData
 import SwiftUI
 import Foundation
 
-/// An identifier that can be used for any `BillBase`.
-public struct BillBaseID : Hashable, Equatable, RawRepresentable, Sendable {
-    public init(name: String, company: String, location: String?) {
-        self.name = name
-        self.company = company
-        self.location = location
-    }
-    public init?(rawValue: String) {
-        let split = rawValue.split(separator: ".").map { $0.trimmingCharacters(in: .whitespaces) };
-        guard split.count == 3 else { return nil }
-        guard !split[0].isEmpty && !split[1].isEmpty else { return nil } //The last part can be empty
+extension EdmundModelsV1_1 {
+    /// An identifier that can be used for any `BillBase`.
+    public struct BillBaseID : Hashable, Equatable, RawRepresentable, Sendable {
+        public init(name: String, company: String, location: String?) {
+            self.name = name
+            self.company = company
+            self.location = location
+        }
+        public init?(rawValue: String) {
+            let split = rawValue.split(separator: ".").map { $0.trimmingCharacters(in: .whitespaces) };
+            guard split.count == 3 else { return nil }
+            guard !split[0].isEmpty && !split[1].isEmpty else { return nil } //The last part can be empty
+            
+            self.name = split[0]
+            self.company = split[1]
+            self.location = split[2].isEmpty ? nil : split[2]
+        }
         
-        self.name = split[0]
-        self.company = split[1]
-        self.location = split[2].isEmpty ? nil : split[2]
+        /// The name of the bill
+        public let name: String;
+        /// The name of the company the bill comes from
+        public let company: String;
+        /// An optional location where that bill origionates. Think an electric bill.
+        public let location: String?;
+        public var rawValue: String {
+            "\(name).\(company).\(location ?? String())"
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(company)
+            hasher.combine(location)
+        }
+        public static func ==(lhs: BillBaseID, rhs: BillBaseID) -> Bool {
+            lhs.name == rhs.name && lhs.company == rhs.company && lhs.location == rhs.location
+        }
     }
     
-    /// The name of the bill
-    public let name: String;
-    /// The name of the company the bill comes from
-    public let company: String;
-    /// An optional location where that bill origionates. Think an electric bill.
-    public let location: String?;
-    public var rawValue: String {
-        "\(name).\(company).\(location ?? String())"
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(company)
-        hasher.combine(location)
-    }
-    public static func ==(lhs: BillBaseID, rhs: BillBaseID) -> Bool {
-        lhs.name == rhs.name && lhs.company == rhs.company && lhs.location == rhs.location
+    /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
+    public protocol BillBase : Identifiable<BillBaseID>, AnyObject, UniqueElement {
+        /// The name of the bill.
+        var name: String { get set }
+        /// The start date of the bill. This is used to compute the upcoming dates.
+        var startDate: Date { get set }
+        /// An optional end date for the bill. By convention, `endDate` should be after `startDate`, if a value is provided.
+        var endDate: Date? { get set }
+        /// The next due date of the bill
+        var nextDueDate: Date? { get }
+        /// The bill period. This represent how often it will come due.
+        var period: TimePeriods { get set }
+        /// The kind of bill.
+        var kind: BillsKind { get }
+        /// How much the bill costs each time it comes due. This may be an approximation.
+        var amount: Decimal { get }
+        /// The company that this bill is attached to.
+        var company: String { get set }
+        /// An optional location used to uniquely identify a bill.
+        /// For example, say you have an electric bill for two different apartments, but the same electric company. The bills would be indistiquishable, but this can help separate it.
+        var location: String? { get set }
+        /// When true, it is known that the bill will automatically be debited to the account.
+        var autoPay: Bool { get set }
     }
 }
 
-/// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-public protocol BillBase : Identifiable<BillBaseID>, AnyObject, UniqueElement, SnapshotableElement {
-    /// The name of the bill.
-    var name: String { get set }
-    /// The start date of the bill. This is used to compute the upcoming dates.
-    var startDate: Date { get set }
-    /// An optional end date for the bill. By convention, `endDate` should be after `startDate`, if a value is provided.
-    var endDate: Date? { get set }
-    /// The next due date of the bill
-    var nextDueDate: Date? { get }
-    /// The bill period. This represent how often it will come due.
-    var period: TimePeriods { get set }
-    /// The kind of bill.
-    var kind: BillsKind { get }
-    /// How much the bill costs each time it comes due. This may be an approximation.
-    var amount: Decimal { get }
-    /// The company that this bill is attached to.
-    var company: String { get set }
-    /// An optional location used to uniquely identify a bill.
-    /// For example, say you have an electric bill for two different apartments, but the same electric company. The bills would be indistiquishable, but this can help separate it.
-    var location: String? { get set }
-    /// When true, it is known that the bill will automatically be debited to the account.
-    var autoPay: Bool { get set }
-}
+public typealias BillBase = EdmundModelsV1_1.BillBase
+public typealias BillBaseID = EdmundModelsV1_1.BillBaseID
 
 public struct TimePeriodWalker {
     public init(start: Date, end: Date?, period: TimePeriods, calendar: Calendar) {

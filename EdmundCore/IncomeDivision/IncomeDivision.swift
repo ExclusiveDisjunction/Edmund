@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     @Model
     public final class IncomeDivision : Identifiable, SnapshotableElement, DefaultableElement {
         public typealias Snapshot = IncomeDivisionSnapshot;
@@ -183,7 +183,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias IncomeDivision = EdmundModelsV1.IncomeDivision
+public typealias IncomeDivision = EdmundModelsV1_1.IncomeDivision
 
 @Observable
 public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot {

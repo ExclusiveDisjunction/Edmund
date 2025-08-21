@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     @Model
     public final class PercentDevotion : DevotionBase {
         public convenience init() {
@@ -67,7 +67,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias PercentDevotion = EdmundModelsV1.PercentDevotion
+public typealias PercentDevotion = EdmundModelsV1_1.PercentDevotion
 
 @Observable
 public final class PercentDevotionSnapshot : DevotionSnapshotBase {

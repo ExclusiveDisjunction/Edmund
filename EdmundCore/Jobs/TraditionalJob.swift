@@ -8,13 +8,63 @@
 import Foundation
 import SwiftData
 
-/// A basis for all jobs that Edmund supports.
-public protocol JobBase : PersistentModel, Identifiable {
-    /// The amount of money taken out as taxes.
-    var taxRate: Decimal { get set }
-    /// The average gross (pre-tax) amount.
-    var grossAmount : Decimal { get }
+extension EdmundModelsV1_1 {
+    
+    /// A basis for all jobs that Edmund supports.
+    public protocol JobBase : PersistentModel, Identifiable {
+        /// The amount of money taken out as taxes.
+        var taxRate: Decimal { get set }
+        /// The average gross (pre-tax) amount.
+        var grossAmount : Decimal { get }
+    }
+    
+    
+    /// An identifer that can be used for any `TraditionalJob`.
+    public struct TraditionalJobID : Hashable, Equatable, RawRepresentable, Sendable {
+        public init(company: String, position: String) {
+            self.company = company
+            self.position = position
+        }
+        public init?(rawValue: String) {
+            let split = rawValue.split(separator: ".").map { $0.trimmingCharacters(in: .whitespaces) };
+            guard split.count == 2 else { return nil }
+            guard !split[0].isEmpty && !split[1].isEmpty else { return nil }
+            
+            self.company = split[0];
+            self.position = split[1];
+        }
+        
+        /// The company the job is with
+        public let company: String;
+        /// The position/title that you work as
+        public let position: String;
+        public var rawValue: String {
+            "\(company).\(position)"
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(company)
+            hasher.combine(position)
+        }
+        public static func ==(lhs: TraditionalJobID, rhs: TraditionalJobID) -> Bool {
+            lhs.company == rhs.company && lhs.position == rhs.position
+        }
+    }
+    
+    /// Represents a job that takes place at a company, meaning that there is a company and position that you work.
+    public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
+        /// The company that is being worked for
+        var company: String { get set}
+        /// The role that the individual works.
+        var position: String  { get set }
+    }
+   
 }
+
+public typealias JobBase = EdmundModelsV1_1.JobBase;
+public typealias TraditionalJob = EdmundModelsV1_1.TraditionalJob;
+public typealias TraditionalJobID = EdmundModelsV1_1.TraditionalJobID;
+
 public extension JobBase {
     /// The average amount gained (post-tax).
     var estimatedProfit : Decimal {
@@ -22,45 +72,6 @@ public extension JobBase {
     }
 }
 
-/// An identifer that can be used for any `TraditionalJob`.
-public struct TraditionalJobID : Hashable, Equatable, RawRepresentable, Sendable {
-    public init(company: String, position: String) {
-        self.company = company
-        self.position = position
-    }
-    public init?(rawValue: String) {
-        let split = rawValue.split(separator: ".").map { $0.trimmingCharacters(in: .whitespaces) };
-        guard split.count == 2 else { return nil }
-        guard !split[0].isEmpty && !split[1].isEmpty else { return nil }
-        
-        self.company = split[0];
-        self.position = split[1];
-    }
-    
-    /// The company the job is with
-    public let company: String;
-    /// The position/title that you work as
-    public let position: String;
-    public var rawValue: String {
-        "\(company).\(position)"
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(company)
-        hasher.combine(position)
-    }
-    public static func ==(lhs: TraditionalJobID, rhs: TraditionalJobID) -> Bool {
-        lhs.company == rhs.company && lhs.position == rhs.position
-    }
-}
-
-/// Represents a job that takes place at a company, meaning that there is a company and position that you work.
-public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
-    /// The company that is being worked for
-    var company: String { get set}
-    /// The role that the individual works.
-    var position: String  { get set }
-}
 internal extension TraditionalJob {
     @MainActor
     func updateBase(_ snap: TraditionalJobSnapshot, unique: UniqueEngine) async throws (UniqueFailureError<TraditionalJobID>) {
@@ -80,6 +91,7 @@ internal extension TraditionalJob {
         self.position = position
     }
 }
+
 
 /// Holds an `any TraditionalJob` for use in UI code & logic.
 public struct TraditionalJobWrapper : Identifiable, Equatable {

@@ -7,7 +7,7 @@
 
 import SwiftData
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// Represents a category within a parent category that is used to group related transactions.
     @Model
     public final class SubCategory : BoundPair, UniqueElement, TransactionHolder, CategoryBase, NamedElement, Equatable, CustomStringConvertible {
@@ -78,4 +78,4 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias SubCategory = EdmundModelsV1.SubCategory
+public typealias SubCategory = EdmundModelsV1_1.SubCategory

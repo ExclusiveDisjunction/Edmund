@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// A hourly job taken at a company
     @Model
     public final class HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
@@ -64,7 +64,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias HourlyJob = EdmundModelsV1.HourlyJob
+public typealias HourlyJob = EdmundModelsV1_1.HourlyJob
 
 @Observable
 public final class HourlyJobSnapshot : TraditionalJobSnapshot, ElementSnapshot {

@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import Foundation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// A data set pertaining to a same-amount periodic charge.
     @Model
     public final class Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
@@ -151,7 +151,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias Bill = EdmundModelsV1.Bill;
+public typealias Bill = EdmundModelsV1_1.Bill;
 
 /// The snapshot type for `Bill`.
 @Observable

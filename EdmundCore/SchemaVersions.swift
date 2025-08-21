@@ -39,11 +39,46 @@ public enum EdmundModelsV1 : VersionedSchema {
     }
 }
 
-public typealias ModelsCurrentVersion = EdmundModelsV1;
+public enum EdmundModelsV1_1 : VersionedSchema {
+    public static var versionIdentifier: Schema.Version { .init(1, 1, 0) }
+    
+    public static var models: [any PersistentModel.Type] {
+        [
+            Self.LedgerEntry.self,
+            Self.Account.self,
+            Self.SubAccount.self,
+            
+            Self.Category.self,
+            Self.SubCategory.self,
+            
+            Self.Bill.self,
+            Self.Utility.self,
+            Self.UtilityDatapoint.self,
+            
+            Self.HourlyJob.self,
+            Self.SalariedJob.self,
+            
+            Self.IncomeDivision.self,
+            Self.AmountDevotion.self,
+            Self.PercentDevotion.self,
+            Self.RemainderDevotion.self,
+            
+            Self.BudgetMonth.self,
+            Self.BudgetSavingsGoal.self,
+            Self.BudgetSpendingGoal.self,
+            Self.BudgetIncome.self
+        ]
+    }
+}
+
+public typealias ModelsCurrentVersion = EdmundModelsV1_1;
 
 public struct MigrationPlan : SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [EdmundModelsV1.self]
+        [
+            EdmundModelsV1.self,
+            EdmundModelsV1_1.self
+        ]
     }
     
     public static var stages: [MigrationStage] {

@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import Observation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     @Model
     public final class BudgetIncome : Identifiable, SnapshotableElement, SnapshotConstructableElement {
         public init(name: String, amount: Decimal, date: Date?, parent: BudgetMonth? = nil, id: UUID = UUID()) {
@@ -51,7 +51,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias BudgetIncome = EdmundModelsV1.BudgetIncome;
+public typealias BudgetIncome = EdmundModelsV1_1.BudgetIncome;
 
 @Observable
 public class BudgetIncomeSnapshot : ElementSnapshot {

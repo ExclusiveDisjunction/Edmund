@@ -7,67 +7,71 @@
 
 import Foundation
 
-public enum AnyDevotion : Identifiable {
-    case amount(AmountDevotion)
-    case percent(PercentDevotion)
-    case remainder(RemainderDevotion)
-    
-    public var id: UUID {
-        switch self {
-            case .amount(let a): a.id
-            case .percent(let p): p.id
-            case .remainder(let r): r.id
-        }
-    }
-    public var name: String {
-        get {
+extension EdmundModelsV1_1 {
+    public enum AnyDevotion : Identifiable {
+        case amount(AmountDevotion)
+        case percent(PercentDevotion)
+        case remainder(RemainderDevotion)
+        
+        public var id: UUID {
             switch self {
-                case .amount(let a): a.name
-                case .percent(let p): p.name
-                case .remainder(let r): r.name
+                case .amount(let a): a.id
+                case .percent(let p): p.id
+                case .remainder(let r): r.id
             }
         }
-        set {
-            switch self {
-                case .amount(let a): a.name = newValue
-                case .percent(let p): p.name = newValue
-                case .remainder(let r): r.name = newValue
+        public var name: String {
+            get {
+                switch self {
+                    case .amount(let a): a.name
+                    case .percent(let p): p.name
+                    case .remainder(let r): r.name
+                }
+            }
+            set {
+                switch self {
+                    case .amount(let a): a.name = newValue
+                    case .percent(let p): p.name = newValue
+                    case .remainder(let r): r.name = newValue
+                }
             }
         }
-    }
-    public var account: SubAccount? {
-        get {
-            switch self {
-                case .amount(let a): a.account
-                case .percent(let p): p.account
-                case .remainder(let r): r.account
+        public var account: SubAccount? {
+            get {
+                switch self {
+                    case .amount(let a): a.account
+                    case .percent(let p): p.account
+                    case .remainder(let r): r.account
+                }
+            }
+            set {
+                switch self {
+                    case .amount(let a): a.account = newValue
+                    case .percent(let p): p.account = newValue
+                    case .remainder(let r): r.account = newValue
+                }
             }
         }
-        set {
-            switch self {
-                case .amount(let a): a.account = newValue
-                case .percent(let p): p.account = newValue
-                case .remainder(let r): r.account = newValue
+        public var group: DevotionGroup {
+            get {
+                switch self {
+                    case .amount(let a): a.group
+                    case .percent(let p): p.group
+                    case .remainder(let r): r.group
+                }
             }
-        }
-    }
-    public var group: DevotionGroup {
-        get {
-            switch self {
-                case .amount(let a): a.group
-                case .percent(let p): p.group
-                case .remainder(let r): r.group
-            }
-        }
-        set {
-            switch self {
-                case .amount(let a): a.group = newValue
-                case .percent(let p): p.group = newValue
-                case .remainder(let r): r.group = newValue
+            set {
+                switch self {
+                    case .amount(let a): a.group = newValue
+                    case .percent(let p): p.group = newValue
+                    case .remainder(let r): r.group = newValue
+                }
             }
         }
     }
 }
+
+public typealias AnyDevotion = EdmundModelsV1_1.AnyDevotion;
 
 public enum AnyDevotionSnapshot : Identifiable, Hashable, Equatable {
     case amount(AmountDevotionSnapshot)

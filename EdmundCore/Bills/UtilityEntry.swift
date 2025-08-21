@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// An instance used to keep the order of utility data points.
     @Model
     public class UtilityDatapoint : Identifiable, Hashable, Equatable {
@@ -36,4 +36,4 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias UtilityDatapoint = EdmundModelsV1.UtilityDatapoint;
+public typealias UtilityDatapoint = EdmundModelsV1_1.UtilityDatapoint;

@@ -8,12 +8,10 @@
 import Foundation
 import SwiftData
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// Represents a sub-section under an account for transaction grouping.
     @Model
-    public final class SubAccount : BoundPair, Equatable, SnapshotableElement, UniqueElement, NamedElement, VoidableElement, TransactionHolder, CustomStringConvertible {
-        public typealias Snapshot = SubAccountSnapshot;
-        
+    public final class SubAccount : BoundPair, Equatable, UniqueElement, NamedElement, VoidableElement, TransactionHolder, CustomStringConvertible {
         public convenience init() {
             self.init("")
         }
@@ -69,27 +67,6 @@ extension EdmundModelsV1 {
             "Sub Account \(id)"
         }
         
-        public func makeSnapshot() -> SubAccountSnapshot {
-            .init(self)
-        }
-        public static func makeBlankSnapshot() -> SubAccountSnapshot {
-            .init()
-        }
-        public func update(_ from: SubAccountSnapshot, unique: UniqueEngine) async throws (UniqueFailureError<BoundPairID>) {
-            let name = from.name.trimmingCharacters(in: .whitespaces)
-            let id = BoundPairID(parent: parent?.name, name: name)
-            
-            if self.id != id {
-                let result = await unique.swapId(key: .init(SubAccount.self), oldId: self.id, newId: id)
-                guard result else {
-                    throw UniqueFailureError(value: id)
-                }
-            }
-            
-            self.name = name
-            self.parent = parent
-        }
-        
         @MainActor
         public func tryNewName(name: String, unique: UniqueEngine) async -> Bool {
             let newId = BoundPairID(parent: self.parentName, name: name)
@@ -128,49 +105,4 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias SubAccount = EdmundModelsV1.SubAccount
-
-/// The snapshot type for `SubAccount`.
-@Observable
-public final class SubAccountSnapshot: ElementSnapshot {
-    public init() {
-        self.name = "";
-        self.parent = nil;
-        self.oldId = .init(parent: nil, name: "")
-    }
-    public init(_ from: SubAccount) {
-        self.name = from.name;
-        self.parent = from.parent
-        self.oldId = from.id;
-    }
-    
-    @ObservationIgnored private let oldId: BoundPairID;
-    
-    /// The sub-account's name
-    public var name: String;
-    /// The sub-account's parent account
-    public var parent: Account?;
-    
-    public func validate(unique: UniqueEngine) async -> ValidationFailure? {
-        let name = name.trimmingCharacters(in: .whitespaces);
-        let id = BoundPairID(parent: parent?.name, name: name)
-        
-        if oldId != id {
-            guard await unique.isIdOpen(key: .init(SubAccount.self), id: id) else {
-                return .unique
-            }
-        }
-        
-        guard !name.isEmpty && parent != nil else { return .empty }
-        
-        return nil;
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(parent)
-    }
-    public static func ==(lhs: SubAccountSnapshot, rhs: SubAccountSnapshot) -> Bool {
-        lhs.name == rhs.name && lhs.parent == rhs.parent
-    }
-}
+public typealias SubAccount = EdmundModelsV1_1.SubAccount

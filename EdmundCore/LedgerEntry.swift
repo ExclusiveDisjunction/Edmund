@@ -8,7 +8,7 @@
 import SwiftData;
 import Foundation;
 
-extension EdmundModelsV1 {
+extension EdmundModelsV1_1 {
     /// A record into the ledger, representing a single transaction.
     @Model
     public final class LedgerEntry : Identifiable, SnapshotableElement, VoidableElement, NamedElement {
@@ -127,7 +127,7 @@ extension EdmundModelsV1 {
     }
 }
 
-public typealias LedgerEntry = EdmundModelsV1.LedgerEntry
+public typealias LedgerEntry = EdmundModelsV1_1.LedgerEntry
 
 /// The snapshot for `LedgerEntry`
 @Observable
