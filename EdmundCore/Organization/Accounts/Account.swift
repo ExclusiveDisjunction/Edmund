@@ -8,166 +8,135 @@
 import Foundation
 import SwiftData
 
-
-
-extension EdmundModelsV1_1 {
-    /// Represents the different kind of accounts for more dynamic choices on the UI.
-    public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
-        case credit, checking, savings, cd, trust, cash
-        
-        public var id: Self { self }
-    }
+/// Represents the different kind of accounts for more dynamic choices on the UI.
+public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
+    case credit, checking, savings, cd, trust, cash
     
-    /// Represents a location to store money, via the use of inner sub-accounts.
-    @Model
-    public final class Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement, VoidableElement, CustomStringConvertible {
-        public typealias Snapshot = AccountSnapshot;
-        
-        public convenience init() {
-            self.init("")
-        }
-        public init(_ name: String, kind: AccountKind = .checking, creditLimit: Decimal? = nil, interest: Decimal? = nil, location: String? = nil, children: [SubAccount] = []) {
-            self.name = name;
-            self.rawKind = kind.rawValue;
-            self.location = location
-            self.interest = interest
-            self.rawCreditLimit = creditLimit;
-            self.children = children
-        }
-        
-        public static let objId: ObjectIdentifier = .init(Account.self)
-        
-        public var id: String { name }
-        /// The account's name. This must be unique. This can be simple like "Checking", or more elaborate like "Chase Savings"
-        public var name: String = "";
-        /// The credit limit stored within the system. It will only be provided and active if the account kind is `.credit`.
-        private var rawCreditLimit: Decimal? = nil;
-        /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
-        /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
-        public var creditLimit: Decimal? {
-            get {
-                self.kind == .credit ? rawCreditLimit : nil
-            }
-            set {
-                guard self.kind == .credit else { return }
-                
-                self.rawCreditLimit = newValue
-            }
-        }
-        /// An optional interest value
-        public var interest: Decimal? = nil;
-        /// An optional description of where the account is physically
-        public var location: String? = nil;
-        public private(set) var isVoided: Bool = false
-        /// The kind of account, used to make swift data happy.
-        private var rawKind: Int = AccountKind.checking.rawValue;
-        /// The account kind
-        public var kind: AccountKind {
-            get {
-                .init(rawValue: rawKind)!
-            }
-            set {
-                self.rawKind = newValue.rawValue
-            }
-        }
-        /// The children for this account. Money is not held in the account itself, it is held in the sub accounts.
-        @Relationship(deleteRule: .cascade, inverse: \SubAccount.parent)
-        public var children: [SubAccount]
-        
-        public func setVoidStatus(_ new: Bool) {
-            guard new != isVoided else {
-                return
-            }
-            
-            if new {
-                self.isVoided = true
-                children.forEach { $0.setVoidStatus(true) }
-            }
-            else {
-                self.isVoided = false;
-            }
-        }
-        
-        public static func == (lhs: Account, rhs: Account) -> Bool {
-            lhs.name == rhs.name
-        }
-        public func hash(into hasher: inout Hasher) {
-            hasher.combine(name)
-        }
-        
-        public var description: String {
-            "Account \(name)"
-        }
-        
-        public func makeSnapshot() -> AccountSnapshot {
-            .init(self)
-        }
-        public static func makeBlankSnapshot() -> AccountSnapshot {
-            .init()
-        }
-        public func update(_ from: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<String>) {
-            let name = from.name.trimmingCharacters(in: .whitespaces)
-            
-            if name != self.name {
-                let result = await unique.swapId(key: .init(Account.self), oldId: self.name, newId: name)
-                guard result else {
-                    throw UniqueFailureError(value: name)
-                }
-            }
-            
-            self.name = name
-            self.kind = from.kind
-            self.rawCreditLimit = from.hasCreditLimit ? from.creditLimit.rawValue : nil;
-            self.interest = from.hasInterest ? from.interest.rawValue : nil;
-            self.location = from.hasLocation ? from.location : nil;
-        }
-        
-        /// A list of template data to use on the UI.
-        @MainActor
-        public static var exampleAccounts: [Account] {
-            [
-                exampleAccount,
-                .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
-                    .init("Main"),
-                    .init("Reserved"),
-                    .init("Rent")
-                ]),
-                .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One", children: [
-                    .init("DI"),
-                    .init("Groceries")
-                ]),
-                .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist", children: [
-                    .init("DI"),
-                    .init("Groceries")
-                ])
-            ]
-        }
-        /// A singular account to display on the UI.
-        @MainActor
-        public static var exampleAccount: Account {
-            .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001, children: [
-                .init("DI"),
-                .init("Gas"),
-                .init("Health"),
-                .init("Groceries"),
-                .init("Pay"),
-                .init("Credit Card"),
-                .init("Personal"),
-                .init("Taxes"),
-                .init("Bills")
-            ])
-        }
-        
-        /// A singular account that is setup like a credit card.
-        @MainActor
-        public static var exampleCreditAccount: Account {
-            .init("Credit", kind: .credit, creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] )
-        }
-    }
+    public var id: Self { self }
 }
 
-public typealias Account = EdmundModelsV1_1.Account
-public typealias AccountKind = EdmundModelsV1_1.AccountKind;
+extension Account : Identifiable, Hashable, BoundPairParent, SnapshotableElement, UniqueElement, NamedElement, VoidableElement, CustomStringConvertible {
+    public typealias Snapshot = AccountSnapshot;
+    
+    public convenience init() {
+        self.init("")
+    }
+    
+    public static let objId: ObjectIdentifier = .init(Account.self)
+    
+    public var id: String { name }
+    /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
+    /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
+    public var creditLimit: Decimal? {
+        get {
+            self.kind == .credit ? _creditLimit : nil
+        }
+        set {
+            guard self.kind == .credit else { return }
+            
+            self._creditLimit = newValue
+        }
+    }
+    /// The account kind
+    public var kind: AccountKind {
+        get {
+            .init(rawValue: _kind) ?? .checking
+        }
+        set {
+            self._kind = newValue.rawValue
+        }
+    }
+    
+    public func setVoidStatus(_ new: Bool) {
+        guard new != isVoided else {
+            return
+        }
+        
+        if new {
+            self.isVoided = true
+            children.forEach { $0.setVoidStatus(true) }
+        }
+        else {
+            self.isVoided = false;
+        }
+    }
+    
+    public static func == (lhs: Account, rhs: Account) -> Bool {
+        lhs.name == rhs.name
+    }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+    
+    public var description: String {
+        "Account \(name)"
+    }
+    
+    public func makeSnapshot() -> AccountSnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> AccountSnapshot {
+        .init()
+    }
+    public func update(_ from: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<String>) {
+        let name = from.name.trimmingCharacters(in: .whitespaces)
+        
+        if name != self.name {
+            let result = await unique.swapId(key: .init(Account.self), oldId: self.name, newId: name)
+            guard result else {
+                throw UniqueFailureError(value: name)
+            }
+        }
+        
+        self.name = name
+        self.kind = from.kind
+        self._creditLimit = from.hasCreditLimit ? from.creditLimit.rawValue : nil;
+        self.interest = from.hasInterest ? from.interest.rawValue : nil;
+        self.location = from.hasLocation ? from.location : nil;
+    }
+    
+    /// A list of template data to use on the UI.
+    @MainActor
+    public static var exampleAccounts: [Account] {
+        [
+            exampleAccount,
+            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase", children: [
+                .init("Main"),
+                .init("Reserved"),
+                .init("Rent")
+            ]),
+            .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One", children: [
+                .init("DI"),
+                .init("Groceries")
+            ]),
+            .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist", children: [
+                .init("DI"),
+                .init("Groceries")
+            ])
+        ]
+    }
+    /// A singular account to display on the UI.
+    @MainActor
+    public static var exampleAccount: Account {
+        .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001, children: [
+            .init("DI"),
+            .init("Gas"),
+            .init("Health"),
+            .init("Groceries"),
+            .init("Pay"),
+            .init("Credit Card"),
+            .init("Personal"),
+            .init("Taxes"),
+            .init("Bills")
+        ])
+    }
+    
+    /// A singular account that is setup like a credit card.
+    @MainActor
+    public static var exampleCreditAccount: Account {
+        .init("Credit", kind: .credit, creditLimit: 3000, children: [ .init("DI"), .init("Gas") ] )
+    }
+}
 
 /// The snapshot type for `Account`.
 @Observable

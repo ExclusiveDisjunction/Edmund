@@ -21,8 +21,8 @@ struct IncomeDevotionsEditor : View {
     @ViewBuilder
     private func amountFor(_ dev: AnyDevotionSnapshot) -> some View {
         switch dev {
-            case .amount(let a): Text(a.amount.rawValue, format: .currency(code: currencyCode))
-            case .percent(let p): Text(p.amount.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
+            case .amount(let a): Text(a.value.rawValue, format: .currency(code: currencyCode))
+            case .percent(let p): Text(p.value.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
             default: Text("internalError")
         }
     }
@@ -70,7 +70,7 @@ struct IncomeDevotionsEditor : View {
             
             Button {
                 withAnimation {
-                    snapshot.devotions.append(.amount(.init()))
+                    snapshot.devotions.append(.amount(AmountDevotion.makeBlankSnapshot()))
                 }
             } label: {
                 Image(systemName: "dollarsign")
@@ -78,7 +78,7 @@ struct IncomeDevotionsEditor : View {
             
             Button {
                 withAnimation {
-                    snapshot.devotions.append(.percent(.init()))
+                    snapshot.devotions.append(.percent(PercentDevotion.makeBlankSnapshot()))
                 }
             } label: {
                 Image(systemName: "percent")
@@ -136,8 +136,8 @@ struct IncomeDevotionsEditor : View {
                 
                 TableColumn("Devotion") { $dev in
                     switch dev {
-                        case .amount(let a): CurrencyField(a.amount)
-                        case .percent(let p): PercentField(p.amount)
+                        case .amount(let a): CurrencyField(a.value)
+                        case .percent(let p): PercentField(p.value)
                         default: Text("internalError")
                     }
                 }

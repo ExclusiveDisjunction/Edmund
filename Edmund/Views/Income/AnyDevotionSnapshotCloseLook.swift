@@ -9,7 +9,7 @@ import SwiftUI
 import EdmundCore
 
 struct AmountDevotionSnapshotCloseLook : View {
-    @Bindable var devotion: AmountDevotionSnapshot
+    @Bindable var devotion: DevotionSnapshot<CurrencyValue>
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -35,7 +35,7 @@ struct AmountDevotionSnapshotCloseLook : View {
                 Text("Devotion:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                CurrencyField(devotion.amount)
+                CurrencyField(devotion.value)
             }
             
             GridRow {
@@ -61,7 +61,7 @@ struct AmountDevotionSnapshotCloseLook : View {
 
 struct PercentDevotionSnapshotCloseLook : View {
     let snapshot: IncomeDivisionSnapshot;
-    @Bindable var devotion: PercentDevotionSnapshot;
+    @Bindable var devotion: DevotionSnapshot<PercentValue>;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -87,7 +87,7 @@ struct PercentDevotionSnapshotCloseLook : View {
                 Text("Devotion:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                PercentField(devotion.amount)
+                PercentField(devotion.value)
             }
             
             GridRow {
@@ -95,7 +95,7 @@ struct PercentDevotionSnapshotCloseLook : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    Text(devotion.amount.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
+                    Text(devotion.value.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
                     Spacer()
                 }
             }

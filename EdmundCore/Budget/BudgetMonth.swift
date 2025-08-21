@@ -9,131 +9,105 @@ import Foundation
 import SwiftData
 import Observation
 
-extension EdmundModelsV1_1 {
-    @Model
-    public class BudgetMonth : Identifiable, SnapshotableElement {
-        public init(date: MonthYear, spendingGoals: [BudgetSpendingGoal] = [], savingsGoals: [BudgetSavingsGoal] = [], income: [BudgetIncome] = [], id: UUID = UUID()) {
-            self.date = date
-            self.spendingGoals = spendingGoals
-            self.savingsGoals = savingsGoals
-            self.income = income
-            self.id = id
+extension BudgetMonth : SnapshotableElement {
+    public var start: Date? {
+        Calendar.current.date(from: .init(year: date.year, month: date.month, day: 1))
+    }
+    public var end: Date? {
+        let calendar = Calendar.current;
+        
+        guard let currentFirstDay = self.start,
+              let followingFirstDay = calendar.date(byAdding: .month, value: 1, to: currentFirstDay),
+              let currentLastDay = calendar.date(byAdding: .day, value: -1, to: followingFirstDay) else {
+            return nil
         }
         
-        public var id: UUID;
-        public private(set) var date: MonthYear;
-        public var start: Date? {
-            Calendar.current.date(from: .init(year: date.year, month: date.month, day: 1))
+        return currentLastDay
+    }
+    
+    public var title: String {
+        if let result = _title, _titleHash == date.hashValue {
+            return result
         }
-        public var end: Date? {
-            let calendar = Calendar.current;
+        else {
+            let formatter = DateFormatter()
+            formatter.locale = Locale.current
+            formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy") // Full month name
             
-            guard let currentFirstDay = self.start,
-                  let followingFirstDay = calendar.date(byAdding: .month, value: 1, to: currentFirstDay),
-                  let currentLastDay = calendar.date(byAdding: .day, value: -1, to: followingFirstDay) else {
-                      return nil
-                  }
-            
-            return currentLastDay
-        }
-        
-        @Relationship(deleteRule: .cascade, inverse: \BudgetSpendingGoal.parent)
-        public var spendingGoals: [BudgetSpendingGoal];
-        @Relationship(deleteRule: .cascade, inverse: \BudgetSavingsGoal.parent)
-        public var savingsGoals: [BudgetSavingsGoal];
-        @Relationship(deleteRule: .cascade, inverse: \BudgetIncome.parent)
-        public var income: [BudgetIncome];
-        
-        @Transient
-        private var _title: String? = nil;
-        @Transient
-        private var _titleHash: Int = 0;
-        public var title: String {
-            if let result = _title, _titleHash == date.hashValue {
-                return result
+            let result: String;
+            if let date = Calendar.current.date(from: DateComponents(year: date.year, month: date.month)) {
+                result = formatter.string(from: date)
+                _title = result
+                _titleHash = date.hashValue
             }
             else {
-                let formatter = DateFormatter()
-                formatter.locale = Locale.current
-                formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy") // Full month name
-                
-                let result: String;
-                if let date = Calendar.current.date(from: DateComponents(year: date.year, month: date.month)) {
-                    result = formatter.string(from: date)
-                    _title = result
-                    _titleHash = date.hashValue
-                }
-                else {
-                    result = NSLocalizedString("internalError", comment: "")
-                    _title = nil
-                    _titleHash = 0
-                }
-                
-                return result
+                result = NSLocalizedString("internalError", comment: "")
+                _title = nil
+                _titleHash = 0
             }
-        }
-        
-        public func dupliate(date: MonthYear) -> BudgetMonth {
-            .init(
-                date: date,
-                spendingGoals: self.spendingGoals.map { $0.duplicate() },
-                savingsGoals: self.savingsGoals.map { $0.duplicate() },
-                income: self.income.map { $0.duplicate() }
-            )
-        }
-        
-        public func makeSnapshot() -> BudgetMonthSnapshot {
-            .init(self)
-        }
-        public static func makeBlankSnapshot() -> BudgetMonthSnapshot {
-            .init()
-        }
-        public func update(_ from: BudgetMonthSnapshot, unique: UniqueEngine) async {
-            let incomeUpdater = ChildUpdater(source: income, snapshots: from.income, context: modelContext, unique: unique);
-            let savingsUpdater = ChildUpdater(source: savingsGoals, snapshots: from.savingsGoals, context: modelContext, unique: unique);
-            let spendingUpdater = ChildUpdater(source: spendingGoals, snapshots: from.spendingGoals, context: modelContext, unique: unique);
-            
-            self.spendingGoals = try! await spendingUpdater.joinByLength()
-            self.savingsGoals = try! await savingsUpdater.joinByLength()
-            self.income = try! await incomeUpdater.joinByLength()
-        }
-        
-        @MainActor
-        public static func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
-            return BudgetMonth(date: forDate)
-        }
-        @MainActor
-        public static func exampleBudgetMonth(cat: inout BoundPairTree<Category>, acc: inout BoundPairTree<Account>) -> BudgetMonth {
-            let date = MonthYear.now!;
-            let result = BudgetMonth(date: date)
-            
-            result.income = [
-                .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(date.year, date.month, 10)),
-                .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(date.year, date.month, 25))
-            ]
-            result.spendingGoals = [
-                .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100, period: .biWeekly),
-                .init(category: cat.getOrInsert(parent: "Home", child: "Groceries"), amount: 400, period: .monthly),
-                .init(category: cat.getOrInsert(parent: "Car", child: "Gas"), amount: 120, period: .monthly)
-            ]
-            result.savingsGoals = [
-                .init(account: acc.getOrInsert(parent: "Savings", child: "Main"), amount: 400, period: .biWeekly),
-                .init(account: acc.getOrInsert(parent: "Checking", child: "Taxes"), amount: 100, period: .monthly)
-            ]
             
             return result
         }
-        @MainActor
-        public static func getExampleBudget() throws -> BudgetMonth {
-            let container = try Containers.debugContainer();
-            let item = (try container.context.fetch(FetchDescriptor<BudgetMonth>()))[0]
-            
-            return item;
-        }
+    }
+    
+    public func dupliate(date: MonthYear) -> BudgetMonth {
+        .init(
+            date: date,
+            spendingGoals: self.spendingGoals.map { $0.duplicate() },
+            savingsGoals: self.savingsGoals.map { $0.duplicate() },
+            income: self.income.map { $0.duplicate() }
+        )
+    }
+    
+    public func makeSnapshot() -> BudgetMonthSnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> BudgetMonthSnapshot {
+        .init()
+    }
+    public func update(_ from: BudgetMonthSnapshot, unique: UniqueEngine) async {
+        let incomeUpdater = ChildUpdater(source: income, snapshots: from.income, context: modelContext, unique: unique);
+        let savingsUpdater = ChildUpdater(source: savingsGoals, snapshots: from.savingsGoals, context: modelContext, unique: unique);
+        let spendingUpdater = ChildUpdater(source: spendingGoals, snapshots: from.spendingGoals, context: modelContext, unique: unique);
+        
+        self.spendingGoals = try! await spendingUpdater.joinByLength()
+        self.savingsGoals = try! await savingsUpdater.joinByLength()
+        self.income = try! await incomeUpdater.joinByLength()
+    }
+    
+    @MainActor
+    public static func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
+        return BudgetMonth(date: forDate)
+    }
+    @MainActor
+    public static func exampleBudgetMonth(cat: inout BoundPairTree<Category>, acc: inout BoundPairTree<Account>) -> BudgetMonth {
+        let date = MonthYear.now!;
+        let result = BudgetMonth(date: date)
+        
+        result.income = [
+            .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(date.year, date.month, 10)),
+            .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(date.year, date.month, 25))
+        ]
+        result.spendingGoals = [
+            .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100, period: .biWeekly),
+            .init(category: cat.getOrInsert(parent: "Home", child: "Groceries"), amount: 400, period: .monthly),
+            .init(category: cat.getOrInsert(parent: "Car", child: "Gas"), amount: 120, period: .monthly)
+        ]
+        result.savingsGoals = [
+            .init(account: acc.getOrInsert(parent: "Savings", child: "Main"), amount: 400, period: .biWeekly),
+            .init(account: acc.getOrInsert(parent: "Checking", child: "Taxes"), amount: 100, period: .monthly)
+        ]
+        
+        return result
+    }
+    @MainActor
+    public static func getExampleBudget() throws -> BudgetMonth {
+        let container = try Containers.debugContainer();
+        let item = (try container.context.fetch(FetchDescriptor<BudgetMonth>()))[0]
+        
+        return item;
     }
 }
-
-public typealias BudgetMonth = EdmundModelsV1_1.BudgetMonth;
 
 @Observable
 public class BudgetMonthSnapshot : ElementSnapshot {

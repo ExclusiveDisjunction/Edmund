@@ -43,7 +43,7 @@ struct AllBillsViewEdit : View {
     }
     private func addBill(_ kind: StrictBillsKind = .bill) {
         withAnimation {
-            let raw = Bill(name: "", kind: kind, amount: 0, company: "",start: Date.now, end: nil, period: .monthly)
+            let raw = Bill(name: "", kind: kind, amount: 0, company: "", location: nil, start: Date.now, end: nil, period: .monthly)
             refresh()
             inspect.open(BillBaseWrapper(raw), mode: .add)
         }

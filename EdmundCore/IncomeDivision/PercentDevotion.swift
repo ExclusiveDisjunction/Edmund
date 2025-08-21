@@ -8,100 +8,43 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1_1 {
-    @Model
-    public final class PercentDevotion : DevotionBase {
-        public convenience init() {
-            self.init(name: "", amount: 0)
-        }
-        public convenience init(snapshot: PercentDevotionSnapshot, unique: UniqueEngine) {
-            self.init(
-                name: snapshot.name.trimmingCharacters(in: .whitespacesAndNewlines),
-                amount: snapshot.amount.rawValue,
-                parent: nil, account: snapshot.account,
-                group: snapshot.group
-            )
-        }
-        public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
-            self.id = id
-            self.parent = parent;
-            self.name = name;
-            self.amount = amount
-            self.account = account
-            self._group = group.rawValue
-        }
-        
-        public var id: UUID;
-        public var name: String;
-        public var amount: Decimal;
-        private var _group: DevotionGroup.RawValue
-        public var group: DevotionGroup {
-            get {
-                DevotionGroup(rawValue: _group) ?? .want
-            }
-            set {
-                _group = newValue.rawValue
-            }
-        }
-        @Relationship
-        public var parent: IncomeDivision?;
-        @Relationship
-        public var account: SubAccount?;
-        
-        public func duplicate() -> PercentDevotion {
-            return .init(name: self.name, amount: self.amount, parent: nil, account: self.account, group: self.group)
-        }
-        
-        public func makeSnapshot() -> PercentDevotionSnapshot {
-            .init(self)
-        }
-        public static func makeBlankSnapshot() -> PercentDevotionSnapshot {
-            .init()
-        }
-        public func update(_ snap: PercentDevotionSnapshot, unique: UniqueEngine) {
-            self.name = snap.name.trimmingCharacters(in: .whitespaces)
-            self.amount = snap.amount.rawValue
-            self.account = snap.account
-            self.group = snap.group
-        }
+extension PercentDevotion : DevotionBase {
+    public convenience init() {
+        self.init(name: "", amount: 0)
     }
-}
-
-public typealias PercentDevotion = EdmundModelsV1_1.PercentDevotion
-
-@Observable
-public final class PercentDevotionSnapshot : DevotionSnapshotBase {
-    public override init() {
-        self.amount = .init()
-        super.init()
-    }
-    public init(_ from: PercentDevotion) {
-        self.amount = .init(rawValue: from.amount)
-        super.init(from)
+    public convenience init(snapshot: DevotionSnapshot<PercentValue>, unique: UniqueEngine) {
+        self.init(
+            name: snapshot.name.trimmingCharacters(in: .whitespacesAndNewlines),
+            amount: snapshot.value.rawValue,
+            parent: nil,
+            account: snapshot.account,
+            group: snapshot.group
+        )
     }
     
-    public var amount: PercentValue;
-    
-    public override func validate(unique: UniqueEngine) -> ValidationFailure? {
-        if let result = super.validate(unique: unique) {
-            return result
+    public var group: DevotionGroup {
+        get {
+            DevotionGroup(rawValue: _group) ?? .want
         }
-        
-        if amount.rawValue < 0 {
-            return .negativeAmount
+        set {
+            _group = newValue.rawValue
         }
-        else if amount.rawValue > 1 {
-            return .tooLargeAmount
-        }
-        
-        return nil
     }
     
-    public override func hash(into hasher: inout Hasher) {
-        hasher.combine(amount)
-        super.hash(into: &hasher)
+    public func duplicate() -> PercentDevotion {
+        return .init(name: self.name, amount: self.amount, parent: nil, account: self.account, group: self.group)
     }
-    public static func ==(lhs: PercentDevotionSnapshot, rhs: PercentDevotionSnapshot) -> Bool {
-        (lhs as DevotionSnapshotBase == rhs as DevotionSnapshotBase) && lhs.amount == rhs.amount
+    
+    public func makeSnapshot() -> DevotionSnapshot<PercentValue> {
+        .init(base: self, value: .init(rawValue: self.amount), min: 0, max: 1)
+    }
+    public static func makeBlankSnapshot() -> DevotionSnapshot<PercentValue> {
+        .init(value: .init(), min: 0, max: 1)
+    }
+    public func update(_ snap: DevotionSnapshot<PercentValue>, unique: UniqueEngine) {
+        self.name = snap.name.trimmingCharacters(in: .whitespaces)
+        self.amount = snap.value.rawValue
+        self.account = snap.account
+        self.group = snap.group
     }
 }

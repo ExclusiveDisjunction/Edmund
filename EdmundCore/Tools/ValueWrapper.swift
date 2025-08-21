@@ -5,7 +5,7 @@
 //  Created by Hollan Sellars on 6/29/25.
 //
 
-import SwiftUI
+import Observation
 
 /// A type that supports the reading & writing of a 'raw' string, that can be converted to the internal storage.
 /// This protocol enforces that the type can be hashed and be compared (with itself & the raw value).

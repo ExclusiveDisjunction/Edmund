@@ -71,8 +71,6 @@ public enum EdmundModelsV1_1 : VersionedSchema {
     }
 }
 
-public typealias ModelsCurrentVersion = EdmundModelsV1_1;
-
 public struct MigrationPlan : SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
         [
@@ -83,7 +81,11 @@ public struct MigrationPlan : SchemaMigrationPlan {
     
     public static var stages: [MigrationStage] {
         return [
-            
+            .custom(fromVersion: EdmundModelsV1.self, toVersion: EdmundModelsV1_1.self, willMigrate: { context in
+                
+            }, didMigrate: { context in
+                
+            })
         ]
     }
 }

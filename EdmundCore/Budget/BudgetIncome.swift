@@ -9,49 +9,31 @@ import Foundation
 import SwiftData
 import Observation
 
-extension EdmundModelsV1_1 {
-    @Model
-    public final class BudgetIncome : Identifiable, SnapshotableElement, SnapshotConstructableElement {
-        public init(name: String, amount: Decimal, date: Date?, parent: BudgetMonth? = nil, id: UUID = UUID()) {
-            self.name = name
-            self.id = id
-            self.amount = amount
-            self.date = date
-        }
-        public convenience init(snapshot: BudgetIncomeSnapshot, unique: UniqueEngine) {
-            self.init(
-                name: snapshot.name.trimmingCharacters(in: .whitespacesAndNewlines),
-                amount: snapshot.amount.rawValue,
-                date: snapshot.date
-            )
-        }
-        
-        public var id: UUID;
-        public var name: String;
-        public var amount: Decimal;
-        public var date: Date?;
-        @Relationship
-        public var parent: BudgetMonth?;
-        
-        public func duplicate() -> BudgetIncome {
-            .init(name: self.name, amount: self.amount, date: nil, parent: nil)
-        }
-        
-        public func makeSnapshot() -> BudgetIncomeSnapshot {
-            .init(self)
-        }
-        public static func makeBlankSnapshot() -> BudgetIncomeSnapshot {
-            .init()
-        }
-        public func update(_ from: BudgetIncomeSnapshot, unique: UniqueEngine) {
-            self.name = from.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            self.amount = from.amount.rawValue
-            self.date = from.hasDate ? from.date : nil
-        }
+extension BudgetIncome: SnapshotableElement, SnapshotConstructableElement {
+    public convenience init(snapshot: BudgetIncomeSnapshot, unique: UniqueEngine) {
+        self.init(
+            name: snapshot.name.trimmingCharacters(in: .whitespacesAndNewlines),
+            amount: snapshot.amount.rawValue,
+            date: snapshot.date
+        )
+    }
+    
+    public func duplicate() -> BudgetIncome {
+        .init(name: self.name, amount: self.amount, date: nil, parent: nil)
+    }
+    
+    public func makeSnapshot() -> BudgetIncomeSnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> BudgetIncomeSnapshot {
+        .init()
+    }
+    public func update(_ from: BudgetIncomeSnapshot, unique: UniqueEngine) {
+        self.name = from.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.amount = from.amount.rawValue
+        self.date = from.hasDate ? from.date : nil
     }
 }
-
-public typealias BudgetIncome = EdmundModelsV1_1.BudgetIncome;
 
 @Observable
 public class BudgetIncomeSnapshot : ElementSnapshot {

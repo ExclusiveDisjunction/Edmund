@@ -8,63 +8,41 @@
 import SwiftData
 import Foundation
 
-extension EdmundModelsV1_1 {
-    /// A hourly job taken at a company
-    @Model
-    public final class HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
-        public typealias Snapshot = HourlyJobSnapshot
+extension HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
+    public typealias Snapshot = HourlyJobSnapshot
+    
+    /// Creates the hourly job with default values for adding.
+    public convenience init() {
+        self.init(company: "", position: "", hourlyRate: 0.0, avgHours: 0.0, taxRate: 0.0)
+    }
+    
+    public static let objId: ObjectIdentifier = .init((any TraditionalJob).self)
+    
+    public var id: TraditionalJobID {
+        .init(company: company, position: position)
+    }
+    public var grossAmount : Decimal {
+        hourlyRate * avgHours
+    }
+    
+    public func makeSnapshot() -> HourlyJobSnapshot {
+        .init(self)
+    }
+    public static func makeBlankSnapshot() -> HourlyJobSnapshot {
+        .init()
+    }
+    public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<TraditionalJobID>) {
+        try await self.updateBase(from, unique: unique)
         
-        /// Creates the hourly job with default values for adding.
-        public convenience init() {
-            self.init(company: "", position: "", hourlyRate: 0.0, avgHours: 0.0, taxRate: 0.0)
-        }
-        /// Creates the hourly job with specific values.
-        public init(company: String, position: String, hourlyRate: Decimal, avgHours: Decimal, taxRate: Decimal) {
-            self.company = company
-            self.position = position
-            self.hourlyRate = hourlyRate
-            self.avgHours = avgHours
-            self.taxRate = taxRate
-        }
-        
-        public static let objId: ObjectIdentifier = .init((any TraditionalJob).self)
-        
-        public var id: TraditionalJobID {
-            .init(company: company, position: position)
-        }
-        public var company: String;
-        public var position: String;
-        /// The amount per hour the individual obtains (ex. 20$ per hour)
-        public var hourlyRate: Decimal;
-        /// The average hours the individual works.
-        public var avgHours: Decimal;
-        public var taxRate: Decimal;
-        
-        public var grossAmount : Decimal {
-            hourlyRate * avgHours
-        }
-        
-        public func makeSnapshot() -> HourlyJobSnapshot {
-            .init(self)
-        }
-        public static func makeBlankSnapshot() -> HourlyJobSnapshot {
-            .init()
-        }
-        public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<TraditionalJobID>) {
-            try await self.updateBase(from, unique: unique)
-            
-            self.avgHours = from.avgHours
-            self.hourlyRate = from.hourlyRate.rawValue
-        }
-        
-        @MainActor
-        public static var exampleJob: HourlyJob {
-            HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15)
-        }
+        self.avgHours = from.avgHours
+        self.hourlyRate = from.hourlyRate.rawValue
+    }
+    
+    @MainActor
+    public static var exampleJob: HourlyJob {
+        HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15)
     }
 }
-
-public typealias HourlyJob = EdmundModelsV1_1.HourlyJob
 
 @Observable
 public final class HourlyJobSnapshot : TraditionalJobSnapshot, ElementSnapshot {

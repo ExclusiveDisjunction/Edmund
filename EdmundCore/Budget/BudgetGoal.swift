@@ -9,58 +9,22 @@ import Foundation
 import SwiftData
 import Observation
 
-public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Sendable {
-    case weekly = 0
-    case biWeekly = 1
-    case monthly = 2
+public protocol BudgetGoal : Identifiable<UUID>, SnapshotableElement, SnapshotConstructableElement, PersistentModel {
+    associatedtype T: BoundPair & PersistentModel
     
-    private var index: Int {
-        self.rawValue
-    }
-    private static let facTable: [[Decimal]] =
-        [
-        //   Week,  Bi-Week, Month
-            [ 1.0,  2.0,     4.0 ],
-            [ 0.5,  1.0,     2.0 ],
-            [ 0.25, 0.5,     1.0 ]
-        ];
-    
-    public func conversionFactor(_ to: MonthlyTimePeriods) -> Decimal {
-        let i = self.index, j = to.index;
-        
-        return Self.facTable[i][j];
-    }
-    public var asComponents: DateComponents {
-        switch self {
-            case .weekly:      .init(weekOfYear: 1)
-            case .biWeekly:    .init(weekOfYear: 2)
-            case .monthly:     .init(month: 1)
-        }
-    }
-    
-    public var id: Self { self }
+    var amount: Decimal { get set }
+    var period: MonthlyTimePeriods { get set }
+    var association: T? { get set }
+    var parent: BudgetMonth? { get set }
+
+    func duplicate() -> Self;
 }
 
-extension EdmundModelsV1_1 {
-    public protocol BudgetGoal : Identifiable<UUID>, SnapshotableElement, SnapshotConstructableElement, PersistentModel {
-        associatedtype T: BoundPair & PersistentModel
-        
-        var amount: Decimal { get set }
-        var period: MonthlyTimePeriods { get set }
-        var association: T? { get set }
-        var parent: BudgetMonth? { get set }
-    
-        func duplicate() -> Self;
-    }
-}
-
-public extension EdmundModelsV1_1.BudgetGoal {
+public extension BudgetGoal {
     var monthlyGoal : Decimal {
         self.amount * period.conversionFactor(.monthly)
     }
 }
-
-public typealias BudgetGoal = EdmundModelsV1_1.BudgetGoal
 
 @Observable
 public class BudgetGoalSnapshot<T> : ElementSnapshot where T: BoundPair {
