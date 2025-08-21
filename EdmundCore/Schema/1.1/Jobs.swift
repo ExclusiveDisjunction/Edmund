@@ -19,6 +19,12 @@ extension EdmundModelsV1_1 {
             self.grossAmount = grossAmount
             self.taxRate = taxRate
         }
+        public init(migration: EdmundModelsV1.SalariedJob) {
+            self.company = migration.company
+            self.position = migration.position
+            self.grossAmount = migration.grossAmount
+            self.taxRate = migration.taxRate
+        }
         
         public var company: String;
         public var position: String;
@@ -37,6 +43,13 @@ extension EdmundModelsV1_1 {
             self.hourlyRate = hourlyRate
             self.avgHours = avgHours
             self.taxRate = taxRate
+        }
+        public init(migration: EdmundModelsV1.HourlyJob) {
+            self.company = migration.company
+            self.position = migration.position
+            self.hourlyRate = migration.hourlyRate
+            self.avgHours = migration.avgHours
+            self.taxRate = migration.taxRate
         }
         
         public var company: String;

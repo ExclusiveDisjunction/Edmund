@@ -23,6 +23,16 @@ extension EdmundModelsV1_1 {
             self._kind = kind.rawValue
             self._period = period.rawValue
         }
+        public init(migrate: EdmundModelsV1.Bill) {
+            self.name = migrate.name
+            self.amount = migrate.amount
+            self.startDate = migrate.startDate
+            self.endDate = migrate.endDate
+            self.company = migrate.company
+            self.location = migrate.location
+            self._kind = migrate._kind
+            self._period = migrate._period
+        }
         
         public var name: String = "";
         public var amount: Decimal = 0.0;
@@ -51,6 +61,11 @@ extension EdmundModelsV1_1 {
             self.parent = parent
             self.amount = amount
         }
+        public init(migrate: EdmundModelsV1.UtilityDatapoint) {
+            self.id = migrate.id
+            self.parent = nil
+            self.amount = migrate.amount
+        }
         
         /// Where the data point lies in the greater storage array.
         public var id: Int;
@@ -73,6 +88,15 @@ extension EdmundModelsV1_1 {
             self.company = company
             self.location = location
             self._points = amounts.enumerated().map { .init($0.element, index: $0.offset, parent: self) };
+        }
+        public init(migrate: EdmundModelsV1.Utility) {
+            self.name = migrate.name
+            self.startDate = migrate.startDate
+            self.endDate = migrate.endDate
+            self._period = migrate.rawPeriod
+            self.company = migrate.company
+            self.location = migrate.location
+            self._points = migrate._points?.map { UtilityDatapoint(migrate: $0) }
         }
         
         public var name: String = "";

@@ -24,6 +24,16 @@ extension EdmundModelsV1_1 {
             self.category = category
             self.account = account
         }
+        public init(migration: EdmundModelsV1.LedgerEntry, category: SubCategory?, account: SubAccount?) {
+            self.id = migration.id
+            self.name = migration.name
+            self.credit = migration.credit
+            self.debit = migration.debit
+            self.addedOn = migration.addedOn
+            self.location = migration.location
+            self.category = category
+            self.account = account
+        }
         
         public var id: UUID = UUID()
         /// The memo of the transaction, a simple overview of the transaction

@@ -47,6 +47,18 @@ extension EdmundModelsV1_1 {
             self.parent = parent
             self.transactions = transactions
         }
+        /// Migrates from a previous version `SubAccount`, only migrating over the name and the new parent.
+        ///
+        /// This does not migrate:
+        /// 1. Transactions (due to joint effort with `SubCategory`)
+        /// 2. Savings Goals (due to joint effort with `BudgetMonth`)
+        /// 3. Income Divisions (due to joint effort with its devotion types)
+        /// 4. Amount Devotions, Percent Devotions, and Remainder Devotions (due to joint effort with `IncomeDivision`)
+        public init(migration: EdmundModelsV1.SubAccount, parent: Account) {
+            self.name = name
+            self.parent = parent
+            self.isVoided = migration.isVoided
+        }
         
         public var name: String = "";
         public internal(set) var isVoided: Bool = false
@@ -59,7 +71,7 @@ extension EdmundModelsV1_1 {
         public var savingsGoals: [BudgetSavingsGoal] = [];
         
         @Relationship(deleteRule: .nullify, inverse: \IncomeDivision.depositTo)
-        public var budgetInstances: [IncomeDivision] = [];
+        public var incomeDivisions: [IncomeDivision] = [];
         @Relationship(deleteRule: .nullify, inverse: \AmountDevotion.account)
         public var amountDevotions: [AmountDevotion] = [];
         @Relationship(deleteRule: .nullify, inverse: \PercentDevotion.account)

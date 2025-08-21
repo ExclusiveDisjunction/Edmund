@@ -17,6 +17,12 @@ extension EdmundModelsV1_1 {
             self.amount = amount
             self.date = date
         }
+        public init(migrate: EdmundModelsV1.BudgetIncome) {
+            self.name = migrate.name
+            self.id = migrate.id
+            self.amount = migrate.amount
+            self.date = date
+        }
         
         
         public var id: UUID;
@@ -35,6 +41,13 @@ extension EdmundModelsV1_1 {
             self.amount = amount
             self.parent = parent
             self._period = period.rawValue
+        }
+        public init(migrate: EdmundModelsV1.BudgetSavingsGoal, association: SubAccount?) {
+            self.id = migrate.id
+            self.association = association
+            self.amount = migrate.amount
+            self.parent = nil
+            self._period = MonthlyTimePeriods.monthly.rawValue
         }
         
         
@@ -56,6 +69,13 @@ extension EdmundModelsV1_1 {
             self.amount = amount
             self._period = period.rawValue
             self.parent = parent
+        }
+        public init(migrate: EdmundModelsV1.BudgetSpendingGoal, association: SubCategory?) {
+            self.id = migrate.id
+            self.association = association
+            self.amount = migrate.amount
+            self.parent = nil
+            self._period = MonthlyTimePeriods.monthly.rawValue
         }
         
         
