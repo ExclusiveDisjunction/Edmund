@@ -15,20 +15,20 @@ public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
     public var id: Self { self }
 }
 
-extension Account : Identifiable, Hashable, SnapshotableElement, DefaultableElement, SnapshotConstructableElement, UniqueElement, NamedElement, VoidableElement, CustomStringConvertible {
+extension Account : Hashable, SnapshotableElement, DefaultableElement, SnapshotConstructableElement, UniqueElement, NamedElement, VoidableElement, TransactionHolder, CustomStringConvertible {
     public typealias Snapshot = AccountSnapshot;
     
     public convenience init() {
         self.init("")
     }
-    public convenience init(snapshot: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<String>) {
+    public convenience init(snapshot: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         self.init();
         try await self.update(snapshot, unique: unique)
     }
     
     public static let objId: ObjectIdentifier = .init(Account.self)
     
-    public var id: String { name }
+    public var uID: String { name }
     /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
     /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
     public var creditLimit: Decimal? {
@@ -82,7 +82,7 @@ extension Account : Identifiable, Hashable, SnapshotableElement, DefaultableElem
     public static func makeBlankSnapshot() -> AccountSnapshot {
         .init()
     }
-    public func update(_ from: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<String>) {
+    public func update(_ from: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         let name = from.name.trimmingCharacters(in: .whitespaces)
         
         if name != self.name {

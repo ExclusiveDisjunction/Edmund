@@ -11,7 +11,7 @@ import Foundation
 extension EdmundModelsV1_1 {
     /// A data set pertaining to a same-amount periodic charge.
     @Model
-    public final class Bill {
+    public final class Bill : Identifiable {
         /// Creates a bill while filling in all fields.
         public init(name: String, kind: StrictBillsKind, amount: Decimal, company: String, location: String?, start: Date, end: Date?, period: TimePeriods) {
             self.name = name
@@ -22,6 +22,7 @@ extension EdmundModelsV1_1 {
             self.location = location
             self._kind = kind.rawValue
             self._period = period.rawValue
+            self.id = UUID();
         }
         public init(migrate: EdmundModelsV1.Bill) {
             self.name = migrate.name
@@ -32,8 +33,10 @@ extension EdmundModelsV1_1 {
             self.location = migrate.location
             self._kind = migrate._kind
             self._period = migrate._period
+            self.id = UUID();
         }
         
+        public var id: UUID;
         public var name: String = "";
         public var amount: Decimal = 0.0;
         public var startDate: Date = Date.now;
@@ -78,7 +81,7 @@ extension EdmundModelsV1_1 {
     
     /// Represents a variable-cost bill
     @Model
-    public final class Utility {
+    public final class Utility : Identifiable {
         /// Creates the utility with all fields
         public init(_ name: String, amounts: [Decimal], company: String, location: String? = nil, start: Date, end: Date? = nil, period: TimePeriods = .monthly) {
             self.name = name
@@ -87,6 +90,7 @@ extension EdmundModelsV1_1 {
             self._period = period.rawValue
             self.company = company
             self.location = location
+            self.id = UUID();
             self._points = amounts.enumerated().map { .init($0.element, index: $0.offset, parent: self) };
         }
         public init(migrate: EdmundModelsV1.Utility) {
@@ -97,8 +101,10 @@ extension EdmundModelsV1_1 {
             self.company = migrate.company
             self.location = migrate.location
             self._points = migrate._points?.map { UtilityDatapoint(migrate: $0) }
+            self.id = UUID();
         }
         
+        public var id: UUID;
         public var name: String = "";
         public var startDate: Date = Date.now;
         public var endDate: Date? = nil;

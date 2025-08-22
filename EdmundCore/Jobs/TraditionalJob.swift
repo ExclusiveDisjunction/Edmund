@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// A basis for all jobs that Edmund supports.
-public protocol JobBase : PersistentModel, Identifiable {
+public protocol JobBase : PersistentModel, Identifiable<UUID> {
     /// The amount of money taken out as taxes.
     var taxRate: Decimal { get set }
     /// The average gross (pre-tax) amount.
@@ -55,7 +55,7 @@ public struct TraditionalJobID : Hashable, Equatable, RawRepresentable, Sendable
 }
 
 /// Represents a job that takes place at a company, meaning that there is a company and position that you work.
-public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
+public protocol TraditionalJob : JobBase, UniqueElement where Self.UID == TraditionalJobID {
     /// The company that is being worked for
     var company: String { get set}
     /// The role that the individual works.
@@ -63,13 +63,13 @@ public protocol TraditionalJob : JobBase, Identifiable<TraditionalJobID> {
 }
 internal extension TraditionalJob {
     @MainActor
-    func updateBase(_ snap: TraditionalJobSnapshot, unique: UniqueEngine) async throws (UniqueFailureError<TraditionalJobID>) {
+    func updateBase(_ snap: TraditionalJobSnapshot, unique: UniqueEngine) async throws (UniqueFailureError) {
         let company = snap.company.trimmingCharacters(in: .whitespaces)
         let position = snap.position.trimmingCharacters(in: .whitespaces)
         let id = TraditionalJobID(company: company, position: position)
         
-        if id != self.id {
-            let couldSwap = await unique.swapId(key: .init((any TraditionalJob).self), oldId: self.id, newId: id)
+        if id != self.uID {
+            let couldSwap = await unique.swapId(key: .init((any TraditionalJob).self), oldId: self.uID, newId: id)
             guard couldSwap else {
                 throw UniqueFailureError(value: id)
             }
@@ -83,14 +83,15 @@ internal extension TraditionalJob {
 
 /// Holds an `any TraditionalJob` for use in UI code & logic.
 public struct TraditionalJobWrapper : Identifiable, Equatable {
-    public init(_ data: any TraditionalJob, id: UUID = UUID()) {
+    public init(_ data: any TraditionalJob) {
         self.data = data;
-        self.id = id;
     }
     
     /// The targeted data
     public var data: any TraditionalJob;
-    public var id: UUID;
+    public var id: UUID {
+        data.id
+    }
     
     public static func==(lhs: TraditionalJobWrapper, rhs: TraditionalJobWrapper) -> Bool {
         lhs.data.id == rhs.data.id
@@ -135,7 +136,7 @@ public class TraditionalJobSnapshot : JobSnapshot {
     public init<T>(_ from: T) where T: TraditionalJob {
         self.company = from.company
         self.position = from.position
-        self.oldId = from.id;
+        self.oldId = from.uID;
         
         super.init(from)
     }

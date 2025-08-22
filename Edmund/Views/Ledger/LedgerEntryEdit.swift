@@ -17,7 +17,6 @@ public struct LedgerEntryEdit : View {
     
     @Bindable private var snapshot : LedgerEntrySnapshot;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
@@ -36,13 +35,13 @@ public struct LedgerEntryEdit : View {
                 TextField("Name", text: $snapshot.name).textFieldStyle(.roundedBorder)
             }
             GridRow {
-                Text(ledgerStyle == .none ? "Money In:" : ledgerStyle == .standard ? "Debit:" : "Credit:")
+                Text("Money In:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 CurrencyField(snapshot.credit)
             }
             GridRow {
-                Text(ledgerStyle == .none ? "Money Out:" : ledgerStyle == .standard ? "Credit:" : "Debit:")
+                Text("Money Out:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 CurrencyField(snapshot.debit)
@@ -78,14 +77,14 @@ public struct LedgerEntryEdit : View {
                 Text("Category:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                NamedPairPicker($snapshot.category)
+                ElementPicker($snapshot.category)
             }
             Divider()
             GridRow {
                 Text("Account:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
-                NamedPairPicker($snapshot.account)
+                ElementPicker($snapshot.account)
             }
         }
     }

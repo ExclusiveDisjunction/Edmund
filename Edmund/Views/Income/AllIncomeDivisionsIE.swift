@@ -89,23 +89,18 @@ struct AllIncomeDivisionsIE : View {
         }
         
         let payName: String = switch income.kind {
-            case .donation: "Donation"
-            case .gift: "Gift"
-            case .pay: "Pay"
-            default: "internalError"
+            case .donation: NSLocalizedString("Donation", comment: "")
+            case .gift:     NSLocalizedString("Gift", comment: "")
+            case .pay:      NSLocalizedString("Pay", comment: "")
+            default:        NSLocalizedString("internalError", comment: "")
         }
-        let payCategory: SubCategory = switch income.kind {
-            case .donation: categoriesContext.payments.gift
-            case .gift: categoriesContext.payments.gift
-            case .pay: categoriesContext.accountControl.pay
-            default: fatalError("Unable to find a category that matches the income kind \(income.kind)")
-        }
+        let payCategory = categoriesContext.income
         
         let bank = NSLocalizedString("Bank", comment: "");
         
         let pay = LedgerEntry(name: payName, credit: income.amount, debit: 0, date: .now, location: bank, category: payCategory, account: payAccount)
         
-        let transfer = LedgerEntry(name: "\(payAccount.name) to Various", credit: 0, debit: income.amount, date: .now, location: bank, category: categoriesContext.accountControl.transfer, account: payAccount)
+        let transfer = LedgerEntry(name: "\(payAccount.name) to Various", credit: 0, debit: income.amount, date: .now, location: bank, category: categoriesContext.transfers, account: payAccount)
         
         var resultingTransactions: [LedgerEntry] = [pay, transfer]
         for devotion in income.allDevotions {
@@ -123,7 +118,7 @@ struct AllIncomeDivisionsIE : View {
             }
             
             resultingTransactions.append(
-                LedgerEntry(name: "Various to \(acc.name)", credit: amount, debit: 0, date: .now, location: bank, category: categoriesContext.accountControl.transfer, account: acc)
+                LedgerEntry(name: "Various to \(acc.name)", credit: amount, debit: 0, date: .now, location: bank, category: categoriesContext.transfers, account: acc)
             )
         }
         

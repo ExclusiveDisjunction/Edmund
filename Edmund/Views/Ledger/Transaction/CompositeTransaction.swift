@@ -41,7 +41,6 @@ struct CompositeTransaction : TransactionEditorProtocol {
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.uniqueEngine) private var uniqueEngine;
     
-    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     func computeWorking() -> Decimal? {
@@ -125,13 +124,13 @@ struct CompositeTransaction : TransactionEditorProtocol {
                     Text("Category:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($snapshot.category)
+                    ElementPicker($snapshot.category)
                 }
                 GridRow {
                     Text("Account:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($snapshot.account)
+                    ElementPicker($snapshot.account)
                 }
                 
                 Divider()
@@ -141,8 +140,8 @@ struct CompositeTransaction : TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     Picker("", selection: $mode) {
-                        Text(ledgerStyle.displayCredit).tag(Mode.credit)
-                        Text(ledgerStyle.displayDebit).tag(Mode.debit)
+                        Text("Money In").tag(Mode.credit)
+                        Text("Money Out").tag(Mode.debit)
                     }.labelsHidden()
                         .pickerStyle(.segmented)
                 }

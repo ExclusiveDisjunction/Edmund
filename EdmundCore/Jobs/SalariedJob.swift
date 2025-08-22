@@ -18,7 +18,7 @@ extension SalariedJob : Identifiable, UniqueElement, TraditionalJob, Snapshotabl
         self.init(company: "", position: "", grossAmount: 0.0, taxRate: 0.0)
     }
     
-    public var id: TraditionalJobID {
+    public var uID: TraditionalJobID {
         .init(company: company, position: position)
     }
     
@@ -28,7 +28,7 @@ extension SalariedJob : Identifiable, UniqueElement, TraditionalJob, Snapshotabl
     public static func makeBlankSnapshot() -> SalariedJobSnapshot {
         return .init()
     }
-    public func update(_ from: SalariedJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<TraditionalJobID>) {
+    public func update(_ from: SalariedJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         try await self.updateBase(from, unique: unique)
         
         self.grossAmount = from.grossAmount.rawValue

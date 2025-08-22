@@ -53,7 +53,7 @@ struct IncomeDivisionCloseInspect : View {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        CompactNamedPairInspect(data.depositTo)
+                        ElementDisplayer(value: data.depositTo)
                         Spacer()
                     }
                 }

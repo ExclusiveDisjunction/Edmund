@@ -12,35 +12,16 @@ import EdmundCore
 struct CategoriesIE : View {
     @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
     
-    @State private var selection = Set<Category.ID>();
+    @State private var selection = Set<EdmundCore.Category.ID>();
     @State private var addingCategory: Bool = false;
     
-    @Bindable private var delete = DeletingManifest<CategoryTableRow>();
+    @Bindable private var delete = DeletingManifest<EdmundCore.Category>();
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.uniqueEngine) private var uniqueEngine;
     
-    private func refresh() {
-        self.cache = self.categories.map { CategoryTableRow(category: $0) }
-    }
-    private func deleteFromModel(data: CategoryTableRow, context: ModelContext) {
-        withAnimation {
-            if let category = data.target as? EdmundCore.Category {
-                context.delete(category)
-                Task {
-                    await uniqueEngine.releaseId(key: EdmundCore.Category.objId, id: category.id)
-                }
-            }
-            else if let subCat = data.target as? SubCategory {
-                context.delete(subCat)
-                Task {
-                    await uniqueEngine.releaseId(key: SubCategory.objId, id: subCat.id)
-                }
-            }
-        }
-    }
     private func deletePress() {
-        let items = cache.filter { !$0.target.isLocked && selection.contains($0.id) }
+        let items = categories.filter { !$0.isLocked && selection.contains($0.id) }
         
         guard !items.isEmpty else {
             warning.warning = .noneSelected;
@@ -51,25 +32,26 @@ struct CategoriesIE : View {
     }
     
     var body: some View {
-        List($cache, children: \.children, selection: $selection) { $cat in
-            CategoryTableRowEdit($cat, delete: delete)
+        Table(categories, selection: $selection) {
+            TableColumn("Name", value: \.name)
+                .width(min: 30, ideal: 50, max: nil)
+            TableColumn("") { cat in
+                if cat.isLocked {
+                    Image(systemName: "lock")
+                }
+            }
+                .width(17)
+            TableColumn("Description", value: \.desc)
+                .width(min: 150, ideal: 170, max: nil)
         }.padding()
             .navigationTitle("Categories")
-            .task { refresh() }
-            .onChange(of: categories, { _, _ in refresh() })
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting, titleVisibility: .visible) {
-                AbstractDeletingActionConfirm(delete, delete: deleteFromModel, post: refresh)
+                UniqueDeletingActionConfirm(delete)
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button("Category", action: {
-                            addingCategory = true
-                        })
-                        
-                        Button("Sub Category", action: {
-                            addingSubCategory = true
-                        })
+                    Button {
+                        addingCategory = true
                     } label: {
                         Label("Add", systemImage: "plus")
                     }
@@ -82,16 +64,13 @@ struct CategoriesIE : View {
                     }
                 }
             }
-            .sheet(isPresented: $addingCategory, onDismiss: refresh) {
+            .sheet(isPresented: $addingCategory) {
                 CategoryAdder()
             }
-            .sheet(isPresented: $addingSubCategory, onDismiss: refresh) {
-                SubCategoryAdder()
-            }
             .alert("Warning", isPresented: $warning.isPresented, actions: {
-                Button("Ok", action: {
+                Button("Ok") {
                     warning.isPresented = false
-                })
+                }
             }, message: {
                 switch warning.warning ?? .noneSelected {
                     case .noneSelected: Text("Please ensure that you select at least one non-locked element.")

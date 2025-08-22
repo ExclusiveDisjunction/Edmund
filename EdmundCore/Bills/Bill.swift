@@ -27,7 +27,7 @@ extension Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     
     public static let objId: ObjectIdentifier = .init((any BillBase).self)
     
-    public var id: BillBaseID {
+    public var uID: BillBaseID {
         .init(name: name, company: company, location: location)
     }
     
@@ -82,7 +82,7 @@ extension Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     public static func makeBlankSnapshot() -> BillSnapshot {
         BillSnapshot()
     }
-    public func update(_ from: BillSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
+    public func update(_ from: BillSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         try await self.updateFromBase(snap: from, unique: unique)
         
         self.amount   = from.amount.rawValue

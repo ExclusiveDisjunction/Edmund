@@ -47,7 +47,7 @@ public struct BillBaseID : Hashable, Equatable, RawRepresentable, Sendable {
 }
 
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-public protocol BillBase : Identifiable<BillBaseID>, AnyObject, UniqueElement {
+public protocol BillBase : Identifiable<UUID>, UniqueElement, AnyObject where Self.UID == BillBaseID {
     /// The name of the bill.
     var name: String { get set }
     /// The start date of the bill. This is used to compute the upcoming dates.
@@ -91,14 +91,14 @@ public extension BillBase {
     }
     
     @MainActor
-    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
+    func updateFromBase(snap: BillBaseSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         let name = snap.name.trimmingCharacters(in: .whitespaces)
         let company = snap.company.trimmingCharacters(in: .whitespaces)
         let location = snap.location.trimmingCharacters(in: .whitespaces)
         let id = BillBaseID(name: name, company: company, location: snap.hasLocation ? location : nil)
         
-        if id != self.id {
-            guard await unique.swapId(key: .init((any BillBase).self), oldId: self.id, newId: id) else {
+        if id != self.uID {
+            guard await unique.swapId(key: .init((any BillBase).self), oldId: self.uID, newId: id) else {
                 throw UniqueFailureError(value: id)
             }
         }
@@ -171,7 +171,7 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.hasLocation = from.location != nil
         self.location = from.location ?? String()
         self.autoPay = from.autoPay;
-        self.oldId = from.id;
+        self.oldId = from.uID;
     }
     
     @ObservationIgnored private var oldId: BillBaseID;

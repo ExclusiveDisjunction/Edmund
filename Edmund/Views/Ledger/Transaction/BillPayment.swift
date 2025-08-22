@@ -21,7 +21,7 @@ struct BillPayment : TransactionEditorProtocol {
     private let kind: StrictBillsKind;
     @State private var selected: Bill? = nil;
     @State private var date: Date = .now;
-    @State private var account: SubAccount? = nil;
+    @State private var account: Account? = nil;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
@@ -65,7 +65,7 @@ struct BillPayment : TransactionEditorProtocol {
             debit: amount,
             date: date,
             location: company,
-            category: kind == .bill ? categories.bills.bill : categories.bills.subscription,
+            category: categories.bills,
             account: account
         );
         
@@ -103,7 +103,7 @@ struct BillPayment : TransactionEditorProtocol {
                     Text("From:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                 }
                 GridRow {
                     Text("Date:")

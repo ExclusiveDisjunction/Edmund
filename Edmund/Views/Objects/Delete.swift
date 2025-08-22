@@ -152,7 +152,7 @@ public struct DeletingActionConfirm<T>: View where T: PersistentModel{
         }, post: postAction)
     }
 }
-public struct UniqueDeletingActionConfirm<T> : View where T: PersistentModel, T: UniqueElement, T.ID: Sendable {
+public struct UniqueDeletingActionConfirm<T> : View where T: PersistentModel, T: UniqueElement {
     private var deleting: DeletingManifest<T>;
     private let postAction: (() -> Void)?;
     
@@ -167,7 +167,7 @@ public struct UniqueDeletingActionConfirm<T> : View where T: PersistentModel, T:
         AbstractDeletingActionConfirm(self.deleting, delete: { model, context in
             context.delete(model)
             Task {
-                await uniqueEngine.releaseId(key: T.objId, id: model.id)
+                await uniqueEngine.releaseId(key: T.objId, id: model.uID)
             }
         }, post: postAction)
     }

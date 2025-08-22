@@ -13,133 +13,51 @@ import EdmundCore
 struct BalanceSheet: View {
     @Query private var accounts: [Account];
     
-    @State private var computed: [DetailedBalance]? = nil;
+    @State private var computed: [SimpleBalance]? = nil;
+    @State private var selection: Set<SimpleBalance.ID> = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
-    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private func refresh() {
-        computed = nil;
+        withAnimation {
+            computed = nil;
+        }
     }
-    private func computeBalances() -> [DetailedBalance] {
+    private func computeBalances() -> [SimpleBalance] {
         BalanceResolver(accounts)
-            .computeSubBalances()
-            .intoDetailedBalances()
-    }
-    
-    /// The view for each sub account
-    @ViewBuilder
-    private func childSection(_ item: DetailedBalance) -> some View {
-        if let children = item.children {
-            if children.isEmpty {
-                Text("There are no associated transactions for this account")
-                    .italic()
-            }
-            else {
-                Grid {
-                    GridRow {
-                        HStack {
-                            Text("Sub Account Name").font(.headline)
-                            Spacer()
-                        }
-                        if horizontalSizeClass != .compact {
-                            HStack {
-                                Spacer()
-                                
-                                Text(ledgerStyle.displayCredit)
-                                    .font(.headline)
-                            }
-                            HStack {
-                                Spacer()
-                                
-                                Text(ledgerStyle.displayDebit)
-                                    .font(.headline)
-                            }
-                        }
-                        
-                        HStack {
-                            Spacer()
-                            Text("Balance").font(.headline)
-                        }
-                    }
-                    Divider()
-                    
-                    ForEach(children, id: \.id) { sub in
-                        GridRow {
-                            HStack {
-                                Text(sub.name)
-                                Spacer()
-                            }
-                            
-                            if horizontalSizeClass != .compact {
-                                HStack {
-                                    Spacer()
-                                    Text(sub.credit, format: .currency(code: currencyCode))
-                                }
-                                
-                                HStack {
-                                    Spacer()
-                                    Text(sub.debit, format: .currency(code: currencyCode))
-                                }
-                            }
-                            
-                            HStack {
-                                Spacer()
-                                Text(sub.balance, format: .currency(code: currencyCode))
-                                    .foregroundStyle(sub.balance < 0 ? .red : .primary )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            Text("internalError")
-        }
-    }
-    
-    /// The view for accounts
-    @ViewBuilder
-    private func accountView(_ item: DetailedBalance) -> some View {
-        VStack {
-            HStack {
-                Text(item.name)
-                    .font(.title2)
-                    .bold()
-                    .foregroundStyle(.accent)
-                
-                Spacer()
-                
-                Text(item.balance, format: .currency(code: currencyCode))
-                    .foregroundStyle(item.balance < 0 ? .red : .primary)
-                    .font(.title2)
-                
-            }
-            
-            childSection(item)
-            
-            Divider()
-        }
+            .computeBalances()
+            .intoSimpleBalances()
     }
     
     var body: some View {
         LoadableView($computed, process: computeBalances, onLoad: { computed in
-            VStack {
-                if computed.isEmpty {
-                    Text("There are no transactions, or this page needs to be refreshed").italic().padding()
-                    Spacer()
-                }
-                else {
-                    ScrollView {
-                        VStack {
-                            ForEach(computed) { item in
-                                accountView(item)
-                            }
+            Table(computed, selection: $selection) {
+                TableColumn("Account") { balance in
+                    if horizontalSizeClass == .compact {
+                        HStack {
+                            Text(balance.name)
+                            Spacer()
+                            Text(balance.balance, format: .currency(code: currencyCode))
                         }
                     }
+                    else {
+                        Text(balance.name)
+                    }
                 }
+                
+                TableColumn("Money In") { balance in
+                    Text(balance.credit, format: .currency(code: currencyCode))
+                }.alignment(.numeric)
+                
+                TableColumn("Money Out") { balance in
+                    Text(balance.debit, format: .currency(code: currencyCode))
+                }.alignment(.numeric)
+                
+                TableColumn("Balance") { balance in
+                    Text(balance.balance, format: .currency(code: currencyCode))
+                }.alignment(.numeric)
             }
         }).toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -152,9 +70,6 @@ struct BalanceSheet: View {
         }
         .navigationTitle("Balance Sheet")
         .padding()
-        #if os(macOS)
-        .frame(minWidth: 350, minHeight: 200)
-        #endif
     }
 }
 

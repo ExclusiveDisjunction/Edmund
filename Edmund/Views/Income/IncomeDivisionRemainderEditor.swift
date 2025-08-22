@@ -64,7 +64,7 @@ struct IncomeDivisionRemainderEditor : View {
                         Text("Account:")
                             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                         
-                        NamedPairPicker($remainder.account)
+                        ElementPicker($remainder.account)
                     }
                     
                     GridRow {

@@ -97,7 +97,7 @@ struct AnyDevotionCloseLook : View {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        CompactNamedPairInspect(data.account)
+                        ElementDisplayer(value: data.account)
                         
                         Spacer()
                     }

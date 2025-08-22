@@ -9,24 +9,12 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-fileprivate struct AccountWrapper : Identifiable {
-    init(_ data: Account, id: UUID = UUID()) {
-        self.id = id
-        self.data = data
-    }
-    
-    var id: UUID;
-    var data: Account
-}
-
 struct AccountsIE : View {
     @Query(sort: [SortDescriptor(\Account.name, order: .forward)] ) private var accounts: [Account];
-    @State private var wrappers: [AccountWrapper] = [];
-    @State private var selection = Set<AccountWrapper.ID>();
-    @State private var showingSubAccounts: AccountWrapper? = nil;
+    @State private var selection = Set<Account.ID>();
     
-    @Bindable private var inspecting = InspectionManifest<AccountWrapper>();
-    @Bindable private var delete = DeletingManifest<AccountWrapper>();
+    @Bindable private var inspecting = InspectionManifest<Account>();
+    @Bindable private var delete = DeletingManifest<Account>();
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -34,33 +22,29 @@ struct AccountsIE : View {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func refresh() {
-        wrappers = accounts.map { .init($0) }
-    }
-    
     @ViewBuilder
     private var expanded: some View {
-        Table(wrappers, selection: $selection) {
+        Table(accounts, selection: $selection) {
             TableColumn("Name") { account in
                 if horizontalSizeClass == .compact {
                     HStack {
-                        Text(account.data.name)
+                        Text(account.name)
                         Spacer()
                         Text("Kind:")
-                        Text(account.data.kind.display)
+                        Text(account.kind.display)
                     }.swipeActions(edge: .trailing) {
                         SingularContextMenu(account, inspect: inspecting, remove: delete, asSlide: true)
                     }
                 }
                 else {
-                    Text(account.data.name)
+                    Text(account.name)
                 }
             }
             TableColumn("Kind") { account in
-                Text(account.data.kind.display)
+                Text(account.kind.display)
             }
             TableColumn("Credit Limit") { account in
-                if let limit = account.data.creditLimit {
+                if let limit = account.creditLimit {
                     Text(limit, format: .currency(code: currencyCode))
                 }
                 else {
@@ -69,7 +53,7 @@ struct AccountsIE : View {
                 }
             }
             TableColumn("Interest") { account in
-                if let interest = account.data.interest {
+                if let interest = account.interest {
                     Text(interest, format: .percent.precision(.fractionLength(3)))
                 }
                 else {
@@ -78,7 +62,7 @@ struct AccountsIE : View {
                 }
             }
             TableColumn("Location") { account in
-                if let location = account.data.location {
+                if let location = account.location {
                     Text(location)
                 }
                 else {
@@ -86,37 +70,27 @@ struct AccountsIE : View {
                         .italic()
                 }
             }
-        }.contextMenu(forSelectionType: AccountWrapper.ID.self) { selection in
-            SelectionContextMenu(selection, data: wrappers, inspect: inspecting, delete: delete, warning: warning)
-            
-            Divider()
-            
-            Button {
-                if let id = selection.first, let element = wrappers.first(where: { $0.id == id } ) {
-                    showingSubAccounts = element
-                }
-            } label: {
-                Label("Sub Accounts", systemImage: "list.bullet.rectangle")
-            }.disabled(selection.count != 1)
+        }.contextMenu(forSelectionType: Account.ID.self) { selection in
+            SelectionContextMenu(selection, data: accounts, inspect: inspecting, delete: delete, warning: warning)
         }
     }
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            Button(action: {
-                inspecting.open(.init(.init()), mode: .add)
-            }) {
+            Button {
+                inspecting.open(Account(), mode: .add)
+            } label: {
                 Label("Add", systemImage: "plus")
             }
         }
         
         if horizontalSizeClass != .compact {
-            GeneralIEToolbarButton(on: wrappers, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
-            GeneralIEToolbarButton(on: wrappers, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
+            GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .edit, placement: .primaryAction)
+            GeneralIEToolbarButton(on: accounts, selection: $selection, inspect: inspecting, warning: warning, role: .inspect, placement: .primaryAction)
         }
         
-        GeneralDeleteToolbarButton(on: wrappers, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
+        GeneralDeleteToolbarButton(on: accounts, selection: $selection, delete: delete, warning: warning, placement: .primaryAction)
         
 #if os(iOS)
         ToolbarItem(placement: .primaryAction) {
@@ -126,38 +100,25 @@ struct AccountsIE : View {
     }
     
     var body: some View {
-        VStack {
-            expanded
-        }.padding()
+        expanded
+            .padding()
             .navigationTitle("Accounts")
             .toolbar {
                 toolbarContent
             }
             .toolbarRole(.editor)
             .sheet(item: $inspecting.value) { item in
-                ElementIE(item.data, mode: inspecting.mode)
-            }
-            .sheet(item: $showingSubAccounts) { acc in
-                SubAccountsIE(acc.data, isSheet: true)
-                    .padding()
+                ElementIE(item, mode: inspecting.mode)
             }
             .alert("Warning", isPresented: $warning.isPresented, actions: {
-                Button("Ok", action: {
+                Button("Ok") {
                     warning.isPresented = false
-                })
+                }
             }, message: {
                 Text((warning.warning ?? .noneSelected).message )
             })
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting, titleVisibility: .visible) {
-                AbstractDeletingActionConfirm(delete) { account, context in
-                    context.delete(account.data)
-                    Task {
-                        await uniqueEngine.releaseId(key: Account.objId, id: account.data.id)
-                    }
-                }
-            }.onAppear(perform: refresh)
-            .onChange(of: accounts) { _, _ in
-                refresh()
+                UniqueDeletingActionConfirm(delete)
             }
     }
 }

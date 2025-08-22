@@ -19,7 +19,7 @@ extension Utility : BillBase, SnapshotableElement, UniqueElement, IsolatedDefaul
     
     public static let objId: ObjectIdentifier = .init((any BillBase).self)
     
-    public var id: BillBaseID {
+    public var uID: BillBaseID {
         .init(name: name, company: company, location: location)
     }
     public var points: [Decimal] {
@@ -82,7 +82,7 @@ extension Utility : BillBase, SnapshotableElement, UniqueElement, IsolatedDefaul
             old.amount = new.element.amount.rawValue
         }
     }
-    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) async throws(UniqueFailureError<BillBaseID>) {
+    public func update(_ from: UtilitySnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         try await self.updateFromBase(snap: from, unique: unique)
         
         let oldPoints = self._points ?? [];

@@ -13,7 +13,7 @@ struct PaydayTransaction : TransactionEditorProtocol {
     @Query private var salaried: [SalariedJob];
     @Query private var hourly: [HourlyJob];
     
-    @State private var jobID: TraditionalJobID? = nil;
+    @State private var jobID: UUID? = nil;
     @State private var job: TraditionalJobWrapper? = nil;
     @State private var deposit: Account? = nil;
     @State private var amount: CurrencyValue = .init();

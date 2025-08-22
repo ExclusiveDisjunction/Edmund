@@ -19,10 +19,10 @@
     "(No job)" : {
 
     },
-    "(No parent), %@" : {
-      "comment" : "Same as above, used in similar contexts"
-    },
     "(None)" : {
+
+    },
+    "(Pick One)" : {
 
     },
     "(Select a Month & Year)" : {
@@ -52,17 +52,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "/"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
-    "%@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@, %2$@"
           }
         }
       },
@@ -121,6 +110,7 @@
       }
     },
     "Accounting Style" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -131,6 +121,7 @@
       }
     },
     "accountingStylesDesc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -191,16 +182,13 @@
     "Add Salaried Job" : {
 
     },
-    "Add Sub Account" : {
-
-    },
-    "Add Sub Category" : {
-
-    },
     "Add Transaction" : {
 
     },
     "Add Utility" : {
+
+    },
+    "Added On" : {
 
     },
     "Added On:" : {
@@ -347,9 +335,6 @@
 
     },
     "Balance Goal" : {
-
-    },
-    "Balance Overview" : {
 
     },
     "Balance Sheet" : {
@@ -641,9 +626,6 @@
     "Credit Limit:" : {
 
     },
-    "Credit:" : {
-
-    },
     "Currency" : {
 
     },
@@ -714,9 +696,6 @@
         }
       }
     },
-    "Debit:" : {
-
-    },
     "December" : {
 
     },
@@ -765,6 +744,9 @@
     "Deposit:" : {
 
     },
+    "Description" : {
+
+    },
     "Destination" : {
 
     },
@@ -799,12 +781,6 @@
 
     },
     "Display the homepage as two widgets" : {
-
-    },
-    "Do not show as Accounting Style" : {
-
-    },
-    "Do you want to delete these sub accounts, and all associated transactions?" : {
 
     },
     "Donation" : {
@@ -855,12 +831,6 @@
 
     },
     "Edit Salaried Job" : {
-
-    },
-    "Edit Sub Account" : {
-
-    },
-    "Edit Sub Category" : {
 
     },
     "Edit Transaction" : {
@@ -1278,12 +1248,6 @@
     "Inspect Salaried Job" : {
 
     },
-    "Inspect Sub Account" : {
-
-    },
-    "Inspect Sub Category" : {
-
-    },
     "Inspect Transaction" : {
 
     },
@@ -1580,6 +1544,7 @@
 
     },
     "No Account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1596,6 +1561,7 @@
       }
     },
     "No Category" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2004,9 +1970,6 @@
     "Request a feature..." : {
 
     },
-    "Reversed Accounting Style" : {
-
-    },
     "Right Side" : {
 
     },
@@ -2153,9 +2116,6 @@
     "Split the homepage vertically" : {
 
     },
-    "Standard Accounting Style" : {
-
-    },
     "Start Date:" : {
 
     },
@@ -2169,6 +2129,7 @@
 
     },
     "Styles" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2200,15 +2161,6 @@
           }
         }
       }
-    },
-    "Sub Account Name" : {
-
-    },
-    "Sub Accounts" : {
-
-    },
-    "Sub Categories" : {
-
     },
     "Sub Category" : {
       "extractionState" : "manual",
@@ -2299,13 +2251,11 @@
     "The unique engine could not be loaded." : {
 
     },
-    "There are no associated transactions for this account" : {
-
-    },
     "There are no expired bills" : {
 
     },
     "There are no transactions, or this page needs to be refreshed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -2325,9 +2275,6 @@
 
     },
     "This app is released as open source, but only the developer, Hollan Sellars, is authorized to publish it." : {
-
-    },
-    "This category is required for Edmund to create transactions automatically, and cannot be edited/deleted." : {
 
     },
     "This income division has already been finalized, and cannot be finalized again." : {

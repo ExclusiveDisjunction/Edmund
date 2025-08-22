@@ -63,7 +63,7 @@ struct IncomeDevotionsInspect : View {
                 Text(row.group.display)
             }
             TableColumn("Destination") { row in
-                CompactNamedPairInspect(row.account)
+                ElementDisplayer(value: row.account)
             }
 #if os(macOS)
             .width(150)

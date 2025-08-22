@@ -9,14 +9,14 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-extension Category : Identifiable, UniqueElement, DefaultableElement, NamedElement, Equatable, CustomStringConvertible {
+extension Category : UniqueElement, DefaultableElement, NamedElement, TransactionHolder, Equatable, CustomStringConvertible {
     public convenience init() {
         self.init("")
     }
     
     public static let objId: ObjectIdentifier = .init(Category.self)
     
-    public var id: String { name }
+    public var uID: String { name }
     public var description: String {
         "Category \(name)"
     }

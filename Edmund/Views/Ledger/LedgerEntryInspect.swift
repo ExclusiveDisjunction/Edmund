@@ -17,7 +17,6 @@ public struct LedgerEntryInspect : View {
     
     public let target: LedgerEntry;
     
-    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
 #if os(macOS)
@@ -40,7 +39,7 @@ public struct LedgerEntryInspect : View {
                 }
             }
             GridRow {
-                Text(ledgerStyle == .none ? "Money In:" : ledgerStyle == .standard ? "Debit:" : "Credit:")
+                Text("Money In:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
@@ -49,7 +48,7 @@ public struct LedgerEntryInspect : View {
                 }
             }
             GridRow {
-                Text(ledgerStyle == .none ? "Money Out:" : ledgerStyle == .standard ? "Credit:" : "Debit:")
+                Text("Money Out:")
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
@@ -101,12 +100,7 @@ public struct LedgerEntryInspect : View {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
-                    if let cat = target.category {
-                        CompactNamedPairInspect(cat)
-                    }
-                    else {
-                        Text("No Category")
-                    }
+                    ElementDisplayer(value: target.category)
                     
                     Spacer()
                 }
@@ -116,12 +110,7 @@ public struct LedgerEntryInspect : View {
                     .frame(minWidth: labelMinWidth, maxWidth: labelMaxWidth, alignment: .trailing)
                 
                 HStack {
-                    if let acc = target.account {
-                        CompactNamedPairInspect(acc)
-                    }
-                    else {
-                        Text("No Account")
-                    }
+                    ElementDisplayer(value: target.account)
                     
                     Spacer()
                 }

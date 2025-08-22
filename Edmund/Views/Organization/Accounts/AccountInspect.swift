@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-public struct AccountsPropertiesInspect : View {
+public struct AccountInspect : View {
     public init(_ data: Account) {
         self.data = data
     }
@@ -99,29 +99,6 @@ public struct AccountsPropertiesInspect : View {
                     }
                 }
             }
-        }
-    }
-}
-
-/// The inspect view for Account.
-public struct AccountInspect : View {
-    public init(_ data: Account) {
-        self.data = data;
-    }
-    
-    private var data: Account;
-    
-    public var body: some View {
-        TabView {
-            AccountsPropertiesInspect(data)
-                .tabItem {
-                    Text("Properties")
-                }
-            
-            SubAccountsIE(data)
-                .tabItem {
-                    Text("Sub Accounts")
-                }
         }
     }
 }

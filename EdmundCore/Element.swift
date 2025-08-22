@@ -38,11 +38,11 @@ public protocol SnapshotableElement : ElementBase, PersistentModel {
     /// This is allowed to throw `UniqueFailureError<Host.ID>` if registering in the unique engine fails.
     /// This should not happen in good practice, but must be explored just in case.
     @MainActor
-    func update(_ from: Snapshot, unique: UniqueEngine) async throws(UniqueFailureError<Self.ID>);
+    func update(_ from: Snapshot, unique: UniqueEngine) async throws(UniqueFailureError);
 }
 public protocol SnapshotConstructableElement : SnapshotableElement {
     @MainActor
-    init(snapshot: Self.Snapshot, unique: UniqueEngine) async throws(UniqueFailureError<Self.ID>);
+    init(snapshot: Self.Snapshot, unique: UniqueEngine) async throws(UniqueFailureError);
 }
 
 /// Represents a class that can be used to hold the values of an element for editing.

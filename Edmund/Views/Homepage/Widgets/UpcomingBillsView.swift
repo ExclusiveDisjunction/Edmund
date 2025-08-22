@@ -35,14 +35,16 @@ struct UpcomingBillsView : View {
             Table(loaded) {
                 TableColumn("Name", value: \.name)
                     .width(min: 120, ideal: 140, max: nil)
-                TableColumn("Amount") {
-                    Text($0.amount, format: .currency(code: currencyCode))
-                }
-                .width(min: 120, ideal: 140, max: nil)
+                
                 TableColumn("Due Date") {
                     Text($0.dueDate.formatted(date: .abbreviated, time: .omitted))
-                }
-                .width(min: 140, ideal: 150, max: nil)
+                }.width(min: 140, ideal: 150, max: nil)
+                
+                TableColumn("Amount") {
+                    Text($0.amount, format: .currency(code: currencyCode))
+                }.width(min: 120, ideal: 140, max: nil)
+                    .alignment(.numeric)
+                
             }
             #else
             List(loaded) { bill in

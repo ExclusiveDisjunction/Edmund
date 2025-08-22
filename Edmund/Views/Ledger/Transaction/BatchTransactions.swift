@@ -69,10 +69,10 @@ struct BatchTransactions: TransactionEditorProtocol {
                             .textFieldStyle(.roundedBorder)
                     }
                     TableColumn("Category") { $item in
-                        NamedPairPicker($item.category)
+                        ElementPicker($item.category)
                     }.width(170)
                     TableColumn("Account") { $item in
-                        NamedPairPicker($item.account)
+                        ElementPicker($item.account)
                     }.width(170)
                 }
                 .contextMenu(forSelectionType: LedgerEntrySnapshot.ID.self) { selection in

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import EdmundCore
 
 struct BudgetMonthIncomeEdit : View {
@@ -121,7 +122,7 @@ struct BudgetMonthIncomeEdit : View {
     }
 }
 
-struct BudgetMonthGoalEdit<T> : View where T: BoundPair, T: TransactionHolder, T: TypeTitled, T.P: TypeTitled, T.P.C == T {
+struct BudgetMonthGoalEdit<T> : View where T: NamedElement & TransactionHolder & Hashable & PersistentModel {
     let data: Binding<[BudgetGoalSnapshot<T>]>;
     let title: LocalizedStringKey;
     @State private var selection = Set<BudgetGoalSnapshot<T>.ID>();
@@ -181,7 +182,7 @@ struct BudgetMonthGoalEdit<T> : View where T: BoundPair, T: TransactionHolder, T
                             
                             HStack {
                                 Spacer()
-                                CompactNamedPairInspect(row.association)
+                                ElementDisplayer(value: row.association)
                             }
                         }.swipeActions(edge: .trailing) {
                             Button {
@@ -192,7 +193,7 @@ struct BudgetMonthGoalEdit<T> : View where T: BoundPair, T: TransactionHolder, T
                         }
                     }
                     else {
-                        NamedPairPicker<T>($row.association)
+                        ElementPicker($row.association)
                     }
                 }
                 

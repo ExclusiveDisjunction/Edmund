@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 import EdmundCore
 
-struct BudgetMonthGoalCloseLook<T> : View where T: BoundPair, T: TransactionHolder, T: TypeTitled, T.P: TypeTitled, T.P.C == T {
+struct BudgetMonthGoalCloseLook<T> : View where T: NamedElement & TransactionHolder & PersistentModel & Hashable {
     @Bindable var over: BudgetGoalSnapshot<T>;
     
     @Environment(\.dismiss) private var dismiss;
@@ -36,7 +37,7 @@ struct BudgetMonthGoalCloseLook<T> : View where T: BoundPair, T: TransactionHold
                     Text("Target:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($over.association)
+                    ElementPicker($over.association)
                 }
                 
                 GridRow {

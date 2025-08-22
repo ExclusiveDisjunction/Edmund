@@ -18,6 +18,7 @@ extension EdmundModelsV1_1 {
             self.interest = interest
             self._kind = kind.rawValue;
             self._creditLimit = creditLimit;
+            self.id = UUID();
         }
         /// Migrates from a previous version `Account`.
         ///
@@ -29,11 +30,10 @@ extension EdmundModelsV1_1 {
             self.interest = migration.interest
             self._creditLimit = migration.rawCreditLimit
             self.isVoided = migration.isVoided
+            self.id = UUID();
         }
         
-        @Transient
-        public var id: UUID = UUID();
-        
+        public var id: UUID;
         /// The account's name. This must be unique. This can be simple like "Checking", or more elaborate like "Chase Savings"
         public var name: String = "";
         /// An optional interest value

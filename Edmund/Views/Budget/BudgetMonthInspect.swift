@@ -173,7 +173,7 @@ struct BudgetGoalCloseLook<T> : View where T: BudgetGoal{
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        CompactNamedPairInspect(source.over.association)
+                        ElementDisplayer(value: source.over.association)
                         Spacer()
                     }
                 }
@@ -307,7 +307,7 @@ struct BudgetMonthGoalInspect<T> : View where T: BudgetGoal {
                         }
                         HStack {
                             Spacer()
-                            CompactNamedPairInspect(row.over.association)
+                            ElementDisplayer(value: row.over.association)
                         }
                     }.swipeActions(edge: .trailing) {
                         Button {
@@ -318,7 +318,7 @@ struct BudgetMonthGoalInspect<T> : View where T: BudgetGoal {
                     }
                 }
                 else {
-                    CompactNamedPairInspect(row.over.association)
+                    ElementDisplayer(value: row.over.association)
                 }
             }
             

@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftData
 
 struct InitialBalance : TransactionEditorProtocol {
-    @State private var account: SubAccount? = nil;
+    @State private var account: Account? = nil;
     @State private var date: Date = .now;
     @Bindable private var amount: CurrencyValue = .init();
     
@@ -43,7 +43,7 @@ struct InitialBalance : TransactionEditorProtocol {
             debit: 0,
             date: date,
             location: NSLocalizedString("Bank", comment: ""),
-            category: categories.accountControl.initial,
+            category: categories.adjustments,
             account: account
         )
         modelContext.insert(transaction)
@@ -57,7 +57,7 @@ struct InitialBalance : TransactionEditorProtocol {
                     Text("Account:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                 }
                 
                 GridRow {

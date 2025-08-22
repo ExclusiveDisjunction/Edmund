@@ -42,13 +42,13 @@ public enum BudgetComputationError : Error {
 @MainActor
 struct BudgetComputePipeline {
     private struct PreparedData {
-        let accounts: Set<SubAccount>;
-        let categories: Set<SubCategory>;
+        let accounts: Set<Account>;
+        let categories: Set<EdmundCore.Category>;
     }
     private struct PreparedTransaction {
         let balance: BalanceInformation;
-        let account: SubAccount;
-        let category: SubCategory;
+        let account: Account;
+        let category: EdmundCore.Category;
     }
     private struct PreparedTransactionData {
         let data: [PreparedTransaction];
@@ -64,8 +64,8 @@ struct BudgetComputePipeline {
     
     private func prepare() -> PreparedData {
         log?.debug("Preparing budget information for calculations.")
-        let categories = Set<SubCategory>(over.spendingGoals.compactMap { $0.association });
-        let accounts   = Set<SubAccount> (over.savingsGoals .compactMap { $0.association });
+        let categories = Set<EdmundCore.Category>(over.spendingGoals.compactMap { $0.association });
+        let accounts   = Set<Account> (over.savingsGoals .compactMap { $0.association });
         
         log?.debug("Budget contains \(categories.count) categories and \(accounts.count) accounts to reduce.")
         
@@ -122,8 +122,8 @@ struct BudgetComputePipeline {
     }
     
     private func processData(input: PreparedTransactionData) -> BudgetReducedData {
-        var accounts: [SubAccount: BalanceInformation] = [:];
-        var categories: [SubCategory : BalanceInformation] = [:];
+        var accounts: [Account: BalanceInformation] = [:];
+        var categories: [EdmundCore.Category : BalanceInformation] = [:];
         
         for entry in input.data {
             accounts[entry.account] = accounts[entry.account] ?? BalanceInformation() + entry.balance;

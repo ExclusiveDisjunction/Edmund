@@ -27,7 +27,7 @@ struct LedgerTable: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.openWindow) private var openWindow;
     
-    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
+    @AppStorage("ledgerColumns") private var ledgerColumns: TableColumnCustomization<LedgerEntry>;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
     
@@ -37,7 +37,7 @@ struct LedgerTable: View {
     
     @ViewBuilder
     private var fullSized: some View {
-        Table(data, selection: $selected) {
+        Table(data, selection: $selected, columnCustomization: $ledgerColumns) {
             TableColumn("Memo") { entry in
                 if horizontalSizeClass == .compact {
                     HStack {
@@ -52,52 +52,76 @@ struct LedgerTable: View {
                     Text(entry.name)
                 }
             }
-            .width(min: 120, ideal: 160, max: nil)
+                .width(min: 120, ideal: 160, max: nil)
             
-            TableColumn(ledgerStyle.displayCredit) { item in
+            TableColumn("Money In") { item in
                 Text(item.credit, format: .currency(code: currencyCode))
             }
-            .width(min: 60, ideal: 70, max: nil)
-            TableColumn(ledgerStyle.displayDebit) { item in
+                .width(min: 65, ideal: 75, max: nil)
+                .customizationID("moneyIn")
+                .alignment(.numeric)
+            
+            TableColumn("Money Out") { item in
                 Text(item.debit, format: .currency(code: currencyCode))
             }
-            .width(min: 60, ideal: 70, max: nil)
+                .width(min: 65, ideal: 75, max: nil)
+                .customizationID("moneyOut")
+                .alignment(.numeric)
+            
+            TableColumn("Balance") { item in
+                Text(item.balance, format: .currency(code: currencyCode))
+            }
+                .width(min: 60, ideal: 70, max: nil)
+                .customizationID("balance")
+                .alignment(.numeric)
+                .defaultVisibility(.hidden)
             
             TableColumn("Date") { item in
-                Text(item.date, style: .date)
+                #if os(iOS)
+                Text(item.date.formatted(date: .numeric, time: .omitted))
+                #else
+                Text(item.date.formatted(date: .complete, time: .omitted))
+                #endif
             }
-            .width(min: 100, ideal: 120, max: nil)
+                .width(min: 100, ideal: 120, max: nil)
+                .customizationID("date")
+            
+            TableColumn("Added On") { item in
+#if os(iOS)
+                Text(item.addedOn.formatted(date: .numeric, time: .shortened))
+#else
+                Text(item.addedOn.formatted(date: .complete, time: .shortened))
+#endif
+            }
+                .width(min: 100, ideal: 120, max: nil)
+                .customizationID("addedOn")
+                .defaultVisibility(.hidden)
+            
             TableColumn("Location", value: \.location)
                 .width(min: 140, ideal: 170, max: nil)
+                .customizationID("location")
             
             TableColumn("Category") { item in
-                if let category = item.category {
-                    CompactNamedPairInspect(category)
-                }
-                else {
-                    Text("No Category")
-                }
+                ElementDisplayer(value: item.category)
             }
-            .width(min: 170, ideal: 200, max: nil)
+                .width(min: 100, ideal: 140, max: nil)
+                .customizationID("category")
+            
             TableColumn("Account") { item in
-                if let account = item.account {
-                    CompactNamedPairInspect(account)
-                }
-                else {
-                    Text("No Account")
-                }
+                ElementDisplayer(value: item.account)
             }
-            .width(min: 170, ideal: 200, max: nil)
+                .width(min: 100, ideal: 140, max: nil)
+                .customizationID("account")
         }.contextMenu(forSelectionType: LedgerEntry.ID.self) { selection in
             SelectionContextMenu(selection, data: data, inspect: inspect, delete: deleting, warning: warning)
         }
     }
     
     @ToolbarContentBuilder
-    private var toolbar: some CustomizableToolbarContent {
+    private var toolbar: some ToolbarContent {
         TopicToolbarButton("Help/Ledger/Ledger.md", placement: .secondaryAction)
         
-        ToolbarItem(id: "add", placement: .primaryAction) {
+        ToolbarItem(placement: .primaryAction) {
             TransactionMenu(selection: $transKind) {
                 Label("Add", systemImage: "plus")
             }
@@ -112,7 +136,7 @@ struct LedgerTable: View {
         GeneralDeleteToolbarButton(on: data, selection: $selected, delete: deleting, warning: warning, placement: .primaryAction)
         
 #if os(iOS)
-        ToolbarItem(id: "editIOS", placement: .primaryAction) {
+        ToolbarItem(placement: .primaryAction) {
             EditButton()
         }
 #endif
@@ -140,7 +164,7 @@ struct LedgerTable: View {
             }
         }.padding()
             .navigationTitle("Ledger")
-            .toolbar(id: "ledgerToolbar") { toolbar }
+            .toolbar { toolbar }
             .toolbarRole(.editor)
             .onChange(of: selected) { _, new in
                 self.totals = data.filter { new.contains($0.id) }.reduce(BalanceInformation()) { $0 + BalanceInformation(credit: $1.credit, debit : $1.debit) }

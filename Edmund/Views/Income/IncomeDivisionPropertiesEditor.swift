@@ -53,7 +53,7 @@ struct IncomeDivisionPropertiesEditor : View {
                     Text("Deposit to:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($snapshot.depositTo)
+                    ElementPicker($snapshot.depositTo)
                 }
             }
             

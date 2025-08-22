@@ -50,7 +50,7 @@ public struct ChildUpdater<T> where T: SnapshotConstructableElement, T: Identifi
     
     /// Updates the `oldList` elements to the snapshot values provided by `newList`.
     /// - Throws: `UniqueFailureError<T.ID>` by the call to `T.update(_:unique:)`.
-    private func joinLists<S1, S2>(oldList: S1, newList: S2) async throws(UniqueFailureError<T.ID>) where S1: Sequence, S1.Element == T, S2: Sequence, S2.Element == T.Snapshot {
+    private func joinLists<S1, S2>(oldList: S1, newList: S2) async throws(UniqueFailureError) where S1: Sequence, S1.Element == T, S2: Sequence, S2.Element == T.Snapshot {
         for (old, new) in zip(oldList, newList) {
             try await old.update(new, unique: unique)
         }
@@ -63,7 +63,7 @@ public struct ChildUpdater<T> where T: SnapshotConstructableElement, T: Identifi
     /// - Note: This function does not call `ModelContext.save()`.
     /// - Returns: The updated list to store in the parent type.
     /// - Throws: `UniqueFailureError<T.ID>` based on the `.update(_:unique:)` method of `T`. If that method does not throw, this will never throw.
-    public consuming func joinByLength() async throws(UniqueFailureError<T.ID>) -> [T] {
+    public consuming func joinByLength() async throws(UniqueFailureError) -> [T] {
         if source.count == incoming.count {
             try await self.joinLists(oldList: source, newList: incoming)
             return source
@@ -105,7 +105,7 @@ public struct ChildUpdater<T> where T: SnapshotConstructableElement, T: Identifi
     /// - Note: This function does not call `ModelContext.save()`.
     /// - Returns: The updated list to store in the parent type.
     /// - Throws: `UniqueFailureError<T.ID>` based on the `.update(_:unique:)` method of `T`. If that method does not throw, this will never throw.
-    public consuming func mergeById() async throws(UniqueFailureError<T.ID>) -> [T] where T.ID == T.Snapshot.ID {
+    public consuming func mergeById() async throws(UniqueFailureError) -> [T] where T.ID == T.Snapshot.ID {
         let old: [T.ID : Record] = .init(uniqueKeysWithValues: source.map { ($0.id, .init($0)) } )
         var new: [T] = []
         

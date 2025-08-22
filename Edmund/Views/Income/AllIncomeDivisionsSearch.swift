@@ -154,7 +154,7 @@ struct AllIncomeDivisionsSearch : View {
                 Text(budget.amount, format: .currency(code: currencyCode))
             }
             TableColumn("Deposit Account") { budget in
-                CompactNamedPairInspect(budget.depositTo)
+                ElementDisplayer(value: budget.depositTo)
             }
 #if os(macOS)
             .width(140)

@@ -59,30 +59,30 @@ public enum UniqueID : Hashable, Sendable {
     case jobs(TraditionalJobID)
 }
 public struct UniqueContextSets {
-    public init(_ context: UniqueContext) throws(UniqueFailureError<UniqueID>) {
+    public init(_ context: UniqueContext) throws(UniqueFailureError) {
         var acc: Set<String> = .init();
         var cat: Set<String> = .init();
         var bills: Set<BillBaseID> = .init();
         var jobs: Set<TraditionalJobID> = .init();
         
         for item in context.acc {
-            if !acc.insert(item.id).inserted {
-                throw .init(value: .name(item.uID))
+            if !acc.insert(item.uID).inserted {
+                throw .init(value: item.uID)
             }
         }
         for item in context.cat {
-            if !cat.insert(item.id).inserted {
-                throw .init(value: .name(item.uID))
+            if !cat.insert(item.uID).inserted {
+                throw .init(value: item.uID)
             }
         }
         for item in context.allBills {
-            if !bills.insert(item.id).inserted {
-                throw .init(value: .bills(item.uID))
+            if !bills.insert(item.uID).inserted {
+                throw .init(value: item.uID)
             }
         }
         for item in context.allJobs {
-            if !jobs.insert(item.id).inserted {
-                throw .init(value: .jobs(item.uID))
+            if !jobs.insert(item.uID).inserted {
+                throw .init(value: item.uID)
             }
         }
         
@@ -99,9 +99,9 @@ public struct UniqueContextSets {
 }
 
 /// An error that occurs when the unique engine cannot validate a claim to an ID, but was assumed to be a free value.
-public struct UniqueFailureError<T> : Error where T: Sendable, T: Hashable {
+public struct UniqueFailureError : Error, @unchecked Sendable {
     /// The ID that was taken already
-    public let value: T
+    public let value: AnyHashable
     
     /// A description of what happened
     public var description: String {
@@ -131,7 +131,7 @@ public actor UniqueEngine {
     /// This will fill all sets with the currently taken IDs.
     /// Note that this function will crash the program if any ID is non-unique.
     @MainActor
-    public func fill(_ using: UniqueContext) async throws(UniqueFailureError<UniqueID>) {
+    public func fill(_ using: UniqueContext) async throws(UniqueFailureError) {
         await logger?.info("The UniqueEngine is importing from the ModelContainer.")
         
         let sets = try UniqueContextSets(using);

@@ -18,14 +18,17 @@ extension EdmundModelsV1_1 {
             self.position = position
             self.grossAmount = grossAmount
             self.taxRate = taxRate
+            self.id = UUID();
         }
         public init(migration: EdmundModelsV1.SalariedJob) {
             self.company = migration.company
             self.position = migration.position
             self.grossAmount = migration.grossAmount
             self.taxRate = migration.taxRate
+            self.id = UUID();
         }
         
+        public var id: UUID;
         public var company: String;
         public var position: String;
         /// The gross pay of the job each paycheck.
@@ -43,6 +46,7 @@ extension EdmundModelsV1_1 {
             self.hourlyRate = hourlyRate
             self.avgHours = avgHours
             self.taxRate = taxRate
+            self.id = UUID();
         }
         public init(migration: EdmundModelsV1.HourlyJob) {
             self.company = migration.company
@@ -50,8 +54,10 @@ extension EdmundModelsV1_1 {
             self.hourlyRate = migration.hourlyRate
             self.avgHours = migration.avgHours
             self.taxRate = migration.taxRate
+            self.id = UUID();
         }
         
+        public var id: UUID;
         public var company: String;
         public var position: String;
         /// The amount per hour the individual obtains (ex. 20$ per hour)

@@ -20,7 +20,6 @@ struct LocaleCurrencyCode : Identifiable {
 }
 
 struct SettingsView : View {
-    @AppStorage("ledgerStyle") private var ledgerStyle: LedgerStyle = .none;
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("themeMode") private var themeMode: ThemeMode = .system;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -92,28 +91,6 @@ struct SettingsView : View {
                             .labelsHidden()
                         Spacer()
                     }
-                }
-                
-                GridRow {
-                    Text("Accounting Style")
-                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                    
-                    HStack {
-                        Picker("", selection: $ledgerStyle) {
-                            ForEach(LedgerStyle.allCases, id: \.id) { style in
-                                Text(style.description).tag(style)
-                            }
-                        }.labelsHidden()
-                            .pickerStyle(.radioGroup)
-                        Spacer()
-                    }
-                }
-                
-                GridRow {
-                    Text("")
-                    
-                    Text("accountingStylesDesc")
-                        .italic()
                 }
                 
                 Divider()
@@ -203,19 +180,6 @@ struct SettingsView : View {
                 }
                 
                 Toggle("Show Ledger Footer", isOn: $showLedgerFooter)
-            }
-            
-            Section() {
-                Picker("Accounting Style", selection: $ledgerStyle) {
-                    ForEach(LedgerStyle.allCases, id: \.id) { style in
-                        Text(style.description).tag(style)
-                    }
-                }
-            } header: {
-                Text("Styles").font(.headline)
-            }
-            footer: {
-                Text("accountingStylesDesc")
             }
             
             Section() {

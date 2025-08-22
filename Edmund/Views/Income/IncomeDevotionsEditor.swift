@@ -155,7 +155,7 @@ struct IncomeDevotionsEditor : View {
                 }
                 
                 TableColumn("Destination") { $dev in
-                    NamedPairPicker($dev.account)
+                    ElementPicker($dev.account)
                 }
                 .width(270)
             }.contextMenu(forSelectionType: AnyDevotionSnapshot.ID.self) { selection in

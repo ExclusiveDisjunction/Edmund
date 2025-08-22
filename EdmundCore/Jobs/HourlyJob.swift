@@ -18,7 +18,7 @@ extension HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
     
     public static let objId: ObjectIdentifier = .init((any TraditionalJob).self)
     
-    public var id: TraditionalJobID {
+    public var uID: TraditionalJobID {
         .init(company: company, position: position)
     }
     public var grossAmount : Decimal {
@@ -31,7 +31,7 @@ extension HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
     public static func makeBlankSnapshot() -> HourlyJobSnapshot {
         .init()
     }
-    public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError<TraditionalJobID>) {
+    public func update(_ from: HourlyJobSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         try await self.updateBase(from, unique: unique)
         
         self.avgHours = from.avgHours

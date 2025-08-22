@@ -85,6 +85,7 @@
 				Views/Help/Old/Help.swift,
 				Views/Help/Old/TopicRenderer.swift,
 				Views/Help/Old/Topics.swift,
+				Views/Organization/Categories/CategoryTableRow.swift,
 			);
 			platformFiltersByRelativePath = {
 				"Views/Launch Screen.storyboard" = (ios, );
