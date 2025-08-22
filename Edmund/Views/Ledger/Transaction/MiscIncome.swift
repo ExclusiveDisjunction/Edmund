@@ -12,7 +12,7 @@ struct MiscIncome: TransactionEditorProtocol {
     @State private var person: String = "";
     @Bindable private var amount: CurrencyValue = .init();
     @State private var date: Date = .now;
-    @State private var account: SubAccount? = nil;
+    @State private var account: Account? = nil;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
@@ -44,7 +44,7 @@ struct MiscIncome: TransactionEditorProtocol {
         
         let name = "Misc. Income from \(person)";
         let company = "Bank";
-        let category = categories.payments.gift;
+        let category = categories.income;
         
         let transaction = LedgerEntry(
             name: name,
@@ -94,7 +94,7 @@ struct MiscIncome: TransactionEditorProtocol {
                     Text("Deposit:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                 }
             }
         })

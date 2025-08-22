@@ -10,7 +10,7 @@ import EdmundCore
 
 @Observable
 class ManyTableEntry : Identifiable {
-    init(amount: Decimal = 0, account: SubAccount? = nil, id: UUID = UUID()) {
+    init(amount: Decimal = 0, account: Account? = nil, id: UUID = UUID()) {
         self.amount = .init(rawValue: amount);
         self.account = account;
         self.id = id;
@@ -21,7 +21,7 @@ class ManyTableEntry : Identifiable {
     var id: UUID;
     var selected: Bool;
     var amount: CurrencyValue;
-    var account: SubAccount?;
+    var account: Account?;
 }
 
 @Observable
@@ -74,7 +74,7 @@ class ManyTableManifest {
                     debit: isSource ? amount : 0,
                     date: date,
                     location: bank,
-                    category: cats.accountControl.transfer,
+                    category: cats.transfers,
                     account: acc)
             )
         }
@@ -103,7 +103,7 @@ struct ManyTableEntryEditor : View {
                 GridRow {
                     Text("Account:")
                     
-                    NamedPairPicker($data.account)
+                    ElementPicker($data.account)
                 }
             }
             
@@ -145,7 +145,7 @@ struct ManyTransferTable : View {
                         
                         Spacer()
                         
-                        NamedPairPicker($item.account)
+                        ElementPicker($item.account)
                     }.swipeActions(edge: .trailing) {
                         Button {
                             withAnimation {
@@ -162,7 +162,7 @@ struct ManyTransferTable : View {
             }
             
             TableColumn("Account") { $item in
-                NamedPairPicker($item.account)
+                ElementPicker($item.account)
             }
         }.contextMenu(forSelectionType: ManyTableEntry.ID.self) { selection in
             addButton

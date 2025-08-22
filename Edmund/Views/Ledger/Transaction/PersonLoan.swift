@@ -19,7 +19,7 @@ struct PersonalLoan: TransactionEditorProtocol {
     @State private var mode = Mode.loan;
     @State private var person: String = "";
     @State private var date: Date = Date.now;
-    @State private var account: SubAccount?;
+    @State private var account: Account?;
     @Bindable private var amount: CurrencyValue = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -62,7 +62,7 @@ struct PersonalLoan: TransactionEditorProtocol {
             debit: mode == .loan ? amount : 0,
             date: date,
             location: "Bank",
-            category: mode == .loan ? categories.payments.loan : categories.payments.repayment,
+            category: mode == .loan ? categories.loan : categories.income,
             account: destination
         );
         
@@ -118,7 +118,7 @@ struct PersonalLoan: TransactionEditorProtocol {
                     Text("Account:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                 }
             }
         })

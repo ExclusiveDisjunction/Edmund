@@ -15,7 +15,7 @@ struct PaydayTransaction : TransactionEditorProtocol {
     
     @State private var jobID: TraditionalJobID? = nil;
     @State private var job: TraditionalJobWrapper? = nil;
-    @State private var deposit: SubAccount? = nil;
+    @State private var deposit: Account? = nil;
     @State private var amount: CurrencyValue = .init();
     @State private var date: Date = .now;
     
@@ -51,7 +51,7 @@ struct PaydayTransaction : TransactionEditorProtocol {
             debit: 0,
             date: date,
             location: job.data.company,
-            category: cats.accountControl.pay,
+            category: cats.income,
             account: deposit
         );
         
@@ -104,7 +104,7 @@ struct PaydayTransaction : TransactionEditorProtocol {
                     Text("Deposit To:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($deposit)
+                    ElementPicker($deposit)
                 }
                 
                 GridRow {

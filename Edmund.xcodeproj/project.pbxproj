@@ -85,7 +85,6 @@
 				Views/Help/Old/Help.swift,
 				Views/Help/Old/TopicRenderer.swift,
 				Views/Help/Old/Topics.swift,
-				Views/Organization/NamedPair/NamedPairChildEdit.swift,
 			);
 			platformFiltersByRelativePath = {
 				"Views/Launch Screen.storyboard" = (ios, );

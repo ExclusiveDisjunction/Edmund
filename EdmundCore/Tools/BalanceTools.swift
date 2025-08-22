@@ -61,33 +61,6 @@ public struct SimpleBalance : Identifiable, Sendable {
     }
 }
 
-/// A tree like balance representing the balances of several different types.
-public struct DetailedBalance : Identifiable, Sendable {
-    public init(_ name: String,  _ credit: Decimal, _ debit: Decimal, children: [DetailedBalance]? = nil, id: UUID = UUID()) {
-        self.name = name
-        self.credit = credit
-        self.debit = debit
-        self.id = id
-        self.children = children
-    }
-    
-    public let id: UUID
-    /// The name of the assocated element.
-    public let name: String;
-    /// The money that has been credited to the element.
-    public let credit: Decimal;
-    /// The money that has been debited from the element.
-    public let debit: Decimal;
-    /// The children elements of the current balance information.
-    public let children: [DetailedBalance]?;
-    
-    /// The current balance of the element.
-    public var balance: Decimal {
-        credit - debit
-    }
-    
-}
-
 /// A structure encoding the balances of any hashable type.
 public struct BalanceAssociation<T> where T: Hashable {
     fileprivate let data: [T: BalanceInformation];
@@ -123,23 +96,6 @@ public struct BalanceAssociation<T> where T: Hashable {
             return SimpleBalance(elementName, balance.credit, balance.debit)
         }
     }
-    /// Converts the internal data into `DetailedBalance` instances
-    /// - Parameters:
-    ///     - name: A closure that converts an element `T` value into a `String`, which will be used as the name for the `DetailedBalance`. This can throw, and the function will rethrow that value.
-    ///     - total: A running total of the balances computed from this structure.
-    /// - Returns:
-    ///     A list of `DetailedBalance` instances encoding the internal balances.
-    /// - Throws:
-    ///     Any error that is thrown when `name` is called.
-    @MainActor
-    public consuming func intoDetailedBalance(name: (T) throws -> String, total: inout BalanceInformation) rethrows -> [DetailedBalance] {
-        try self.data.map { (key, value) in
-            total += value
-            let elementName = try name(key)
-            
-            return DetailedBalance(elementName, value.credit, value.debit)
-        }
-    }
 }
 extension BalanceAssociation : Sequence {
     public typealias Iterator = [T: BalanceInformation].Iterator
@@ -160,19 +116,6 @@ extension BalanceAssociation where T == String {
                 .init(name, balance.credit, balance.debit)
         }
     }
-    /// Converts the internal data into `DetailedBalance` instances, using the internal `String`'s value as the balance's name.
-    /// - Parameters:
-    ///     - total: A running total of the balances computed from this structure.
-    /// - Returns:
-    ///     A list of `DetailedBalance` instances encoding the internal balances.
-    @MainActor
-    public consuming func intoDetailedBalance(total: inout BalanceInformation) -> [DetailedBalance] {
-        self.data.map { (key, value) in
-            total += value
-            
-            return DetailedBalance(key, value.credit, value.debit)
-        }
-    }
 }
 extension BalanceAssociation where T: NamedElement {
     /// Converts the internal data into `SimpleBalance` instances, using the internal `NamedElement.name` property as the balance's name.
@@ -186,69 +129,11 @@ extension BalanceAssociation where T: NamedElement {
                 .init(element.name, balance.credit, balance.debit)
         }
     }
-    /// Converts the internal data into `DetailedBalance` instances, , using the internal `NamedElement.name` property as the balance's name.
-    /// - Parameters:
-    ///     - total: A running total of the balances computed from this structure.
-    /// - Returns:
-    ///     A list of `DetailedBalance` instances encoding the internal balances.
-    @MainActor
-    public consuming func intoDetailedBalance(total: inout BalanceInformation) -> [DetailedBalance] {
-        self.data.map { (key, value) in
-            total += value
-            
-            return DetailedBalance(key.name, value.credit, value.debit)
-        }
-    }
-}
-
-/// A structure containing the tree of balances obtained from a list of `T`.
-public struct BoundPairBalances<T> where T: BoundPairParent {
-    fileprivate let data: [T: BalanceAssociation<T.C>];
-    
-    /// Converts the top level balances into instances of `SimpleBalance`.
-    /// - Parameters:
-    ///     - sorted: When `true`, the returned list will be sorted by balance.
-    /// - Returns: A list of `SimpleBalance` instances, containing the balances of the top level (`T`) elements
-    @MainActor
-    public consuming func intoSimpleBalances(sorted: Bool = true) -> [SimpleBalance] {
-        let result = self.data.mapValues { $0.totalBalance() }.map {
-            SimpleBalance($0.key.name, $0.value.credit, $0.value.debit)
-        }
-        
-        return sorted ? result.sortedByBalances() : result
-    }
-    /// Converts the top level balances, and all sub-balances into a list of `DetailedBalance`.
-    /// - Parameters:
-    ///     - sorted: When `true`, the returned list will be sorted by balance.
-    /// - Returns: A list of `DetailedBalance` containing all balances from all levels of the hierarchy.
-    @MainActor
-    public consuming func intoDetailedBalances(sorted: Bool = true) -> [DetailedBalance] {
-        let result : [DetailedBalance] = self.data.map { (account, children) in
-            var balance: BalanceInformation = .init();
-            let subBalances: [DetailedBalance] = children.intoDetailedBalance(total: &balance)
-            
-            return DetailedBalance(
-                account.name,
-                balance.credit,
-                balance.debit,
-                children: subBalances
-            )
-        }
-        
-        return sorted ? result.sortedByBalances() : result
-    }
-}
-extension BoundPairBalances : Sequence {
-    public typealias Iterator = [T: BalanceAssociation<T.C>].Iterator;
-    
-    public func makeIterator() -> Dictionary<T, BalanceAssociation<T.C>>.Iterator {
-        self.data.makeIterator()
-    }
 }
 
 /// A collection of tools to group transactions together.
 @MainActor
-public struct BalanceResolver<T> where T: BoundPairParent, T.C: TransactionHolder {
+public struct BalanceResolver<T> where T: Hashable & TransactionHolder & NamedElement {
     public init(_ on: [T]) {
         self.on = on
     }
@@ -260,44 +145,15 @@ public struct BalanceResolver<T> where T: BoundPairParent, T.C: TransactionHolde
         var result: [T: BalanceInformation] = [:];
         for account in on {
             var balance = BalanceInformation();
-            let subAccounts = account.children
-            
-            for subAccount in subAccounts {
-                guard let transactions = subAccount.transactions else { continue }
-                
-                for trans in transactions {
-                    balance.credit += trans.credit
-                    balance.debit += trans.debit
-                }
+            for trans in account.transactions {
+                balance.credit += trans.credit
+                balance.debit += trans.debit
             }
             
             result[account] = balance
         }
         
         return .init(data: result)
-    }
-    /// Computes the tree of balances on teh passed in `T` values.
-    public consuming func computeSubBalances() -> BoundPairBalances<T> {
-        var result: [T: BalanceAssociation<T.C>] = [:];
-        for account in on {
-            var tmpResult: [T.C: BalanceInformation] = [:]
-            
-            let subAccounts = account.children
-            for subAccount in subAccounts {
-                var balance = BalanceInformation();
-                guard let transactions = subAccount.transactions else { continue }
-                for trans in transactions {
-                    balance.credit += trans.credit
-                    balance.debit += trans.debit
-                }
-                
-                tmpResult[subAccount] = balance
-            }
-            
-            result[account] = BalanceAssociation(data: tmpResult)
-        }
-        
-        return BoundPairBalances(data: result)
     }
 }
 
@@ -405,20 +261,5 @@ public extension [SimpleBalance] {
     /// Sorts the instances by the balances, in reverse order.
     func sortedByBalances() -> Self {
         return self.sorted(using: KeyPathComparator(\.balance, order: .reverse))
-    }
-}
-public extension [DetailedBalance] {
-    /// Sorts the instances by balances, in reverse order.
-    func sortedByBalances() -> Self {
-        let cmp = KeyPathComparator(\DetailedBalance.balance, order: .reverse)
-        return self.map {
-            .init(
-                $0.name,
-                $0.credit,
-                $0.debit,
-                children: $0.children?.sorted(using: cmp),
-                id: $0.id
-            )
-        }.sorted(using: cmp)
     }
 }

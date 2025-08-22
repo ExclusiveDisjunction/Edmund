@@ -118,25 +118,21 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
         formatter.string(from: lastViewed).lowercased().contains(criteria)
     }
     
-    public static func exampleBudget(acc: inout BoundPairTree<Account>) -> IncomeDivision {
-        let pay       = acc.getOrInsert(parent: "Checking", child: "Pay"      )
-        let bills     = acc.getOrInsert(parent: "Checking", child: "Bills"    )
-        let groceries = acc.getOrInsert(parent: "Checking", child: "Groceries")
-        let personal  = acc.getOrInsert(parent: "Checking", child: "Personal" )
-        let taxes     = acc.getOrInsert(parent: "Checking", child: "Taxes"    )
-        let main      = acc.getOrInsert(parent: "Savings",  child: "Main"     )
+    public static func exampleBudget(acc: inout ElementLocator<Account>) -> IncomeDivision {
+        let checking    = acc.getOrInsert(name: "Checking")
+        let savings     = acc.getOrInsert(name: "Savings")
         
-        let result = IncomeDivision(name: "Example Division", amount: 450, kind: .pay, depositTo: pay)
+        let result = IncomeDivision(name: "Example Division", amount: 450, kind: .pay, depositTo: checking)
         
         result.amounts = [
-            .init(name: "Bills", amount: 137.50, account: bills, group: .need),
-            .init(name: "Groceries", amount: 100, account: groceries, group: .need),
-            .init(name: "Personal", amount: 30, account: personal, group: .want)
+            .init(name: "Bills", amount: 137.50, account: checking, group: .need),
+            .init(name: "Groceries", amount: 100, account: checking, group: .need),
+            .init(name: "Personal", amount: 30, account: checking, group: .want)
         ]
         result.percents = [
-            .init(name: "Taxes", amount: 0.08, account: taxes, group: .savings)
+            .init(name: "Taxes", amount: 0.08, account: savings, group: .savings)
         ]
-        result.remainder = .init(name: "Savings", account: main, group: .savings)
+        result.remainder = .init(name: "Savings", account: savings, group: .savings)
         
         return result
     }
@@ -180,7 +176,7 @@ public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot
     public var name: String;
     public var amount: CurrencyValue;
     public var kind: IncomeKind;
-    public var depositTo: SubAccount?;
+    public var depositTo: Account?;
     public var devotions: [AnyDevotionSnapshot];
     public var hasRemainder: Bool;
     public var remainder: DevotionSnapshotBase;

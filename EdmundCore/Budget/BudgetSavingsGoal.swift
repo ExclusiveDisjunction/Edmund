@@ -9,7 +9,7 @@ import SwiftData
 import Foundation
 
 extension BudgetSavingsGoal : BudgetGoal {
-    public convenience init(snapshot: BudgetGoalSnapshot<SubAccount>, unique: UniqueEngine) {
+    public convenience init(snapshot: BudgetGoalSnapshot<Account>, unique: UniqueEngine) {
         self.init(
             account: snapshot.association,
             amount: snapshot.amount.rawValue,
@@ -27,13 +27,13 @@ extension BudgetSavingsGoal : BudgetGoal {
         .init(account: self.association, amount: self.amount, period: self.period, parent: nil)
     }
     
-    public func makeSnapshot() -> BudgetGoalSnapshot<SubAccount> {
+    public func makeSnapshot() -> BudgetGoalSnapshot<Account> {
         return .init(self)
     }
-    public static func makeBlankSnapshot() -> BudgetGoalSnapshot<SubAccount> {
+    public static func makeBlankSnapshot() -> BudgetGoalSnapshot<Account> {
         return .init()
     }
-    public func update(_ from: BudgetGoalSnapshot<SubAccount>, unique: UniqueEngine) {
+    public func update(_ from: BudgetGoalSnapshot<Account>, unique: UniqueEngine) {
         self.association = from.association
         self.amount = amount
         self.period = from.period

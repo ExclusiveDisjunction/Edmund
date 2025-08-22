@@ -17,7 +17,7 @@ struct UtilityPayment : TransactionEditorProtocol {
     @Environment(\.modelContext) private var modelContext;
     
     @State private var selected: Utility?;
-    @State private var account: SubAccount?;
+    @State private var account: Account?;
     @State private var date: Date = .now;
     @State private var doStore: Bool = true;
     @State private var cache: [Utility] = [];
@@ -49,7 +49,7 @@ struct UtilityPayment : TransactionEditorProtocol {
             debit: amount,
             date: date,
             location: target.location ?? "Bank",
-            category: categories.bills.utility,
+            category: categories.bills,
             account: account
         );
         
@@ -98,7 +98,7 @@ struct UtilityPayment : TransactionEditorProtocol {
                     Text("From:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                 }
                 
                 GridRow {

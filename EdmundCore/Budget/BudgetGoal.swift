@@ -10,7 +10,7 @@ import SwiftData
 import Observation
 
 public protocol BudgetGoal : Identifiable<UUID>, SnapshotableElement, SnapshotConstructableElement, PersistentModel {
-    associatedtype T: BoundPair & PersistentModel
+    associatedtype T: NamedElement & PersistentModel
     
     var amount: Decimal { get set }
     var period: MonthlyTimePeriods { get set }
@@ -27,7 +27,7 @@ public extension BudgetGoal {
 }
 
 @Observable
-public class BudgetGoalSnapshot<T> : ElementSnapshot where T: BoundPair {
+public class BudgetGoalSnapshot<T> : ElementSnapshot where T: NamedElement & Hashable {
     public init() {
         self.association = nil
         self.period = .monthly
@@ -68,5 +68,5 @@ public class BudgetGoalSnapshot<T> : ElementSnapshot where T: BoundPair {
     }
 }
 
-public typealias BudgetSpendingGoalSnapshot = BudgetGoalSnapshot<SubCategory>;
-public typealias BudgetSavingsGoalSnapshot = BudgetGoalSnapshot<SubAccount>;
+public typealias BudgetSpendingGoalSnapshot = BudgetGoalSnapshot<Category>;
+public typealias BudgetSavingsGoalSnapshot = BudgetGoalSnapshot<Account>;

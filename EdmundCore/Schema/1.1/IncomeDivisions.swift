@@ -11,7 +11,7 @@ import Foundation
 extension EdmundModelsV1_1 {
     @Model
     public final class AmountDevotion : Identifiable {
-        public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
+        public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: Account? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
             self.id = id
             self.parent = parent;
             self.name = name;
@@ -28,12 +28,12 @@ extension EdmundModelsV1_1 {
         @Relationship
         public var parent: IncomeDivision?;
         @Relationship
-        public var account: SubAccount?;
+        public var account: Account?;
     }
     
     @Model
     public final class PercentDevotion : Identifiable {
-        public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
+        public init(name: String, amount: Decimal, parent: IncomeDivision? = nil, account: Account? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
             self.id = id
             self.parent = parent;
             self.name = name;
@@ -50,12 +50,12 @@ extension EdmundModelsV1_1 {
         @Relationship
         public var parent: IncomeDivision?;
         @Relationship
-        public var account: SubAccount?;
+        public var account: Account?;
     }
     
     @Model
     public final class RemainderDevotion : Identifiable {
-        public init(name: String, parent: IncomeDivision? = nil, account: SubAccount? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
+        public init(name: String, parent: IncomeDivision? = nil, account: Account? = nil, group: DevotionGroup = .want, id: UUID = UUID()) {
             self.id = id
             self.parent = parent;
             self.name = name;
@@ -70,12 +70,12 @@ extension EdmundModelsV1_1 {
         @Relationship
         public var parent: IncomeDivision?;
         @Relationship
-        public var account: SubAccount?;
+        public var account: Account?;
     }
     
     @Model
     public final class IncomeDivision : Identifiable {
-        public init(name: String, amount: Decimal, kind: IncomeKind, depositTo: SubAccount? = nil, lastViewed: Date = .now, lastUpdated: Date = .now, amounts: [AmountDevotion] = [], percents: [PercentDevotion] = [], remainder: RemainderDevotion? = nil) {
+        public init(name: String, amount: Decimal, kind: IncomeKind, depositTo: Account? = nil, lastViewed: Date = .now, lastUpdated: Date = .now, amounts: [AmountDevotion] = [], percents: [PercentDevotion] = [], remainder: RemainderDevotion? = nil) {
             self.name = name
             self.amount = amount
             self.depositTo = depositTo
@@ -97,7 +97,7 @@ extension EdmundModelsV1_1 {
         public var lastViewed: Date;
         
         @Relationship
-        public var depositTo: SubAccount?;
+        public var depositTo: Account?;
         @Relationship(deleteRule: .cascade, inverse: \AmountDevotion.parent)
         public var amounts: [AmountDevotion];
         @Relationship(deleteRule: .cascade, inverse: \PercentDevotion.parent)

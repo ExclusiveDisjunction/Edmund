@@ -35,14 +35,14 @@ extension EdmundModelsV1_1 {
     
     @Model
     public final class BudgetSavingsGoal : Identifiable {
-        public init(account: SubAccount?, amount: Decimal, period: MonthlyTimePeriods, parent: BudgetMonth? = nil, id: UUID = UUID()) {
+        public init(account: Account?, amount: Decimal, period: MonthlyTimePeriods, parent: BudgetMonth? = nil, id: UUID = UUID()) {
             self.id = id
             self.association = account
             self.amount = amount
             self.parent = parent
             self._period = period.rawValue
         }
-        public init(migrate: EdmundModelsV1.BudgetSavingsGoal, association: SubAccount?) {
+        public init(migrate: EdmundModelsV1.BudgetSavingsGoal, association: Account?) {
             self.id = migrate.id
             self.association = association
             self.amount = migrate.amount
@@ -56,21 +56,21 @@ extension EdmundModelsV1_1 {
         public internal(set) var _period: MonthlyTimePeriods.RawValue;
         
         @Relationship
-        public var association: SubAccount?;
+        public var association: Account?;
         @Relationship
         public var parent: BudgetMonth?;
     }
     
     @Model
     public final class BudgetSpendingGoal : Identifiable {
-        public init(category: SubCategory?, amount: Decimal, period: MonthlyTimePeriods, parent: BudgetMonth? = nil, id: UUID = UUID()) {
+        public init(category: Category?, amount: Decimal, period: MonthlyTimePeriods, parent: BudgetMonth? = nil, id: UUID = UUID()) {
             self.id = id
             self.association = category
             self.amount = amount
             self._period = period.rawValue
             self.parent = parent
         }
-        public init(migrate: EdmundModelsV1.BudgetSpendingGoal, association: SubCategory?) {
+        public init(migrate: EdmundModelsV1.BudgetSpendingGoal, association: Category?) {
             self.id = migrate.id
             self.association = association
             self.amount = migrate.amount
@@ -84,7 +84,7 @@ extension EdmundModelsV1_1 {
         public internal(set) var _period: MonthlyTimePeriods.RawValue;
         
         @Relationship
-        public var association: SubCategory?;
+        public var association: Category?;
         @Relationship
         public var parent: BudgetMonth?;
     }

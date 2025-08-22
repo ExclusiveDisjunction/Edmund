@@ -13,7 +13,7 @@ struct Refund : TransactionEditorProtocol {
     @State private var company: String = "";
     @State private var reason: String = "";
     @State private var date: Date = Date.now;
-    @State private var account: SubAccount? = nil;
+    @State private var account: Account? = nil;
     @Bindable private var amount: CurrencyValue = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -49,7 +49,7 @@ struct Refund : TransactionEditorProtocol {
             debit: 0,
             date: date,
             location: company,
-            category: categories.payments.refund,
+            category: categories.income,
             account: destination
         );
         
@@ -98,7 +98,7 @@ struct Refund : TransactionEditorProtocol {
                     Text("Deposit:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                 }
             }
         })

@@ -12,10 +12,8 @@ import EdmundCore
 struct CategoriesIE : View {
     @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
     
-    @State private var selection = Set<CategoryTableRow.ID>();
-    @State private var cache: [CategoryTableRow] = [];
+    @State private var selection = Set<Category.ID>();
     @State private var addingCategory: Bool = false;
-    @State private var addingSubCategory: Bool = false;
     
     @Bindable private var delete = DeletingManifest<CategoryTableRow>();
     @Bindable private var warning = SelectionWarningManifest();

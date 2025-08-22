@@ -46,10 +46,7 @@ public enum EdmundModelsV1_1 : VersionedSchema {
         [
             Self.LedgerEntry.self,
             Self.Account.self,
-            Self.SubAccount.self,
-            
             Self.Category.self,
-            Self.SubCategory.self,
             
             Self.Bill.self,
             Self.Utility.self,
@@ -73,7 +70,7 @@ public enum EdmundModelsV1_1 : VersionedSchema {
 
 struct V1AllData {
     init(context: ModelContext) throws {
-        
+        fatalError()
     }
     
     let ledger: [LedgerEntry];

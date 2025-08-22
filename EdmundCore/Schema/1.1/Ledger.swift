@@ -13,7 +13,7 @@ extension EdmundModelsV1_1 {
     @Model
     public final class LedgerEntry : Identifiable {
         /// Creates a transactions with specified values.
-        public init(name: String, credit: Decimal, debit: Decimal, date: Date, added_on: Date = Date.now, location: String, category: SubCategory?, account: SubAccount?) {
+        public init(name: String, credit: Decimal, debit: Decimal, date: Date, added_on: Date = Date.now, location: String, category: Category?, account: Account?) {
             self.id = UUID()
             self.name = name
             self.credit = credit
@@ -24,7 +24,7 @@ extension EdmundModelsV1_1 {
             self.category = category
             self.account = account
         }
-        public init(migration: EdmundModelsV1.LedgerEntry, category: SubCategory?, account: SubAccount?) {
+        public init(migration: EdmundModelsV1.LedgerEntry, category: Category?, account: Account?) {
             self.id = migration.id
             self.name = migration.name
             self.credit = migration.credit
@@ -51,9 +51,9 @@ extension EdmundModelsV1_1 {
         public internal(set) var isVoided: Bool = false
         /// The associated parent sub category
         @Relationship
-        public var category: SubCategory? = nil;
+        public var category: Category? = nil;
         /// The associated parent sub account
         @Relationship
-        public var account: SubAccount? = nil;
+        public var account: Account? = nil;
     }
 }

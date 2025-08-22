@@ -9,7 +9,7 @@ import SwiftUI;
 import EdmundCore
 
 struct ManyOneTransfer : TransactionEditorProtocol {
-    @State private var account: SubAccount? = nil;
+    @State private var account: Account? = nil;
     @State private var date: Date = .now;
     @Bindable private var data: ManyTableManifest = .init(isSource: true);
     
@@ -43,7 +43,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                 debit: 0,
                 date: date,
                 location: "Bank",
-                category: categories.accountControl.transfer,
+                category: categories.transfers,
                 account: destination
             )
         );
@@ -71,7 +71,7 @@ struct ManyOneTransfer : TransactionEditorProtocol {
                     GridRow {
                         Text("Deposit To:")
                         
-                        NamedPairPicker($account)
+                        ElementPicker($account)
                     }
                     
                     GridRow {

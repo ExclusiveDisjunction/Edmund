@@ -10,7 +10,7 @@ import EdmundCore
  
 struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;
-    @State private var account: SubAccount? = nil
+    @State private var account: Account? = nil
     @State private var data: ManyTableManifest = .init(isSource: false)
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -43,7 +43,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
             debit: data.amount,
             date: date,
             location: "Bank",
-            category: categories.accountControl.transfer,
+            category: categories.transfers,
             account: source
         );
         
@@ -69,7 +69,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
                         Text("Source:", comment: "Account source")
                             .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                         
-                        NamedPairPicker($account)
+                        ElementPicker($account)
                     }
                     
                     GridRow {
@@ -95,7 +95,7 @@ struct OneManyTransfer : TransactionEditorProtocol {
                 HStack {
                     Text(data.amount, format: .currency(code: currencyCode))
                     Text("will be moved to", comment: "$ will be moved to")
-                    CompactNamedPairInspect(account)
+                    ElementDisplayer(value: account)
                 }
             }
         }

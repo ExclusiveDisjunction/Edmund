@@ -14,9 +14,7 @@ public typealias Utility = ModelsCurrentVersion.Utility;
 public typealias UtilityDatapoint = ModelsCurrentVersion.UtilityDatapoint;
 
 public typealias Account = ModelsCurrentVersion.Account;
-public typealias SubAccount = ModelsCurrentVersion.SubAccount;
 public typealias Category = ModelsCurrentVersion.Category;
-public typealias SubCategory = ModelsCurrentVersion.SubCategory;
 
 public typealias IncomeDivision = ModelsCurrentVersion.IncomeDivision;
 public typealias AmountDevotion = ModelsCurrentVersion.AmountDevotion;

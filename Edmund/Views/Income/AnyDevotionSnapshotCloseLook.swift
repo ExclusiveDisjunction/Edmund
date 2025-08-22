@@ -53,7 +53,7 @@ struct AmountDevotionSnapshotCloseLook : View {
                 Text("Account:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                NamedPairPicker($devotion.account)
+                ElementPicker($devotion.account)
             }
         }
     }
@@ -115,7 +115,7 @@ struct PercentDevotionSnapshotCloseLook : View {
                 Text("Account:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                NamedPairPicker($devotion.account)
+                ElementPicker($devotion.account)
             }
         }
     }

@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-extension Category : CategoryBase, BoundPairParent, UniqueElement, NamedElement, Equatable, CustomStringConvertible {
+extension Category : Identifiable, UniqueElement, DefaultableElement, NamedElement, Equatable, CustomStringConvertible {
     public convenience init() {
         self.init("")
     }
@@ -47,36 +47,19 @@ extension Category : CategoryBase, BoundPairParent, UniqueElement, NamedElement,
     public static var exampleCategories: [Category] {
         [
             exampleCategory,
-            .init("Account Control", children: [
-                .init("Transfer"),
-                .init("Pay"),
-                .init("Audit"),
-                .init("Initial")
-            ]),
-            .init("Personal", children: [
-                .init("Dining"),
-                .init("Entertainment")
-            ]),
-            .init("Home", children: [
-                .init("Groceries"),
-                .init("Health"),
-                .init("Decor"),
-                .init("Repairs")
-            ]),
-            .init("Car", children: [
-                .init("Gas"),
-                .init("Maintenence"),
-                .init("Decor")
-            ])
+            .init("Transfers"),
+            .init("Income"),
+            .init("Adjustments"),
+            .init("Personal"),
+            .init("Groceries"),
+            .init("Health"),
+            .init("Home"),
+            .init("Car")
         ]
     }
     /// A singular category that can be used to display filler data.
     @MainActor
     public static var exampleCategory: Category {
-        .init("Bills", children: [
-            .init("Utility"),
-            .init("Subscription"),
-            .init("Bill")
-        ])
+        .init("Bills")
     }
 }

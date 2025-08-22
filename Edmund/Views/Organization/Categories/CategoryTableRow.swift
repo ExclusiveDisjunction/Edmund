@@ -10,24 +10,16 @@ import SwiftData
 import EdmundCore
 
 @Observable
-final class CategoryTableRow : Identifiable, Parentable {
-    init(subCategory: SubCategory) {
-        self.id = UUID();
-        self.target = subCategory;
-        self.children = nil;
-        self.name = subCategory.name;
-    }
+final class CategoryTableRow : Identifiable {
     init(category: EdmundCore.Category) {
         self.id = UUID();
         self.target = category;
-        self.children = category.children.map { Self(subCategory: $0) }
         self.name = category.name;
     }
     
-    var target: any CategoryBase
+    var target: EdmundCore.Category
     let id: UUID;
     var name: String;
-    var children: [CategoryTableRow]?;
     var isEditing: Bool = false;
     var attempts: CGFloat = 0;
 }

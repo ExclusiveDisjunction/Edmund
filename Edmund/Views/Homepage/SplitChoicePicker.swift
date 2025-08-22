@@ -40,7 +40,7 @@ struct SplitChoicePicker : View {
 }
 
 #Preview {
-    var a = WidgetChoice.bills, b = WidgetChoice.detailedBalances;
+    var a = WidgetChoice.bills, b = WidgetChoice.simpleBalances;
     let aBind = Binding(get: {a}, set: {a = $0}), bBind = Binding(get: {b}, set: {b = $0});
     
     SplitChoicePicker(kind: .vSplit, minor: .half, sectorA: aBind, sectorB: bBind)

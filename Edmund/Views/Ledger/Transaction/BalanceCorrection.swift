@@ -22,7 +22,7 @@ struct BalanceCorrection: TransactionEditorProtocol {
         }
     }
     
-    @State private var account: SubAccount? = nil;
+    @State private var account: Account? = nil;
     @State private var mode: Self.Mode = .byBalance;
     @State private var currentBalance: Decimal? = nil;
     @State private var date: Date = .now;
@@ -58,12 +58,19 @@ struct BalanceCorrection: TransactionEditorProtocol {
             debit: amount < 0 ? -amount : 0,
             date: date,
             location: NSLocalizedString("Bank", comment: ""),
-            category: categories.accountControl.audit,
+            category: categories.adjustments,
             account: account
         );
         
         modelContext.insert(transaction);
         return nil;
+    }
+    
+    @MainActor
+    private func accountChanged(_ newAcc: Account?) {
+        withAnimation {
+            currentBalance = newAcc?.transactions.reduce(0, { $0 + $1.credit - $1.debit})
+        }
     }
     
     var body: some View {
@@ -73,15 +80,9 @@ struct BalanceCorrection: TransactionEditorProtocol {
                     Text("Account:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    NamedPairPicker($account)
+                    ElementPicker($account)
                         .onChange(of: account) { _, newAcc in
-                            Task {
-                                await MainActor.run {
-                                    withAnimation {
-                                        currentBalance = newAcc?.transactions?.reduce(0, { $0 + $1.credit - $1.debit})
-                                    }
-                                }
-                            }
+                            self.accountChanged(newAcc)
                         }
                 }
                 GridRow {

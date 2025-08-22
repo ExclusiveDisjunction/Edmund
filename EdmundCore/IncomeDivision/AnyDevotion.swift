@@ -35,7 +35,7 @@ public enum AnyDevotion : Identifiable {
             }
         }
     }
-    public var account: SubAccount? {
+    public var account: Account? {
         get {
             switch self {
                 case .amount(let a): a.account
@@ -93,7 +93,7 @@ public enum AnyDevotionSnapshot : Identifiable, Hashable, Equatable {
             }
         }
     }
-    public var account: SubAccount? {
+    public var account: Account? {
         get {
             switch self {
                 case .amount(let a): a.account

@@ -50,10 +50,10 @@ public struct UniqueElementsCreator : ContainerDataFiller {
 public struct DefaultDebugCreator : ContainerDataFiller {
     public func fill(context: ModelContext) throws {
         let accounts = Account.exampleAccounts
-        var accTree = try BoundPairTree(data: accounts)
+        var accTree = try ElementLocator(data: accounts)
         
         let categories = Category.exampleCategories;
-        var catTree = try BoundPairTree(data: categories)
+        var catTree = try ElementLocator(data: categories)
         
         for account in accounts {
             context.insert(account)
@@ -89,8 +89,8 @@ public struct DefaultDebugCreator : ContainerDataFiller {
 /// A creator that creates transactions that are spread out so that graphs can be tested.
 public struct TransactionSpreadCreator : ContainerDataFiller {
     public func fill(context: ModelContext) {
-        let account = SubAccount("Test Sub Account", parent: .init("Test Account"))
-        let category = SubCategory("Test Sub Category", parent: .init("Test Category"))
+        let account = Account("Test Account")
+        let category = Category("Test Category")
         
         context.insert(account)
         context.insert(category)

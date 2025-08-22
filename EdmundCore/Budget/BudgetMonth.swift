@@ -80,22 +80,29 @@ extension BudgetMonth : SnapshotableElement {
         return BudgetMonth(date: forDate)
     }
     @MainActor
-    public static func exampleBudgetMonth(cat: inout BoundPairTree<Category>, acc: inout BoundPairTree<Account>) -> BudgetMonth {
+    public static func exampleBudgetMonth(cat: inout ElementLocator<Category>, acc: inout ElementLocator<Account>) -> BudgetMonth {
         let date = MonthYear.now!;
         let result = BudgetMonth(date: date)
+        
+        let personal = cat.getOrInsert(name: "Personal")
+        let groceries = cat.getOrInsert(name: "Groceries")
+        let car = cat.getOrInsert(name: "Car")
+        
+        let checking = acc.getOrInsert(name: "Checking")
+        let savings = acc.getOrInsert(name: "Savings")
         
         result.income = [
             .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(date.year, date.month, 10)),
             .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(date.year, date.month, 25))
         ]
         result.spendingGoals = [
-            .init(category: cat.getOrInsert(parent: "Personal", child: "Dining"), amount: 100, period: .biWeekly),
-            .init(category: cat.getOrInsert(parent: "Home", child: "Groceries"), amount: 400, period: .monthly),
-            .init(category: cat.getOrInsert(parent: "Car", child: "Gas"), amount: 120, period: .monthly)
+            .init(category: personal, amount: 100, period: .biWeekly),
+            .init(category: groceries, amount: 400, period: .monthly),
+            .init(category: car, amount: 120, period: .monthly)
         ]
         result.savingsGoals = [
-            .init(account: acc.getOrInsert(parent: "Savings", child: "Main"), amount: 400, period: .biWeekly),
-            .init(account: acc.getOrInsert(parent: "Checking", child: "Taxes"), amount: 100, period: .monthly)
+            .init(account: savings, amount: 400, period: .biWeekly),
+            .init(account: checking, amount: 100, period: .monthly)
         ]
         
         return result

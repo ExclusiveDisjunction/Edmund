@@ -12,8 +12,11 @@ import os
 
 /// A protocol that determines if an element is unique.
 /// For the unique pattern to work, the type must implement this protocol.
-public protocol UniqueElement: Identifiable where Self.ID: Sendable {
+public protocol UniqueElement {
+    associatedtype UID: Hashable & Sendable;
+    
     static var objId: ObjectIdentifier { get }
+    var uID: UID { get }
 }
 public extension UniqueElement {
     func getObjectId() -> ObjectIdentifier {
@@ -31,9 +34,7 @@ public struct UniqueContext {
     @MainActor
     public init(_ context: ModelContext) throws {
         self.acc =      try context.fetch(FetchDescriptor<Account>    ());
-        self.subAcc =   try context.fetch(FetchDescriptor<SubAccount> ());
         self.cat =      try context.fetch(FetchDescriptor<Category>   ());
-        self.subCat =   try context.fetch(FetchDescriptor<SubCategory>());
         let  bills =    try context.fetch(FetchDescriptor<Bill>       ());
         let  utility =  try context.fetch(FetchDescriptor<Utility>    ());
         let  hourly =   try context.fetch(FetchDescriptor<HourlyJob>  ());
@@ -45,12 +46,8 @@ public struct UniqueContext {
     
     /// All accounts in the context.
     public let acc: [Account];
-    /// All sub accounts in the context.
-    public let subAcc: [SubAccount];
     /// All categories in the context.
     public let cat: [Category];
-    /// All sub categories in the context.
-    public let subCat: [SubCategory];
     /// All bills & utilities in the context.
     public let allBills: [any BillBase];
     /// All hourly & salaried jobs in the context.
@@ -58,7 +55,6 @@ public struct UniqueContext {
 }
 public enum UniqueID : Hashable, Sendable {
     case name(String)
-    case pair(BoundPairID)
     case bills(BillBaseID)
     case jobs(TraditionalJobID)
 }
@@ -66,54 +62,38 @@ public struct UniqueContextSets {
     public init(_ context: UniqueContext) throws(UniqueFailureError<UniqueID>) {
         var acc: Set<String> = .init();
         var cat: Set<String> = .init();
-        var subAcc: Set<BoundPairID> = .init();
-        var subCat: Set<BoundPairID> = .init();
         var bills: Set<BillBaseID> = .init();
         var jobs: Set<TraditionalJobID> = .init();
         
         for item in context.acc {
             if !acc.insert(item.id).inserted {
-                throw .init(value: .name(item.id))
+                throw .init(value: .name(item.uID))
             }
         }
         for item in context.cat {
             if !cat.insert(item.id).inserted {
-                throw .init(value: .name(item.id))
-            }
-        }
-        for item in context.subAcc {
-            if !subAcc.insert(item.id).inserted {
-                throw .init(value: .pair(item.id))
-            }
-        }
-        for item in context.subCat {
-            if !subCat.insert(item.id).inserted {
-                throw .init(value: .pair(item.id))
+                throw .init(value: .name(item.uID))
             }
         }
         for item in context.allBills {
             if !bills.insert(item.id).inserted {
-                throw .init(value: .bills(item.id))
+                throw .init(value: .bills(item.uID))
             }
         }
         for item in context.allJobs {
             if !jobs.insert(item.id).inserted {
-                throw .init(value: .jobs(item.id))
+                throw .init(value: .jobs(item.uID))
             }
         }
         
         self.acc = acc
         self.cat = cat
-        self.subAcc = subAcc
-        self.subCat = subCat
         self.bills = bills
         self.jobs = jobs
     }
     
     public let acc: Set<AnyHashable>;
     public let cat: Set<AnyHashable>;
-    public let subAcc: Set<AnyHashable>;
-    public let subCat: Set<AnyHashable>;
     public let bills: Set<AnyHashable>;
     public let jobs: Set<AnyHashable>;
 }
@@ -158,8 +138,6 @@ public actor UniqueEngine {
         let dict = Dictionary(uniqueKeysWithValues: [
             (Account.objId,     sets.acc    ),
             (Category.objId,    sets.cat    ),
-            (SubAccount.objId,  sets.subAcc ),
-            (SubCategory.objId, sets.subCat ),
             (Bill.objId,        sets.bills  ),
             (HourlyJob.objId,   sets.jobs   )
         ]);

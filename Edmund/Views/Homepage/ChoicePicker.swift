@@ -8,22 +8,18 @@
 import SwiftUI
 
 enum WidgetChoice: Int, CaseIterable, Identifiable, Codable, Displayable {
-    case bills = 0,
-         simpleBalances = 1,
-         detailedBalances = 2,
-         spendingGraph = 3,
-         moneyGraph = 4,
-         //payday = 5,
-         none = 6
+    case bills,
+         simpleBalances,
+         spendingGraph,
+         moneyGraph,
+         none
     
     var display: LocalizedStringKey {
         switch self {
             case .bills:            "Upcoming Bills"
-            case .simpleBalances:   "Balance Overview"
-            case .detailedBalances: "Balances"
+            case .simpleBalances:   "Balances"
             case .spendingGraph:    "Spending Graph"
             case .moneyGraph:       "Balances Graph"
-            //case .payday:           "Payday Info"
             case .none:             "None"
         }
     }

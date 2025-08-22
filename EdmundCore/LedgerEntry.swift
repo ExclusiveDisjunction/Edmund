@@ -52,42 +52,36 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
     /// Builds a list of ledger entries over some accounts and categories. It expects specific ones to exist, and may cause a crash if they dont.
     /// This is intended for internal use.
     @MainActor
-    public static func exampleEntries(acc: inout BoundPairTree<Account>, cat: inout BoundPairTree<Category>) -> [LedgerEntry] {
-        let transferCat  = cat.getOrInsert(parent: "Account Control", child: "Transfer" )
-        let auditCat     = cat.getOrInsert(parent: "Account Control", child: "Audit"    )
-        let initialCat   = cat.getOrInsert(parent: "Account Control", child: "Initial"  )
-        let diCat        = cat.getOrInsert(parent: "Personal",        child: "Dining"   )
-        let groceriesCat = cat.getOrInsert(parent: "Home",            child: "Groceries")
-        let gasCat       = cat.getOrInsert(parent: "Car",             child: "Gas"      )
+    public static func exampleEntries(acc: inout ElementLocator<Account>, cat: inout ElementLocator<Category>) -> [LedgerEntry] {
+        let transferCat = cat.getOrInsert(name: "Transfers");
+        let auditCat = cat.getOrInsert(name: "Adjustments");
+        let personalCat = cat.getOrInsert(name: "Personal");
+        let groceriesCat = cat.getOrInsert(name: "Groceries");
+        let carCat = cat.getOrInsert(name: "Car");
         
-        let payAcc          = acc.getOrInsert(parent: "Checking", child: "Pay"        )
-        let diAcc           = acc.getOrInsert(parent: "Checking", child: "DI"         )
-        let creditCardAcc   = acc.getOrInsert(parent: "Checking", child: "Credit Card")
-        let gasAcc          = acc.getOrInsert(parent: "Checking", child: "Gas"        )
-        let groceriesAcc    = acc.getOrInsert(parent: "Checking", child: "Groceries"  )
-        let savingsMain     = acc.getOrInsert(parent: "Savings",  child: "Main"       )
-        let creditDI        = acc.getOrInsert(parent: "Credit",   child: "DI"         )
-        let creditGroceries = acc.getOrInsert(parent: "Credit",   child: "Groceries"  )
+        let checking = acc.getOrInsert(name: "Checking")
+        let savings = acc.getOrInsert(name: "Savings")
+        let credit = acc.getOrInsert(name: "Credit")
         
         return [
-            .init(name: "Initial Balance",              credit: 1000, debit: 0,   date: Date.now, location: "Bank",        category: initialCat,   account: savingsMain    ),
-            .init(name: "Initial Balance",              credit: 170,  debit: 0,   date: Date.now, location: "Bank",        category: initialCat,   account: payAcc         ),
-            .init(name: "'Pay' to Various",             credit: 0,    debit: 100, date: Date.now, location: "Bank",        category: transferCat,  account: payAcc         ),
-            .init(name: "'Pay' to 'DI'",                credit: 35,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat,  account: diAcc          ),
-            .init(name: "'Pay' to 'Groceries'",         credit: 65,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat,  account: groceriesAcc   ),
-            .init(name: "Lunch",                        credit: 0,    debit: 20,  date: Date.now, location: "Chick-Fil-A", category: diCat,        account: creditDI       ),
-            .init(name: "Groceries",                    credit: 0,    debit: 40,  date: Date.now, location: "Aldi",        category: groceriesCat, account: creditGroceries),
-            .init(name: "'Groceries' to 'Credit Card'", credit: 0,    debit: 40,  date: Date.now, location: "Bank",        category: transferCat,  account: groceriesAcc   ),
-            .init(name: "'DI' to 'Credit Card'",        credit: 0,    debit: 20,  date: Date.now, location: "Bank",        category: transferCat,  account: diAcc          ),
-            .init(name: "Various to 'Credit Card'",     credit: 60,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat,  account: creditCardAcc  ),
-            .init(name: "Gas",                          credit: 0,    debit: 45,  date: Date.now, location: "7-Eleven",    category: gasCat,       account: gasAcc         ),
-            .init(name: "Audit",                        credit: 0,    debit: 10,  date: Date.now, location: "Bank",        category: auditCat,     account: payAcc         )
+            .init(name: "Initial Balance",              credit: 1000, debit: 0,   date: Date.now, location: "Bank",        category: auditCat,    account: savings  ),
+            .init(name: "Initial Balance",              credit: 170,  debit: 0,   date: Date.now, location: "Bank",        category: auditCat,    account: checking ),
+            .init(name: "'Pay' to Various",             credit: 0,    debit: 100, date: Date.now, location: "Bank",        category: transferCat, account: checking ),
+            .init(name: "'Pay' to 'DI'",                credit: 35,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat, account: checking ),
+            .init(name: "'Pay' to 'Groceries'",         credit: 65,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat, account: checking ),
+            .init(name: "Lunch",                        credit: 0,    debit: 20,  date: Date.now, location: "Chick-Fil-A", category: personalCat, account: credit   ),
+            .init(name: "Groceries",                    credit: 0,    debit: 40,  date: Date.now, location: "Aldi",        category: groceriesCat,account: credit   ),
+            .init(name: "'Groceries' to 'Credit Card'", credit: 0,    debit: 40,  date: Date.now, location: "Bank",        category: transferCat, account: checking ),
+            .init(name: "'DI' to 'Credit Card'",        credit: 0,    debit: 20,  date: Date.now, location: "Bank",        category: transferCat, account: checking ),
+            .init(name: "Various to 'Credit Card'",     credit: 60,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat, account: credit   ),
+            .init(name: "Gas",                          credit: 0,    debit: 45,  date: Date.now, location: "7-Eleven",    category: carCat,      account: checking ),
+            .init(name: "Audit",                        credit: 0,    debit: 10,  date: Date.now, location: "Bank",        category: auditCat,    account: checking )
         ]
     }
     
     /// A UI-ready filler example of a ledger entry
     @MainActor
-    public static let exampleEntry = LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Sub Category", parent: .init("Example Category")), account: .init("Example Sub Account", parent: .init("Example Account")));
+    public static let exampleEntry = LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Category"), account: .init("Example Account"));
 }
 
 /// The snapshot for `LedgerEntry`
@@ -124,9 +118,9 @@ public final class LedgerEntrySnapshot : ElementSnapshot {
     /// The location in which it occured
     public var location: String
     /// The associated category
-    public var category: SubCategory?
+    public var category: Category?
     /// The associated sub account
-    public var account: SubAccount?
+    public var account: Account?
     
     /// The net between credit and debit
     public var balance: Decimal {

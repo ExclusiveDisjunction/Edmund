@@ -15,8 +15,8 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    @State private var src: SubAccount?;
-    @State private var dest: SubAccount?
+    @State private var src: Account?;
+    @State private var dest: Account?
     @State private var amount: Decimal = 0.0;
     @State private var date = Date.now;
     
@@ -49,7 +49,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                 debit: amount,
                 date: date,
                 location: "Bank",
-                category: categories.accountControl.transfer,
+                category: categories.transfers,
                 account: src!
             ),
             .init(
@@ -58,7 +58,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                 debit: 0,
                 date: date,
                 location: "Bank",
-                category: categories.accountControl.transfer,
+                category: categories.transfers,
                 account: dest!
             )
         ]
@@ -92,7 +92,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        NamedPairPicker($src)
+                        ElementPicker($src)
                         Spacer()
                     }
                 }
@@ -102,7 +102,7 @@ struct OneOneTransfer : View, TransactionEditorProtocol {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        NamedPairPicker($dest)
+                        ElementPicker($dest)
                         Spacer()
                     }
                 }

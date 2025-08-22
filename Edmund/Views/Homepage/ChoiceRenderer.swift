@@ -21,7 +21,6 @@ struct ChoiceRenderer : View {
                 }
                 switch choice {
                     case .bills: UpcomingBillsView()
-                    case .detailedBalances: DetailedBalancesView()
                     case .simpleBalances: SimpleBalancesView()
                     case .moneyGraph: MoneyGraph()
                     //case .payday: PaydayWidget()
@@ -39,7 +38,7 @@ struct ChoiceRenderer : View {
 
 #Preview {
     DebugContainerView {
-        ChoiceRenderer(choice: .detailedBalances)
+        ChoiceRenderer(choice: .simpleBalances)
             .padding()
     }
 }

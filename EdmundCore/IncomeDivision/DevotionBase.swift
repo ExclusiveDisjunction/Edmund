@@ -25,7 +25,7 @@ public enum DevotionGroup : Int, Identifiable, CaseIterable {
 
 public protocol DevotionBase : AnyObject, Identifiable<UUID>, SnapshotableElement, DefaultableElement, SnapshotConstructableElement  {
     var name: String { get set }
-    var account: SubAccount? { get set }
+    var account: Account? { get set }
     var group: DevotionGroup { get set }
     
     func duplicate() -> Self;
@@ -49,7 +49,7 @@ public class DevotionSnapshotBase : Identifiable, Hashable, Equatable, ElementSn
     public let id: UUID;
     public var name: String;
     public var group: DevotionGroup;
-    public var account: SubAccount?;
+    public var account: Account?;
     
     public func validate(unique: UniqueEngine) -> ValidationFailure? {
         let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
