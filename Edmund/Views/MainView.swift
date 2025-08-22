@@ -33,7 +33,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     
     case jobs = "Jobs"
     case incomeDivider = "Income Divider"
-    case budget = "Budget"
     
     case accounts = "Accounts"
     case categories = "Categories"
@@ -53,7 +52,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 .bills
             ]),
             .init(name: "Budgeting & Pay", content: [
-                .budget,
                 .incomeDivider,
                 .jobs,
             ]),
@@ -78,7 +76,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 
             case .jobs: "jobs"
             case .incomeDivider: "incomeDivider"
-            case .budget: "budget"
                 
             case .accounts: "accounts"
             case .categories: "categories"
@@ -100,7 +97,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .balance: BalanceSheet()
                 
             case .incomeDivider: AllIncomeDivisionsIE()
-            case .budget: AllBudgetMonthIE()
                 
             case .bills: AllBillsViewEdit()
                 
@@ -113,15 +109,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     }
 }
 
-fileprivate struct PageDestinationsKey : FocusedValueKey {
-    typealias Value = Binding<PageDestinations?>;
-}
-extension FocusedValues {
-    var currentPage: Binding<PageDestinations?>? {
-        get { self[PageDestinationsKey.self] }
-        set { self[PageDestinationsKey.self] = newValue }
-    }
-}
 fileprivate struct LockedPagesKey : EnvironmentKey {
     typealias Value = Binding<Bool>;
     static var defaultValue: Binding<Bool> {
@@ -208,7 +195,7 @@ struct MainView: View {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
                 .environment(\.pagesLocked, $locked)
-        }.focusedValue(\.currentPage, $page)
+        }
     }
 }
 

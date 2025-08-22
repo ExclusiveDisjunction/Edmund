@@ -11,8 +11,6 @@ struct GeneralCommands : Commands {
     @Environment(\.openWindow) var openWindow;
     @Environment(\.openURL) private var openURL;
     
-    @FocusedValue(\.currentPage) var currentPage;
-    
     @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
     
     var body: some Commands {

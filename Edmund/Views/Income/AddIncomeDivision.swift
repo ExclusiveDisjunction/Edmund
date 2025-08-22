@@ -11,9 +11,10 @@ import EdmundCore
 
 struct AddIncomeDivision : View {
     @Binding var editingSnapshot: IncomeDivisionSnapshot?;
-    @Binding var selection: IncomeDivision?;
+    @Binding var selectionID: IncomeDivision.ID?;
     
     @State private var doCopyFrom: Bool = false;
+    @State private var copyFromID: IncomeDivision.ID? = nil;
     @State private var copyFrom: IncomeDivision? = nil;
     @State private var name: String = "";
     
@@ -43,7 +44,7 @@ struct AddIncomeDivision : View {
         
         let snapshot = new.makeSnapshot()
         withAnimation {
-            selection = new;
+            selectionID = new.id;
             editingSnapshot = snapshot;
         }
         dismiss()
@@ -55,7 +56,7 @@ struct AddIncomeDivision : View {
                 Toggle("Duplicate?", isOn: $doCopyFrom)
                 
                 if doCopyFrom {
-                    IncomeDivisionPicker("Duplicate From:", selection: $copyFrom)
+                    IncomeDivisionPicker("Duplicate From:", selection: $copyFrom, id: $copyFromID)
                 }
                 
                 TextField("Name:", text: $name)
@@ -88,6 +89,6 @@ struct AddIncomeDivision : View {
 
 #Preview {
     DebugContainerView {
-        AddIncomeDivision(editingSnapshot: .constant(nil), selection: .constant(nil))
+        AddIncomeDivision(editingSnapshot: .constant(nil), selectionID: .constant(nil))
     }
 }

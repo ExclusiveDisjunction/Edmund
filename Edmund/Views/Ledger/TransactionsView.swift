@@ -147,7 +147,7 @@ struct TransactionsEditor : View {
             case .personalLoan:    PersonalLoan()
             case .refund:          Refund()
             case .miscIncome:      MiscIncome()
-            case .payday:          PaydayEditor()
+            case .payday:          PaydayTransaction()
             case .billPay(let v):  BillPayment(kind: v)
             case .utilityPay:      UtilityPayment()
             case .balanceCorrection:           BalanceCorrection()

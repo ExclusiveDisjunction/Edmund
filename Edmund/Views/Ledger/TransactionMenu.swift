@@ -71,7 +71,7 @@ struct TransactionMenu<Label> : View where Label: View {
             Menu {
                 Button(TransactionKind.payday.display, action: {
                     openEditor(.payday)
-                }).disabled(true).help("futureRelease")
+                })
                 
                 Button(TransactionKind.personalLoan.display, action: {
                     openEditor(.personalLoan)
