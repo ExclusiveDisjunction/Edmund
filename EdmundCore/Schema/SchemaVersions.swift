@@ -71,6 +71,29 @@ public enum EdmundModelsV1_1 : VersionedSchema {
     }
 }
 
+struct V1AllData {
+    init(context: ModelContext) throws {
+        
+    }
+    
+    let ledger: [LedgerEntry];
+    let account: [Account];
+    let category: [Category];
+    let bills: [Bill];
+    let utilities: [Utility];
+    let hourlyJob: [HourlyJob];
+    let salariedJob: [SalariedJob];
+    let incomeDivisions: [IncomeDivision];
+    let budgets: [BudgetMonth];
+}
+
+
+struct V1toV1_1Migration {
+    init(context: ModelContext) throws {
+        
+    }
+}
+
 public struct MigrationPlan : SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
         [
@@ -81,9 +104,7 @@ public struct MigrationPlan : SchemaMigrationPlan {
     
     public static var stages: [MigrationStage] {
         return [
-            .custom(fromVersion: EdmundModelsV1.self, toVersion: EdmundModelsV1_1.self, willMigrate: { context in
-                
-            }, didMigrate: { context in
+            .custom(fromVersion: EdmundModelsV1.self, toVersion: EdmundModelsV1_1.self, willMigrate: nil, didMigrate: { context in
                 
             })
         ]

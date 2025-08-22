@@ -20,6 +20,20 @@ extension EdmundModelsV1_1 {
             self._creditLimit = creditLimit;
             self.children = children
         }
+        /// Migrates from a previous version `Account`.
+        ///
+        /// This migrates all properties of the account, and migrates the `SubAccount`s within, but do note the migrations carried by `SubAccount(migration:parent:)`.
+        public init(migration: EdmundModelsV1.Account) {
+            self.name = migration.name
+            self._kind = migration.rawKind
+            self.location = migration.location
+            self.interest = migration.interest
+            self._creditLimit = migration.rawCreditLimit
+            self.isVoided = migration.isVoided
+            self.children = [] //need to so that the compiler doesnt fuss that `this` is un-init
+            
+            self.children = migration.children.map { SubAccount(migration: $0, parent: self) }
+        }
         
         /// The account's name. This must be unique. This can be simple like "Checking", or more elaborate like "Chase Savings"
         public var name: String = "";
@@ -47,7 +61,7 @@ extension EdmundModelsV1_1 {
             self.parent = parent
             self.transactions = transactions
         }
-        /// Migrates from a previous version `SubAccount`, only migrating over the name and the new parent.
+        /// Migrates from a previous version `SubAccount`.
         ///
         /// This does not migrate:
         /// 1. Transactions (due to joint effort with `SubCategory`)
@@ -89,6 +103,16 @@ extension EdmundModelsV1_1 {
             self.children = children;
             self.isLocked = isLocked
         }
+        /// Migrates from a previous version of `Category`.
+        ///
+        /// This will carry over all properties, however, note the `SubCategory(migration:parent:)` migration criteria.
+        public init(migration: EdmundModelsV1.Category) {
+            self.name = migration.name
+            self.isLocked = migration.isLocked
+            self.children = []
+            
+            self.children = migration.children.map { SubCategory(migration: $0, parent: self) }
+        }
         
         public var name: String = "";
         @Relationship(deleteRule: .cascade, inverse: \SubCategory.parent)
@@ -105,6 +129,16 @@ extension EdmundModelsV1_1 {
             self.name = name
             self.transactions = transactions
             self.isLocked = isLocked;
+        }
+        /// Migrates from a previous version `SubCategory`.
+        ///
+        /// This does not migrate:
+        /// 1. Transactions (due to joint effort with `SubAccount`)
+        /// 2. Spending Goals (due to joint effort with `BudgetMonth`)
+        public init(migration: EdmundModelsV1.SubCategory, parent: Category) {
+            self.name = migration.name
+            self.isLocked = migration.isLocked
+            self.parent = parent
         }
         
         /// The name of the sub-category
