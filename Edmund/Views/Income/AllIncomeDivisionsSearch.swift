@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 public enum IncomeDividerSortField : CaseIterable, Identifiable, Displayable {
     case name

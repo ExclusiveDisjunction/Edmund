@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 /// The displayed value of the ledger style
 public enum LedgerStyle: Int, Identifiable, CaseIterable {

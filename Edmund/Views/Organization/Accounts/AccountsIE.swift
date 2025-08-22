@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 fileprivate struct AccountWrapper : Identifiable {
     init(_ data: Account, id: UUID = UUID()) {

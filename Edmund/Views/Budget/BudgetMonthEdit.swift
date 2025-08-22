@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct BudgetMonthIncomeEdit : View {
     @Bindable var snapshot: BudgetMonthSnapshot;

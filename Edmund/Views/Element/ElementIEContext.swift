@@ -8,7 +8,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 public struct ChangeModeActionData {
     public typealias Callback = @MainActor (InspectionMode, UniqueEngine) async -> Void;

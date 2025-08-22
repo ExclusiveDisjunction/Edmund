@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct YearRowID : Hashable, Equatable, Sendable {
     let parent: UUID;

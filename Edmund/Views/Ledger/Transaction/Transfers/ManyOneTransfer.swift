@@ -6,7 +6,7 @@
 //
 
 import SwiftUI;
-import EdmundCore
+import EdmundCoreImm
 
 struct ManyOneTransfer : TransactionEditorProtocol {
     @State private var account: SubAccount? = nil;

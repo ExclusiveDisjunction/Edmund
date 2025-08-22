@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// A specific filter for a query type. One is made per case of a `Filterable` type, and this stores if that filter is active or not.
 @Observable

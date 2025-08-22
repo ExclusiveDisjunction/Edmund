@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 public struct UtilityInspect : View {
     @Bindable public var bill: Utility;

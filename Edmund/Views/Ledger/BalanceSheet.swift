@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// A top level view to display all accounts, their balances, and then the sub balances within.
 struct BalanceSheet: View {

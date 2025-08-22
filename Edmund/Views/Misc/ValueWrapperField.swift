@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct ValueWrapperField<T> : View where T: ValueWrapper {
     let isNumeric: Bool;

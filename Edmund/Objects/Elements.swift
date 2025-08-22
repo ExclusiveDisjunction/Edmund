@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 /// A type wrapping the display information for a specific data type.
 public struct TypeTitleStrings {

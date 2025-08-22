@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct Refund : TransactionEditorProtocol {
     @State private var company: String = "";

@@ -7,7 +7,7 @@
 
 import SwiftUI;
 import SwiftData;
-import EdmundCore
+import EdmundCoreImm
 
 /// A wrapper around editing for a specific data type. It stores a hash (to know that a change took place), and the actual snapshot itself.
 private class EditingManifest<T> : ObservableObject where T: EditableElement {

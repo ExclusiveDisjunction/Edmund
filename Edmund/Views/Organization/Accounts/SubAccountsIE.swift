@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// A view used to inspect, edit, and remove the sub accounts from a specific account.
 public struct SubAccountsIE : View {

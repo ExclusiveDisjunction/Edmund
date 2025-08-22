@@ -8,7 +8,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 @Observable
 public class ElementIEManifest<T> where T: SnapshotableElement, T.ID: Sendable {

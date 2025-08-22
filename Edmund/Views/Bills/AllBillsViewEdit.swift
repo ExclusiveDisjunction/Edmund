@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
+import EdmundCoreImm
 
 struct AllBillsViewEdit : View {
     @State private var tableSelected = Set<BillBaseWrapper.ID>();

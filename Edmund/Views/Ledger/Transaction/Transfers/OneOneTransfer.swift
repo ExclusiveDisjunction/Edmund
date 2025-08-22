@@ -6,7 +6,7 @@
 //
 
 import SwiftUI;
-import EdmundCore
+import EdmundCoreImm
 
 struct OneOneTransfer : View, TransactionEditorProtocol {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;

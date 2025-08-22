@@ -7,7 +7,7 @@
 
 import SwiftUI;
 import SwiftData;
-import EdmundCore
+import EdmundCoreImm
 
 struct Homepage : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;

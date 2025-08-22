@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 public struct BoundPairChildEdit<T> : ElementEditorView where T: BoundPair, T: EditableElement, T.Snapshot: BoundPairSnapshot {
     public typealias For = T;

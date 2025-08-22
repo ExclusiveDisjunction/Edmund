@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct IncomeDevotionsInspect : View {
     var data: IncomeDivision

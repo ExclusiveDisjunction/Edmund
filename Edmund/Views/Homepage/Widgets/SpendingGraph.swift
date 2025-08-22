@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
+import EdmundCoreImm
 
 struct SpendingComputation: Identifiable, Sendable {
     init(_ monthYear: MonthYear, _ data: [LedgerEntry], id: UUID = UUID()) {

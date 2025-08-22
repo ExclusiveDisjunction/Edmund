@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct DetailedBalancesView : View {
     @Query private var accounts: [Account];

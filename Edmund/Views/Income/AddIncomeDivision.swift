@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct AddIncomeDivision : View {
     @Binding var editingSnapshot: IncomeDivisionSnapshot?;

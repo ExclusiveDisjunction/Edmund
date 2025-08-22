@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct PaydayTransaction : TransactionEditorProtocol {
     @Query private var salaried: [SalariedJob];

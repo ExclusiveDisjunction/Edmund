@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 extension EdmundModelsV1.IncomeDivision : EditableElement, InspectableElement {
     public typealias EditView = IncomeDivisionEdit

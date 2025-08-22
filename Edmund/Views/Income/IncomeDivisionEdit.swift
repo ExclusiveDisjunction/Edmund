@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 public struct IncomeDivisionEdit : View {
     public init(_ snap: IncomeDivisionSnapshot) {

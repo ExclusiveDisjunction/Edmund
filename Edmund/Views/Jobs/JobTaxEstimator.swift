@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 /// A row used in the `JobTaxEstimator`, specfically holding the gross and net amounts.
 @Observable

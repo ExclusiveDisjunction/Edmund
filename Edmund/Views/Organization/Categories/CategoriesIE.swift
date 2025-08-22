@@ -7,10 +7,10 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct CategoriesIE : View {
-    @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
+    @Query(sort: [SortDescriptor(\EdmundCoreImm.Category.name, order: .forward)] ) private var categories: [EdmundCoreImm.Category];
     
     @State private var selection = Set<CategoryTableRow.ID>();
     @State private var cache: [CategoryTableRow] = [];
@@ -27,10 +27,10 @@ struct CategoriesIE : View {
     }
     private func deleteFromModel(data: CategoryTableRow, context: ModelContext) {
         withAnimation {
-            if let category = data.target as? EdmundCore.Category {
+            if let category = data.target as? EdmundCoreImm.Category {
                 context.delete(category)
                 Task {
-                    await uniqueEngine.releaseId(key: EdmundCore.Category.objId, id: category.id)
+                    await uniqueEngine.releaseId(key: EdmundCoreImm.Category.objId, id: category.id)
                 }
             }
             else if let subCat = data.target as? SubCategory {

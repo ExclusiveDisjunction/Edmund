@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData;
-import EdmundCore
+import EdmundCoreImm
 
 extension ValidationFailure : WarningBasis {
     public var message: LocalizedStringKey {

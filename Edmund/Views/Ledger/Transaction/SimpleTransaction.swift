@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct SimpleTransaction : TransactionEditorProtocol {
     private var snapshot = LedgerEntrySnapshot();

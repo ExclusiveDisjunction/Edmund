@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 extension AccountKind : Displayable {
     public var display: LocalizedStringKey {

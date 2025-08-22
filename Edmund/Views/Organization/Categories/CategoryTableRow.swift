@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 @Observable
 final class CategoryTableRow : Identifiable, Parentable {
@@ -17,7 +17,7 @@ final class CategoryTableRow : Identifiable, Parentable {
         self.children = nil;
         self.name = subCategory.name;
     }
-    init(category: EdmundCore.Category) {
+    init(category: EdmundCoreImm.Category) {
         self.id = UUID();
         self.target = category;
         self.children = category.children.map { Self(subCategory: $0) }

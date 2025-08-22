@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct IncomeDivisionPropertiesEditor : View {
     @Bindable var snapshot: IncomeDivisionSnapshot;

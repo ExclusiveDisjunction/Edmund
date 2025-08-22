@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 public extension ValidationFailure {
     var display: LocalizedStringKey {

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI;
-import EdmundCore
+import EdmundCoreImm
 
 @Observable
 class ManyTableEntry : Identifiable {

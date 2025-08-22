@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct TransactionMenu<Label> : View where Label: View {
     var selection: Binding<TransactionKind?>? = nil;

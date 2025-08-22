@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct AllBudgetMonthIE : View {
     @State private var selected: BudgetMonth? = nil;

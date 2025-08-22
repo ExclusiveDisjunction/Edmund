@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData;
-import EdmundCore
+import EdmundCoreImm
 
 struct UtilityPayment : TransactionEditorProtocol {
     @Query private var utilities: [Utility];

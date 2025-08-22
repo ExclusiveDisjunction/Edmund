@@ -5,7 +5,7 @@
 //  Created by Hollan Sellars on 7/6/25.
 //
 
-import EdmundCore
+import EdmundCoreImm
 import SwiftUI
 
 struct IncomeDivisionCloseInspect : View {

@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 public struct AccountsPropertiesInspect : View {
     public init(_ data: Account) {

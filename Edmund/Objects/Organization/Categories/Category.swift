@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
-extension EdmundCore.Category : TypeTitled {
+extension EdmundCoreImm.Category : TypeTitled {
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Category",

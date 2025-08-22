@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
+import EdmundCoreImm
 
 struct MoneyGraph : View {
     @Query private var accounts: [Account]

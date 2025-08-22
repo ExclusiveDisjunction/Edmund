@@ -5,7 +5,7 @@
 //  Created by Hollan Sellars on 6/29/25.
 //
 
-import EdmundCore
+import EdmundCoreImm
 import SwiftUI
 
 extension BillsKind : Displayable {

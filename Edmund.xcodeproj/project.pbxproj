@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DD5B214F2E11F662003A4B4A /* EdmundCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5B21472E11F662003A4B4A /* EdmundCore.framework */; };
-		DD5B21502E11F662003A4B4A /* EdmundCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD5B21472E11F662003A4B4A /* EdmundCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DD64917F2E5813A20048538A /* EdmundCoreImm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD5B21472E11F662003A4B4A /* EdmundCoreImm.framework */; };
+		DD6491802E5813A20048538A /* EdmundCoreImm.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD5B21472E11F662003A4B4A /* EdmundCoreImm.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DDC565C62DBFD4F10022D3FB /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = DDC565C52DBFD4F10022D3FB /* MarkdownUI */; };
 		DDC5663F2DBFE49F0022D3FB /* Help in Resources */ = {isa = PBXBuildFile; fileRef = DDC5663E2DBFE49F0022D3FB /* Help */; };
 /* End PBXBuildFile section */
@@ -21,12 +21,12 @@
 			remoteGlobalIDString = DD34E6012D99D21D009E3875;
 			remoteInfo = Edmund;
 		};
-		DD5B214D2E11F662003A4B4A /* PBXContainerItemProxy */ = {
+		DD6491812E5813A20048538A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DD5B21462E11F662003A4B4A;
-			remoteInfo = EdmundCore;
+			remoteInfo = EdmundCoreImm;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -41,13 +41,13 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD4465472DB86CBD006D9A01 /* Embed Frameworks */ = {
+		DD6491832E5813A20048538A /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				DD5B21502E11F662003A4B4A /* EdmundCore.framework in Embed Frameworks */,
+				DD6491802E5813A20048538A /* EdmundCoreImm.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -66,16 +66,16 @@
 
 /* Begin PBXFileReference section */
 		DD2E264A2E2191BE001197EC /* HelpEngineTest */ = {isa = PBXFileReference; lastKnownFileType = folder; path = HelpEngineTest; sourceTree = "<group>"; };
-		DD34E6022D99D21D009E3875 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD34E6022D99D21D009E3875 /* Edmund Intermediate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Edmund Intermediate.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD34E6152D99D21E009E3875 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4464F22DB8552C006D9A01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DD4464F42DB8552C006D9A01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		DD5B21472E11F662003A4B4A /* EdmundCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EdmundCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD5B21472E11F662003A4B4A /* EdmundCoreImm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EdmundCoreImm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDC5663E2DBFE49F0022D3FB /* Help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Help; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
+		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund Intermediate" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -91,14 +91,14 @@
 				"Views/Launch Screen.storyboard" = (ios, );
 				Views/Ledger/Transaction/BatchTransactions.swift = (macos, );
 			};
-			target = DD34E6012D99D21D009E3875 /* Edmund */;
+			target = DD34E6012D99D21D009E3875 /* Edmund Intermediate */;
 		};
-		DD915ACF2E406FA4006DA763 /* Exceptions for "EdmundCore" folder in "EdmundCore" target */ = {
+		DD915ACF2E406FA4006DA763 /* Exceptions for "EdmundCore" folder in "EdmundCoreImm" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Widgets/Provider.swift,
 			);
-			target = DD5B21462E11F662003A4B4A /* EdmundCore */;
+			target = DD5B21462E11F662003A4B4A /* EdmundCoreImm */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -106,7 +106,7 @@
 		DD34E6042D99D21D009E3875 /* Edmund */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */,
+				DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund Intermediate" target */,
 			);
 			path = Edmund;
 			sourceTree = "<group>";
@@ -129,7 +129,7 @@
 		DD5B21482E11F662003A4B4A /* EdmundCore */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				DD915ACF2E406FA4006DA763 /* Exceptions for "EdmundCore" folder in "EdmundCore" target */,
+				DD915ACF2E406FA4006DA763 /* Exceptions for "EdmundCore" folder in "EdmundCoreImm" target */,
 			);
 			path = EdmundCore;
 			sourceTree = "<group>";
@@ -141,7 +141,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DD5B214F2E11F662003A4B4A /* EdmundCore.framework in Frameworks */,
+				DD64917F2E5813A20048538A /* EdmundCoreImm.framework in Frameworks */,
 				DDC565C62DBFD4F10022D3FB /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -181,9 +181,9 @@
 		DD34E6032D99D21D009E3875 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DD34E6022D99D21D009E3875 /* Edmund.app */,
+				DD34E6022D99D21D009E3875 /* Edmund Intermediate.app */,
 				DD34E6152D99D21E009E3875 /* EdmundTests.xctest */,
-				DD5B21472E11F662003A4B4A /* EdmundCore.framework */,
+				DD5B21472E11F662003A4B4A /* EdmundCoreImm.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -210,30 +210,30 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		DD34E6012D99D21D009E3875 /* Edmund */ = {
+		DD34E6012D99D21D009E3875 /* Edmund Intermediate */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DD34E6292D99D21E009E3875 /* Build configuration list for PBXNativeTarget "Edmund" */;
+			buildConfigurationList = DD34E6292D99D21E009E3875 /* Build configuration list for PBXNativeTarget "Edmund Intermediate" */;
 			buildPhases = (
 				DD34E5FE2D99D21D009E3875 /* Sources */,
 				DD34E5FF2D99D21D009E3875 /* Frameworks */,
 				DD34E6002D99D21D009E3875 /* Resources */,
 				DD4465042DB8552D006D9A01 /* Embed Foundation Extensions */,
-				DD4465472DB86CBD006D9A01 /* Embed Frameworks */,
+				DD6491832E5813A20048538A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DD5B214E2E11F662003A4B4A /* PBXTargetDependency */,
+				DD6491822E5813A20048538A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DD34E6042D99D21D009E3875 /* Edmund */,
 			);
-			name = Edmund;
+			name = "Edmund Intermediate";
 			packageProductDependencies = (
 				DDC565C52DBFD4F10022D3FB /* MarkdownUI */,
 			);
 			productName = Edmund;
-			productReference = DD34E6022D99D21D009E3875 /* Edmund.app */;
+			productReference = DD34E6022D99D21D009E3875 /* Edmund Intermediate.app */;
 			productType = "com.apple.product-type.application";
 		};
 		DD34E6142D99D21E009E3875 /* EdmundTests */ = {
@@ -260,9 +260,9 @@
 			productReference = DD34E6152D99D21E009E3875 /* EdmundTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		DD5B21462E11F662003A4B4A /* EdmundCore */ = {
+		DD5B21462E11F662003A4B4A /* EdmundCoreImm */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DD5B21512E11F662003A4B4A /* Build configuration list for PBXNativeTarget "EdmundCore" */;
+			buildConfigurationList = DD5B21512E11F662003A4B4A /* Build configuration list for PBXNativeTarget "EdmundCoreImm" */;
 			buildPhases = (
 				DD5B21422E11F662003A4B4A /* Headers */,
 				DD5B21432E11F662003A4B4A /* Sources */,
@@ -276,11 +276,11 @@
 			fileSystemSynchronizedGroups = (
 				DD5B21482E11F662003A4B4A /* EdmundCore */,
 			);
-			name = EdmundCore;
+			name = EdmundCoreImm;
 			packageProductDependencies = (
 			);
 			productName = EdmundCore;
-			productReference = DD5B21472E11F662003A4B4A /* EdmundCore.framework */;
+			productReference = DD5B21472E11F662003A4B4A /* EdmundCoreImm.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -326,9 +326,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DD34E6012D99D21D009E3875 /* Edmund */,
+				DD34E6012D99D21D009E3875 /* Edmund Intermediate */,
 				DD34E6142D99D21E009E3875 /* EdmundTests */,
-				DD5B21462E11F662003A4B4A /* EdmundCore */,
+				DD5B21462E11F662003A4B4A /* EdmundCoreImm */,
 			);
 		};
 /* End PBXProject section */
@@ -385,13 +385,13 @@
 /* Begin PBXTargetDependency section */
 		DD34E6172D99D21E009E3875 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DD34E6012D99D21D009E3875 /* Edmund */;
+			target = DD34E6012D99D21D009E3875 /* Edmund Intermediate */;
 			targetProxy = DD34E6162D99D21E009E3875 /* PBXContainerItemProxy */;
 		};
-		DD5B214E2E11F662003A4B4A /* PBXTargetDependency */ = {
+		DD6491822E5813A20048538A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DD5B21462E11F662003A4B4A /* EdmundCore */;
-			targetProxy = DD5B214D2E11F662003A4B4A /* PBXContainerItemProxy */;
+			target = DD5B21462E11F662003A4B4A /* EdmundCoreImm */;
+			targetProxy = DD6491812E5813A20048538A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -553,7 +553,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.imm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -599,7 +599,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund.imm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -690,17 +690,16 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundCore;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundCore.imm;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_MODULE = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				XROS_DEPLOYMENT_TARGET = 2.5;
@@ -737,17 +736,16 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundCore;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundCore.imm;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_MODULE = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				XROS_DEPLOYMENT_TARGET = 2.5;
@@ -766,7 +764,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DD34E6292D99D21E009E3875 /* Build configuration list for PBXNativeTarget "Edmund" */ = {
+		DD34E6292D99D21E009E3875 /* Build configuration list for PBXNativeTarget "Edmund Intermediate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DD34E62A2D99D21E009E3875 /* Debug */,
@@ -784,7 +782,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DD5B21512E11F662003A4B4A /* Build configuration list for PBXNativeTarget "EdmundCore" */ = {
+		DD5B21512E11F662003A4B4A /* Build configuration list for PBXNativeTarget "EdmundCoreImm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DD5B21522E11F662003A4B4A /* Debug */,

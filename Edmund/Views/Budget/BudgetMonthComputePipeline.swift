@@ -7,7 +7,7 @@
 
 import os
 import Foundation
-import EdmundCore
+import EdmundCoreImm
 import SwiftData
 
 @MainActor

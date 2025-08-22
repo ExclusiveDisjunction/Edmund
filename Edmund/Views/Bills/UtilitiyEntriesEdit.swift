@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// The editor view for Utility Entries.  This provides the layout for editing the entries as a series of payments & dates.
 public struct UtilityEntriesEdit : View {

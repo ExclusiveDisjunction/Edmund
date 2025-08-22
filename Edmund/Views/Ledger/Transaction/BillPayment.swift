@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct BillPayment : TransactionEditorProtocol {
     init(kind: StrictBillsKind)  {

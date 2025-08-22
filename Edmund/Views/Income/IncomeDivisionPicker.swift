@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 struct IncomeDivisionPicker : View {
     init(_ title: LocalizedStringKey, selection: Binding<IncomeDivision?>, id: Binding<IncomeDivision.ID?>) {

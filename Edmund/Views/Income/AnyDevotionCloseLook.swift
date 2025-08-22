@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct AnyDevotionCloseLook : View {
     var data: AnyDevotion

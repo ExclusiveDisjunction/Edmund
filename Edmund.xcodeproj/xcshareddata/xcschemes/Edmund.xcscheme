@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DD34E6012D99D21D009E3875"
-               BuildableName = "Edmund.app"
-               BlueprintName = "Edmund"
+               BuildableName = "Edmund Intermediate.app"
+               BlueprintName = "Edmund Intermediate"
                ReferencedContainer = "container:Edmund.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -69,8 +69,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD34E6012D99D21D009E3875"
-            BuildableName = "Edmund.app"
-            BlueprintName = "Edmund"
+            BuildableName = "Edmund Intermediate.app"
+            BlueprintName = "Edmund Intermediate"
             ReferencedContainer = "container:Edmund.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -93,8 +93,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DD34E6012D99D21D009E3875"
-            BuildableName = "Edmund.app"
-            BlueprintName = "Edmund"
+            BuildableName = "Edmund Intermediate.app"
+            BlueprintName = "Edmund Intermediate"
             ReferencedContainer = "container:Edmund.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

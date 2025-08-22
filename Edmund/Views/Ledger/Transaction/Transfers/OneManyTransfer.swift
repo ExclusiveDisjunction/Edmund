@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
  
 struct OneManyTransfer : TransactionEditorProtocol {
     @State private var date: Date = Date.now;

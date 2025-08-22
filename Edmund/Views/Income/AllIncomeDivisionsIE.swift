@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 enum IncomeDivisionFinalizationError : WarningBasis, CaseIterable, Identifiable {
     case missingData

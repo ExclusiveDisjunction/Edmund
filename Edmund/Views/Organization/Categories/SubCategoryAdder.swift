@@ -7,13 +7,13 @@
 
 import SwiftData
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct SubCategoryAdder : View {
-    @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
+    @Query(sort: [SortDescriptor(\EdmundCoreImm.Category.name, order: .forward)] ) private var categories: [EdmundCoreImm.Category];
     
     @State private var name: String = "";
-    @State private var parent: EdmundCore.Category? = nil;
+    @State private var parent: EdmundCoreImm.Category? = nil;
     @State private var nameAttempts: CGFloat = 0;
     @State private var parentAttempts: CGFloat = 0;
     
@@ -71,7 +71,7 @@ struct SubCategoryAdder : View {
                     
                     Picker("", selection: $parent) {
                         Text("None")
-                            .tag(nil as EdmundCore.Category?)
+                            .tag(nil as EdmundCoreImm.Category?)
                         
                         ForEach(categories, id: \.id) { category in
                             Text(category.name)

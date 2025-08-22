@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// The edit view for Salaried Jobs. 
 public struct SalariedJobInspector : View {

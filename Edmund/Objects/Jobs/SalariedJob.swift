@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 extension SalariedJob: EditableElement, InspectableElement, TypeTitled {
     public static var typeDisplay: TypeTitleStrings {

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 extension Bill : InspectableElement, EditableElement, TypeTitled {
     public func makeInspectView() -> BillInspect {

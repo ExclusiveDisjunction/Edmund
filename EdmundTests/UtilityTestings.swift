@@ -5,7 +5,7 @@
 //  Created by Hollan Sellars on 7/21/25.
 //
 
-import EdmundCore
+import EdmundCoreImm
 import Testing
 import SwiftData
 

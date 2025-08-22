@@ -8,7 +8,7 @@
 import SwiftUI;
 import SwiftData;
 import Foundation;
-import EdmundCore
+import EdmundCoreImm
 
 struct BatchTransactions: TransactionEditorProtocol {
     @State private var snapshots: [LedgerEntrySnapshot] = [.init()];

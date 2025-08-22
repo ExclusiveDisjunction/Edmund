@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 /// A collection of common rows used for `BillInspect` and `UtilityInspect`, specifically for inspection.
 struct BillBaseInspect : View {

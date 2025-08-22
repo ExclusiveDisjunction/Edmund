@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// The edit view for Ledger Entries.
 public struct LedgerEntryEdit : View {

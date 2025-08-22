@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
-import EdmundCore
+import EdmundCoreImm
 
 /// The edit view for Utilities.
 public struct UtilityEdit : View {

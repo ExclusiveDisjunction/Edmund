@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 extension Utility : EditableElement, InspectableElement, TypeTitled {
     public func makeInspectView() -> UtilityInspect {

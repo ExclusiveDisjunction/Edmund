@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 enum ThemeMode : String, Identifiable, CaseIterable {
     case light = "Light", dark = "Dark", system = "System"

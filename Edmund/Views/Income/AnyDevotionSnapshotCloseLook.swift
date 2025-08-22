@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct AmountDevotionSnapshotCloseLook : View {
     @Bindable var devotion: AmountDevotionSnapshot

@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
+import EdmundCoreImm
 
 /// A line graph that shows the spending over time, separated by dates. 
 public struct UtilityEntriesGraph : View {

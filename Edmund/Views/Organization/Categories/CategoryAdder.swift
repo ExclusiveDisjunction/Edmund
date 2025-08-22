@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import EdmundCore
+import EdmundCoreImm
 
 struct CategoryAdder : View {
     @State private var name: String = "";
@@ -20,7 +20,7 @@ struct CategoryAdder : View {
     private func apply() async {
         let name = name.trimmingCharacters(in: .whitespaces);
         
-        let category = EdmundCore.Category()
+        let category = EdmundCoreImm.Category()
         if !name.isEmpty {
             if await category.tryNewName(name: name, unique: uniqueEngine) {
                 await category.setNewName(name: name, unique: uniqueEngine)
