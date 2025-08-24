@@ -459,6 +459,9 @@
     "Budget for:" : {
 
     },
+    "Budget:" : {
+
+    },
     "Budgeting Period" : {
       "localizations" : {
         "pl" : {
@@ -732,7 +735,7 @@
     "Deleting an income division will remove all information associated with it. This action cannot be undone. Note: All finalized transactions will still be in the ledger. Do you want to continue?" : {
 
     },
-    "Deposit Account" : {
+    "Deposit To" : {
 
     },
     "Deposit to:" : {
@@ -790,12 +793,6 @@
 
     },
     "Due Date" : {
-
-    },
-    "Duplicate From:" : {
-
-    },
-    "Duplicate?" : {
 
     },
     "Edit" : {
@@ -969,7 +966,10 @@
     "Finalize" : {
 
     },
-    "Finalized" : {
+    "Finalized income divisions create transactions in the ledger. These transactions cannot be modified if you modify the income division, so you cannot edit a finalized income division." : {
+
+    },
+    "Finalized:" : {
 
     },
     "Fixed Amount" : {
@@ -1073,12 +1073,6 @@
         }
       }
     },
-    "Has Date" : {
-
-    },
-    "Has Date:" : {
-
-    },
     "Has End Date" : {
 
     },
@@ -1107,9 +1101,6 @@
           }
         }
       }
-    },
-    "Hide Finalized" : {
-
     },
     "Hide Graph" : {
       "localizations" : {
@@ -1180,9 +1171,6 @@
     "Income" : {
 
     },
-    "Income Close Look" : {
-
-    },
     "Income Divider" : {
 
     },
@@ -1192,10 +1180,10 @@
     "Income Division Close Look" : {
 
     },
-    "Income Division Search" : {
+    "Income Division:" : {
 
     },
-    "Income Division:" : {
+    "Income Kind" : {
 
     },
     "Income Kind:" : {
@@ -1320,16 +1308,7 @@
     "Kyle Lawrence" : {
       "shouldTranslate" : false
     },
-    "Last Edited" : {
-
-    },
     "Last Edited:" : {
-
-    },
-    "Last Updated" : {
-
-    },
-    "Last Viewed" : {
 
     },
     "Last Viewed:" : {
@@ -1619,6 +1598,15 @@
     "Not all accounts are filled out. Please ensure all devotions, remainders and deposits have their associated account & sub account." : {
 
     },
+    "Note: Any row with a check mark cannot be edited, as it is finalized." : {
+
+    },
+    "Note: To add an income division, please go to your target budget, go to edit mode, and add under the 'income' tab." : {
+
+    },
+    "Note: To edit the income devotions, please use the income divider tool." : {
+
+    },
     "Notes:" : {
 
     },
@@ -1741,9 +1729,6 @@
 
     },
     "Pay" : {
-
-    },
-    "Pay Amount" : {
 
     },
     "Paycheck:" : {
@@ -2007,12 +1992,6 @@
     "Savings" : {
 
     },
-    "Search" : {
-
-    },
-    "Search:" : {
-
-    },
     "Select an income division to begin" : {
 
     },
@@ -2045,9 +2024,6 @@
         }
       }
     },
-    "Show Expired Bills" : {
-
-    },
     "Show Graph" : {
       "localizations" : {
         "de" : {
@@ -2068,6 +2044,7 @@
 
     },
     "showExpiredBillsDesc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2426,6 +2403,7 @@
 
     },
     "Unexpected Error" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

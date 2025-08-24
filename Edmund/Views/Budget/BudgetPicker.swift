@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetMonthPicker : View {
+struct BudgetPicker : View {
     @Query private var source: [BudgetMonth];
     @Binding var id: YearRowID?;
     @Binding var selected: BudgetMonth?;
@@ -79,6 +79,9 @@ struct BudgetMonthPicker : View {
             idChanged(newValue)
         }.onAppear {
             refreshFrom(source)
+            if let id = id {
+                idChanged(id)
+            }
         }
     }
 }

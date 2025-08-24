@@ -10,30 +10,6 @@ import Foundation
 
 extension EdmundModelsV1_1 {
     @Model
-    public final class BudgetIncome : Identifiable {
-        public init(name: String, amount: Decimal, date: Date?, parent: BudgetMonth? = nil, id: UUID = UUID()) {
-            self.name = name
-            self.id = id
-            self.amount = amount
-            self.date = date
-        }
-        public init(migrate: EdmundModelsV1.BudgetIncome) {
-            self.name = migrate.name
-            self.id = migrate.id
-            self.amount = migrate.amount
-            self.date = date
-        }
-        
-        
-        public var id: UUID;
-        public var name: String;
-        public var amount: Decimal;
-        public var date: Date?;
-        @Relationship
-        public var parent: BudgetMonth?;
-    }
-    
-    @Model
     public final class BudgetSavingsGoal : Identifiable {
         public init(account: Account?, amount: Decimal, period: MonthlyTimePeriods, parent: BudgetMonth? = nil, id: UUID = UUID()) {
             self.id = id
@@ -91,7 +67,7 @@ extension EdmundModelsV1_1 {
     
     @Model
     public class BudgetMonth : Identifiable {
-        public init(date: MonthYear, spendingGoals: [BudgetSpendingGoal] = [], savingsGoals: [BudgetSavingsGoal] = [], income: [BudgetIncome] = [], id: UUID = UUID()) {
+        public init(date: MonthYear, spendingGoals: [BudgetSpendingGoal] = [], savingsGoals: [BudgetSavingsGoal] = [], income: [IncomeDivision] = [], id: UUID = UUID()) {
             self.date = date
             self.spendingGoals = spendingGoals
             self.savingsGoals = savingsGoals
@@ -106,8 +82,8 @@ extension EdmundModelsV1_1 {
         public var spendingGoals: [BudgetSpendingGoal];
         @Relationship(deleteRule: .cascade, inverse: \BudgetSavingsGoal.parent)
         public var savingsGoals: [BudgetSavingsGoal];
-        @Relationship(deleteRule: .cascade, inverse: \BudgetIncome.parent)
-        public var income: [BudgetIncome];
+        @Relationship(deleteRule: .cascade, inverse: \IncomeDivision.parent)
+        public var income: [IncomeDivision];
         
         @Transient
         public internal(set) var _title: String? = nil;

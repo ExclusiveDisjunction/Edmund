@@ -120,22 +120,6 @@ struct SettingsView : View {
                     Text("budgetingPeriodDesc")
                         .italic()
                 }
-                
-                GridRow {
-                    Text("")
-                    
-                    HStack {
-                        Toggle("Show Expired Bills", isOn: $showExpiredBills)
-                        Spacer()
-                    }
-                }
-                
-                GridRow {
-                    Text("")
-                    
-                    Text("showExpiredBillsDesc")
-                        .italic()
-                }
 
                 Divider()
                 
@@ -190,12 +174,6 @@ struct SettingsView : View {
                 }
             } footer: {
                 Text("budgetingPeriodDesc")
-            }
-            
-            Section() {
-                Toggle("Show Expired Bills", isOn: $showExpiredBills)
-            } footer: {
-                Text("showExpiredBillsDesc")
             }
             
             #if os(macOS)

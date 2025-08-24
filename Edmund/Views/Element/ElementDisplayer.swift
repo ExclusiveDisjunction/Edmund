@@ -21,3 +21,11 @@ public struct ElementDisplayer<T> : View where T: NamedElement {
         }
     }
 }
+
+public struct EnumDisplayer<T> : View where T: Displayable {
+    public let value: T;
+    
+    public var body: some View {
+        Text(value.display)
+    }
+}

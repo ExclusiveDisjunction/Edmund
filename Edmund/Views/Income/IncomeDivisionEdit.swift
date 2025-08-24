@@ -18,7 +18,7 @@ public struct IncomeDivisionEdit : View {
     
     public var body: some View {
         TabView {
-            IncomeDivisionPropertiesEditor(snapshot: snapshot)
+            IncomeDivisionPropertiesEditor(snapshot: snapshot, isSheet: false)
                 .tabItem {
                     Text("Properties")
                 }
@@ -41,6 +41,6 @@ public struct IncomeDivisionEdit : View {
 
 #Preview {
     DebugContainerView {
-        IncomeDivisionEdit(.init(try! IncomeDivision.getExampleBudget()))
+        IncomeDivisionEdit(.init(try! IncomeDivision.getExample()))
     }
 }

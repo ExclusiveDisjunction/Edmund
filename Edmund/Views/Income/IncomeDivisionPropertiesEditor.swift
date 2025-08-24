@@ -10,7 +10,10 @@ import SwiftData
 import EdmundCore
 
 struct IncomeDivisionPropertiesEditor : View {
-    @Bindable var snapshot: IncomeDivisionSnapshot;
+    @Bindable var snapshot: ShallowIncomeDivisionSnapshot;
+    let isSheet: Bool;
+    
+    @Environment(\.dismiss) private var dismiss;
     
 #if os(macOS)
     private let minWidth: CGFloat = 80;
@@ -22,6 +25,11 @@ struct IncomeDivisionPropertiesEditor : View {
     
     var body: some View {
         VStack {
+            if snapshot.isFinalized {
+                Text("This income division is finalized. This means no other edits can take place.")
+                    .italic()
+            }
+            
             Grid {
                 GridRow {
                     Text("Name:")
@@ -29,6 +37,7 @@ struct IncomeDivisionPropertiesEditor : View {
                     
                     TextField("", text: $snapshot.name)
                         .textFieldStyle(.roundedBorder)
+                        .disabled(snapshot.isFinalized)
                 }
                 
                 GridRow {
@@ -36,17 +45,15 @@ struct IncomeDivisionPropertiesEditor : View {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     CurrencyField(snapshot.amount)
+                        .disabled(snapshot.isFinalized)
                 }
                 
                 GridRow {
                     Text("Income Kind:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Picker("", selection: $snapshot.kind) {
-                        ForEach(IncomeKind.allCases, id: \.id) { kind in
-                            Text(kind.display).tag(kind)
-                        }
-                    }.labelsHidden()
+                    EnumPicker(value: $snapshot.kind)
+                        .disabled(snapshot.isFinalized)
                 }
                 
                 GridRow {
@@ -54,17 +61,28 @@ struct IncomeDivisionPropertiesEditor : View {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     ElementPicker($snapshot.depositTo)
+                        .disabled(snapshot.isFinalized)
                 }
             }
             
             Spacer()
+            
+            if isSheet {
+                HStack {
+                    Spacer()
+                    
+                    Button("Ok") {
+                        dismiss()
+                    }.buttonStyle(.borderedProminent)
+                }
+            }
         }.padding()
     }
 }
 
 #Preview {
-    let budget = try! IncomeDivision.getExampleBudget()
+    let budget = try! IncomeDivision.getExample()
     let snapshot = IncomeDivisionSnapshot(budget)
     
-    IncomeDivisionPropertiesEditor(snapshot: snapshot)
+    IncomeDivisionPropertiesEditor(snapshot: snapshot, isSheet: false)
 }

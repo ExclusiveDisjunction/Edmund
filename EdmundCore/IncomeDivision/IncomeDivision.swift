@@ -8,11 +8,43 @@
 import Foundation
 import SwiftData
 
+public enum IncomeDivisionSortField : CaseIterable, Identifiable {
+    case name
+    case amount
+    case lastUpdated
+    case lastViewed
+    
+    public var id: Self { self }
+    
+    public func sorted(data: [IncomeDivision], asc: Bool) -> [IncomeDivision] {
+        let order: SortOrder = asc ? .forward : .reverse
+        
+        switch self {
+            case .amount:      return data.sorted(using: KeyPathComparator(\.amount,      order: order))
+            case .name:        return data.sorted(using: KeyPathComparator(\.name,        order: order))
+            case .lastViewed:  return data.sorted(using: KeyPathComparator(\.lastViewed,  order: order))
+            case .lastUpdated: return data.sorted(using: KeyPathComparator(\.lastUpdated, order: order))
+        }
+    }
+}
+public enum IncomeDivisionFilterField : CaseIterable, Identifiable {
+    case finalized
+    case notFinalized
+    
+    public var id: Self { self }
+}
+
 extension IncomeDivision : SnapshotableElement, DefaultableElement {
+    public typealias SortType = IncomeDivisionSortField
+    public typealias FilterType = IncomeDivisionFilterField
     public typealias Snapshot = IncomeDivisionSnapshot;
     
     public convenience init() {
         self.init(name: "", amount: 0, kind: .pay)
+    }
+    public convenience init(_ from: ShallowIncomeDivisionSnapshot) {
+        self.init()
+        self.updateShallow(from)
     }
     
     public var kind: IncomeKind {
@@ -62,16 +94,29 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
     public func makeSnapshot() -> IncomeDivisionSnapshot {
         .init(self)
     }
+    public func makeShallowSnapshot() -> ShallowIncomeDivisionSnapshot {
+        .init(self)
+    }
     public static func makeBlankSnapshot() -> IncomeDivisionSnapshot {
         .init()
     }
-    public func update(_ snap: IncomeDivisionSnapshot, unique: UniqueEngine) async {
+    public static func makeBlankShallowSnapshot() -> ShallowIncomeDivisionSnapshot {
+        .init()
+    }
+    public func updateShallow(_ snap: ShallowIncomeDivisionSnapshot) {
+        if self.isFinalized {
+            return; //Do not update if it is finalized
+        }
+        
         let name = snap.name.trimmingCharacters(in: .whitespacesAndNewlines)
         self.name = name
         self.amount = snap.amount.rawValue
         self.kind = snap.kind
         self.depositTo = snap.depositTo
         self.lastUpdated = .now
+    }
+    public func update(_ snap: IncomeDivisionSnapshot, unique: UniqueEngine) async {
+        self.updateShallow(snap)
         
         if let oldRemainder = self.remainder, snap.hasRemainder {
             oldRemainder.update(snap.remainder, unique: unique)
@@ -96,15 +141,6 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
         
         self.amounts = try! await amountsUpdater.mergeById()
         self.percents = try! await percentsUpdater.mergeById()
-        
-        self.lastUpdated = .now
-        
-        do {
-            try modelContext?.save()
-        }
-        catch let e {
-            print("Notice: Error occured while updating budget instance, error: \(e.localizedDescription)")
-        }
     }
     
     public func query(_ criteria: String) -> Bool {
@@ -118,9 +154,9 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
         formatter.string(from: lastViewed).lowercased().contains(criteria)
     }
     
-    public static func exampleBudget(acc: inout ElementLocator<Account>) -> IncomeDivision {
-        let checking    = acc.getOrInsert(name: "Checking")
-        let savings     = acc.getOrInsert(name: "Savings")
+    public static func exampleDivision(acc: inout ElementLocator<Account>) -> IncomeDivision {
+        let checking = acc.getOrInsert(name: "Checking")
+        let savings  = acc.getOrInsert(name: "Savings")
         
         let result = IncomeDivision(name: "Example Division", amount: 450, kind: .pay, depositTo: checking)
         
@@ -138,7 +174,7 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
     }
     
     @MainActor
-    public static func getExampleBudget() throws -> IncomeDivision {
+    public static func getExample() throws -> IncomeDivision {
         let container = try Containers.debugContainer();
         let item = (try container.context.fetch(FetchDescriptor<IncomeDivision>())).first!
         
@@ -147,21 +183,65 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
 }
 
 @Observable
-public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot {
+public class ShallowIncomeDivisionSnapshot : Identifiable, Hashable, Equatable, ElementSnapshot {
     public init() {
+        self.id = UUID();
         self.name = ""
         self.amount = .init()
         self.kind = .pay
-        self.depositTo = nil
-        self.devotions = []
-        self.hasRemainder = true
-        self.remainder = .init()
+        self.depositTo = nil;
+        self.isFinalized = false;
     }
     public init(_ from: IncomeDivision) {
-        self.name = from.name;
+        self.id = from.id;
+        self.name = from.name
         self.amount = .init(rawValue: from.amount)
         self.kind = from.kind
         self.depositTo = from.depositTo
+        self.isFinalized = from.isFinalized
+    }
+    
+    @ObservationIgnored public let id: UUID;
+    @ObservationIgnored public let isFinalized: Bool;
+    public var name: String;
+    public var amount: CurrencyValue;
+    public var kind: IncomeKind;
+    public var depositTo: Account?;
+    
+    public func validate(unique: UniqueEngine) -> ValidationFailure? {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty && depositTo != nil else {
+            return .empty
+        }
+        
+        guard amount.rawValue >= 0 else {
+            return .negativeAmount
+        }
+        
+        return nil
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(amount)
+        hasher.combine(kind)
+        hasher.combine(depositTo)
+    }
+    public static func ==(lhs: ShallowIncomeDivisionSnapshot, rhs: ShallowIncomeDivisionSnapshot) -> Bool {
+        lhs.name == rhs.name && lhs.amount == rhs.amount && lhs.kind == rhs.kind && lhs.depositTo == rhs.depositTo
+    }
+}
+
+@Observable
+public final class IncomeDivisionSnapshot : ShallowIncomeDivisionSnapshot {
+    public override init() {
+        self.devotions = []
+        self.hasRemainder = true
+        self.remainder = .init()
+        
+        super.init()
+    }
+    public override init(_ from: IncomeDivision) {
         self.devotions = from.amounts.map { .amount($0.makeSnapshot()) } + from.percents.map { .percent($0.makeSnapshot()) }
         if let remainder = from.remainder {
             self.remainder = .init(remainder)
@@ -171,12 +251,10 @@ public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot
             self.remainder = .init()
             self.hasRemainder = false
         }
+        
+        super.init(from)
     }
     
-    public var name: String;
-    public var amount: CurrencyValue;
-    public var kind: IncomeKind;
-    public var depositTo: Account?;
     public var devotions: [AnyDevotionSnapshot];
     public var hasRemainder: Bool;
     public var remainder: DevotionSnapshotBase;
@@ -192,14 +270,9 @@ public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot
         hasRemainder ? 0 : moneyLeftDirect
     }
     
-    public func validate(unique: UniqueEngine) -> ValidationFailure? {
-        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty && depositTo != nil else {
-            return .empty
-        }
-        
-        guard amount.rawValue >= 0 else {
-            return .negativeAmount
+    public override func validate(unique: UniqueEngine) -> ValidationFailure? {
+        if let result = super.validate(unique: unique) {
+            return result
         }
         
         if hasRemainder {
@@ -217,11 +290,8 @@ public final class IncomeDivisionSnapshot : Hashable, Equatable, ElementSnapshot
         return nil
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(amount)
-        hasher.combine(kind)
-        hasher.combine(depositTo)
+    public override func hash(into hasher: inout Hasher) {
+        super.hash(into: &hasher)
         hasher.combine(devotions)
         hasher.combine(hasRemainder)
         hasher.combine(remainder)

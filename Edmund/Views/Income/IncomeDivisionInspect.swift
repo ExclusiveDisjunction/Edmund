@@ -15,7 +15,7 @@ public struct IncomeDivisionInspect : View {
     public var body: some View {
         TabView {
             VStack {
-                IncomeDivisionPropertiesInspect(data: data)
+                IncomeDivisionPropertiesInspect(data: data, isSheet: false)
                 Spacer()
             }.tabItem {
                 Text("Properties")
@@ -31,7 +31,7 @@ public struct IncomeDivisionInspect : View {
 
 #Preview {
     DebugContainerView {
-        IncomeDivisionInspect(data: try! .getExampleBudget())
+        IncomeDivisionInspect(data: try! .getExample())
             .padding()
     }
 }

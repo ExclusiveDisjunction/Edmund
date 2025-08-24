@@ -72,7 +72,11 @@ extension BudgetMonth : SnapshotableElement {
         
         self.spendingGoals = try! await spendingUpdater.joinByLength()
         self.savingsGoals = try! await savingsUpdater.joinByLength()
-        self.income = try! await incomeUpdater.joinByLength()
+        self.income = try! await incomeUpdater.joinByLength(update: { element, snap, _ in
+            element.updateShallow(snap)
+        }, create: { snap, _ in
+            IncomeDivision(snap)
+        })
     }
     
     @MainActor
@@ -92,8 +96,8 @@ extension BudgetMonth : SnapshotableElement {
         let savings = acc.getOrInsert(name: "Savings")
         
         result.income = [
-            .init(name: "Paycheck 1", amount: 560.75, date: Date.fromParts(date.year, date.month, 10)),
-            .init(name: "Paycheck 2", amount: 612.15, date: Date.fromParts(date.year, date.month, 25))
+            .init(name: "Paycheck 1", amount: 560.75, kind: .pay),
+            .init(name: "Paycheck 2", amount: 612.15, kind: .pay)
         ]
         result.spendingGoals = [
             .init(category: personal, amount: 100, period: .biWeekly),
@@ -138,7 +142,7 @@ public class BudgetMonthSnapshot : ElementSnapshot {
     
     public var spendingGoals: [BudgetSpendingGoalSnapshot];
     public var savingsGoals: [BudgetSavingsGoalSnapshot];
-    public var income: [BudgetIncomeSnapshot];
+    public var income: [ShallowIncomeDivisionSnapshot];
     
     public func validate(unique: UniqueEngine) -> ValidationFailure? {
         for goal in spendingGoals {
@@ -156,10 +160,6 @@ public class BudgetMonthSnapshot : ElementSnapshot {
         for item in income {
             if let result = item.validate(unique: unique) {
                 return result
-            }
-            
-            if let dates = self.dates, !item.dateInRange(start: dates.0, end: dates.1) {
-                return .invalidInput
             }
         }
         

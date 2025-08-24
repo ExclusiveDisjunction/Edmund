@@ -182,7 +182,7 @@ struct IncomeDevotionsEditor : View {
 
 #Preview {
     DebugContainerView {
-        IncomeDevotionsEditor(snapshot: try! IncomeDivision.getExampleBudget().makeSnapshot())
+        IncomeDevotionsEditor(snapshot: try! IncomeDivision.getExample().makeSnapshot())
             .padding()
     }
 }

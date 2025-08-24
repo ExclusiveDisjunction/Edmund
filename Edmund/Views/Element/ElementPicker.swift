@@ -44,6 +44,18 @@ public struct ElementPicker<T> : View where T: Identifiable & NamedElement & Per
     }
 }
 
+public struct EnumPicker<T> : View where T: CaseIterable & Identifiable & Displayable, T.AllCases: RandomAccessCollection, T.ID == T {
+    @Binding public var value: T;
+    
+    public var body: some View {
+        Picker("", selection: $value) {
+            ForEach(T.allCases) { element in
+                Text(element.display).tag(element)
+            }
+        }.labelsHidden()
+    }
+}
+
 #Preview {
     var pair: Account? = Account.exampleAccount;
     let bind = Binding<Account?>(

@@ -27,21 +27,14 @@ enum IncomeDivisionFinalizationError : WarningBasis, CaseIterable, Identifiable 
     }
 }
 
-struct AllIncomeDivisionsIE : View {
-    private enum Sheets : Identifiable {
-        case searching
-        case adding
-        case graph
-        
-        var id: Self { self }
-    }
-    
+struct IncomeDivisions : View {
+    @State private var selectedBudget: YearRowID? = nil;
     @State private var selectedID: IncomeDivision.ID? = nil;
     @State private var selected: IncomeDivision?;
     @State private var editing: IncomeDivisionSnapshot?;
     
     @State private var showDeleteWarning: Bool = false;
-    @State private var showSheet: Sheets? = nil;
+    @State private var showSheet: Bool = false;
     @State private var showFinalizeNotice: Bool = false; //Asks if they want to finalize
     
     @Bindable private var warning: ValidationWarningManifest = .init();
@@ -94,11 +87,17 @@ struct AllIncomeDivisionsIE : View {
             case .pay:      NSLocalizedString("Pay", comment: "")
             default:        NSLocalizedString("internalError", comment: "")
         }
-        let payCategory = categoriesContext.income
+        let payCategory = categoriesContext.income 
         
         let bank = NSLocalizedString("Bank", comment: "");
         
         let pay = LedgerEntry(name: payName, credit: income.amount, debit: 0, date: .now, location: bank, category: payCategory, account: payAccount)
+        
+        guard !income.allDevotions.isEmpty else { //We dont want to transfer out if there are no places for it to go
+            modelContext.insert(pay)
+            income.isFinalized = true
+            return
+        }
         
         let transfer = LedgerEntry(name: "\(payAccount.name) to Various", credit: 0, debit: income.amount, date: .now, location: bank, category: categoriesContext.transfers, account: payAccount)
         
@@ -128,7 +127,6 @@ struct AllIncomeDivisionsIE : View {
         
         withAnimation {
             income.isFinalized = true
-            selectedID = nil
         }
     }
     @MainActor
@@ -153,7 +151,7 @@ struct AllIncomeDivisionsIE : View {
     private func toolbarContent() -> some ToolbarContent {
         ToolbarItem(placement: .secondaryAction) {
             Button {
-                showSheet = .graph
+                showSheet = true
             } label: {
                 Label("Graph", systemImage: "chart.pie")
             }.disabled(selected == nil || isEditing)
@@ -170,14 +168,6 @@ struct AllIncomeDivisionsIE : View {
             } label: {
                 Label("Finalize", systemImage: "square.and.arrow.up.badge.checkmark")
             }.disabled(selected == nil || isEditing || selected?.isFinalized == true)
-        }
-        
-        ToolbarItem(placement: .primaryAction) {
-            Button {
-                showSheet = .adding;
-            } label: {
-                Label("Add", systemImage: "plus")
-            }.disabled(isEditing)
         }
         
         ToolbarItem(placement: .primaryAction) {
@@ -219,14 +209,6 @@ struct AllIncomeDivisionsIE : View {
                     .foregroundStyle(.red)
             }.disabled(selected == nil)
         }
-        
-        ToolbarItem(placement: .primaryAction) {
-            Button {
-                showSheet = .searching;
-            } label: {
-                Label("Search", systemImage: "magnifyingglass")
-            }.disabled(isEditing)
-        }
     }
     
     @ViewBuilder
@@ -235,13 +217,15 @@ struct AllIncomeDivisionsIE : View {
             HStack {
                 Text("Income Division:")
                 
-                IncomeDivisionPicker("", selection: $selected, id: $selectedID)
+                IncomeDivisionPicker("", selection: $selected, id: $selectedID, budget: $selectedBudget)
                     .labelsHidden()
                     .disabled(isEditing)
 #if os(iOS)
                 Spacer()
 #endif
             }
+            Text("Note: To add an income division, please go to your target budget, go to edit mode, and add under the 'income' tab.")
+                .italic()
             
             Divider()
             
@@ -269,17 +253,8 @@ struct AllIncomeDivisionsIE : View {
         else {
             VStack {
                 Text("internalError")
-                Button("Ok", action: { showSheet = nil } )
+                Button("Ok", action: { showSheet = false } )
             }
-        }
-    }
-    
-    @ViewBuilder
-    private func sheets(_ sheet: Sheets) -> some View {
-        switch sheet {
-            case .searching: AllIncomeDivisionsSearch(selection: $selectedID)
-            case .adding: AddIncomeDivision(editingSnapshot: $editing, selectionID: $selectedID)
-            case .graph: graph
         }
     }
     
@@ -311,7 +286,9 @@ struct AllIncomeDivisionsIE : View {
             .onChange(of: editing) { _, newValue in
                 pagesLocked.wrappedValue = newValue != nil;
             }
-            .sheet(item: $showSheet, content: sheets)
+            .sheet(isPresented: $showSheet) {
+                graph
+            }
             .confirmationDialog("Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?", isPresented: $showFinalizeNotice, titleVisibility: .visible) {
                 Button("Ok", action: finalizePressed)
                 
@@ -349,6 +326,6 @@ struct AllIncomeDivisionsIE : View {
 
 #Preview {
     DebugContainerView {
-        AllIncomeDivisionsIE()
+        IncomeDivisions()
     }
 }

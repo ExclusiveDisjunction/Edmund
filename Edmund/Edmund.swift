@@ -89,10 +89,18 @@ struct EdmundApp: App {
             }
         }
         
+        WindowGroup(PageDestinations.expiredBills.rawValue, id: PageDestinations.expiredBills.key) {
+            NavigationStack {
+                AppWindowGate(appLoader: loader, state: state) {
+                    AllExpiredBillsVE()
+                }
+            }
+        }
+        
         WindowGroup(PageDestinations.incomeDivider.rawValue, id: PageDestinations.incomeDivider.key) {
             NavigationStack {
                 AppWindowGate(appLoader: loader, state: state) {
-                    AllIncomeDivisionsIE()
+                    IncomeDivisions()
                 }
             }
         }
@@ -100,7 +108,7 @@ struct EdmundApp: App {
         WindowGroup(PageDestinations.budget.rawValue, id: PageDestinations.budget.key) {
             NavigationStack {
                 AppWindowGate(appLoader: loader, state: state) {
-                    AllBudgetMonthIE()
+                    Budgets()
                 }
             }
         }
@@ -144,14 +152,6 @@ struct EdmundApp: App {
         }
         
 #if os(macOS)
-        WindowGroup("Expired Bills", id: "expiredBills") {
-            NavigationStack {
-                AppWindowGate(appLoader: loader, state: state) {
-                    AllExpiredBillsVE()
-                }
-            }
-        }
-        
         Window("About", id: "about") {
             AboutView()
                 .preferredColorScheme(colorScheme)

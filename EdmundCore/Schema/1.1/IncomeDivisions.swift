@@ -97,6 +97,8 @@ extension EdmundModelsV1_1 {
         public var lastViewed: Date;
         
         @Relationship
+        public var parent: BudgetMonth?;
+        @Relationship
         public var depositTo: Account?;
         @Relationship(deleteRule: .cascade, inverse: \AmountDevotion.parent)
         public var amounts: [AmountDevotion];

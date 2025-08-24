@@ -1,79 +1,99 @@
 //
-//  BudgetCloseInspect.swift
+//  BudgetGoalCloseLook.swift
 //  Edmund
 //
-//  Created by Hollan Sellars on 7/6/25.
+//  Created by Hollan Sellars on 8/22/25.
 //
 
 import EdmundCore
 import SwiftUI
 
-struct IncomeDivisionCloseInspect : View {
-    let data: IncomeDivision;
+struct BudgetGoalCloseLook<T> : View where T: BudgetGoal {
+    var source: BudgetGoalData<T>;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    
     @Environment(\.dismiss) private var dismiss;
     
-    #if os(macOS)
-    private let minWidth: CGFloat = 90;
-    private let maxWidth: CGFloat = 100;
-    #else
+#if os(macOS)
+    private let minWidth: CGFloat = 85;
+    private let maxWidth: CGFloat = 95;
+#else
     private let minWidth: CGFloat = 100;
     private let maxWidth: CGFloat = 110;
-    #endif
+#endif
+    
     
     var body: some View {
         VStack {
-            Text("Income Division Close Look")
+            HStack {
+                Text("Goal Close Look")
                     .font(.title2)
+                Spacer()
+            }
             
             Grid {
                 GridRow {
-                    Text("Name:")
+                    Text("Target:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        Text(data.name)
+                        ElementDisplayer(value: source.over.association)
                         Spacer()
                     }
                 }
                 
                 GridRow {
-                    Text("Income:")
+                    Text("Goal:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        Text(data.amount, format: .currency(code: currencyCode))
+                        Text(source.over.amount, format: .currency(code: currencyCode))
+                        Text(source.over.period.display)
                         Spacer()
                     }
                 }
                 
                 GridRow {
-                    Text("Deposit To:")
+                    Text("Monthly Goal:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        ElementDisplayer(value: data.depositTo)
+                        Text(source.over.monthlyGoal, format: .currency(code: currencyCode))
+                        
                         Spacer()
                     }
                 }
                 
                 GridRow {
-                    Text("Last Viewed:")
+                    Text("Progress:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        Text(data.lastViewed.formatted(date: .abbreviated, time: .shortened))
+                        Text(source.balance, format: .currency(code: currencyCode))
+                        
                         Spacer()
                     }
                 }
                 
                 GridRow {
-                    Text("Last Edited:")
+                    Text("Money Left:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        Text(data.lastUpdated.formatted(date: .abbreviated, time: .shortened))
+                        Text(source.freeToSpend, format: .currency(code: currencyCode))
+                        
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Over By:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(source.overBy, format: .currency(code: currencyCode))
+                        
                         Spacer()
                     }
                 }
@@ -84,15 +104,10 @@ struct IncomeDivisionCloseInspect : View {
             HStack {
                 Spacer()
                 
-                Button("Ok", action: { dismiss() } )
-                    .buttonStyle(.borderedProminent)
+                Button("Ok") {
+                    dismiss()
+                }.buttonStyle(.borderedProminent)
             }
         }.padding()
-    }
-}
-
-#Preview {
-    DebugContainerView {
-        IncomeDivisionCloseInspect(data: try! .getExample())
     }
 }

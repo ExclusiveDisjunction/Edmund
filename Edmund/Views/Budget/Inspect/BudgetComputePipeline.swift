@@ -11,7 +11,7 @@ import EdmundCore
 import SwiftData
 
 @MainActor
-public struct BudgetPresentableData<T> : Identifiable where T: BudgetGoal {
+public struct BudgetGoalData<T> : Identifiable where T: BudgetGoal {
     public let id: UUID;
     public let over: T;
     public let balance: Decimal;
@@ -30,9 +30,9 @@ public struct BudgetPresentableData<T> : Identifiable where T: BudgetGoal {
     }
 }
 @MainActor
-public struct BudgetReducedData {
-    public let spending: [BudgetPresentableData<BudgetSpendingGoal>];
-    public let savings: [BudgetPresentableData<BudgetSavingsGoal>];
+public struct BudgetData {
+    public let spending: [BudgetGoalData<BudgetSpendingGoal>];
+    public let savings: [BudgetGoalData<BudgetSavingsGoal>];
 }
 public enum BudgetComputationError : Error {
     case invalidBudget(Date?, Date?)
@@ -121,7 +121,7 @@ struct BudgetComputePipeline {
         return .init(data: processed)
     }
     
-    private func processData(input: PreparedTransactionData) -> BudgetReducedData {
+    private func processData(input: PreparedTransactionData) -> BudgetData {
         var accounts: [Account: BalanceInformation] = [:];
         var categories: [EdmundCore.Category : BalanceInformation] = [:];
         
@@ -131,7 +131,7 @@ struct BudgetComputePipeline {
         }
         
         // Now that the balances have been computed per-account and per-category, we can stitch it with the spending and savings goals.
-        let spending: [BudgetPresentableData<BudgetSpendingGoal>] = over.spendingGoals.compactMap { goal in
+        let spending: [BudgetGoalData<BudgetSpendingGoal>] = over.spendingGoals.compactMap { goal in
             guard let category = goal.association else {
                 return nil
             }
@@ -139,10 +139,10 @@ struct BudgetComputePipeline {
             let balanceInfo = categories[category] ?? BalanceInformation();
             let balance = -balanceInfo.balance // Negative since we want the spending. If this is positive, that means that more money came in (yay!).
             
-            return BudgetPresentableData(id: UUID(), over: goal, balance: balance)
+            return BudgetGoalData(id: UUID(), over: goal, balance: balance)
         }
         
-        let savings: [BudgetPresentableData<BudgetSavingsGoal>] = over.savingsGoals.compactMap { goal in
+        let savings: [BudgetGoalData<BudgetSavingsGoal>] = over.savingsGoals.compactMap { goal in
             guard let account = goal.association else {
                 return nil
             }
@@ -150,15 +150,15 @@ struct BudgetComputePipeline {
             let balanceInfo = accounts[account] ?? BalanceInformation();
             let balance = balanceInfo.balance
             
-            return BudgetPresentableData(id: UUID(), over: goal, balance: balance)
+            return BudgetGoalData(id: UUID(), over: goal, balance: balance)
         }
         
         log?.info("The budget contains \(spending.count) spending instances and \(savings.count) savings instances.")
         
-        return BudgetReducedData(spending: spending, savings: savings)
+        return BudgetData(spending: spending, savings: savings)
     }
     
-    public consuming func compute(context: ModelContext) throws(BudgetComputationError) -> BudgetReducedData {
+    public consuming func compute(context: ModelContext) throws(BudgetComputationError) -> BudgetData {
         let prepared = self.prepare();
         let transactions = try self.prepareTransactions(context: context, prep: prepared)
         

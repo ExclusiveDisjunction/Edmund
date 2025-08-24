@@ -79,14 +79,13 @@ extension EdmundModelsV1_1 {
             self.name = migration.name
             self.isLocked = migration.isLocked
             self.desc = ""
+            self.id = UUID();
             
             self.transactions = []
             self.spendingGoals = []
         }
-        
-        @Transient
+
         public var id: UUID = UUID();
-        
         public var name: String;
         public var desc: String;
         public var isLocked: Bool;

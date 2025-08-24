@@ -13,8 +13,8 @@ struct CategoriesIE : View {
     @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
     
     @State private var selection = Set<EdmundCore.Category.ID>();
-    @State private var addingCategory: Bool = false;
     
+    @Bindable private var inspect = InspectionManifest<EdmundCore.Category>();
     @Bindable private var delete = DeletingManifest<EdmundCore.Category>();
     @Bindable private var warning = SelectionWarningManifest();
     
@@ -51,7 +51,7 @@ struct CategoriesIE : View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        addingCategory = true
+                        inspect.open(Category(), mode: .add)
                     } label: {
                         Label("Add", systemImage: "plus")
                     }
@@ -64,8 +64,8 @@ struct CategoriesIE : View {
                     }
                 }
             }
-            .sheet(isPresented: $addingCategory) {
-                CategoryAdder()
+            .sheet(item: $inspect.value) { target in
+                ElementIE(target, mode: inspect.mode)
             }
             .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok") {

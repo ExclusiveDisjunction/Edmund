@@ -28,4 +28,3 @@ struct YearSection : Identifiable {
     let id: UUID;
     let children: [YearRow];
 }
-

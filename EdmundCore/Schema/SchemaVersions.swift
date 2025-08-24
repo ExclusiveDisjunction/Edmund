@@ -62,8 +62,7 @@ public enum EdmundModelsV1_1 : VersionedSchema {
             
             Self.BudgetMonth.self,
             Self.BudgetSavingsGoal.self,
-            Self.BudgetSpendingGoal.self,
-            Self.BudgetIncome.self
+            Self.BudgetSpendingGoal.self
         ]
     }
 }

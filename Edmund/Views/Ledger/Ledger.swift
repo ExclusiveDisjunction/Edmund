@@ -80,7 +80,7 @@ struct LedgerTable: View {
                 #if os(iOS)
                 Text(item.date.formatted(date: .numeric, time: .omitted))
                 #else
-                Text(item.date.formatted(date: .complete, time: .omitted))
+                Text(item.date.formatted(date: .abbreviated, time: .omitted))
                 #endif
             }
                 .width(min: 100, ideal: 120, max: nil)
@@ -90,7 +90,7 @@ struct LedgerTable: View {
 #if os(iOS)
                 Text(item.addedOn.formatted(date: .numeric, time: .shortened))
 #else
-                Text(item.addedOn.formatted(date: .complete, time: .shortened))
+                Text(item.addedOn.formatted(date: .abbreviated, time: .shortened))
 #endif
             }
                 .width(min: 100, ideal: 120, max: nil)

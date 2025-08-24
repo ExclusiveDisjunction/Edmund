@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct AllBudgetMonthIE : View {
+struct Budgets : View {
     @State private var selectedID: YearRowID? = nil;
     @State private var selected: BudgetMonth? = nil;
     @State private var snapshot: BudgetMonthSnapshot? = nil;
@@ -34,17 +34,6 @@ struct AllBudgetMonthIE : View {
             snapshot = nil;
         }
     }
-    
-    private func deletePressed() {
-        if let selected = selected {
-            self.selectedID = nil;
-            self.snapshot = nil;
-            
-            modelContext.delete(selected)
-        }
-    }
-    
-    @MainActor
     private func submitEdit(_ snapshot: BudgetMonthSnapshot) async {
         guard let selected = selected else {
             loggerSystem?.data.warning("Submit edit was called, but there is no active snapshot or selected budget.")
@@ -61,6 +50,40 @@ struct AllBudgetMonthIE : View {
         
         cancelEdit()
     }
+    private func savePressed() {
+        guard let selected = selected else {
+            return
+        }
+        
+        if let snap = snapshot {
+            Task {
+                await submitEdit(snap)
+            }
+        }
+        else {
+            withAnimation {
+                snapshot = selected.makeSnapshot()
+            }
+        }
+    }
+    private func deletePressed() {
+        if isEditing {
+            cancelEdit()
+        }
+        else {
+            showDeleteWarning = true
+        }
+    }
+    private func deleteSubmitPressed() {
+        if let selected = selected {
+            withAnimation {
+                self.selectedID = nil;
+                self.snapshot = nil;
+            }
+            
+            modelContext.delete(selected)
+        }
+    }
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
@@ -73,35 +96,13 @@ struct AllBudgetMonthIE : View {
         }
         
         ToolbarItem(placement: .primaryAction) {
-            Button {
-                guard let selected = selected else {
-                    return
-                }
-                
-                if let snap = snapshot {
-                    Task {
-                        await submitEdit(snap)
-                    }
-                }
-                else {
-                    withAnimation {
-                        snapshot = selected.makeSnapshot()
-                    }
-                }
-            } label: {
+            Button(action: savePressed) {
                 Label(isEditing ? "Save" : "Edit", systemImage: isEditing ? "checkmark" : "pencil")
             }
         }
         
         ToolbarItem(placement: .primaryAction) {
-            Button {
-                if isEditing {
-                    cancelEdit()
-                }
-                else {
-                    showDeleteWarning = true
-                }
-            } label: {
+            Button(action: deletePressed) {
                 Label(isEditing ? "Cancel" : "Delete", systemImage: isEditing ? "xmark" : "trash")
                     .foregroundStyle(.red)
             }
@@ -110,7 +111,7 @@ struct AllBudgetMonthIE : View {
     
     var body: some View {
         VStack {
-            BudgetMonthPicker(id: $selectedID, selected: $selected, label: "Budget for:")
+            BudgetPicker(id: $selectedID, selected: $selected, label: "Budget for:")
                 .disabled(isEditing)
             
             if let snapshot = snapshot {
@@ -129,16 +130,17 @@ struct AllBudgetMonthIE : View {
             }
         }.padding()
             .navigationTitle("Budgets")
+            .navigationBarBackButtonHidden(isEditing)
             .toolbar {
                 toolbarContent
             }.toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
-            .navigationBarBackButtonHidden(isEditing)
+            
             .onChange(of: snapshot) { _, newValue in
                 pagesLocked.wrappedValue = (newValue != nil)
             }
         
             .sheet(isPresented: $isAdding) {
-                BudgetMonthAdd(source: $selected, snapshot: $snapshot)
+                BudgetAdd(source: $selected, snapshot: $snapshot)
             }
         
             .alert("Error", isPresented: $warning.isPresented) {
@@ -150,7 +152,7 @@ struct AllBudgetMonthIE : View {
             }
         
             .alert("Warning!", isPresented: $showDeleteWarning) {
-                Button("Ok", action: deletePressed)
+                Button("Ok", action: deleteSubmitPressed)
                 
                 Button("Cancel", role: .cancel) {
                     showDeleteWarning = false;
@@ -163,6 +165,6 @@ struct AllBudgetMonthIE : View {
 
 #Preview {
     DebugContainerView {
-        AllBudgetMonthIE()
+        Budgets()
     }
 }

@@ -93,6 +93,6 @@ struct IncomeDevotionsInspect : View {
 
 #Preview {
     DebugContainerView {
-        IncomeDevotionsInspect(data: try! .getExampleBudget())
+        IncomeDevotionsInspect(data: try! .getExample())
     }
 }

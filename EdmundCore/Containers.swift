@@ -83,7 +83,7 @@ public struct DefaultDebugCreator : ContainerDataFiller {
         let budget = BudgetMonth.exampleBudgetMonth(cat: &catTree, acc: &accTree)
         context.insert(budget)
         
-        context.insert(IncomeDivision.exampleBudget(acc: &accTree))
+        context.insert(IncomeDivision.exampleDivision(acc: &accTree))
     }
 }
 /// A creator that creates transactions that are spread out so that graphs can be tested.

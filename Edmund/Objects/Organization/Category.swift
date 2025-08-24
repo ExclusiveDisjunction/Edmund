@@ -8,7 +8,7 @@
 import SwiftUI
 import EdmundCore
 
-extension EdmundCore.Category : TypeTitled {
+extension EdmundCore.Category : TypeTitled, EditableElement, InspectableElement {
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Category",
@@ -17,5 +17,12 @@ extension EdmundCore.Category : TypeTitled {
             edit:     "Edit Category",
             add:      "Add Category"
         )
+    }
+    
+    public func makeInspectView() -> some View {
+        CategoryInspect(data: self)
+    }
+    public static func makeEditView(_ snap: CategorySnapshot) -> some View {
+        CategoryEdit(snapshot: snap)
     }
 }

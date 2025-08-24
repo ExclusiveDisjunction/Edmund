@@ -21,14 +21,20 @@ public struct TooltipButton : View {
             showTooltip = true
         }) {
             Image(systemName: "questionmark.circle")
-        }.popover(isPresented: $showTooltip) {
-            ScrollView {
+        }.sheet(isPresented: $showTooltip) {
+            VStack {
                 Text(text)
                     .multilineTextAlignment(.leading)
                     .lineLimit(nil)
-                    .padding()
-            }
-            .frame(maxWidth: 300, maxHeight: 300)
+                    
+                HStack {
+                    Spacer()
+                    
+                    Button("Ok") {
+                        showTooltip = false
+                    }.buttonStyle(.borderedProminent)
+                }
+            }.padding()
         }
         .buttonStyle(.borderless)
     }

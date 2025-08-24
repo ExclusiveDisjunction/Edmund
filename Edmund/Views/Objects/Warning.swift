@@ -9,7 +9,7 @@ import SwiftUI
 import EdmundCore
 
 /// A simple basis for what warnings should include.
-public protocol WarningBasis : Identifiable {
+public protocol WarningBasis  {
     /// The encoded message that the warning presents.
     var message: LocalizedStringKey { get }
 }

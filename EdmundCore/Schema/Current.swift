@@ -24,7 +24,6 @@ public typealias RemainderDevotion = ModelsCurrentVersion.RemainderDevotion;
 public typealias BudgetMonth = ModelsCurrentVersion.BudgetMonth;
 public typealias BudgetSpendingGoal = ModelsCurrentVersion.BudgetSpendingGoal;
 public typealias BudgetSavingsGoal = ModelsCurrentVersion.BudgetSavingsGoal;
-public typealias BudgetIncome = ModelsCurrentVersion.BudgetIncome;
 
 public typealias HourlyJob = ModelsCurrentVersion.HourlyJob;
 public typealias SalariedJob = ModelsCurrentVersion.SalariedJob;

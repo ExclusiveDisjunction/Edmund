@@ -27,11 +27,7 @@ struct AllExpiredBillsVE : View {
         let filteredBills = bills.filter { $0.isExpired }.map { BillBaseWrapper($0) }
         let filteredUtilities = utilities.filter { $0.isExpired }.map { BillBaseWrapper($0) }
         
-        var combined: [BillBaseWrapper] = []
-        combined.append(contentsOf: filteredBills)
-        combined.append(contentsOf: filteredUtilities)
-        
-        query.apply(combined)
+        query.apply(filteredBills + filteredUtilities)
     }
     private func deleteFromModel(_ data: BillBaseWrapper, context: ModelContext) {
         if let bill = data.data as? Bill {
@@ -41,11 +37,7 @@ struct AllExpiredBillsVE : View {
             context.delete(utility)
         }
     }
-    
-    private var wrappers: [BillBaseWrapper] {
-        query.cached
-    }
-    
+   
     @ViewBuilder
     private var empty: some View {
         VStack {
@@ -55,38 +47,77 @@ struct AllExpiredBillsVE : View {
         }
     }
     
+    @ToolbarContentBuilder
+    public func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .secondaryAction) {
+            QueryButton(provider: query)
+        }
+        
+        ToolbarItem(placement: .secondaryAction) {
+            Button(action: refresh) {
+                Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
+            }
+        }
+        
+        if horizontalSizeClass != .compact {
+            GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
+            GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .inspect, placement: .primaryAction)
+        }
+        
+        GeneralDeleteToolbarButton(on: query.cached, selection: $selection, delete: deleting, warning: warning, placement: .primaryAction)
+        
+#if os(iOS)
+        ToolbarItem(placement: .primaryAction) {
+            EditButton()
+        }
+#endif
+    }
+    
     @ViewBuilder
-    private var compact: some View {
-        if wrappers.isEmpty {
-            empty
+    private func inspectSheet(_ wrapper: BillBaseWrapper) -> some View {
+        if let asBill = wrapper.data as? Bill {
+            ElementIE(asBill, mode: inspect.mode)
+        }
+        else if let asUtility = wrapper.data as? Utility {
+            ElementIE(asUtility, mode: inspect.mode)
         }
         else {
-            List(wrappers, selection: $selection) { wrapper in
-                HStack {
-                    Text(wrapper.data.name)
-                    Spacer()
-                    Text("Ended:", comment: "Bill ended on date")
-                    if let end = wrapper.data.endDate {
-                        Text(end.formatted(date: .numeric, time: .omitted))
-                    }
-                    else {
-                        Text("No Information").italic()
-                    }
-                }.swipeActions(edge: .trailing) {
-                    SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-                }
+            VStack {
+                Text("internalError").italic()
+                Button("Ok", action: {
+                    inspect.value = nil
+                }).buttonStyle(.borderedProminent)
             }
         }
     }
     
     @ViewBuilder
     private var regular: some View {
-        if wrappers.isEmpty {
+        if query.cached.isEmpty {
             empty
         }
         else {
-            Table(wrappers, selection: $selection) {
-                TableColumn("Name", value: \.data.name)
+            Table(query.cached, selection: $selection) {
+                TableColumn("Name") { wrapper in
+                    if horizontalSizeClass == .compact {
+                        HStack {
+                            Text(wrapper.data.name)
+                            Spacer()
+                            Text("Ended:", comment: "Bill ended on date")
+                            if let end = wrapper.data.endDate {
+                                Text(end.formatted(date: .numeric, time: .omitted))
+                            }
+                            else {
+                                Text("No Information").italic()
+                            }
+                        }.swipeActions(edge: .trailing) {
+                            SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                        }
+                    }
+                    else {
+                        Text(wrapper.data.name)
+                    }
+                }
                 TableColumn("Kind") { wrapper in
                     Text(wrapper.data.kind.display)
                 }
@@ -101,14 +132,22 @@ struct AllExpiredBillsVE : View {
                         Text("No Information").italic()
                     }
                 }
+#if os(iOS)
                 TableColumn("Amount") { wrapper in
                     HStack {
                         Text(wrapper.data.amount, format: .currency(code: currencyCode))
                         Text("/")
                         Text(wrapper.data.period.perName)
-                        Spacer()
-                    }.frame(minWidth: 120)
+                    }
                 }
+#else
+                TableColumn("Amount") { wrapper in
+                    Text(wrapper.data.amount, format: .currency(code: currencyCode))
+                }
+                TableColumn("Frequency") { wrapper in
+                    Text(wrapper.data.period.perName)
+                }
+#endif
             }.contextMenu(forSelectionType: BillBaseWrapper.ID.self) { selection in
                 SelectionContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
             }
@@ -119,52 +158,11 @@ struct AllExpiredBillsVE : View {
     }
     
     var body: some View {
-        VStack {
-            if horizontalSizeClass == .compact {
-                compact
-            }
-            else {
-                regular
-            }
-        }.navigationTitle("Expired Bills")
-            .toolbar(id: "expiredBillsToolbar") {
-                ToolbarItem(id: "query", placement: .secondaryAction) {
-                    QueryButton(provider: query)
-                }
-                
-                ToolbarItem(id: "refresh", placement: .secondaryAction) {
-                    Button(action: refresh) {
-                        Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
-                    }
-                }
-                
-                GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .inspect, placement: .secondaryAction)
-                
-                GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
-                
-                GeneralDeleteToolbarButton(on: query.cached, selection: $selection, delete: deleting, warning: warning, placement: .primaryAction)
-                
-                #if os(iOS)
-                ToolbarItem(id: "iosEdit", placement: .primaryAction) {
-                    EditButton()
-                }
-                #endif
-            }.sheet(item: $inspect.value) { wrapper in
-                if let asBill = wrapper.data as? Bill {
-                    ElementIE(asBill, mode: inspect.mode)
-                }
-                else if let asUtility = wrapper.data as? Utility {
-                    ElementIE(asUtility, mode: inspect.mode)
-                }
-                else {
-                    VStack {
-                        Text("Unexpected Error").italic()
-                        Button("Ok", action: {
-                            inspect.value = nil
-                        }).buttonStyle(.borderedProminent)
-                    }
-                }
-            }.alert("Warning", isPresented: $warning.isPresented, actions: {
+        regular
+            .navigationTitle("Expired Bills")
+            .toolbar(content: toolbar)
+            .sheet(item: $inspect.value, content: inspectSheet)
+            .alert("Warning", isPresented: $warning.isPresented, actions: {
                 Button("Ok", action: {
                     warning.isPresented = false
                 })
@@ -172,7 +170,10 @@ struct AllExpiredBillsVE : View {
                 Text((warning.warning ?? .noneSelected).message)
             }).confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting, titleVisibility: .visible) {
                 AbstractDeletingActionConfirm(deleting, delete: deleteFromModel, post: refresh)
-            }.padding().onAppear(perform: refresh).onChange(of: query.hashValue, refresh).toolbarRole(.editor)
+            }.padding()
+                .onAppear(perform: refresh)
+                .onChange(of: query.hashValue, refresh)
+                .toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
     }
 }
 

@@ -11,6 +11,9 @@ import EdmundCore
 
 struct IncomeDivisionPropertiesInspect : View {
     var data: IncomeDivision;
+    let isSheet: Bool;
+    
+    @Environment(\.dismiss) private var dismiss;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -24,11 +27,6 @@ struct IncomeDivisionPropertiesInspect : View {
     
     var body: some View {
         VStack {
-            if data.isFinalized {
-                Text("This income division is finalized. This means no other edits can take place.")
-                    .italic()
-            }
-            
             Grid {
                 GridRow {
                     Text("Name:")
@@ -69,6 +67,29 @@ struct IncomeDivisionPropertiesInspect : View {
                         Spacer()
                     }
                 }
+                
+                GridRow {
+                    Text("Finalized:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        Text(data.isFinalized ? "Yes" : "No")
+                        TooltipButton("Finalized income divisions create transactions in the ledger. These transactions cannot be modified if you modify the income division, so you cannot edit a finalized income division.")
+                        Spacer()
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            if isSheet {
+                HStack {
+                    Spacer()
+                    
+                    Button("Ok") {
+                        dismiss()
+                    }.buttonStyle(.borderedProminent)
+                }
             }
         }.padding()
     }
@@ -76,6 +97,6 @@ struct IncomeDivisionPropertiesInspect : View {
 
 #Preview {
     DebugContainerView {
-        IncomeDivisionPropertiesInspect(data: try! .getExampleBudget())
+        IncomeDivisionPropertiesInspect(data: try! .getExample(), isSheet: false)
     }
 }

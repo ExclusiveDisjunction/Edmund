@@ -29,14 +29,13 @@ struct AllBillsViewEdit : View {
     
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    @AppStorage("showExpiredBills") private var showExpiredBills: Bool = false;
     
     @Query private var bills: [Bill]
     @Query private var utilities: [Utility]
     
     private func refresh() {
-        let filteredBills = bills.filter { showExpiredBills || !$0.isExpired }
-        let filteredUtilities = utilities.filter { showExpiredBills || !$0.isExpired }
+        let filteredBills = bills.filter { !$0.isExpired }
+        let filteredUtilities = utilities.filter { !$0.isExpired }
         
         let combined: [any BillBase] = filteredBills + filteredUtilities;
         query.apply(combined.map { BillBaseWrapper($0) } )
@@ -155,13 +154,6 @@ struct AllBillsViewEdit : View {
             }
         }
         
-        if !showExpiredBills {
-            ToolbarItem(id: "showExpired", placement: .secondaryAction) {
-                Button(action: openExpired) {
-                    Label("Expired Bills", systemImage: "dollarsign.arrow.trianglehead.counterclockwise.rotate.90")
-                }
-            }
-        }
         ToolbarItem(id: "refresh", placement: .secondaryAction) {
             Button(action: refresh) {
                 Label("Refresh", systemImage: "arrow.trianglehead.clockwise")
@@ -293,7 +285,6 @@ struct AllBillsViewEdit : View {
             .toolbarRole(.automatic)
             .navigationTitle("Bills")
             .onChange(of: query.hashValue, refresh)
-            .onChange(of: showExpiredBills, refresh)
             .onAppear {
                 refresh()
             }

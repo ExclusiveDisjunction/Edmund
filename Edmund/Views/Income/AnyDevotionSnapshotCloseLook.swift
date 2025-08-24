@@ -156,7 +156,7 @@ struct AnyDevotionSnapshotCloseLook : View {
 
 #Preview {
     DebugContainerView {
-        let snapshot = try! IncomeDivision.getExampleBudget().makeSnapshot()
+        let snapshot = try! IncomeDivision.getExample().makeSnapshot()
         let devotion = snapshot.devotions[0];
         AnyDevotionSnapshotCloseLook(snapshot: snapshot, devotion: devotion)
     }

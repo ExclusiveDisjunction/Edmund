@@ -30,6 +30,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     case audit = "Auditor"
     
     case bills = "Bills"
+    case expiredBills = "Expired Bills"
     
     case jobs = "Jobs"
     case incomeDivider = "Income Divider"
@@ -50,7 +51,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 .audit
             ]),
             .init(name: "Bills", content: [
-                .bills
+                .bills,
+                .expiredBills
             ]),
             .init(name: "Budgeting & Pay", content: [
                 .budget,
@@ -75,6 +77,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .audit: "auditHelper"
                 
             case .bills: "bills"
+            case .expiredBills: "expiredBills"
                 
             case .jobs: "jobs"
             case .incomeDivider: "incomeDivider"
@@ -99,10 +102,11 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .ledger: LedgerTable()
             case .balance: BalanceSheet()
                 
-            case .incomeDivider: AllIncomeDivisionsIE()
-            case .budget: AllBudgetMonthIE()
+            case .incomeDivider: IncomeDivisions()
+            case .budget: Budgets()
                 
             case .bills: AllBillsViewEdit()
+            case .expiredBills: AllExpiredBillsVE()
                 
             case .accounts: AccountsIE()
             case .categories: CategoriesIE()

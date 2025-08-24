@@ -9,7 +9,7 @@ import EdmundCore
 import SwiftUI
 import SwiftData
 
-struct BudgetMonthAdd : View {
+struct BudgetAdd : View {
     enum Month : Int, Displayable, Identifiable, CaseIterable, Hashable, Equatable {
         case january, february, march, april, may, june, july, august, september, october, november, december
         
@@ -177,7 +177,7 @@ struct BudgetMonthAdd : View {
                     Toggle("Copy from another budget", isOn: $isCopying)
                     
                     if isCopying {
-                        BudgetMonthPicker(id: $copyFromID, selected: $copyFrom, label: "Copy from:")
+                        BudgetPicker(id: $copyFromID, selected: $copyFrom, label: "Copy from:")
                     }
                 } footer: {
                     Text("**Note:** If you copy from a budget, the dates from the incomes will not carry over.", comment: "Keep the ** around the Note part")
@@ -213,6 +213,6 @@ struct BudgetMonthAdd : View {
 
 #Preview {
     DebugContainerView {
-        BudgetMonthAdd(source: .constant(nil), snapshot: .constant(nil))
+        BudgetAdd(source: .constant(nil), snapshot: .constant(nil))
     }
 }

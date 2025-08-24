@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BudgetMonthGoalCloseLook<T> : View where T: NamedElement & TransactionHolder & PersistentModel & Hashable {
+struct BudgetGoalCloseEdit<T> : View where T: NamedElement & TransactionHolder & PersistentModel & Hashable {
     @Bindable var over: BudgetGoalSnapshot<T>;
     
     @Environment(\.dismiss) private var dismiss;
@@ -46,11 +46,7 @@ struct BudgetMonthGoalCloseLook<T> : View where T: NamedElement & TransactionHol
                     
                     HStack {
                         CurrencyField(over.amount)
-                        Picker("", selection: $over.period) {
-                            ForEach(MonthlyTimePeriods.allCases) { period in
-                                Text(period.display).tag(period)
-                            }
-                        }.labelsHidden()
+                        EnumPicker(value: $over.period)
                     }
                 }
                 
