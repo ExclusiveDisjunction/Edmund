@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension UtilityDatapoint: Hashable, Equatable {
+extension UtilityDatapoint: Hashable, Equatable, BillHistoryRecord {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(amount)

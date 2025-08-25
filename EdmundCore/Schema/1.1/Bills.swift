@@ -45,6 +45,9 @@ extension EdmundModelsV1_1 {
         public var location: String? = nil;
         public var autoPay: Bool = true;
         
+        @Relationship(deleteRule: .cascade, inverse: \UtilityDatapoint.parent)
+        public internal(set) var _points: [UtilityDatapoint]? = nil;
+        
         @Transient
         internal var _nextDueDate: Date? = nil;
         @Transient
@@ -56,10 +59,27 @@ extension EdmundModelsV1_1 {
         public internal(set) var _period: TimePeriods.RawValue;
     }
     
+    @Model
+    public final class BillDatapoint : Identifiable {
+        public init(_ amount: Decimal? = 0, index: Int, parent: Bill? = nil) {
+            self.id = index
+            self.parent = parent
+            self.amount = amount
+        }
+        
+        /// Where the data point lies in the greater storage array.
+        public var id: Int;
+        /// How much the datapoint cost
+        public var amount: Decimal?;
+        /// The owning utility.
+        @Relationship
+        public var parent: Bill?;
+    }
+    
     /// An instance used to keep the order of utility data points.
     @Model
-    public class UtilityDatapoint : Identifiable {
-        public init(_ amount: Decimal = 0, index: Int, parent: Utility? = nil) {
+    public final class UtilityDatapoint : Identifiable {
+        public init(_ amount: Decimal? = 0, index: Int, parent: Utility? = nil) {
             self.id = index
             self.parent = parent
             self.amount = amount
@@ -73,7 +93,7 @@ extension EdmundModelsV1_1 {
         /// Where the data point lies in the greater storage array.
         public var id: Int;
         /// How much the datapoint cost
-        public var amount: Decimal;
+        public var amount: Decimal?;
         /// The owning utility.
         @Relationship
         public var parent: Utility?;

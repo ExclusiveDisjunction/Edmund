@@ -48,6 +48,8 @@ public struct BillBaseID : Hashable, Equatable, RawRepresentable, Sendable {
 
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
 public protocol BillBase : Identifiable<UUID>, UniqueElement, AnyObject where Self.UID == BillBaseID {
+    associatedtype Datapoint: BillHistoryRecord
+    
     /// The name of the bill.
     var name: String { get set }
     /// The start date of the bill. This is used to compute the upcoming dates.

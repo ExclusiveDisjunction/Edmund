@@ -30,6 +30,48 @@ struct CategoriesIE : View {
         
         delete.action = items;
     }
+    private func inspectPressed(mode: InspectionMode) {
+        let filtered = categories.filter { selection.contains($0.id) && !$0.isLocked }
+        guard let first = filtered.first, filtered.count == 1 else {
+            warning.warning = filtered.isEmpty ? .noneSelected : .tooMany
+            return
+        }
+        
+        inspect.mode = .edit
+        inspect.value = first
+    }
+    @ViewBuilder
+    private func contextMenu(_ selection: Set<EdmundCore.Category.ID>) -> some View {
+        let resolved = categories.filter { selection.contains($0.id) && !$0.isLocked }
+        let first = resolved.first
+        
+        Button {
+            inspect.open(Category(), mode: .add)
+        } label: {
+            Label("Add", systemImage: "plus")
+        }
+        
+        Button {
+            inspect.mode = .edit
+            inspect.value = first
+        } label: {
+            Label("Edit", systemImage: "pencil")
+        }.disabled(first == nil)
+        
+        Button {
+            inspect.mode = .inspect
+            inspect.value = first
+        } label: {
+            Label("Inspect", systemImage: "info.circle")
+        }.disabled(first == nil)
+        
+        Button {
+            delete.action = resolved
+        } label: {
+            Label("Delete", systemImage: "trash")
+                .foregroundStyle(.red)
+        }.disabled(resolved.isEmpty)
+    }
     
     var body: some View {
         Table(categories, selection: $selection) {
@@ -48,12 +90,29 @@ struct CategoriesIE : View {
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting, titleVisibility: .visible) {
                 UniqueDeletingActionConfirm(delete)
             }
+            .contextMenu(forSelectionType: EdmundCore.Category.ID.self, menu: contextMenu)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         inspect.open(Category(), mode: .add)
                     } label: {
                         Label("Add", systemImage: "plus")
+                    }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        inspectPressed(mode: .edit)
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        inspectPressed(mode: .inspect)
+                    } label: {
+                        Label("Inspect", systemImage: "info.circle")
                     }
                 }
                 
@@ -73,8 +132,8 @@ struct CategoriesIE : View {
                 }
             }, message: {
                 switch warning.warning ?? .noneSelected {
-                    case .noneSelected: Text("Please ensure that you select at least one non-locked element.")
-                    case .tooMany: Text("Please select only one element.")
+                    case .noneSelected: Text("Please ensure that you select at least one non-locked category.")
+                    case .tooMany: Text("Please select only one category.")
                 }
             })
     }

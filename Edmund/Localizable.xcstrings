@@ -750,6 +750,9 @@
     "Description" : {
 
     },
+    "Description:" : {
+
+    },
     "Destination" : {
 
     },
@@ -787,9 +790,6 @@
 
     },
     "Donation" : {
-
-    },
-    "Done" : {
 
     },
     "Due Date" : {
@@ -1781,7 +1781,7 @@
     "Please ensure all fields are not too small." : {
 
     },
-    "Please ensure that you select at least one non-locked element." : {
+    "Please ensure that you select at least one non-locked category." : {
 
     },
     "Please finish editing & save to change the page" : {
@@ -1802,7 +1802,7 @@
     "Please select a month." : {
 
     },
-    "Please select only one element." : {
+    "Please select only one category." : {
 
     },
     "Please submit an issue on GitHub, or contact the developer at exdisj@icloud.com" : {
