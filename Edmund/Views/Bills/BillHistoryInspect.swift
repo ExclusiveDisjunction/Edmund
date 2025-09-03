@@ -9,13 +9,11 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-
-
 /// The inspection view for Utility Entries.  This provides the layout for viewing all datapoints.
-public struct UtilityEntriesInspect : View {
-    public var over: Utility;
+public struct BillHistoryInspect<T> : View where T: BillBase {
+    public var over: T;
     
-    @State private var cache: [UtilityEntryRow<Decimal>] = [];
+    @State private var cache: [ResolvedBillHistory] = [];
     @State private var selected = Set<UUID>();
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.dismiss) private var dismiss;
@@ -25,8 +23,29 @@ public struct UtilityEntriesInspect : View {
     
     private func refresh() {
         var dates = TimePeriodWalker(start: over.startDate, end: over.endDate, period: over.period, calendar: calendar)
-        self.cache = over.points.map { amount in
-            UtilityEntryRow(amount: amount, date: dates.step())
+        self.cache = over.history.map {
+            ResolvedBillHistory(from: $0, date: dates.step())
+        }
+    }
+    
+    @ViewBuilder
+    private func amountDisplay(_ amount: Decimal?) -> some View {
+        if let amount = amount {
+            Text(amount, format: .currency(code: currencyCode))
+        }
+        else {
+            Text("Skipped")
+                .italic()
+        }
+    }
+    @ViewBuilder
+    private func dateDisplay(_ date: Date?) -> some View {
+        if let date = date {
+            Text(date.formatted(date: .abbreviated, time: .omitted))
+        }
+        else {
+            Text("(No date)")
+                .italic()
         }
     }
     
@@ -38,36 +57,22 @@ public struct UtilityEntriesInspect : View {
                 TableColumn("Amount") { child in
                     if horizontalSizeClass == .compact {
                         HStack {
-                            Text(child.amount, format: .currency(code: currencyCode))
+                            amountDisplay(child.amount)
                             
                             Spacer()
                             
-                            Text("On", comment: "[Amount] on [Date]")
-                            if let date = child.date {
-                                Text(date.formatted(date: .abbreviated, time: .omitted))
-                            }
-                            else {
-                                Text("(No date)")
-                                    .italic()
-                            }
-                            
+                            dateDisplay(child.date)
                         }
                     }
                     else {
-                        Text(child.amount, format: .currency(code: currencyCode))
+                        amountDisplay(child.amount)
                     }
                 }
                 TableColumn("Date") { child in
-                    if let date = child.date {
-                        Text(date.formatted(date: .abbreviated, time: .omitted))
-                    }
-                    else {
-                        Text("(No date)")
-                            .italic()
-                    }
+                    dateDisplay(child.date)
                 }
             }.onAppear(perform: refresh)
-                .onChange(of: over.points) { _, _ in
+                .onChange(of: over.history) { _, _ in
                     refresh()
                 }
             
@@ -86,6 +91,6 @@ public struct UtilityEntriesInspect : View {
 }
 
 #Preview {
-    UtilityEntriesInspect(over: Utility.exampleUtility[0])
+    BillHistoryInspect(over: Utility.exampleUtility[0])
         .padding()
 }

@@ -10,17 +10,24 @@ import SwiftData
 import Charts
 import EdmundCore
 
-/// A line graph that shows the spending over time, separated by dates. 
-public struct UtilityEntriesGraph : View {
-    public var source: Utility;
+/// A line graph that shows the spending over time, separated by dates.
+public struct UtilityEntriesGraph<T> : View where T: BillBase {
+    public var source: T;
     
     @Environment(\.calendar) private var calendar;
     @Environment(\.dismiss) private var dismiss;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private var children: [UtilityEntryRow<Decimal>] {
+    private var children: [ResolvedBillHistory] {
         var walker = TimePeriodWalker(start: source.startDate, end: source.endDate, period: source.period, calendar: calendar);
-        return source.points.map { UtilityEntryRow(amount: $0, date: walker.step()) }
+        return source.history.compactMap {
+            if let amount = $0.amount, let date = walker.step() {
+                ResolvedBillHistory(from: $0, date: date)
+            }
+            else {
+                nil
+            }
+        }
     }
     
     public var body: some View {
@@ -30,8 +37,8 @@ public struct UtilityEntriesGraph : View {
             Chart {
                 ForEach(children, id: \.id) { point in
                     LineMark(
-                        x: .value("Date", point.date ?? .distantFuture),
-                        y: .value("Amount", point.amount),
+                        x: .value("Date", point.date!),
+                        y: .value("Amount", point.amount!),
                         series: .value("Name", source.name)
                     )
                 }
@@ -48,6 +55,7 @@ public struct UtilityEntriesGraph : View {
         }.padding()
     }
 }
+
 
 #Preview {
     UtilityEntriesGraph(source: Utility.exampleUtility[0])

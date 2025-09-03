@@ -9,6 +9,10 @@ import SwiftData
 import Foundation
 
 extension UtilityDatapoint: Hashable, Equatable, BillHistoryRecord {
+    public convenience init(_ amount: Decimal?, index: Int) {
+        self.init(amount, index: index, parent: nil)
+    }
+    
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(amount)
