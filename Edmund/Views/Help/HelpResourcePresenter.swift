@@ -69,7 +69,15 @@ struct HelpResourcePresenter<T, E, ErrorView, ContentView> : View where T: HelpR
                 
                 Spacer()
             case .loaded(let v):
-                content(v)
+                VStack {
+                    content(v)
+                    HStack {
+                        Spacer()
+                        Button("Ok") {
+                            dismiss()
+                        }.buttonStyle(.borderedProminent)
+                    }
+                }
         }
     }
 }

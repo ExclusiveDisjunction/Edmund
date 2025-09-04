@@ -45,7 +45,7 @@ struct Auditor : View {
             .navigationTitle("Auditor")
             .onAppear(perform: refresh)
             .toolbar {
-                TopicGroupToolbarButton("Help/Auditing", placement: .secondaryAction)
+                TopicToolbarButton("Auditing.md", placement: .secondaryAction)
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: refresh) {

@@ -31,10 +31,6 @@ struct LedgerTable: View {
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
     
-    private func popout() {
-        openWindow(id: "ledger")
-    }
-    
     @ViewBuilder
     private var fullSized: some View {
         Table(data, selection: $selected, columnCustomization: $ledgerColumns) {
@@ -119,7 +115,7 @@ struct LedgerTable: View {
     
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        TopicToolbarButton("Help/Ledger/Ledger.md", placement: .secondaryAction)
+        TopicToolbarButton("Ledger/Ledger.md", placement: .secondaryAction)
         
         ToolbarItem(placement: .primaryAction) {
             TransactionMenu(selection: $transKind) {

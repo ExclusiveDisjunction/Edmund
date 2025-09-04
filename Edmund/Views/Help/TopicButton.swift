@@ -81,6 +81,7 @@ struct TopicBaseToolbarButton<P> : CustomizableToolbarContent where P: HelpPrese
 }
 
 typealias TopicToolbarButton = TopicBaseToolbarButton<TopicPresenter>;
+@available(*, deprecated, message: "On macOS, this does not display properly and should not be used.")
 typealias TopicGroupToolbarButton = TopicBaseToolbarButton<TopicGroupPresenter>;
 
 #Preview {
