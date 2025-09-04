@@ -9,10 +9,8 @@ import Foundation
 import SwiftData
 
 public protocol BillHistoryRecord : Identifiable<Int>, PersistentModel {
-    associatedtype Parent: BillBase;
+    init(_ amount: Decimal?, index: Int);
     
-    init(_ amount: Decimal?, index: Int, parent: Self.Parent?);
-    
+    var id: Int { get set }
     var amount: Decimal? { get set }
-    var parent: Self.Parent? { get }
 }

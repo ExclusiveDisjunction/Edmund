@@ -47,7 +47,7 @@ public struct BillBaseID : Hashable, Equatable, RawRepresentable, Sendable {
 }
 
 /// A protocol that allows for the enforcement of basic properties that are shared between `Bill` and `Utility` classes.
-public protocol BillBase : Identifiable<UUID>, UniqueElement, AnyObject where Self.UID == BillBaseID {
+public protocol BillBase : Identifiable<UUID>, UniqueElement, AnyObject, PersistentModel where Self.UID == BillBaseID {
     associatedtype Datapoint: BillHistoryRecord
     
     /// The name of the bill.
@@ -71,6 +71,69 @@ public protocol BillBase : Identifiable<UUID>, UniqueElement, AnyObject where Se
     var location: String? { get set }
     /// When true, it is known that the bill will automatically be debited to the account.
     var autoPay: Bool { get set }
+    var history: [Datapoint] { get set }
+}
+
+public struct ResolvedBillHistory : Identifiable, Sendable {
+    public init<T>(from: T, date: Date?, id: UUID = UUID()) where T: BillHistoryRecord {
+        self.id = id
+        self.amount = from.amount
+        self.date = date
+    }
+    
+    public let id: UUID;
+    public let amount: Decimal?;
+    public var date: Date?;
+}
+@Observable
+public class BillHistorySnapshot : Identifiable, Hashable, Equatable {
+    public init(date: Date?, id: UUID = UUID()) {
+        self.id = id
+        self.date = date
+        self.amount = .init()
+        self.skipped = false
+    }
+    public init<T>(from: T, date: Date?, id: UUID = UUID()) where T: BillHistoryRecord {
+        self.id = id
+        self.date = date
+        if let value = from.amount {
+            self.skipped = false
+            self.amount = .init(rawValue: value)
+        }
+        else {
+            self.skipped = true
+            self.amount = .init()
+        }
+    }
+    
+    public let id: UUID;
+    public var skipped: Bool;
+    public var amount: CurrencyValue;
+    public var date: Date?;
+    
+    public var trueAmount: CurrencyValue? {
+        get {
+            skipped ? nil : amount
+        }
+        set {
+            if let value = newValue {
+                self.skipped = false
+                self.amount = value
+            }
+            else {
+                self.skipped = true
+            }
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(skipped)
+        hasher.combine(amount)
+        hasher.combine(date)
+    }
+    public static func ==(lhs: BillHistorySnapshot, rhs: BillHistorySnapshot) -> Bool {
+        lhs.trueAmount == rhs.trueAmount && lhs.date == rhs.date
+    }
 }
 
 public extension BillBase {
@@ -90,6 +153,13 @@ public extension BillBase {
     /// Returns the price per some other time period.
     func pricePer(_ period: TimePeriods) -> Decimal {
         self.amount * self.period.conversionFactor(period)
+    }
+    
+    static func updateLists<S1, S2>(oldList: S1, newList: S2, offset: Int = 0) where S1: Sequence, S1.Element == Self.Datapoint, S2: Sequence, S2.Element == BillHistorySnapshot {
+        for (old, new) in zip(oldList, newList.enumerated()) {
+            old.id = new.offset + offset
+            old.amount = new.element.amount.rawValue
+        }
     }
     
     @MainActor
@@ -112,6 +182,50 @@ public extension BillBase {
         self.endDate = snap.hasEndDate ? snap.endDate : nil
         self.period = snap.period
         self.autoPay = snap.autoPay
+        
+        let oldPoints = self.history;
+        let newPoints = snap.history;
+        
+        // The point here is to use as many old instances as possible, while integrating the changes from the incoming elements.
+        // The order is taken from the snapshot, so the same amounts in order will be placed back into the utility.
+        
+        if newPoints.count == oldPoints.count {
+            Self.updateLists(oldList: oldPoints, newList: newPoints)
+        }
+        else if newPoints.count > oldPoints.count {
+            //First, update the elements in the first array, and then create new elements. Join the two lists after adding the newly created.
+            let matchedPoints = newPoints[0..<oldPoints.count];
+            Self.updateLists(oldList: oldPoints, newList: matchedPoints)
+            
+            let newInstances = newPoints[oldPoints.count...].enumerated().map { Self.Datapoint($0.element.amount.rawValue, index: $0.offset + oldPoints.count ) };
+            
+            for instance in newInstances {
+                self.modelContext?.insert(instance)
+            }
+            
+            let allPoints = oldPoints + newInstances;
+            self.history = allPoints;
+        }
+        else { //less
+            // First grab the instances from the old points that match the count, and then remove the other instances.
+            let keeping = Array(oldPoints[..<newPoints.count]); //Being stored back so we need it in array format
+            let deleting = oldPoints[newPoints.count...];
+            
+            Self.updateLists(oldList: keeping, newList: newPoints)
+            self.history = keeping;
+            
+            for delete in deleting {
+                self.modelContext?.delete(delete)
+            }
+        }
+    }
+    
+    @MainActor
+    func addPoint(amount: Decimal?) {
+        let max = (self.history.map { $0.id }.max() ?? 0) + 1;
+        let new = Self.Datapoint(amount, index: max);
+        self.history.append(new);
+        self.modelContext?.insert(new);
     }
 }
 
@@ -161,6 +275,7 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.hasLocation = false
         self.location = ""
         self.autoPay = true
+        self.history = [];
     }
     /// Constructs a snapshot around an instance of a `BillBase`.
     public init<T>(_ from: T) where T: BillBase {
@@ -174,6 +289,10 @@ public class BillBaseSnapshot: Hashable, Equatable {
         self.location = from.location ?? String()
         self.autoPay = from.autoPay;
         self.oldId = from.uID;
+        
+        var walker = TimePeriodWalker(start: from.startDate, end: from.endDate, period: from.period, calendar: .current)
+        
+        self.history = from.history.map { BillHistorySnapshot(from: $0, date: walker.step())}
     }
     
     @ObservationIgnored private var oldId: BillBaseID;
@@ -196,6 +315,7 @@ public class BillBaseSnapshot: Hashable, Equatable {
     public var location: String;
     /// If the bill has autopay setup or not
     public var autoPay: Bool;
+    public var history: [BillHistorySnapshot];
     
     /// Validates the bill with its current information.
     @MainActor
@@ -213,6 +333,14 @@ public class BillBaseSnapshot: Hashable, Equatable {
         if hasLocation && location.isEmpty { return .empty }
         if hasEndDate && endDate < startDate { return .invalidInput }
         
+        for child in self.history {
+            if !child.skipped {
+                guard child.amount >= 0 else {
+                    return .negativeAmount
+                }
+            }
+        }
+        
         return nil;
     }
 
@@ -224,9 +352,10 @@ public class BillBaseSnapshot: Hashable, Equatable {
         hasher.combine(company)
         hasher.combine(location)
         hasher.combine(autoPay)
+        hasher.combine(history)
     }
     public static func ==(lhs: BillBaseSnapshot, rhs: BillBaseSnapshot) -> Bool {
-        guard lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.hasEndDate == rhs.hasEndDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.hasLocation == rhs.hasLocation && lhs.autoPay == rhs.autoPay else { return false }
+        guard lhs.name == rhs.name && lhs.startDate == rhs.startDate && lhs.hasEndDate == rhs.hasEndDate && lhs.period == rhs.period && lhs.company == rhs.company && lhs.hasLocation == rhs.hasLocation && lhs.autoPay == rhs.autoPay && lhs.history == rhs.history else { return false }
         
         if lhs.hasLocation && lhs.location != rhs.location { return false }
         if lhs.hasEndDate && lhs.endDate != rhs.endDate { return false }

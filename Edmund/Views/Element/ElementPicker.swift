@@ -15,6 +15,18 @@ public struct ElementPicker<T> : View where T: Identifiable & NamedElement & Per
         self.onNil = onNil;
         self._id = .init(initialValue: target.wrappedValue?.id)
     }
+    public init<V>(_ target: Binding<T?>,
+                   withPredicate filter: Predicate<T>,
+                   sortOn: KeyPath<T, V>,
+                   sortOrder: SortOrder = .forward,
+                   onNil: LocalizedStringKey = "(Pick One)")
+            where V: Comparable
+    {
+        self._target = target
+        self.onNil = onNil;
+        self._id = .init(initialValue: target.wrappedValue?.id)
+        self._choices = Query(filter: filter, sort: sortOn, order: sortOrder)
+    }
     
     @Query private var choices: [T];
     

@@ -10,13 +10,16 @@ import SwiftUI
 import EdmundCore
 
 /// A collection of common rows used for `BillInspect` and `UtilityInspect`, specifically for inspection.
-struct BillBaseInspect : View {
+struct BillBaseInspect<T> : View where T: BillBase {
     /// The target value to inspect
-    var target: any BillBase
+    var target: T
     /// The minimum column width used by the labels.
     let minWidth: CGFloat;
     /// The maximum column width used by the labels.
     let maxWidth: CGFloat;
+    
+    @State private var showingSheet = false;
+    @State private var showingChart = false;
     
     var body: some View {
         GridRow {
@@ -102,6 +105,26 @@ struct BillBaseInspect : View {
         }
         
         Divider()
+        
+        GridRow {
+            Text("").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            
+            HStack {
+                Button(action: { showingSheet = true } ) {
+                    Label("Inspect History", systemImage: "info.circle")
+                }
+                Button(action: { showingChart = true } ) {
+                    Label("Price over Time", systemImage: "chart.bar")
+                }
+                Spacer()
+            }
+        }.sheet(isPresented: $showingSheet) {
+            BillHistoryInspect(over: target)
+        }.sheet(isPresented: $showingChart) {
+            UtilityEntriesGraph(source: target)
+        }
+        
+        Divider()
     }
 }
 
@@ -113,6 +136,8 @@ struct BillBaseEditor : View {
     let minWidth: CGFloat;
     /// The maximum column width used by the labels.
     let maxWidth: CGFloat;
+    
+    @State private var showingSheet = false;
     
     var body: some View {
         GridRow {
@@ -213,6 +238,22 @@ struct BillBaseEditor : View {
                 }.labelsHidden()
                 Spacer()
             }
+        }
+        
+        Divider()
+        
+        GridRow {
+            Text("")
+                .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+            
+            HStack {
+                Button(action: { showingSheet = true } ) {
+                    Label("Edit Datapoints...", systemImage: "pencil")
+                }
+                Spacer()
+            }
+        }.sheet(isPresented: $showingSheet) {
+            BillHistoryEdit(snapshot: editing)
         }
         
         Divider()

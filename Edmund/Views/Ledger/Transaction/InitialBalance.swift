@@ -33,10 +33,6 @@ struct InitialBalance : TransactionEditorProtocol {
             return .internalError
         }
         
-        guard amount.rawValue >= 0 else {
-            return .negativeAmount
-        }
-        
         let transaction = LedgerEntry(
             name: "Initial Balance",
             credit: amount.rawValue,

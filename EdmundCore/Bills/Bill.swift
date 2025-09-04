@@ -11,6 +11,7 @@ import Foundation
 
 extension Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     public typealias Snapshot = BillSnapshot
+    public typealias Datapoint = BillDatapoint
     
     /// Creates the bill based on a specific kind.
     public convenience init(kind: StrictBillsKind) {

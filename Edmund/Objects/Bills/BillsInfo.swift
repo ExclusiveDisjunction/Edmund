@@ -16,6 +16,14 @@ extension BillsKind : Displayable {
             case .utility: "Utility"
         }
     }
+    
+    public var title: LocalizedStringKey {
+        switch self {
+            case .subscription: "Subscription Payment"
+            case .bill: "Bill Payment"
+            case .utility: "Utility Payment"
+        }
+    }
 }
 
 extension StrictBillsKind : Displayable {

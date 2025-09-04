@@ -550,6 +550,9 @@
     "Certificate of Deposit" : {
 
     },
+    "Charge History" : {
+
+    },
     "Checking" : {
 
     },
@@ -981,9 +984,6 @@
     "For Item:" : {
 
     },
-    "For Utility:" : {
-
-    },
     "Frequency" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1227,7 +1227,7 @@
     "Inspect Category" : {
 
     },
-    "Inspect Datapoints..." : {
+    "Inspect History" : {
 
     },
     "Inspect Hourly Job" : {
@@ -1632,12 +1632,6 @@
         }
       }
     },
-    "on" : {
-      "comment" : "$_ on [date]"
-    },
-    "On" : {
-      "comment" : "[Amount] on [Date]"
-    },
     "One or more fields has invalid input." : {
 
     },
@@ -1735,9 +1729,6 @@
 
     },
     "Payday" : {
-
-    },
-    "Paying:" : {
 
     },
     "Percentage" : {
@@ -1986,17 +1977,11 @@
         }
       }
     },
-    "Save Datapoint:" : {
-
-    },
     "Savings" : {
 
     },
     "Select an income division to begin" : {
 
-    },
-    "Select One" : {
-      "comment" : "Select One bill\nSelect One utility"
     },
     "Semi-Anually" : {
 
@@ -2055,6 +2040,12 @@
       }
     },
     "Simple Transaction" : {
+
+    },
+    "Skip?" : {
+
+    },
+    "Skipped" : {
 
     },
     "Sorry, but it looks like that topic or group could not be loaded." : {
@@ -2448,9 +2439,6 @@
         }
       }
     },
-    "Utility Charges" : {
-
-    },
     "Utility Payment" : {
 
     },
@@ -2546,9 +2534,6 @@
       }
     },
     "When this is on, any remaining balance not used by other devotions will be used here." : {
-
-    },
-    "When this is on, Edmund will automatically record this transaction in the Utility's data points." : {
 
     },
     "will be moved to" : {

@@ -20,11 +20,11 @@ struct TransactionMenu<Label> : View where Label: View {
     
     private func openEditor(_ kind: TransactionKind) {
 #if os(macOS)
-        if preferTransWindow {
-            openWindow(id: "transactionEditor", value: kind)
-        }
-        else if let selection = selection {
+        if let selection = selection, !preferTransWindow {
             selection.wrappedValue = kind
+        }
+        else {
+            openWindow(id: "transactionEditor", value: kind)
         }
 #else
         if let selection = selection {
@@ -62,7 +62,7 @@ struct TransactionMenu<Label> : View where Label: View {
                     openEditor(.billPay(.subscription))
                 })
                 Button(BillsKind.utility.display, action: {
-                    openEditor(.utilityPay)
+                    openEditor(.billPay(.utility))
                 })
             } label: {
                 Text("Bill Payment")

@@ -11,8 +11,6 @@ import EdmundCore
 
 public struct UtilityInspect : View {
     @Bindable public var bill: Utility;
-    @State private var showingSheet = false;
-    @State private var showingChart = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     public init(_ bill: Utility) {
@@ -32,31 +30,13 @@ public struct UtilityInspect : View {
             BillBaseInspect(target: bill, minWidth: minWidth, maxWidth: maxWidth)
             
             GridRow {
-                VStack {
-                    Text("Price:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                Text("Price:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(bill.amount, format: .currency(code: currencyCode))
                     Spacer()
                 }
-                
-                VStack {
-                    HStack {
-                        Text(bill.amount, format: .currency(code: currencyCode))
-                        Spacer()
-                    }
-                    HStack {
-                        Button(action: { showingSheet = true } ) {
-                            Label("Inspect Datapoints...", systemImage: "info.circle")
-                        }
-                        Button(action: { showingChart = true } ) {
-                            Label("Price over Time", systemImage: "chart.bar")
-                        }
-                        Spacer()
-                    }
-                }
             }
-        }.sheet(isPresented: $showingSheet) {
-            UtilityEntriesInspect(over: bill)
-        }.sheet(isPresented: $showingChart) {
-            UtilityEntriesGraph(source: bill)
         }
     }
 }

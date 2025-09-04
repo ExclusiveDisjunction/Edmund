@@ -10,12 +10,12 @@ import SwiftData
 import EdmundCore
 
 /// The editor view for Utility Entries.  This provides the layout for editing the entries as a series of payments & dates.
-public struct UtilityEntriesEdit : View {
-    public init(snapshot: UtilitySnapshot) {
+public struct BillHistoryEdit : View {
+    public init(snapshot: BillBaseSnapshot) {
         self.snapshot = snapshot
     }
     
-    @Bindable public var snapshot: UtilitySnapshot;
+    @Bindable public var snapshot: BillBaseSnapshot;
     @State private var selected = Set<UUID>();
     #if os(iOS)
     @State private var showPopover = false;
@@ -29,16 +29,15 @@ public struct UtilityEntriesEdit : View {
     
     private func add_new() {
         withAnimation {
-            snapshot.points.append(
-                .init(amount: .init(), date: nil)
+            snapshot.history.append(
+                .init(date: nil)
             )
             adjustDates()
         }
-        //snapshot.children.removeAll(where: { selected.contains($0.id) } )
     }
     private func deleteSelected() {
         withAnimation {
-            snapshot.points.removeAll(where: { selected.contains($0.id) } )
+            snapshot.history.removeAll(where: { selected.contains($0.id) } )
             
             adjustDates()
         }
@@ -47,7 +46,7 @@ public struct UtilityEntriesEdit : View {
     private func adjustDates() {
         var walker = TimePeriodWalker(start: snapshot.startDate, end: snapshot.hasEndDate ? snapshot.endDate : nil, period: snapshot.period, calendar: calendar)
         
-        snapshot.points.forEach {
+        snapshot.history.forEach {
             $0.date = walker.step()
         }
     }
@@ -76,11 +75,11 @@ public struct UtilityEntriesEdit : View {
     
     public var body: some View {
         VStack {
-            Text("Utility Charges").font(.title2)
+            Text("Charge History").font(.title2)
             
-            #if os(macOS)
+#if os(macOS)
             form
-            #endif
+#endif
             
             HStack {
                 Button(action: add_new) {
@@ -104,14 +103,20 @@ public struct UtilityEntriesEdit : View {
 #endif
             }
             
+#if os(iOS)
             List(selection: $selected) {
-                ForEach($snapshot.points) { $child in
+                ForEach($snapshot.history) { $child in
                     HStack {
-                        CurrencyField(child.amount)
+                        if child.skipped {
+                            Text("Skipped")
+                                .italic()
+                        }
+                        else {
+                            CurrencyField(child.amount)
+                        }
                         
                         Spacer()
                         
-                        Text("on")
                         if let date = child.date {
                             Text(date.formatted(date: .numeric, time: .omitted))
                         }
@@ -121,19 +126,63 @@ public struct UtilityEntriesEdit : View {
                                 .foregroundStyle(.red)
                         }
                     }
-                }.onDelete { set in
+                }.onDelete { offset in
                     withAnimation {
-                        snapshot.points.remove(atOffsets: set)
+                        snapshot.history.remove(atOffsets: offset)
                         adjustDates()
                     }
-                }.onMove { set, offset in
-                    snapshot.points.move(fromOffsets: set, toOffset: offset)
+                }.onMove { index, offset in
+                    snapshot.history.move(fromOffsets: index, toOffset: offset)
                     
                     withAnimation {
                         adjustDates()
                     }
                 }
             }.frame(minHeight: 140, idealHeight: 200, maxHeight: 250)
+            
+#else
+            
+            Table($snapshot.history, selection: $selected) {
+                TableColumn("Amount") { $child in
+                    if child.skipped {
+                        Text("Skipped")
+                            .italic()
+                    }
+                    else {
+                        CurrencyField(child.amount)
+                    }
+                }
+                
+                TableColumn("Skip?") { $child in
+                    Toggle("", isOn: $child.skipped)
+                        .labelsHidden()
+                }
+                
+                TableColumn("Date") { $child in
+                    if let date = child.date {
+                        Text(date.formatted(date: .numeric, time: .omitted))
+                    }
+                    else {
+                        Text("(No date)")
+                            .italic()
+                            .foregroundStyle(.red)
+                    }
+                }
+            }.frame(minHeight: 140, idealHeight: 200, maxHeight: 250)
+                .contextMenu(forSelectionType: UUID.self) { selection in
+                    Button {
+                        withAnimation {
+                            snapshot.history.removeAll(where: { selection.contains($0.id) } )
+                            
+                            adjustDates()
+                        }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                            .foregroundStyle(.red)
+                    }
+                }
+            
+#endif
             
             Spacer()
             
@@ -165,5 +214,5 @@ public struct UtilityEntriesEdit : View {
 
 
 #Preview {
-    UtilityEntriesEdit(snapshot: .init( Utility.exampleUtility[0] ))
+    BillHistoryEdit(snapshot: .init( Utility.exampleUtility[0] ))
 }

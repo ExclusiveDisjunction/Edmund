@@ -21,7 +21,7 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase {
     private var children: [ResolvedBillHistory] {
         var walker = TimePeriodWalker(start: source.startDate, end: source.endDate, period: source.period, calendar: calendar);
         return source.history.compactMap {
-            if let amount = $0.amount, let date = walker.step() {
+            if $0.amount != nil, let date = walker.step() {
                 ResolvedBillHistory(from: $0, date: date)
             }
             else {

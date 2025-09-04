@@ -13,7 +13,6 @@ import EdmundCore
 /// The edit view for Utilities.
 public struct UtilityEdit : View {
     @Bindable public var snapshot: UtilitySnapshot;
-    @State private var showingSheet = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     public init(_ snapshot: UtilitySnapshot) {
@@ -33,27 +32,15 @@ public struct UtilityEdit : View {
             BillBaseEditor(editing: snapshot, minWidth: minWidth, maxWidth: maxWidth)
             
             GridRow {
-                VStack {
-                    Text("Price:")
-                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                Text("Price:")
+                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    Text(snapshot.amount, format: .currency(code: currencyCode))
+                    
                     Spacer()
                 }
-                
-                VStack {
-                    HStack {
-                        Text(snapshot.amount, format: .currency(code: currencyCode))
-                        Spacer()
-                    }
-                    HStack {
-                        Button(action: { showingSheet = true } ) {
-                            Label("Edit Datapoints...", systemImage: "pencil")
-                        }
-                        Spacer()
-                    }
-                }
             }
-        }.sheet(isPresented: $showingSheet) {
-            UtilityEntriesEdit(snapshot: snapshot)
         }
     }
     

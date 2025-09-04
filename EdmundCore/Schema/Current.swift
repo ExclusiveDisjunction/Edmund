@@ -12,6 +12,7 @@ public typealias ModelsCurrentVersion = EdmundModelsV1_1;
 public typealias Bill = ModelsCurrentVersion.Bill;
 public typealias Utility = ModelsCurrentVersion.Utility;
 public typealias UtilityDatapoint = ModelsCurrentVersion.UtilityDatapoint;
+public typealias BillDatapoint = ModelsCurrentVersion.BillDatapoint;
 
 public typealias Account = ModelsCurrentVersion.Account;
 public typealias Category = ModelsCurrentVersion.Category;

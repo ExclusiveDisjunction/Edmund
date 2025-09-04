@@ -9,19 +9,14 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct BillPayment : TransactionEditorProtocol {
-    init(kind: StrictBillsKind)  {
-        self.kind = kind;
-        
-        _bills = Query(filter: BillPayment.predicate(kind: kind), sort: \Bill.name)
-    }
+struct UnifiedBillPayment<T> : TransactionEditorProtocol where T: BillBase & NamedElement {
     
-    @Query private var bills: [Bill];
-    
-    private let kind: StrictBillsKind;
-    @State private var selected: Bill? = nil;
+    private let kind: BillsKind;
+    private let predicate: Predicate<T>;
+    @State private var selected: T? = nil;
     @State private var date: Date = .now;
     @State private var account: Account? = nil;
+    @Bindable private var amount: CurrencyValue = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.modelContext) private var modelContext;
@@ -37,39 +32,32 @@ struct BillPayment : TransactionEditorProtocol {
     let maxWidth: CGFloat = 80;
 #endif
     
-    private static func predicate(kind: StrictBillsKind) -> Predicate<Bill> {
-        let distantFuture = Date.distantFuture;
-        let now = Date.now;
-        let kind = kind.rawValue;
-        return #Predicate<Bill> { bill in
-            return (bill.endDate ?? distantFuture) > now && bill._kind == kind
-        }
-    }
-
     func apply() -> ValidationFailure? {
         guard let categories = categoriesContext else {
             return .internalError
         }
         
+        let amount = amount.rawValue;
+        guard amount >= 0 else {
+            return .negativeAmount
+        }
         guard let target = selected, let account = account else {
             return .empty
         }
         
-        let amount = target.amount;
-        let company = target.company;
-        let name = target.name;
-        
-        let trans = LedgerEntry(
-            name: name,
+        let transaction = LedgerEntry(
+            name: target.name,
             credit: 0,
             debit: amount,
             date: date,
-            location: company,
+            location: target.location ?? "Bank",
             category: categories.bills,
             account: account
         );
         
-        modelContext.insert(trans);
+        modelContext.insert(transaction);
+        target.addPoint(amount: amount)
+        
         return nil;
     }
     
@@ -77,34 +65,28 @@ struct BillPayment : TransactionEditorProtocol {
         TransactionEditorFrame(.billPay(kind), apply: apply) {
             Grid {
                 GridRow {
-                    Text("Paying:")
+                    Text("Target:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    Picker("Bill", selection: $selected) {
-                        Text("Select One", comment: "Select One bill").tag(nil as Bill?)
-                        ForEach(bills, id: \.id) { bill in
-                            Text(bill.name).tag(bill)
-                        }
-                    }.labelsHidden()
+                    ElementPicker($selected, withPredicate: predicate, sortOn: \.name)
                 }
+                
                 Divider()
+                
                 GridRow {
                     Text("Amount:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
-                    HStack {
-                        Text(selected?.amount ?? Decimal(), format: .currency(code: currencyCode))
-                            .padding(.trailing)
-                        
-                        Spacer()
-                    }
+                    CurrencyField(amount)
                 }
+                
                 GridRow {
                     Text("From:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     ElementPicker($account)
                 }
+                
                 GridRow {
                     Text("Date:")
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
@@ -118,13 +100,44 @@ struct BillPayment : TransactionEditorProtocol {
                         Spacer()
                     }
                 }
+            }.onChange(of: selected) { _, newValue in
+                guard let value = newValue else {
+                    return;
+                }
+                
+                self.amount.rawValue = value.amount;
+                self.amount.format(context: currencyCode)
             }
+        }
+    }
+}
+extension UnifiedBillPayment where T == Utility {
+    init() {
+        let distantFuture = Date.distantFuture;
+        let now = Date.now;
+        
+        self.predicate = #Predicate<Utility> { utility in
+            (utility.endDate ?? distantFuture) > now
+        };
+        self.kind = .utility
+    }
+}
+extension UnifiedBillPayment where T == Bill {
+    init(kind: StrictBillsKind) {
+        self.kind = (kind == .subscription ? .subscription : .bill);
+        
+        let distantFuture = Date.distantFuture;
+        let now = Date.now;
+        let kind = kind.rawValue;
+        
+        self.predicate = #Predicate<Bill> { bill in
+            return (bill.endDate ?? distantFuture) > now && bill._kind == kind
         }
     }
 }
 
 #Preview {
     DebugContainerView {
-        BillPayment(kind: .subscription)
+        UnifiedBillPayment(kind: .subscription)
     }
 }
