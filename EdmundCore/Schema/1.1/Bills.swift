@@ -18,9 +18,9 @@ extension EdmundModelsV1_1 {
         }
         
         /// Where the data point lies in the greater storage array.
-        public var id: Int;
+        public var id: Int = 0;
         /// How much the datapoint cost
-        public var amount: Decimal?;
+        public var amount: Decimal? = nil;
         /// The owning utility.
         @Relationship
         public var parent: Bill?;
@@ -41,9 +41,9 @@ extension EdmundModelsV1_1 {
         }
         
         /// Where the data point lies in the greater storage array.
-        public var id: Int;
+        public var id: Int = 0;
         /// How much the datapoint cost
-        public var amount: Decimal?;
+        public var amount: Decimal? = nil;
         /// The owning utility.
         @Relationship
         public var parent: Utility?;
@@ -76,7 +76,7 @@ extension EdmundModelsV1_1 {
             self.id = UUID();
         }
         
-        public var id: UUID;
+        public var id: UUID = UUID();
         public var name: String = "";
         public var amount: Decimal = 0.0;
         public var startDate: Date = Date.now;
@@ -94,9 +94,9 @@ extension EdmundModelsV1_1 {
         internal var _oldHash: Int = 0;
         
         /// The internal raw value used to store the kind.
-        public internal(set) var _kind: StrictBillsKind.RawValue;
+        public internal(set) var _kind: StrictBillsKind.RawValue = 0;
         /// The internall raw value used to store the period.
-        public internal(set) var _period: TimePeriods.RawValue;
+        public internal(set) var _period: TimePeriods.RawValue = 0;
     }
     
     /// Represents a variable-cost bill
@@ -123,15 +123,15 @@ extension EdmundModelsV1_1 {
             self.history = (migrate._points ?? []).map { UtilityDatapoint(migrate: $0) }
             self.id = UUID();
         }
-        
-        public var id: UUID;
+    
+        public var id: UUID = UUID();
         public var name: String = "";
         public var startDate: Date = Date.now;
         public var endDate: Date? = nil;
         public var company: String = "";
         public var location: String? = nil;
         public var autoPay: Bool = true;
-        public internal(set) var _period: TimePeriods.RawValue;
+        public internal(set) var _period: TimePeriods.RawValue = 0;
         
         @Relationship(deleteRule: .cascade, inverse: \UtilityDatapoint.parent)
         public var history: [UtilityDatapoint] = [];

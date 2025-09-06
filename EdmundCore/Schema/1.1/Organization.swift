@@ -33,7 +33,7 @@ extension EdmundModelsV1_1 {
             self.id = UUID();
         }
         
-        public var id: UUID;
+        public var id: UUID = UUID();
         /// The account's name. This must be unique. This can be simple like "Checking", or more elaborate like "Chase Savings"
         public var name: String = "";
         /// An optional interest value
@@ -42,7 +42,7 @@ extension EdmundModelsV1_1 {
         public var location: String? = nil;
         public internal(set) var isVoided: Bool = false
         /// The kind of account, used to make swift data happy.
-        public internal(set) var _kind: AccountKind.RawValue;
+        public internal(set) var _kind: AccountKind.RawValue = AccountKind.checking.rawValue;
         /// The credit limit stored within the system. It will only be provided and active if the account kind is `.credit`.
         public internal(set) var _creditLimit: Decimal? = nil;
         
@@ -86,9 +86,9 @@ extension EdmundModelsV1_1 {
         }
 
         public var id: UUID = UUID();
-        public var name: String;
-        public var desc: String;
-        public var isLocked: Bool;
+        public var name: String = "";
+        public var desc: String = "";
+        public var isLocked: Bool = false;
         
         @Relationship(deleteRule: .cascade, inverse: \LedgerEntry.category)
         public var transactions: [LedgerEntry];

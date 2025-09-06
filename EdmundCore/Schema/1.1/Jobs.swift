@@ -28,12 +28,12 @@ extension EdmundModelsV1_1 {
             self.id = UUID();
         }
         
-        public var id: UUID;
-        public var company: String;
-        public var position: String;
+        public var id: UUID = UUID();
+        public var company: String = "";
+        public var position: String = "";
         /// The gross pay of the job each paycheck.
-        public var grossAmount: Decimal;
-        public var taxRate: Decimal;
+        public var grossAmount: Decimal = 0;
+        public var taxRate: Decimal = 0;
     }
     
     /// A hourly job taken at a company
@@ -57,13 +57,13 @@ extension EdmundModelsV1_1 {
             self.id = UUID();
         }
         
-        public var id: UUID;
-        public var company: String;
-        public var position: String;
+        public var id: UUID = UUID();
+        public var company: String = "";
+        public var position: String = "";
         /// The amount per hour the individual obtains (ex. 20$ per hour)
-        public var hourlyRate: Decimal;
+        public var hourlyRate: Decimal = 0;
         /// The average hours the individual works.
-        public var avgHours: Decimal;
-        public var taxRate: Decimal;
+        public var avgHours: Decimal = 0;
+        public var taxRate: Decimal = 0;
     }
 }

@@ -27,9 +27,9 @@ extension EdmundModelsV1_1 {
         }
         
         
-        public var id: UUID;
-        public var amount: Decimal;
-        public internal(set) var _period: MonthlyTimePeriods.RawValue;
+        public var id: UUID = UUID();
+        public var amount: Decimal = 0;
+        public internal(set) var _period: MonthlyTimePeriods.RawValue = 0;
         
         @Relationship
         public var association: Account?;
@@ -55,9 +55,9 @@ extension EdmundModelsV1_1 {
         }
         
         
-        public var id: UUID;
-        public var amount: Decimal;
-        public internal(set) var _period: MonthlyTimePeriods.RawValue;
+        public var id: UUID = UUID();
+        public var amount: Decimal = 0;
+        public internal(set) var _period: MonthlyTimePeriods.RawValue = 0;
         
         @Relationship
         public var association: Category?;
@@ -82,15 +82,15 @@ extension EdmundModelsV1_1 {
             self.income = [];
         }
         
-        public var id: UUID;
-        public internal(set) var date: MonthYear;
-        
+        public var id: UUID = UUID();
+        public internal(set) var date: MonthYear = MonthYear(0, 0)
+
         @Relationship(deleteRule: .cascade, inverse: \BudgetSpendingGoal.parent)
-        public var spendingGoals: [BudgetSpendingGoal];
+        public var spendingGoals: [BudgetSpendingGoal] = [];
         @Relationship(deleteRule: .cascade, inverse: \BudgetSavingsGoal.parent)
-        public var savingsGoals: [BudgetSavingsGoal];
+        public var savingsGoals: [BudgetSavingsGoal] = [];
         @Relationship(deleteRule: .cascade, inverse: \IncomeDivision.parent)
-        public var income: [IncomeDivision];
+        public var income: [IncomeDivision] = [];
         
         @Transient
         public internal(set) var _title: String? = nil;

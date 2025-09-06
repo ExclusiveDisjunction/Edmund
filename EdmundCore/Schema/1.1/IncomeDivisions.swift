@@ -20,10 +20,10 @@ extension EdmundModelsV1_1 {
             self._group = group.rawValue
         }
         
-        public var id: UUID;
-        public var name: String;
-        public var amount: Decimal;
-        public internal(set) var _group: DevotionGroup.RawValue
+        public var id: UUID = UUID();
+        public var name: String = "";
+        public var amount: Decimal = 0;
+        public internal(set) var _group: DevotionGroup.RawValue = 0
         
         @Relationship
         public var parent: IncomeDivision?;
@@ -42,10 +42,10 @@ extension EdmundModelsV1_1 {
             self._group = group.rawValue
         }
         
-        public var id: UUID;
-        public var name: String;
-        public var amount: Decimal;
-        public internal(set) var _group: DevotionGroup.RawValue
+        public var id: UUID = UUID();
+        public var name: String = "";
+        public var amount: Decimal = 0;
+        public internal(set) var _group: DevotionGroup.RawValue = 0;
         
         @Relationship
         public var parent: IncomeDivision?;
@@ -63,9 +63,9 @@ extension EdmundModelsV1_1 {
             self._group = group.rawValue
         }
         
-        public var id: UUID;
-        public var name: String
-        public internal(set) var _group: DevotionGroup.RawValue
+        public var id: UUID = UUID();
+        public var name: String = "";
+        public internal(set) var _group: DevotionGroup.RawValue = 0;
         
         @Relationship
         public var parent: IncomeDivision?;
@@ -88,13 +88,13 @@ extension EdmundModelsV1_1 {
             self.id = UUID();
         }
         
-        public var id: UUID;
-        public var name: String;
-        public var amount: Decimal;
+        public var id: UUID = UUID();
+        public var name: String = "";
+        public var amount: Decimal = 0;
         public var isFinalized: Bool = false;
-        public internal(set) var _kind: IncomeKind.RawValue;
-        public var lastUpdated: Date;
-        public var lastViewed: Date;
+        public internal(set) var _kind: IncomeKind.RawValue = 0;
+        public var lastUpdated: Date = Date.distantPast;
+        public var lastViewed: Date = Date.distantPast;
         
         @Relationship
         public var parent: BudgetMonth?;

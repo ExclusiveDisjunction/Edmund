@@ -168,11 +168,9 @@ public struct DebugContainerView<Content> : View where Content: View {
 
 /// A collection of various tools used for SwiftData containers.
 public struct Containers {
-    public static let interestedTypes: [any PersistentModel.Type] = ModelsCurrentVersion.models
-    
     /// The schema used by the containers.
     @MainActor
-    private static let schema: Schema = .init(interestedTypes)
+    private static let schema: Schema = Schema(versionedSchema: ModelsCurrentVersion.self)
     
     @MainActor
     private static func prepareContainer(loc: ContainerLocation) throws -> Container {
