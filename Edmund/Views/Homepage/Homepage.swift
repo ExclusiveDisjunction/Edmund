@@ -95,38 +95,44 @@ struct Homepage : View {
         }.navigationTitle("Welcome")
             .padding()
             .toolbar {
-                Button(action: { modifyHomescreen = true } ) {
-                    Label("Customize", systemImage: "rectangle.3.group")
+                ToolbarItem(placement: .secondaryAction) {
+                    Button(action: { modifyHomescreen = true } ) {
+                        Label("Customize", systemImage: "rectangle.3.group")
+                    }
                 }
-                Button(action: showSettings) {
-                    Label("Settings", systemImage: "gear")
+                ToolbarItem(placement: .secondaryAction) {
+                    Button(action: showSettings) {
+                        Label("Settings", systemImage: "gear")
+                    }
                 }
                 
-                #if os(iOS)
-                Menu {
+                ToolbarItem(placement: .primaryAction) {
+#if os(iOS)
+                    Menu {
+                        Button(action: showHelp) {
+                            Label("Help", systemImage: "questionmark")
+                        }
+                        
+                        Button {
+                            openURL(bugFormLink)
+                        } label: {
+                            Label("Report a bug", systemImage: "ladybug")
+                        }
+                        
+                        Button {
+                            openURL(featureFormLink)
+                        } label: {
+                            Label("Request a feature", systemImage: "lightbulb.max")
+                        }
+                    } label: {
+                        Label("Help", systemImage: "questionmark")
+                    }
+#else
                     Button(action: showHelp) {
                         Label("Help", systemImage: "questionmark")
                     }
-                    
-                    Button {
-                        openURL(bugFormLink)
-                    } label: {
-                        Label("Report a bug", systemImage: "ladybug")
-                    }
-                    
-                    Button {
-                        openURL(featureFormLink)
-                    } label: {
-                        Label("Request a feature", systemImage: "lightbulb.max")
-                    }
-                } label: {
-                    Label("Help", systemImage: "questionmark")
+#endif
                 }
-                #else
-                Button(action: showHelp) {
-                    Label("Help", systemImage: "questionmark")
-                }
-                #endif
             }
             .sheet(isPresented: $modifyHomescreen) {
                 HomepageEditor(isSheet: true)

@@ -25,7 +25,7 @@ struct ManyManyTransfer : TransactionEditorProtocol {
         }
     
         let topAmount = top.amount, bottomAmount = bottom.amount;
-        guard topAmount != bottomAmount else {
+        guard topAmount == bottomAmount else {
             return .invalidInput
         }
         

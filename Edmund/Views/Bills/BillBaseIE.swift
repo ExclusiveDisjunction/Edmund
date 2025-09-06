@@ -21,6 +21,8 @@ struct BillBaseInspect<T> : View where T: BillBase {
     @State private var showingSheet = false;
     @State private var showingChart = false;
     
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    
     var body: some View {
         GridRow {
             Text("Name:")
@@ -106,23 +108,55 @@ struct BillBaseInspect<T> : View where T: BillBase {
         
         Divider()
         
-        GridRow {
-            Text("").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-            
-            HStack {
-                Button(action: { showingSheet = true } ) {
-                    Label("Inspect History", systemImage: "info.circle")
+        if horizontalSizeClass == .compact {
+            GridRow {
+                Text("").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    Button(action: { showingSheet = true } ) {
+                        Label("Inspect History", systemImage: "info.circle")
+                    }
+                    Button(action: { showingChart = true } ) {
+                        Label("Price over Time", systemImage: "chart.bar")
+                    }
+                    Spacer()
                 }
-                Button(action: { showingChart = true } ) {
-                    Label("Price over Time", systemImage: "chart.bar")
-                }
-                Spacer()
+            }.sheet(isPresented: $showingSheet) {
+                BillHistoryInspect(over: target)
+            }.sheet(isPresented: $showingChart) {
+                UtilityEntriesGraph(source: target)
             }
-        }.sheet(isPresented: $showingSheet) {
-            BillHistoryInspect(over: target)
-        }.sheet(isPresented: $showingChart) {
-            UtilityEntriesGraph(source: target)
         }
+        else {
+            GridRow {
+                Text("").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    Button(action: { showingSheet = true } ) {
+                        Label("Inspect History", systemImage: "info.circle")
+                    }
+                    
+                    Spacer()
+                }
+            }.sheet(isPresented: $showingSheet) {
+                BillHistoryInspect(over: target)
+            }
+            
+            GridRow {
+                Text("").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                
+                HStack {
+                    Button(action: { showingChart = true } ) {
+                        Label("Price over Time", systemImage: "chart.bar")
+                    }
+                    Spacer()
+                }
+            }.sheet(isPresented: $showingChart) {
+                UtilityEntriesGraph(source: target)
+            }
+        }
+        
+        
         
         Divider()
     }

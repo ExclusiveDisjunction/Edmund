@@ -146,12 +146,14 @@ struct LedgerTable: View {
                 HStack {
                     Spacer()
                     
-                    Text("Total Credit:")
-                    Text(totals.credit, format: .currency(code: currencyCode))
-                    
-                    Text("Total Debits:")
-                    Text(totals.debit, format: .currency(code: currencyCode))
-                    
+                    if horizontalSizeClass != .compact {
+                        Text("Total Money In:")
+                        Text(totals.credit, format: .currency(code: currencyCode))
+                        
+                        Text("Total Money Out:")
+                        Text(totals.debit, format: .currency(code: currencyCode))
+                    }
+                        
                     Text("Total Balance:")
                         .bold()
                     Text(totals.balance, format: .currency(code: currencyCode))

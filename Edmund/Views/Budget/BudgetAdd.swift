@@ -104,11 +104,7 @@ struct BudgetAdd : View {
         }
     }
     private func getSchema(for year: Int) {
-        let budgets = (try? modelContext.fetch(
-            FetchDescriptor<BudgetMonth>(predicate: #Predicate<BudgetMonth> {
-                $0.date.year == year
-            })
-        )) ?? []
+        let budgets = ((try? modelContext.fetch(FetchDescriptor<BudgetMonth>())) ?? []).filter { $0.date.year == year };
         loggerSystem?.data.info("Fetched \(budgets.count) budgets for the year \(year).")
         
         var newSchema: [Month : Bool] = .init(uniqueKeysWithValues: Month.allCases.map { ($0, false) } );

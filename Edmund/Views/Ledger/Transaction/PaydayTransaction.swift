@@ -64,7 +64,7 @@ struct PaydayTransaction : TransactionEditorProtocol {
     private func pickerContent() -> some View {
         Text("(No job)")
             .italic()
-            .tag(nil as TraditionalJobID?)
+            .tag(nil as UUID?)
         if !salaried.isEmpty {
             Section("Salaried") {
                 ForEach(salaried) { job in

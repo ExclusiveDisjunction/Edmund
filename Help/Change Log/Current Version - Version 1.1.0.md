@@ -18,6 +18,11 @@
 ## Bug Fixes
 ### Level 1 - Cosmetic
 1. Corrected the issue where on iOS and iPadOS (compact mode), the welcome sometimes shows above the home-screen widgets.
+2. On category inspect and edit, the "Description" label was positioned incorrectly.
+3. On category edit, the name did not have a border on iOS/iPadOS.
+4. Changed the homescreen to help with glitches. Glitches still occur on iOS, but you can move back to the homescreen and the glitch will go away.
+5. On the ledger in iOS, or iPadOS, the footer totals was crammed. It is fixed by only showing the total balance instead of all details. 
+6. Fixed an internal issue with payday transaction template.
 
 ### Level 2 - Minor Annoyance
 1. Corrected an issue where, despite the user's choice of "Subscription" or "Bill", the add bill tool always defaults to the "Bill" kind. 
@@ -27,6 +32,8 @@
 
 ### Level 3 - Noticeable Issues
 1. The budget tool did not add up transactions correctly, so budgets for a month were not accurate. 
+2. Fixed an issue where many-to-many transfer did not accept correctly balanced.
 
 ### Level 4 - Unusable 
+1. A bug was reported when adding a budget month. This issue should be resolved.
 

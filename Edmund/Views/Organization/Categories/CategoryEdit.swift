@@ -27,11 +27,15 @@ struct CategoryEdit : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 TextField("", text: $snapshot.name)
+                    .textFieldStyle(.roundedBorder)
             }
             
             GridRow {
-                Text("Description:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                VStack {
+                    Text("Description:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    Spacer()
+                }
                 
                 TextEditor(text: $snapshot.desc)
                     .frame(minHeight: 130, idealHeight: 170, maxHeight: nil)

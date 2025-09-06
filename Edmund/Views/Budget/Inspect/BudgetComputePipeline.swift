@@ -126,8 +126,8 @@ struct BudgetComputePipeline {
         var categories: [EdmundCore.Category : BalanceInformation] = [:];
         
         for entry in input.data {
-            accounts[entry.account] = accounts[entry.account] ?? BalanceInformation() + entry.balance;
-            categories[entry.category] = categories[entry.category] ?? BalanceInformation() + entry.balance;
+            accounts[entry.account] = accounts[entry.account, default: .init()] + entry.balance;
+            categories[entry.category] = categories[entry.category, default: .init()] + entry.balance;
         }
         
         // Now that the balances have been computed per-account and per-category, we can stitch it with the spending and savings goals.

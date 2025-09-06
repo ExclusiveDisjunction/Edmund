@@ -34,8 +34,11 @@ struct CategoryInspect : View {
             }
             
             GridRow {
-                Text("Description:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                VStack {
+                    Text("Description:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    Spacer()
+                }
                 
                 TextEditor(text: $data.desc)
                     .frame(minHeight: 130, idealHeight: 170, maxHeight: nil)

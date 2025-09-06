@@ -19,6 +19,7 @@ struct CategoriesIE : View {
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     private func deletePress() {
         let items = categories.filter { !$0.isLocked && selection.contains($0.id) }
@@ -75,7 +76,18 @@ struct CategoriesIE : View {
     
     var body: some View {
         Table(categories, selection: $selection) {
-            TableColumn("Name", value: \.name)
+            TableColumn("Name") { cat in
+                if horizontalSizeClass == .compact && cat.isLocked {
+                    HStack {
+                        Text(cat.name)
+                        Spacer()
+                        Image(systemName: "lock")
+                    }
+                }
+                else {
+                    Text(cat.name)
+                }
+            }
                 .width(min: 30, ideal: 50, max: nil)
             TableColumn("") { cat in
                 if cat.isLocked {
