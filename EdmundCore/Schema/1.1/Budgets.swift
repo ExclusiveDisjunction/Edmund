@@ -74,6 +74,13 @@ extension EdmundModelsV1_1 {
             self.income = income
             self.id = id
         }
+        public init(migrate: EdmundModelsV1.BudgetMonth) {
+            self.date = migrate.date
+            self.id = UUID();
+            self.spendingGoals = [];
+            self.savingsGoals = [];
+            self.income = [];
+        }
         
         public var id: UUID;
         public internal(set) var date: MonthYear;
