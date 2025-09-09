@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import EdmundCore
 
-struct UnifiedBillPayment<T> : TransactionEditorProtocol where T: BillBase & NamedElement {
+struct UnifiedBillPayment<T> : TransactionEditorProtocol where T: BillBase & PersistentModel & AnyObject {
     
     private let kind: BillsKind;
     private let predicate: Predicate<T>;

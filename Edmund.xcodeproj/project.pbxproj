@@ -116,16 +116,6 @@
 			path = EdmundTests;
 			sourceTree = "<group>";
 		};
-		DD3DCA6B2E15F5550086DDAB /* EdmundWidgetCore */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = EdmundWidgetCore;
-			sourceTree = "<group>";
-		};
-		DD3DCA832E15F6340086DDAB /* EdmundWidgets */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = EdmundWidgets;
-			sourceTree = "<group>";
-		};
 		DD5B21482E11F662003A4B4A /* EdmundCore */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -171,8 +161,6 @@
 				DD34E6042D99D21D009E3875 /* Edmund */,
 				DD34E6182D99D21E009E3875 /* EdmundTests */,
 				DD5B21482E11F662003A4B4A /* EdmundCore */,
-				DD3DCA6B2E15F5550086DDAB /* EdmundWidgetCore */,
-				DD3DCA832E15F6340086DDAB /* EdmundWidgets */,
 				DD4464F12DB8552C006D9A01 /* Frameworks */,
 				DD34E6032D99D21D009E3875 /* Products */,
 			);
