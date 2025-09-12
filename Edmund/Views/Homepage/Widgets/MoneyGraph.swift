@@ -22,21 +22,27 @@ struct MoneyGraph : View {
     }
     
     var body: some View {
-        LoadableView($balances, process: load, onLoad: { balances in
-            Chart(balances) { balance in
-                SectorMark(
-                    angle: .value(
-                        Text(verbatim: balance.name),
-                        balance.balance
-                    )
-                ).foregroundStyle(by:
-                    .value(
-                        Text(verbatim: balance.name),
-                        balance.name
-                    )
-                )
+        LoadableView($balances, process: load) { balances in
+            if balances.isEmpty {
+                Text("There is not enough information to display spending.")
+                    .italic()
             }
-        })
+            else {
+                Chart(balances) { balance in
+                    SectorMark(
+                        angle: .value(
+                            Text(verbatim: balance.name),
+                            balance.balance
+                        )
+                    ).foregroundStyle(by:
+                            .value(
+                                Text(verbatim: balance.name),
+                                balance.name
+                            )
+                    )
+                }
+            }
+        }
     }
 }
 

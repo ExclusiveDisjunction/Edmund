@@ -133,7 +133,7 @@ struct BillBaseInspect<T> : View where T: BillBase {
                 
                 HStack {
                     Button(action: { showingSheet = true } ) {
-                        Label("Inspect History", systemImage: "info.circle")
+                        Label("History", systemImage: "info.circle")
                     }
                     
                     Spacer()
@@ -282,7 +282,7 @@ struct BillBaseEditor : View {
             
             HStack {
                 Button(action: { showingSheet = true } ) {
-                    Label("Edit Datapoints...", systemImage: "pencil")
+                    Label("Edit History", systemImage: "pencil")
                 }
                 Spacer()
             }

@@ -21,16 +21,22 @@ struct SimpleBalancesView : View {
     }
     
     var body: some View {
-        LoadableView($loadedBalances, process: loadBalances, onLoad: { balances in
-            List(balances) { account in
-                HStack {
-                    Text(account.name)
-                    Spacer()
-                    Text(account.balance, format: .currency(code: currencyCode))
-                        .foregroundStyle(account.balance < 0 ? .red : .primary)
+        LoadableView($loadedBalances, process: loadBalances) { balances in
+            if balances.isEmpty {
+                Text("There are no balances to display")
+                    .italic()
+            }
+            else {
+                List(balances) { account in
+                    HStack {
+                        Text(account.name)
+                        Spacer()
+                        Text(account.balance, format: .currency(code: currencyCode))
+                            .foregroundStyle(account.balance < 0 ? .red : .primary)
+                    }
                 }
             }
-        })
+        }
     }
 }
 

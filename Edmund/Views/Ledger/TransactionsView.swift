@@ -146,9 +146,9 @@ struct TransactionsEditor : View {
             case .miscIncome:      MiscIncome()
             case .payday:          PaydayTransaction()
             case .billPay(let v):  switch v {
-                case .subscription: UnifiedBillPayment(kind: .subscription)
-                case .bill:         UnifiedBillPayment(kind: .bill)
-                case .utility:      UnifiedBillPayment()
+                case .subscription: BillPayment(kind: .subscription)
+                case .bill:         BillPayment(kind: .bill)
+                case .utility:      UtilityPayment()
             }
             case .balanceCorrection:           BalanceCorrection()
             case .transfer(let v): Transfer(v)

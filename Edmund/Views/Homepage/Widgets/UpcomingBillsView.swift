@@ -47,11 +47,17 @@ struct UpcomingBillsView : View {
                 
             }
             #else
-            List(loaded) { bill in
-                HStack {
-                    Text(bill.name)
-                    Spacer()
-                    Text(bill.dueDate.formatted(date: .abbreviated, time: .omitted))
+            if loaded.isEmpty {
+                Text("There are no upcoming bills")
+                    .italic()
+            }
+            else {
+                List(loaded) { bill in
+                    HStack {
+                        Text(bill.name)
+                        Spacer()
+                        Text(bill.dueDate.formatted(date: .abbreviated, time: .omitted))
+                    }
                 }
             }
             #endif

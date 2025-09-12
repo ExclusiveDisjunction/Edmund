@@ -1,5 +1,3 @@
-***Note***: This is a beta version. Data format is not guaranteed to be persistent across versions. 
-
 ## New Features
 1. Added a payday transaction template. This pulls from the jobs information, and will auto-populate the estimate of your paycheck. 
 2. Removed sub-accounts and sub-categories. All transactions under some (Account, Sub Account) and (Category, Sub Category) pair will be moved directly under the account and category. All user interface locations for account/sub-account and category/sub-category pairs have been removed to just account or category.

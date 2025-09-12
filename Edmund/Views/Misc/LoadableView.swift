@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoadableView<T, Body> : View where Body: View, T: Sendable {
-    init(_ data: Binding<T?>, process: @Sendable @escaping () async -> T, onLoad: @escaping (T) -> Body) {
+    init(_ data: Binding<T?>, process: @Sendable @escaping () async -> T, @ViewBuilder onLoad: @escaping (T) -> Body) {
         self._data = data;
         self.content = onLoad;
         self.task = process;

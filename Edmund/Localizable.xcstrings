@@ -182,6 +182,9 @@
     "Add Salaried Job" : {
 
     },
+    "Add Skipped" : {
+
+    },
     "Add Transaction" : {
 
     },
@@ -192,6 +195,9 @@
 
     },
     "Added On:" : {
+
+    },
+    "Adjust Dates" : {
 
     },
     "Amount" : {
@@ -415,6 +421,9 @@
           }
         }
       }
+    },
+    "Bill:" : {
+
     },
     "Bills" : {
       "extractionState" : "manual",
@@ -824,7 +833,7 @@
     "Edit Category" : {
 
     },
-    "Edit Datapoints..." : {
+    "Edit History" : {
 
     },
     "Edit Hourly Job" : {
@@ -1117,6 +1126,9 @@
           }
         }
       }
+    },
+    "History" : {
+
     },
     "Home" : {
       "extractionState" : "manual",
@@ -2167,6 +2179,9 @@
     "Subscription Payment" : {
 
     },
+    "Subscription:" : {
+
+    },
     "Subscriptions can usually be canceled whenever, while bills have stricter requirements." : {
 
     },
@@ -2219,6 +2234,9 @@
     "The unique engine could not be loaded." : {
 
     },
+    "There are no balances to display" : {
+
+    },
     "There are no expired bills" : {
 
     },
@@ -2233,10 +2251,22 @@
         }
       }
     },
+    "There are no upcoming bills" : {
+
+    },
     "There are unsaved changes, do you wish to continue?" : {
 
     },
     "There cannot be a remaining balance. Please use all funds so that the balance is zero. Note, you can use the remainder to correct this." : {
+
+    },
+    "There is no history to view." : {
+
+    },
+    "There is not enough data in the history to graph the price over time." : {
+
+    },
+    "There is not enough information to display spending." : {
 
     },
     "This app is not translated with professional translators." : {
@@ -2264,6 +2294,9 @@
 
     },
     "Today" : {
+
+    },
+    "Toggle Skipped" : {
 
     },
     "tooManyItems" : {
@@ -2440,6 +2473,9 @@
       }
     },
     "Utility Payment" : {
+
+    },
+    "Utility:" : {
 
     },
     "Variance" : {

@@ -53,28 +53,34 @@ public struct BillHistoryInspect<T> : View where T: BillBase {
         VStack {
             Text("Datapoints").font(.title2)
             
-            Table(cache, selection: $selected) {
-                TableColumn("Amount") { child in
-                    if horizontalSizeClass == .compact {
-                        HStack {
+            if cache.isEmpty {
+                Text("There is no history to view.")
+                    .italic()
+            }
+            else {
+                Table(cache, selection: $selected) {
+                    TableColumn("Amount") { child in
+                        if horizontalSizeClass == .compact {
+                            HStack {
+                                amountDisplay(child.amount)
+                                
+                                Spacer()
+                                
+                                dateDisplay(child.date)
+                            }
+                        }
+                        else {
                             amountDisplay(child.amount)
-                            
-                            Spacer()
-                            
-                            dateDisplay(child.date)
                         }
                     }
-                    else {
-                        amountDisplay(child.amount)
+                    TableColumn("Date") { child in
+                        dateDisplay(child.date)
                     }
-                }
-                TableColumn("Date") { child in
-                    dateDisplay(child.date)
-                }
-            }.onAppear(perform: refresh)
-                .onChange(of: over.history) { _, _ in
-                    refresh()
-                }
+                }.onAppear(perform: refresh)
+                    .onChange(of: over.history) { _, _ in
+                        refresh()
+                    }
+            }
             
             Spacer()
             

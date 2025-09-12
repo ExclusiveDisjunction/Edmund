@@ -27,10 +27,13 @@ public struct BillHistoryEdit : View {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func add_new() {
+    private func add_new(skipped: Bool) {
+        let new = BillHistorySnapshot(date: nil);
+        new.skipped = skipped;
+        
         withAnimation {
             snapshot.history.append(
-                .init(date: nil)
+                new
             )
             adjustDates()
         }
@@ -82,9 +85,21 @@ public struct BillHistoryEdit : View {
 #endif
             
             HStack {
-                Button(action: add_new) {
+                Menu {
+                    Button {
+                        add_new(skipped: false)
+                    } label: {
+                        Text("Add")
+                    }
+                    
+                    Button {
+                        add_new(skipped: true)
+                    } label: {
+                        Text("Add Skipped")
+                    }
+                } label: {
                     Image(systemName: "plus")
-                }.buttonStyle(.borderless)
+                }.menuStyle(.borderlessButton)
 #if os(macOS)
                 Button(action: deleteSelected) {
                     Image(systemName: "trash").foregroundStyle(.red)
@@ -92,8 +107,10 @@ public struct BillHistoryEdit : View {
 #endif
                 
 #if os(iOS)
+                Divider()
+                    .frame(maxHeight: 20)
                 Button(action: { showPopover = true } ) {
-                    Image(systemName: "pencil")
+                    Label("Adjust Dates", systemImage: "pencil")
                 }.popover(isPresented: $showPopover) {
                     form
                 }
@@ -138,7 +155,29 @@ public struct BillHistoryEdit : View {
                         adjustDates()
                     }
                 }
-            }.frame(minHeight: 140, idealHeight: 200, maxHeight: 250)
+            }.frame(minHeight: 140, idealHeight: 300, maxHeight: nil)
+                .contextMenu(forSelectionType: UUID.self) { selection in
+                    Button {
+                        withAnimation {
+                            snapshot.history.filter { selection.contains($0.id) }.forEach {
+                                $0.skipped.toggle()
+                            }
+                        }
+                    } label: {
+                        Label("Toggle Skipped", systemImage: "xmark")
+                    }
+                    
+                    Button {
+                        withAnimation {
+                            snapshot.history.removeAll(where: { selection.contains($0.id) } )
+                            
+                            adjustDates()
+                        }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                            .foregroundStyle(.red)
+                    }
+                }
             
 #else
             
