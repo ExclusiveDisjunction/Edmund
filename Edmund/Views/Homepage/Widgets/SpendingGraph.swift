@@ -78,30 +78,36 @@ struct SpendingGraph : View {
         }.pickerStyle(.segmented)
             .labelsHidden()
         
-        LoadableView($resolved, process: load, onLoad: { resolved in
-            Chart(resolved) { pair in
-                if spendingGraphMode == .net {
-                    BarMark(
-                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
-                        y: .value(Text(pair.balance.balance, format: .currency(code: currencyCode)), pair.balance.balance)
-                    )
-                    .foregroundStyle(pair.balance.balance < 0 ? .red : .green)
-                }
-                else {
-                    BarMark(
-                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
-                        y: .value(Text(pair.balance.credit, format: .currency(code: currencyCode)), pair.balance.credit)
-                    )
-                    .foregroundStyle(.green)
-                    
-                    BarMark(
-                        x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
-                        y: .value(Text(-pair.balance.debit, format: .currency(code: currencyCode)), -pair.balance.debit)
-                    )
-                    .foregroundStyle(.red)
-                }
-            }.chartLegend(.visible).chartXAxisLabel("Month & Year").chartYAxisLabel("Amount")
-        })
+        LoadableView($resolved, process: load) { resolved in
+            if resolved.isEmpty {
+                Text("There is not enough transactions to show spending.")
+                    .italic()
+            }
+            else {
+                Chart(resolved) { pair in
+                    if spendingGraphMode == .net {
+                        BarMark(
+                            x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                            y: .value(Text(pair.balance.balance, format: .currency(code: currencyCode)), pair.balance.balance)
+                        )
+                        .foregroundStyle(pair.balance.balance < 0 ? .red : .green)
+                    }
+                    else {
+                        BarMark(
+                            x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                            y: .value(Text(pair.balance.credit, format: .currency(code: currencyCode)), pair.balance.credit)
+                        )
+                        .foregroundStyle(.green)
+                        
+                        BarMark(
+                            x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                            y: .value(Text(-pair.balance.debit, format: .currency(code: currencyCode)), -pair.balance.debit)
+                        )
+                        .foregroundStyle(.red)
+                    }
+                }.chartLegend(.visible).chartXAxisLabel("Month & Year").chartYAxisLabel("Amount")
+            }
+        }
     }
 }
 

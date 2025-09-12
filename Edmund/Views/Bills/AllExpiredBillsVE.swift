@@ -42,7 +42,7 @@ struct AllExpiredBillsVE : View {
     private var empty: some View {
         VStack {
             Spacer()
-            Text("There are no expired bills").italic().font(.subheadline)
+            Text("There are no expired bills").italic()
             Spacer()
         }
     }

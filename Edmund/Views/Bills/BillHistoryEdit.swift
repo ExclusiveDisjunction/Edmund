@@ -85,6 +85,7 @@ public struct BillHistoryEdit : View {
 #endif
             
             HStack {
+#if os(iOS)
                 Menu {
                     Button {
                         add_new(skipped: false)
@@ -100,7 +101,14 @@ public struct BillHistoryEdit : View {
                 } label: {
                     Image(systemName: "plus")
                 }.menuStyle(.borderlessButton)
+#endif
 #if os(macOS)
+                Button {
+                    add_new(skipped: false)
+                } label: {
+                    Image(systemName: "plus")
+                }.buttonStyle(.borderless)
+                
                 Button(action: deleteSelected) {
                     Image(systemName: "trash").foregroundStyle(.red)
                 }.buttonStyle(.borderless)

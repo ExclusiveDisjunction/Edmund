@@ -13,6 +13,7 @@
 
 ### Level 3 - Noticeable Issues
 1. Corrected an issue where on iOS and iPadOS, skipping a bill or utility payment was not possible.
+2. Corrected slight variances noticed when computing bill estimates for paychecks.
 
 ### Level 4 - Unusable 
 1. Corrected the crashing issue when creating a bill, subscription, or utility payment transaction.
