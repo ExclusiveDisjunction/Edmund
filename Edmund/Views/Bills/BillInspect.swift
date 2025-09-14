@@ -53,8 +53,8 @@ public struct BillInspect : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        ElementInspector(data: Bill.exampleBills[0])
-    }
+@available(macOS 15, iOS 18, *)
+#Preview(traits: .sampleData) {
+    @Previewable @Query var bills: [Bill];
+    ElementInspector(data: bills.first!)
 }

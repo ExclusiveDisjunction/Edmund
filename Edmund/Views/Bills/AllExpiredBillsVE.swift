@@ -177,10 +177,9 @@ struct AllExpiredBillsVE : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        NavigationStack {
-            AllExpiredBillsVE()
-        }
+@available(macOS 15, iOS 18, *)
+#Preview(traits: .sampleData) {
+    NavigationStack {
+        AllExpiredBillsVE()
     }
 }

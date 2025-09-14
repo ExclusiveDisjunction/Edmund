@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 import EdmundCore
 
 /// A collection of common rows used for `BillInspect` and `UtilityInspect`, specifically for inspection.
@@ -315,17 +316,21 @@ struct LongTextEditWithLabel : View {
     }
 }
 
-#Preview {
-    let target = Bill.exampleSubscriptions[0]
-    let manifest = BillBaseSnapshot(target)
+@available(macOS 15, iOS 18, *)
+#Preview(traits: .sampleData) {
+    @Previewable @Query var bills: [Bill];
     
-    ScrollView {
-        Grid {
-            BillBaseInspect(target: target, minWidth: 80, maxWidth: 90)
+    if let target = bills.first {
+        ScrollView {
+            let manifest = BillBaseSnapshot(bills.first!)
             
-            Divider()
-            
-            BillBaseEditor(editing: manifest, minWidth: 90, maxWidth: 100)
-        }.padding()
+            Grid {
+                BillBaseInspect(target: target, minWidth: 80, maxWidth: 90)
+                
+                Divider()
+                
+                BillBaseEditor(editing: manifest, minWidth: 90, maxWidth: 100)
+            }.padding()
+        }
     }
 }

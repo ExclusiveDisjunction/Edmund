@@ -163,8 +163,7 @@ struct Budgets : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        Budgets()
-    }
+@available(macOS 15, iOS 18, *)
+#Preview(traits: .sampleData) {
+    Budgets()
 }

@@ -260,6 +260,8 @@ public struct BillHistoryEdit : View {
 }
 
 
-#Preview {
-    BillHistoryEdit(snapshot: .init( Utility.exampleUtility[0] ))
+@available(macOS 15, iOS 18, *)
+#Preview(traits: .sampleData) {
+    @Previewable @Query var utilities: [Utility];
+    BillHistoryEdit(snapshot: .init( utilities.first! ))
 }

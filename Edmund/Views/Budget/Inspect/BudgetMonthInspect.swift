@@ -77,9 +77,9 @@ struct BudgetMonthInspect : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        BudgetMonthInspect(over: try! .getExampleBudget())
-            .padding()
-    }
+@available(macOS 15, iOS 18, *)
+#Preview(traits: .sampleData) {
+    @Previewable @Query var budgets: [BudgetMonth];
+    BudgetMonthInspect(over: budgets.first!)
+        .padding()
 }

@@ -68,6 +68,33 @@ public enum EdmundModelsV1_1 : VersionedSchema {
     }
 }
 
+public enum EdmundModelsV2 : VersionedSchema {
+    public static var versionIdentifier: Schema.Version { .init(2, 0, 0) }
+    
+    public static var models: [any PersistentModel.Type] {
+        [
+            Self.LedgerEntry.self,
+            Self.Account.self,
+            Self.Category.self,
+            
+            Self.Bill.self,
+            Self.BillDatapoint.self,
+            
+            Self.HourlyJob.self,
+            Self.SalariedJob.self,
+            
+            Self.IncomeDivision.self,
+            Self.AmountDevotion.self,
+            Self.PercentDevotion.self,
+            Self.RemainderDevotion.self,
+            
+            Self.BudgetMonth.self,
+            Self.BudgetSavingsGoal.self,
+            Self.BudgetSpendingGoal.self
+        ]
+    }
+}
+
 public func ver1ToVer1_1(context: ModelContext) throws {
     print("Performing migrations.")
     //First we fetch all categories and accounts.
