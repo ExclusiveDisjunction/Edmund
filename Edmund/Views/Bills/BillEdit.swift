@@ -57,7 +57,8 @@ public struct BillEdit : View {
     }
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    ElementEditor(Bill(kind: .subscription), adding: false)
+#Preview {
+    DebugContainerView {
+        ElementEditor(Bill(kind: .subscription), adding: false)
+    }
 }

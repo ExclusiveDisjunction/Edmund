@@ -207,9 +207,8 @@ struct BudgetAdd : View {
     }
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    @Previewable @State var source: BudgetMonth? = nil;
-    @Previewable @State var snapshot: BudgetMonthSnapshot? = nil;
-    BudgetAdd(source: $source, snapshot: $snapshot)
+#Preview {
+    DebugContainerView {
+        BudgetAdd(source: .constant(nil), snapshot: .constant(nil))
+    }
 }

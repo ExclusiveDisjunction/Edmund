@@ -145,7 +145,6 @@ public struct Container {
 /// A debug tool that will automatically force open the `Containers.debugContainer`, and present some content. The content will have the model container bound to the UI's environment.
 /// - Note: This is designed for use in `#Preview` expansions. It is not intended for use in the main UI.
 /// - Warning: Do not use this in a release context.
-@available(*, deprecated, message: "Use direct model creation or use standard preview modifiers.")
 public struct DebugContainerView<Content> : View where Content: View {
     /// Creates the view with an inner view.
     /// - Parameters:
@@ -288,19 +287,4 @@ public struct Containers {
             return result
         }
     }
-}
-
-public struct DebugSampleData: PreviewModifier {
-    public static func makeSharedContext() throws -> EdmundCore.Container {
-        return try Containers.debugContainer();
-    }
-    
-    public func body(content: Content, context: EdmundCore.Container) -> some View {
-        content.modelContext(context.context)
-    }
-}
-
-@available(macOS 15, iOS 18, *)
-public extension PreviewTrait where T == Preview.ViewTraits {
-    @MainActor static var sampleData: Self = .modifier(DebugSampleData())
 }

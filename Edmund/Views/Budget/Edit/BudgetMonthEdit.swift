@@ -40,10 +40,9 @@ struct BudgetMonthEdit : View {
     }
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    @Previewable @Query var budgets: [BudgetMonth];
-    
-    BudgetMonthEdit(source: budgets.first!.makeSnapshot())
-        .padding()
+#Preview {
+    DebugContainerView {
+        BudgetMonthEdit(source: try! BudgetMonth.getExampleBudget().makeSnapshot())
+            .padding()
+    }
 }

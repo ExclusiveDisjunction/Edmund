@@ -96,8 +96,7 @@ public struct BillHistoryInspect<T> : View where T: BillBase {
     }
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    @Previewable @Query var utilities: [Utility];
-    BillHistoryInspect(over: utilities.first!)
+#Preview {
+    BillHistoryInspect(over: Utility.exampleUtility[0])
+        .padding()
 }

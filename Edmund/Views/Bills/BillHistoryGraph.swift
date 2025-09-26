@@ -77,8 +77,7 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
     }
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    @Previewable @Query var utilities: [Utility];
-    UtilityEntriesGraph(source: utilities.first!)
+
+#Preview {
+    UtilityEntriesGraph(source: Utility.exampleUtility[0])
 }

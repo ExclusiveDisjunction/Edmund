@@ -46,7 +46,8 @@ public struct UtilityEdit : View {
     
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    ElementEditor(Utility(), adding: false)
+#Preview {
+    DebugContainerView {
+        ElementEditor(Utility(), adding: false)
+    }
 }

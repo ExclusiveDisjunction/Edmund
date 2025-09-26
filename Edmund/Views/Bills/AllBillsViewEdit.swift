@@ -296,9 +296,10 @@ struct AllBillsViewEdit : View {
     }
 }
 
-@available(macOS 15, iOS 18, *)
-#Preview(traits: .sampleData) {
-    NavigationStack {
-        AllBillsViewEdit()
+#Preview {
+    DebugContainerView {
+        NavigationStack {
+            AllBillsViewEdit()
+        }
     }
 }
