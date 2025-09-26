@@ -13,7 +13,7 @@ import EdmundCore
 public struct BillHistoryInspect<T> : View where T: BillBase {
     public var over: T;
     
-    @State private var cache: [ResolvedBillHistory] = [];
+    @State private var cache: [ResolvedBillHistory]?;
     @State private var selected = Set<UUID>();
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.dismiss) private var dismiss;
@@ -21,9 +21,9 @@ public struct BillHistoryInspect<T> : View where T: BillBase {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func refresh() {
+    private func refresh() -> [ResolvedBillHistory] {
         var dates = TimePeriodWalker(start: over.startDate, end: over.endDate, period: over.period, calendar: calendar)
-        self.cache = over.history.map {
+        return over.history.map {
             ResolvedBillHistory(from: $0, date: dates.step())
         }
     }
@@ -53,33 +53,34 @@ public struct BillHistoryInspect<T> : View where T: BillBase {
         VStack {
             Text("Datapoints").font(.title2)
             
-            if cache.isEmpty {
-                Text("There is no history to view.")
-                    .italic()
-            }
-            else {
-                Table(cache, selection: $selected) {
-                    TableColumn("Amount") { child in
-                        if horizontalSizeClass == .compact {
-                            HStack {
+            LoadableView($cache, process: refresh) { cache in
+                if cache.isEmpty {
+                    Text("There is no history to view.")
+                        .italic()
+                }
+                else {
+                    Table(cache, selection: $selected) {
+                        TableColumn("Amount") { child in
+                            if horizontalSizeClass == .compact {
+                                HStack {
+                                    amountDisplay(child.amount)
+                                    
+                                    Spacer()
+                                    
+                                    dateDisplay(child.date)
+                                }
+                            }
+                            else {
                                 amountDisplay(child.amount)
-                                
-                                Spacer()
-                                
-                                dateDisplay(child.date)
                             }
                         }
-                        else {
-                            amountDisplay(child.amount)
+                        TableColumn("Date") { child in
+                            dateDisplay(child.date)
                         }
+                    }.onChange(of: over.history) { _, _ in
+                        self.cache = refresh()
                     }
-                    TableColumn("Date") { child in
-                        dateDisplay(child.date)
-                    }
-                }.onAppear(perform: refresh)
-                    .onChange(of: over.history) { _, _ in
-                        refresh()
-                    }
+                }
             }
             
             Spacer()

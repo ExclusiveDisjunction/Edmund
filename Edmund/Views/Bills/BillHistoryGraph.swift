@@ -21,8 +21,8 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
     @State private var hashed: Int = 0;
     @State private var cache: [ResolvedBillHistory]? = nil;
     
-    private var children: [ResolvedBillHistory] {
-        guard let cache = cache, hashed == source.hashValue else {
+    private func refresh() {
+        if hashed != source.hashValue || cache == nil {
             var walker = TimePeriodWalker(start: source.startDate, end: source.endDate, period: source.period, calendar: calendar);
             let result = source.history.compactMap {
                 if $0.amount != nil, let date = walker.step() {
@@ -33,12 +33,9 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
                 }
             }
             
-            cache = result;
+            self.cache = result;
             hashed = source.hashValue;
-            return result;
         }
-        
-        return cache;
     }
     
     public var body: some View {
@@ -48,24 +45,29 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
                 Spacer()
             }
             
-            if children.count <= 1 {
-                Text("There is not enough data in the history to graph the price over time.")
-                    .italic()
+            if let children = cache {
+                if children.count <= 1 {
+                    Text("There is not enough data in the history to graph the price over time.")
+                        .italic()
+                }
+                else {
+                    
+                    Chart {
+                        ForEach(children, id: \.id) { point in
+                            LineMark(
+                                x: .value("Date", point.date!),
+                                y: .value("Amount", point.amount!),
+                                series: .value("Name", source.name)
+                            )
+                        }
+                    }.frame(minHeight: 250)
+                        .chartLegend(.visible)
+                        .chartXAxisLabel("Date")
+                        .chartYAxisLabel("Amount")
+                }
             }
             else {
-                
-                Chart {
-                    ForEach(children, id: \.id) { point in
-                        LineMark(
-                            x: .value("Date", point.date!),
-                            y: .value("Amount", point.amount!),
-                            series: .value("Name", source.name)
-                        )
-                    }
-                }.frame(minHeight: 250)
-                    .chartLegend(.visible)
-                    .chartXAxisLabel("Date")
-                    .chartYAxisLabel("Amount")
+                ProgressView()
             }
             
             HStack {
@@ -74,6 +76,9 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
                     .buttonStyle(.borderedProminent)
             }
         }.padding()
+            .onAppear {
+                refresh()
+            }
     }
 }
 

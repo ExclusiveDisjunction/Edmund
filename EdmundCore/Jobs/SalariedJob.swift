@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension SalariedJob : Identifiable, UniqueElement, TraditionalJob, SnapshotableElement {
+extension SalariedJob : UniqueElement, TraditionalJob, SnapshotableElement {
     public typealias Snapshot = SalariedJobSnapshot;
     
     public static let objId: ObjectIdentifier = .init((any TraditionalJob).self)

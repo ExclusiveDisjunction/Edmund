@@ -11,7 +11,7 @@ import Foundation
 extension EdmundModelsV1_1 {
     /// Represents a job that has the same paycheck value each week.
     @Model
-    public final class SalariedJob {
+    public final class SalariedJob : Identifiable {
         /// Creates the job from filled in values.
         public init(company: String, position: String, grossAmount: Decimal, taxRate: Decimal) {
             self.company = company
@@ -38,7 +38,7 @@ extension EdmundModelsV1_1 {
     
     /// A hourly job taken at a company
     @Model
-    public final class HourlyJob {
+    public final class HourlyJob : Identifiable {
         /// Creates the hourly job with specific values.
         public init(company: String, position: String, hourlyRate: Decimal, avgHours: Decimal, taxRate: Decimal) {
             self.company = company
