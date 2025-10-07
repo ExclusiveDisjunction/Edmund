@@ -109,28 +109,6 @@
         }
       }
     },
-    "Accounting Style" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Styl księgowości"
-          }
-        }
-      }
-    },
-    "accountingStylesDesc" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accounting style refers to how balances will be presented to you. "
-          }
-        }
-      }
-    },
     "Accounts" : {
       "localizations" : {
         "de" : {
@@ -1537,40 +1515,6 @@
     "No" : {
 
     },
-    "No Account" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein Konto"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak konto "
-          }
-        }
-      }
-    },
-    "No Category" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Kategorie"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak kategorii"
-          }
-        }
-      }
-    },
     "No credit limit" : {
 
     },
@@ -2043,17 +1987,6 @@
     "Show Ledger Footer" : {
 
     },
-    "showExpiredBillsDesc" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When this is on, the app will include expired bills with normal bills. When this is off, the app will let you view expired bills separately."
-          }
-        }
-      }
-    },
     "Simple Transaction" : {
 
     },
@@ -2110,23 +2043,6 @@
     },
     "Status:" : {
 
-    },
-    "Styles" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stile"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Style"
-          }
-        }
-      }
     },
     "Sub Account" : {
       "extractionState" : "manual",
@@ -2242,17 +2158,6 @@
     },
     "There are no expired bills" : {
 
-    },
-    "There are no transactions, or this page needs to be refreshed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak transakcji, lub odśwież stronę."
-          }
-        }
-      }
     },
     "There are no upcoming bills" : {
 
@@ -2431,17 +2336,6 @@
     },
     "Under" : {
 
-    },
-    "Unexpected Error" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An unexpected error has occurred. Please submit a bug report description the process leading up to this moment."
-          }
-        }
-      }
     },
     "Upcoming Bills" : {
 

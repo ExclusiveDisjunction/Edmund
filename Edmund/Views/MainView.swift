@@ -118,10 +118,10 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
 }
 
 fileprivate struct PageDestinationsKey : FocusedValueKey {
-    typealias Value = Binding<PageDestinations?>;
+    typealias Value = PageDestinations;
 }
 extension FocusedValues {
-    var currentPage: Binding<PageDestinations?>? {
+    var currentPage: PageDestinations? {
         get { self[PageDestinationsKey.self] }
         set { self[PageDestinationsKey.self] = newValue }
     }
@@ -212,7 +212,7 @@ struct MainView: View {
             (page ?? .home).view
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
                 .environment(\.pagesLocked, $locked)
-        }.focusedValue(\.currentPage, $page)
+        }.focusedValue(\.currentPage, page)
     }
 }
 

@@ -14,28 +14,11 @@ struct GeneralCommands : Commands {
     @FocusedValue(\.currentPage) var currentPage;
     
     @AppStorage("showLedgerFooter") private var showLedgerFooter: Bool = true;
+#if os(macOS)
+    @AppStorage("preferTransWindow") private var preferTransWindow: Bool = false;
+#endif
     
     var body: some Commands {
-        /*
-         CommandGroup(after: .windowArrangement) {
-         Divider()
-         
-         if let $currentPage = currentPage {
-         Picker("Current Page", selection: $currentPage) {
-         Text(PageDestinations.home.rawValue).tag(PageDestinations.home)
-         
-         ForEach(PageDestinations.groups) { group in
-         Section(group.name) {
-         ForEach(group.content) { page in
-         Text(page.rawValue).tag(page)
-         }
-         }
-         }
-         }
-         }
-         }
-         */
-        
         CommandMenu("Ledger") {
             Button("Ledger") {
                 openWindow(id: "ledger")
@@ -56,6 +39,10 @@ struct GeneralCommands : Commands {
             Divider()
             
             Toggle("Show Ledger Footer", isOn: $showLedgerFooter)
+                .disabled(currentPage != .ledger)
+            
+            Toggle("Use Transaction Windows", isOn: $preferTransWindow)
+                .disabled(currentPage != .ledger)
             
             /*
             Button("Initialize Ledger") {
@@ -101,7 +88,8 @@ struct GeneralCommands : Commands {
         CommandMenu("Bills") {
             Button("Bills") {
                 openWindow(id: "bills")
-            }.keyboardShortcut("b", modifiers: [.command, .option])
+            }.keyboardShortcut("b", modifiers: [.command])
+            
             Button("Expired Bills") {
                 openWindow(id: "expiredBills")
             }.keyboardShortcut("e", modifiers: [.command, .shift])

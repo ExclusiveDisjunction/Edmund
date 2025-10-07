@@ -96,9 +96,6 @@
 				Resources/Logos/SVG/Logo.svg,
 				Views/Element/ElementIEBase.swift,
 				Views/Element/ElementIEContext.swift,
-				Views/Help/Old/Help.swift,
-				Views/Help/Old/TopicRenderer.swift,
-				Views/Help/Old/Topics.swift,
 				Views/Organization/Categories/CategoryTableRow.swift,
 			);
 			platformFiltersByRelativePath = {
@@ -292,7 +289,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					DD34E6012D99D21D009E3875 = {
 						CreatedOnToolsVersion = 16.2;
@@ -311,11 +308,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				de,
-				pl,
 				Base,
-				"es-US",
-				"fr-CA",
 			);
 			mainGroup = DD34E5F92D99D21D009E3875;
 			minimizedProjectReferenceProxies = 1;
@@ -456,6 +449,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -515,6 +509,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -532,8 +527,10 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Edmund/Preview Content\"";
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Edmund/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Edmund;
@@ -578,8 +575,10 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Edmund/Preview Content\"";
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Edmund/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Edmund;
