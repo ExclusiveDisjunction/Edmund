@@ -78,17 +78,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Resources/Logos/Edmund.icon,
-				"Resources/Logos/iOS-Dark.png",
-				"Resources/Logos/iOS-Default.png",
-				"Resources/Logos/iOS-Tinted.png",
-				"Resources/Logos/mac-16.png",
-				"Resources/Logos/mac-32.png",
-				"Resources/Logos/mac-64.png",
-				"Resources/Logos/mac-128.png",
-				"Resources/Logos/mac-256.png",
-				"Resources/Logos/mac-512.png",
-				"Resources/Logos/mac-1024.png",
 				Resources/Logos/Old/iOSDarkLogo1024.png,
 				Resources/Logos/Old/iOSLogo1024.png,
 				Resources/Logos/Old/iOSTintedLogo1024.png,
