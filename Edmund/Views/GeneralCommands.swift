@@ -41,8 +41,10 @@ struct GeneralCommands : Commands {
             Toggle("Show Ledger Footer", isOn: $showLedgerFooter)
                 .disabled(currentPage != .ledger)
             
+#if os(macOS)
             Toggle("Use Transaction Windows", isOn: $preferTransWindow)
                 .disabled(currentPage != .ledger)
+#endif
             
             /*
             Button("Initialize Ledger") {
