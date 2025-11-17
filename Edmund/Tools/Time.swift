@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable {
+public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, Comparable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -50,6 +50,10 @@ public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable {
     }
     
     public var id: Self { self }
+    
+    public static func <(lhs: TimePeriods, rhs: TimePeriods) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 }
 
 public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Sendable {

@@ -43,7 +43,7 @@ extension EdmundModelsV2 {
         @Relationship(deleteRule: .nullify, inverse: \IncomeDivision.depositTo)
         public var incomeDivisions: [IncomeDivision] = [];
         @Relationship(deleteRule: .nullify, inverse: \IncomeDevotion.account)
-        public var devotions: [AmountDevotion] = [];
+        public var devotions: [IncomeDevotion] = [];
     }
     
     /// A grouping structure used to associate transactions into non-account groups.

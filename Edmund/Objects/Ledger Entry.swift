@@ -8,9 +8,7 @@
 import SwiftData;
 import Foundation;
 
-extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, DefaultableElement {
-    public typealias Snapshot = LedgerEntrySnapshot;
-    
+extension LedgerEntry : DefaultableElement {
     /// Creates an empty transaction
     public convenience init() {
         self.init(
@@ -23,14 +21,14 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
             account: nil
         )
     }
+}
+extension LedgerEntry: SnapshotConstructableElement {
+    public typealias Snapshot = LedgerEntrySnapshot;
     
-    /// The net difference between credit and debit
-    public var balance: Decimal {
-        credit - debit
-    }
-    
-    public func setVoidStatus(_ new: Bool) {
-        self.isVoided = new;
+    public convenience init(snapshot: LedgerEntrySnapshot, unique: UniqueEngine) {
+        self.init();
+        
+        self.update(snapshot, unique: unique)
     }
     
     public func makeSnapshot() -> LedgerEntrySnapshot {
@@ -48,11 +46,46 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
         self.category = from.category
         self.account = from.account
     }
+}
+extension LedgerEntry : NamedElement {
     
+}
+extension LedgerEntry : VoidableElement {
+    public func setVoidStatus(_ new: Bool) {
+        self.isVoided = new;
+    }
+}
+extension LedgerEntry : EditableElement {
+    public static func makeEditView(_ snap: LedgerEntrySnapshot) -> LedgerEntryEdit {
+        LedgerEntryEdit(snap)
+    }
+}
+extension LedgerEntry : InspectableElement {
+    public func makeInspectView() -> LedgerEntryInspect {
+        LedgerEntryInspect(self)
+    }
+}
+extension LedgerEntry : TypeTitled {
+    public static var typeDisplay : TypeTitleStrings {
+        .init(
+            singular: "Transaction",
+            plural:   "Transactions",
+            inspect:  "Inspect Transaction",
+            edit:     "Edit Transaction",
+            add:      "Add Transaction"
+        )
+    }
+}
+public extension LedgerEntry {
+    /// The net difference between credit and debit
+    var balance: Decimal {
+        credit - debit
+    }
+
     /// Builds a list of ledger entries over some accounts and categories. It expects specific ones to exist, and may cause a crash if they dont.
     /// This is intended for internal use.
     @MainActor
-    public static func exampleEntries(acc: inout ElementLocator<Account>, cat: inout ElementLocator<Category>) -> [LedgerEntry] {
+    static func exampleEntries(acc: inout ElementLocator<Account>, cat: inout ElementLocator<Category>) -> [LedgerEntry] {
         let transferCat = cat.getOrInsert(name: "Transfers");
         let auditCat = cat.getOrInsert(name: "Adjustments");
         let personalCat = cat.getOrInsert(name: "Personal");
@@ -81,7 +114,7 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
     
     /// A UI-ready filler example of a ledger entry
     @MainActor
-    public static let exampleEntry = LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Category"), account: .init("Example Account"));
+    static let exampleEntry = LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Category"), account: .init("Example Account"));
 }
 
 /// The snapshot for `LedgerEntry`
