@@ -47,33 +47,61 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
         self.updateShallow(from)
     }
     
-    public var kind: IncomeKind {
-        get {
-            IncomeKind(rawValue: _kind) ?? .pay
-        }
-        set {
-            _kind = newValue.rawValue
-        }
-    }
-    public var allDevotions: [AnyDevotion] {
-        return amounts.map { .amount($0) } + percents.map { .percent($0) } + (remainder != nil ? [.remainder(remainder!)] : [] )
-    }
+    /*
+        - There can be more than one remainder.
+        - Each remainder will take a part of the total for remainders
+        - The total will look at the hash of the devotions list for speeding up.
+     */
+
     ///The total amount of money taken up by `amounts` and `percents`.
     public var devotionsTotal: Decimal {
-        let setTotal = amounts.reduce(0.0, { $0 + $1.amount } )
-        let percentTotal = percents.reduce(0.0, { $0 + $1.amount * self.amount } )
-        
-        return setTotal + percentTotal
+        get {
+            let newHash = devotions.hashValue;
+            guard newHash != self._devotionsHash else {
+                return self._devotionsTotal
+            }
+            
+            var total: Decimal;
+            for devotion in self.devotions {
+                switch devotion.kind {
+                    case .amount(let a): total += a
+                    case .percent(let p): total += self.amount * p
+                    case .remainder: ()
+                }
+            }
+            self._devotionsTotal = total;
+            self._devotionsHash = newHash;
+            
+            return total;
+        }
     }
-    public var remainderValue: Decimal {
+    public var remaindersCount: Int {
+        get {
+            let newHash = devotions.hashValue;
+            guard newHash != self._devotionsHash else {
+                return _remaindersCount;
+            }
+            
+            let count = self.devotions.count(where: { $0.kind == .remainder } )
+            
+            self._remaindersCount = count;
+            self._devotionsHash = newHash;
+            
+            return count;
+        }
+    }
+    public var remainderTotal: Decimal {
         return self.amount - devotionsTotal
     }
-    public var variance: Decimal {
-        if self.remainder != nil {
+    public var perRemainderAmount: Decimal {
+        return remainderTotal / Decimal(remaindersCount)
+    }
+    public var moneyLeft: Decimal {
+        if remainderTotal != 0 {
             return 0;
         }
         else {
-            return self.amount - remainderValue
+            return self.amount - remainderTotal
         }
     }
     
@@ -85,9 +113,7 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
             depositTo: self.depositTo,
             lastViewed: .now,
             lastUpdated: .now,
-            amounts: self.amounts.map { $0.duplicate() },
-            percents: self.percents.map { $0.duplicate() },
-            remainder: self.remainder?.duplicate()
+            devotions: self.devotions.map { $0.duplicate() }
         )
     }
     
@@ -179,6 +205,51 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
         let item = (try container.context.fetch(FetchDescriptor<IncomeDivision>())).first!
         
         return item;
+    }
+}
+
+extension IncomeDivision : EditableElement, InspectableElement {
+    public typealias EditView = IncomeDivisionEdit
+    public typealias InspectView = IncomeDivisionInspect;
+    
+    public func makeInspectView() -> some View {
+        IncomeDivisionInspect(data: self)
+    }
+    public static func makeEditView(_ snap: Snapshot) -> IncomeDivisionEdit {
+        IncomeDivisionEdit(snap)
+    }
+}
+
+extension DevotionGroup : Displayable {
+    public var display: LocalizedStringKey {
+        switch self {
+            case .need: "Need"
+            case .want: "Want"
+            case .savings: "Savings"
+            default: "internalError"
+        }
+    }
+}
+
+extension IncomeKind : Displayable {
+    public var display: LocalizedStringKey {
+        switch self {
+            case .pay: "Pay"
+            case .gift: "Gift"
+            case .donation: "Donation"
+            default: "internalError"
+        }
+    }
+}
+
+extension MonthlyTimePeriods : Displayable {
+    public var display: LocalizedStringKey {
+        switch self {
+            case .weekly: "Weekly"
+            case .biWeekly: "Bi-Weekly"
+            case .monthly: "Monthly"
+            default: "internalError"
+        }
     }
 }
 

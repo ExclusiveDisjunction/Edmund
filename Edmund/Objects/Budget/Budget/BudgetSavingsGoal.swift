@@ -8,7 +8,7 @@
 import SwiftData
 import Foundation
 
-extension BudgetSavingsGoal : BudgetGoal {
+extension BudgetSavingsGoal : SnapshotConstructableElement {
     public convenience init(snapshot: BudgetGoalSnapshot<Account>, unique: UniqueEngine) {
         self.init(
             account: snapshot.association,
@@ -16,15 +16,6 @@ extension BudgetSavingsGoal : BudgetGoal {
             period: snapshot.period,
             parent: nil,
         )
-    }
-    
-    public var period: MonthlyTimePeriods {
-        get { MonthlyTimePeriods(rawValue: _period) ?? .monthly }
-        set { _period = newValue.rawValue }
-    }
-    
-    public func duplicate() -> BudgetSavingsGoal {
-        .init(account: self.association, amount: self.amount, period: self.period, parent: nil)
     }
     
     public func makeSnapshot() -> BudgetGoalSnapshot<Account> {
@@ -37,5 +28,11 @@ extension BudgetSavingsGoal : BudgetGoal {
         self.association = from.association
         self.amount = amount
         self.period = from.period
+    }
+}
+
+extension BudgetSavingsGoal : BudgetGoal {
+    public func duplicate() -> BudgetSavingsGoal {
+        .init(account: self.association, amount: self.amount, period: self.period, parent: nil)
     }
 }
