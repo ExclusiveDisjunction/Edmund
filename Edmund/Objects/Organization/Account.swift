@@ -10,62 +10,34 @@ import SwiftData
 import SwiftUI
 
 /// Represents the different kind of accounts for more dynamic choices on the UI.
-public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
+public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable, Displayable {
     case credit, checking, savings, cd, trust, cash
     
     public var id: Self { self }
+    
+    public var display: LocalizedStringKey {
+        switch self {
+            case .credit: "Credit"
+            case .checking: "Checking"
+            case .savings: "Savings"
+            case .cd: "Certificate of Deposit"
+            case .trust: "Trust Fund"
+            case .cash: "Cash"
+        }
+    }
 }
 
-extension Account : Hashable, SnapshotableElement, DefaultableElement, SnapshotConstructableElement, UniqueElement, NamedElement, VoidableElement, TransactionHolder, CustomStringConvertible {
-    public typealias Snapshot = AccountSnapshot;
-    
+extension Account : DefaultableElement {
     public convenience init() {
         self.init("")
     }
+}
+extension Account : SnapshotConstructableElement {
+    public typealias Snapshot = AccountSnapshot;
+    
     public convenience init(snapshot: AccountSnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
         self.init();
         try await self.update(snapshot, unique: unique)
-    }
-    
-    public static let objId: ObjectIdentifier = .init(Account.self)
-    
-    public var uID: String { name }
-    /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
-    /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
-    public var creditLimit: Decimal? {
-        get {
-            self.kind == .credit ? _creditLimit : nil
-        }
-        set {
-            guard self.kind == .credit else { return }
-            
-            self._creditLimit = newValue
-        }
-    }
-    
-    public func setVoidStatus(_ new: Bool) {
-        guard new != isVoided else {
-            return
-        }
-        
-        if new {
-            self.isVoided = true
-            transactions.forEach { $0.setVoidStatus(true) }
-        }
-        else {
-            self.isVoided = false;
-        }
-    }
-    
-    public static func == (lhs: Account, rhs: Account) -> Bool {
-        lhs.name == rhs.name
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-    }
-    
-    public var description: String {
-        "Account \(name)"
     }
     
     public func makeSnapshot() -> AccountSnapshot {
@@ -90,44 +62,44 @@ extension Account : Hashable, SnapshotableElement, DefaultableElement, SnapshotC
         self.interest = from.hasInterest ? from.interest.rawValue : nil;
         self.location = from.hasLocation ? from.location : nil;
     }
-    
-    /// A list of template data to use on the UI.
-    @MainActor
-    public static var exampleAccounts: [Account] {
-        [
-            exampleAccount,
-            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase"),
-            .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One"),
-            .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist")
-        ]
-    }
-    /// A singular account to display on the UI.
-    @MainActor
-    public static var exampleAccount: Account {
-        .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001)
-    }
-    
-    /// A singular account that is setup like a credit card.
-    @MainActor
-    public static var exampleCreditAccount: Account {
-        .init("Credit", kind: .credit, creditLimit: 3000)
-    }
 }
-
-extension AccountKind : Displayable {
-    public var display: LocalizedStringKey {
-        switch self {
-            case .credit: "Credit"
-            case .checking: "Checking"
-            case .savings: "Savings"
-            case .cd: "Certificate of Deposit"
-            case .trust: "Trust Fund"
-            case .cash: "Cash"
+extension Account : NamedElement {
+    
+}
+extension Account : VoidableElement {
+    public func setVoidStatus(_ new: Bool) {
+        guard new != isVoided else {
+            return
+        }
+        
+        if new {
+            self.isVoided = true
+            transactions.forEach { $0.setVoidStatus(true) }
+        }
+        else {
+            self.isVoided = false;
         }
     }
 }
-
-extension Account: EditableElement, InspectableElement, TypeTitled {
+extension Account : TransactionHolder {
+    
+}
+extension Account : UniqueElement {
+    public static let objId: ObjectIdentifier = .init(Account.self)
+    
+    public var uID: String { name }
+}
+extension Account : EditableElement {
+    public static func makeEditView(_ snap: Snapshot) -> AccountEdit {
+        AccountEdit(snap)
+    }
+}
+extension Account : InspectableElement {
+    public func makeInspectView() -> AccountInspect {
+        AccountInspect(self)
+    }
+}
+extension Account : TypeTitled {
     public static var typeDisplay : TypeTitleStrings {
         .init(
             singular: "Account",
@@ -137,15 +109,56 @@ extension Account: EditableElement, InspectableElement, TypeTitled {
             add:      "Add Account"
         )
     }
-    
-    public func makeInspectView() -> AccountInspect {
-        AccountInspect(self)
+}
+extension Account : Hashable, Equatable {
+    public static func == (lhs: Account, rhs: Account) -> Bool {
+        lhs.name == rhs.name
     }
-    public static func makeEditView(_ snap: Snapshot) -> AccountEdit {
-        AccountEdit(snap)
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
     }
 }
-
+extension Account : CustomStringConvertible {
+    public var description: String {
+        "Account \(name)"
+    }
+}
+public extension Account {
+    /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
+    /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
+    var creditLimit: Decimal? {
+        get {
+            self.kind == .credit ? _creditLimit : nil
+        }
+        set {
+            guard self.kind == .credit else { return }
+            
+            self._creditLimit = newValue
+        }
+    }
+    
+    /// A list of template data to use on the UI.
+    @MainActor
+    static var exampleAccounts: [Account] {
+        [
+            exampleAccount,
+            .init("Savings", kind: .savings, creditLimit: nil, interest: 0.0425, location: "Chase"),
+            .init("Credit", kind: .credit, creditLimit: 3000, interest: 0.1499, location: "Capital One"),
+            .init("Visa", kind: .credit, creditLimit: 4000, interest: 0.2999, location: "Truist")
+        ]
+    }
+    /// A singular account to display on the UI.
+    @MainActor
+    static var exampleAccount: Account {
+        .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001)
+    }
+    
+    /// A singular account that is setup like a credit card.
+    @MainActor
+    static var exampleCreditAccount: Account {
+        .init("Credit", kind: .credit, creditLimit: 3000)
+    }
+}
 
 /// The snapshot type for `Account`.
 @Observable

@@ -57,9 +57,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Objects/Jobs/Jobs/HourlyJob.swift,
-				Objects/Jobs/Jobs/SalariedJob.swift,
-				Objects/Jobs/Jobs/TraditionalJob.swift,
 				Resources/Logos/Old/iOSDarkLogo1024.png,
 				Resources/Logos/Old/iOSLogo1024.png,
 				Resources/Logos/Old/iOSTintedLogo1024.png,

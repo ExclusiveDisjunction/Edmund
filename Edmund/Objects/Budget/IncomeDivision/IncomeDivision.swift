@@ -7,116 +7,50 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
-public enum IncomeDivisionSortField : CaseIterable, Identifiable {
+public enum IncomeDivisionSortField : Sortable, CaseIterable, Identifiable {
     case name
     case amount
     case lastUpdated
     case lastViewed
     
     public var id: Self { self }
-    
-    public func sorted(data: [IncomeDivision], asc: Bool) -> [IncomeDivision] {
-        let order: SortOrder = asc ? .forward : .reverse
-        
-        switch self {
-            case .amount:      return data.sorted(using: KeyPathComparator(\.amount,      order: order))
-            case .name:        return data.sorted(using: KeyPathComparator(\.name,        order: order))
-            case .lastViewed:  return data.sorted(using: KeyPathComparator(\.lastViewed,  order: order))
-            case .lastUpdated: return data.sorted(using: KeyPathComparator(\.lastUpdated, order: order))
-        }
-    }
 }
-public enum IncomeDivisionFilterField : CaseIterable, Identifiable {
+public enum IncomeDivisionFilterField : Filterable, CaseIterable, Identifiable {
     case finalized
     case notFinalized
     
     public var id: Self { self }
 }
 
-extension IncomeDivision : SnapshotableElement, DefaultableElement {
-    public typealias SortType = IncomeDivisionSortField
-    public typealias FilterType = IncomeDivisionFilterField
-    public typealias Snapshot = IncomeDivisionSnapshot;
-    
+extension IncomeDivision : DefaultableElement {
     public convenience init() {
         self.init(name: "", amount: 0, kind: .pay)
     }
-    public convenience init(_ from: ShallowIncomeDivisionSnapshot) {
-        self.init()
-        self.updateShallow(from)
+}
+extension IncomeDivision : Queryable {
+    public static func sort(_ data: [IncomeDivision], using: IncomeDivisionSortField, order: SortOrder) -> [IncomeDivision] {
+        switch using {
+            case .amount:      return data.sorted(using: KeyPathComparator(\.amount,      order: order))
+            case .name:        return data.sorted(using: KeyPathComparator(\.name,        order: order))
+            case .lastViewed:  return data.sorted(using: KeyPathComparator(\.lastViewed,  order: order))
+            case .lastUpdated: return data.sorted(using: KeyPathComparator(\.lastUpdated, order: order))
+        }
     }
     
-    /*
-        - There can be more than one remainder.
-        - Each remainder will take a part of the total for remainders
-        - The total will look at the hash of the devotions list for speeding up.
-     */
+    public static func filter(_ data: [IncomeDivision], using: Set<IncomeDivisionFilterField>) -> [IncomeDivision] {
+        data.filter {
+            (using.contains(.finalized) && $0.isFinalized) || (using.contains(.notFinalized) && !$0.isFinalized)
+        }
+    }
+    
+    public typealias SortType = IncomeDivisionSortField
+    public typealias FilterType = IncomeDivisionFilterField
+}
+extension IncomeDivision : SnapshotableElement {
+    public typealias Snapshot = IncomeDivisionSnapshot;
 
-    ///The total amount of money taken up by `amounts` and `percents`.
-    public var devotionsTotal: Decimal {
-        get {
-            let newHash = devotions.hashValue;
-            guard newHash != self._devotionsHash else {
-                return self._devotionsTotal
-            }
-            
-            var total: Decimal;
-            for devotion in self.devotions {
-                switch devotion.kind {
-                    case .amount(let a): total += a
-                    case .percent(let p): total += self.amount * p
-                    case .remainder: ()
-                }
-            }
-            self._devotionsTotal = total;
-            self._devotionsHash = newHash;
-            
-            return total;
-        }
-    }
-    public var remaindersCount: Int {
-        get {
-            let newHash = devotions.hashValue;
-            guard newHash != self._devotionsHash else {
-                return _remaindersCount;
-            }
-            
-            let count = self.devotions.count(where: { $0.kind == .remainder } )
-            
-            self._remaindersCount = count;
-            self._devotionsHash = newHash;
-            
-            return count;
-        }
-    }
-    public var remainderTotal: Decimal {
-        return self.amount - devotionsTotal
-    }
-    public var perRemainderAmount: Decimal {
-        return remainderTotal / Decimal(remaindersCount)
-    }
-    public var moneyLeft: Decimal {
-        if remainderTotal != 0 {
-            return 0;
-        }
-        else {
-            return self.amount - remainderTotal
-        }
-    }
-    
-    public func duplicate() -> IncomeDivision {
-        IncomeDivision(
-            name: self.name,
-            amount: self.amount,
-            kind: self.kind,
-            depositTo: self.depositTo,
-            lastViewed: .now,
-            lastUpdated: .now,
-            devotions: self.devotions.map { $0.duplicate() }
-        )
-    }
-    
     public func makeSnapshot() -> IncomeDivisionSnapshot {
         .init(self)
     }
@@ -144,32 +78,112 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
     public func update(_ snap: IncomeDivisionSnapshot, unique: UniqueEngine) async {
         self.updateShallow(snap)
         
-        if let oldRemainder = self.remainder, snap.hasRemainder {
-            oldRemainder.update(snap.remainder, unique: unique)
-        }
-        else if let oldRemainder = self.remainder, !snap.hasRemainder {
-            modelContext?.delete(oldRemainder)
-            self.remainder = nil
-        }
-        else if snap.hasRemainder && self.remainder == nil {
-            let new = RemainderDevotion()
-            new.update(snap.remainder, unique: unique)
-            
-            self.remainder = new
-            modelContext?.insert(new)
-        } // At this point, there is no remainder in the snapshot, and the current remainder is nil, so nothing to do with it.
+        let amountsUpdater = ChildUpdater(source: self.devotions, snapshots: snap.devotions, context: modelContext, unique: unique)
         
-        let newAmounts = snap.devotions.compactMap { if case .amount(let a) = $0 { return a } else { return nil }}
-        let newPercents = snap.devotions.compactMap { if case .percent(let a) = $0 { return a } else { return nil }}
-        
-        let amountsUpdater = ChildUpdater(source: amounts, snapshots: newAmounts, context: modelContext, unique: unique)
-        let percentsUpdater = ChildUpdater(source: percents, snapshots: newPercents, context: modelContext, unique: unique)
-        
-        self.amounts = try! await amountsUpdater.mergeById()
-        self.percents = try! await percentsUpdater.mergeById()
+        self.devotions = try! await amountsUpdater.mergeById()
+    }
+}
+extension IncomeDivision : InspectableElement {
+    public typealias InspectView = IncomeDivisionInspect;
+    
+    @MainActor
+    public func makeInspectView() -> some View {
+        IncomeDivisionInspect(data: self)
+    }
+}
+extension IncomeDivision : EditableElement {
+    public typealias EditView = IncomeDivisionEdit
+    
+    @MainActor
+    public static func makeEditView(_ snap: Snapshot) -> IncomeDivisionEdit {
+        IncomeDivisionEdit(snap)
+    }
+}
+public extension IncomeDivision {
+    convenience init(_ from: ShallowIncomeDivisionSnapshot) {
+        self.init()
+        self.updateShallow(from)
     }
     
-    public func query(_ criteria: String) -> Bool {
+    /*
+     - There can be more than one remainder.
+     - Each remainder will take a part of the total for remainders
+     - The total will look at the hash of the devotions list for speeding up.
+     */
+    
+    var devotionsTotal: Decimal {
+        get {
+            let newHash = devotions.hashValue;
+            guard newHash != self._devotionsHash else {
+                return self._devotionsTotal
+            }
+            
+            var total: Decimal;
+            for devotion in self.devotions {
+                switch devotion.kind {
+                    case .amount(let a): total += a
+                    case .percent(let p): total += self.amount * p
+                    case .remainder: ()
+                }
+            }
+            self._devotionsTotal = total;
+            self._devotionsHash = newHash;
+            
+            return total;
+        }
+    }
+    var remaindersCount: Int {
+        get {
+            let newHash = devotions.hashValue;
+            guard newHash != self._devotionsHash else {
+                return _remaindersCount;
+            }
+            
+            let count = self.devotions.count(where: { $0.kind == .remainder } )
+            
+            self._remaindersCount = count;
+            self._devotionsHash = newHash;
+            
+            return count;
+        }
+    }
+    var remainderTotal: Decimal {
+        return self.amount - devotionsTotal
+    }
+    var perRemainderAmount: Decimal {
+        return remainderTotal / Decimal(remaindersCount)
+    }
+    var moneyLeft: Decimal {
+        if remainderTotal != 0 {
+            return 0;
+        }
+        else {
+            return self.amount - remainderTotal
+        }
+    }
+    
+    func duplicate() -> IncomeDivision {
+        IncomeDivision(
+            name: self.name,
+            amount: self.amount,
+            kind: self.kind,
+            depositTo: self.depositTo,
+            lastViewed: .now,
+            lastUpdated: .now,
+            devotions: self.devotions.map { $0.duplicate() }
+        )
+    }
+    
+    static func queryPredicate(_ criteria: String) -> Predicate<IncomeDivision> {
+        let tryDate = try? Date(criteria, strategy: .dateTime);
+        let amount = Decimal.init(floatLiteral: Double(criteria) ?? 0);
+        
+        return #Predicate<IncomeDivision> { item in
+            item.name.caseInsensitiveCompare(criteria) == ComparisonResult.orderedSame ||
+            item.amount == amount
+        }
+    }
+    func query(_ criteria: String) -> Bool {
         // Assume the critera is lowercase
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -180,43 +194,22 @@ extension IncomeDivision : SnapshotableElement, DefaultableElement {
         formatter.string(from: lastViewed).lowercased().contains(criteria)
     }
     
-    public static func exampleDivision(acc: inout ElementLocator<Account>) -> IncomeDivision {
+    static func exampleDivision(acc: inout ElementLocator<Account>) -> IncomeDivision {
         let checking = acc.getOrInsert(name: "Checking")
         let savings  = acc.getOrInsert(name: "Savings")
         
         let result = IncomeDivision(name: "Example Division", amount: 450, kind: .pay, depositTo: checking)
         
-        result.amounts = [
-            .init(name: "Bills", amount: 137.50, account: checking, group: .need),
-            .init(name: "Groceries", amount: 100, account: checking, group: .need),
-            .init(name: "Personal", amount: 30, account: checking, group: .want)
-        ]
-        result.percents = [
-            .init(name: "Taxes", amount: 0.08, account: savings, group: .savings)
-        ]
-        result.remainder = .init(name: "Savings", account: savings, group: .savings)
+        result.devotions = [
+            .init(name: "Bills", kind: .amount(137.50), account: checking, group: .need),
+            .init(name: "Groceries", kind: .amount(100), account: checking, group: .need),
+            .init(name: "Personal", kind: .amount(30), account: checking, group: .want),
+            .init(name: "Taxes", kind: .percent(0.08), account: savings, group: .savings),
+            .init(name: "Savings", kind: .remainder, account: savings, group: .savings)
+        ];
+        
         
         return result
-    }
-    
-    @MainActor
-    public static func getExample() throws -> IncomeDivision {
-        let container = try Containers.debugContainer();
-        let item = (try container.context.fetch(FetchDescriptor<IncomeDivision>())).first!
-        
-        return item;
-    }
-}
-
-extension IncomeDivision : EditableElement, InspectableElement {
-    public typealias EditView = IncomeDivisionEdit
-    public typealias InspectView = IncomeDivisionInspect;
-    
-    public func makeInspectView() -> some View {
-        IncomeDivisionInspect(data: self)
-    }
-    public static func makeEditView(_ snap: Snapshot) -> IncomeDivisionEdit {
-        IncomeDivisionEdit(snap)
     }
 }
 
@@ -230,7 +223,6 @@ extension DevotionGroup : Displayable {
         }
     }
 }
-
 extension IncomeKind : Displayable {
     public var display: LocalizedStringKey {
         switch self {
@@ -241,7 +233,6 @@ extension IncomeKind : Displayable {
         }
     }
 }
-
 extension MonthlyTimePeriods : Displayable {
     public var display: LocalizedStringKey {
         switch self {
@@ -307,49 +298,78 @@ public class ShallowIncomeDivisionSnapshot : Identifiable, Hashable, Equatable, 
 public final class IncomeDivisionSnapshot : ShallowIncomeDivisionSnapshot {
     public override init() {
         self.devotions = []
-        self.hasRemainder = true
-        self.remainder = .init()
         
         super.init()
     }
     public override init(_ from: IncomeDivision) {
-        self.devotions = from.amounts.map { .amount($0.makeSnapshot()) } + from.percents.map { .percent($0.makeSnapshot()) }
-        if let remainder = from.remainder {
-            self.remainder = .init(remainder)
-            self.hasRemainder = true
-        }
-        else {
-            self.remainder = .init()
-            self.hasRemainder = false
-        }
+        self.devotions = from.devotions.map { IncomeDevotionSnapshot(from: $0) }
         
         super.init(from)
     }
     
-    public var devotions: [AnyDevotionSnapshot];
-    public var hasRemainder: Bool;
-    public var remainder: DevotionSnapshotBase;
+    public var devotions: [IncomeDevotionSnapshot];
     
-    private var moneyLeftDirect: Decimal {
-        let raw = amount.rawValue;
-        return raw - devotions.reduce(Decimal(), { $0 + $1.amount(raw) } )
+    @ObservationIgnored
+    fileprivate var _devotionsHash: Int = 0;
+    @ObservationIgnored
+    fileprivate var _devotionsTotal: Decimal = 0;
+    @ObservationIgnored
+    fileprivate var _remaindersCount: Int = 0;
+    
+    public var devotionsTotal: Decimal {
+        get {
+            let newHash = devotions.hashValue;
+            guard newHash != self._devotionsHash else {
+                return self._devotionsTotal
+            }
+            
+            var total: Decimal;
+            for devotion in self.devotions {
+                switch devotion.kind {
+                    case .amount(let a): total += a.rawValue
+                    case .percent(let p): total += self.amount.rawValue * p.rawValue
+                    case .remainder: ()
+                }
+            }
+            self._devotionsTotal = total;
+            self._devotionsHash = newHash;
+            
+            return total;
+        }
     }
-    public var remainderValue: Decimal {
-        hasRemainder ? moneyLeftDirect : 0
+    public var remaindersCount: Int {
+        get {
+            let newHash = devotions.hashValue;
+            guard newHash != self._devotionsHash else {
+                return _remaindersCount;
+            }
+            
+            let count = self.devotions.count(where: { $0.kind == .remainder } )
+            
+            self._remaindersCount = count;
+            self._devotionsHash = newHash;
+            
+            return count;
+        }
+    }
+    public var remainderTotal: Decimal {
+        return self.amount.rawValue - devotionsTotal
+    }
+    public var perRemainderAmount: Decimal {
+        return remainderTotal / Decimal(remaindersCount)
     }
     public var moneyLeft: Decimal {
-        hasRemainder ? 0 : moneyLeftDirect
+        if remainderTotal != 0 {
+            return 0;
+        }
+        else {
+            return self.amount.rawValue - remainderTotal
+        }
     }
     
     public override func validate(unique: UniqueEngine) -> ValidationFailure? {
         if let result = super.validate(unique: unique) {
             return result
-        }
-        
-        if hasRemainder {
-            if let failure = remainder.validate(unique: unique) {
-                return failure
-            }
         }
         
         for devotion in devotions {
@@ -364,16 +384,8 @@ public final class IncomeDivisionSnapshot : ShallowIncomeDivisionSnapshot {
     public override func hash(into hasher: inout Hasher) {
         super.hash(into: &hasher)
         hasher.combine(devotions)
-        hasher.combine(hasRemainder)
-        hasher.combine(remainder)
     }
     public static func ==(lhs: IncomeDivisionSnapshot, rhs: IncomeDivisionSnapshot) -> Bool {
-        let start = lhs.name == rhs.name && lhs.amount == rhs.amount && lhs.kind == rhs.kind && lhs.depositTo == rhs.depositTo && lhs.devotions == rhs.devotions && lhs.hasRemainder == rhs.hasRemainder;
-        if lhs.hasRemainder && rhs.hasRemainder {
-            return start && lhs.remainder == rhs.remainder
-        }
-        else {
-            return start
-        }
+        (lhs as ShallowIncomeDivisionSnapshot == rhs as ShallowIncomeDivisionSnapshot) && lhs.devotions == rhs.devotions
     }
 }

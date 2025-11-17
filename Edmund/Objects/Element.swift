@@ -22,7 +22,7 @@ public protocol IsolatedDefaultableElement {
     init()
 }
 
-public protocol NamedElement : AnyObject {
+public protocol NamedElement {
     var name: String { get set }
 }
 
