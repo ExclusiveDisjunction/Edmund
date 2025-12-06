@@ -38,7 +38,7 @@ struct AllBillsViewEdit : View {
         let long_ago = Date.distantPast;
         _bills = Query(
             filter: #Predicate<Bill> {
-                ($0.endDate ?? long_ago) < today && $0.name.caseInsensitiveCompare(searchString) == ComparisonResult.orderedAscending
+                ($0.endDate ?? long_ago) < today //&& $0.name.caseInsensitiveCompare(searchString) == ComparisonResult.orderedAscending
             },
             sort: sorting,
         )

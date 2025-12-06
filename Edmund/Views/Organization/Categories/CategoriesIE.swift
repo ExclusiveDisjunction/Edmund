@@ -7,15 +7,14 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct CategoriesIE : View {
-    @Query(sort: [SortDescriptor(\EdmundCore.Category.name, order: .forward)] ) private var categories: [EdmundCore.Category];
+    @Query(sort: [SortDescriptor(\Category.name, order: .forward)] ) private var categories: [Category];
     
-    @State private var selection = Set<EdmundCore.Category.ID>();
+    @State private var selection = Set<Category.ID>();
     
-    @Bindable private var inspect = InspectionManifest<EdmundCore.Category>();
-    @Bindable private var delete = DeletingManifest<EdmundCore.Category>();
+    @Bindable private var inspect = InspectionManifest<Category>();
+    @Bindable private var delete = DeletingManifest<Category>();
     @Bindable private var warning = SelectionWarningManifest();
     
     @Environment(\.uniqueEngine) private var uniqueEngine;
@@ -42,7 +41,7 @@ struct CategoriesIE : View {
         inspect.value = first
     }
     @ViewBuilder
-    private func contextMenu(_ selection: Set<EdmundCore.Category.ID>) -> some View {
+    private func contextMenu(_ selection: Set<Category.ID>) -> some View {
         let resolved = categories.filter { selection.contains($0.id) && !$0.isLocked }
         let first = resolved.first
         
@@ -102,7 +101,7 @@ struct CategoriesIE : View {
             .confirmationDialog("deleteItemsConfirm", isPresented: $delete.isDeleting, titleVisibility: .visible) {
                 UniqueDeletingActionConfirm(delete)
             }
-            .contextMenu(forSelectionType: EdmundCore.Category.ID.self, menu: contextMenu)
+            .contextMenu(forSelectionType: Category.ID.self, menu: contextMenu)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {

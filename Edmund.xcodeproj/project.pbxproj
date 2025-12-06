@@ -6,111 +6,83 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		DDC565C62DBFD4F10022D3FB /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = DDC565C52DBFD4F10022D3FB /* MarkdownUI */; };
-		DDC5663F2DBFE49F0022D3FB /* Help in Resources */ = {isa = PBXBuildFile; fileRef = DDC5663E2DBFE49F0022D3FB /* Help */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
-		DD34E6162D99D21E009E3875 /* PBXContainerItemProxy */ = {
+		DD4DA9E22EE4B0DA00804A36 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = DD34E5FA2D99D21D009E3875 /* Project object */;
+			containerPortal = DD4DA9C72EE4B0D900804A36 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DD34E6012D99D21D009E3875;
+			remoteGlobalIDString = DD4DA9CE2EE4B0D900804A36;
+			remoteInfo = Edmund;
+		};
+		DD4DA9EC2EE4B0DA00804A36 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD4DA9C72EE4B0D900804A36 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD4DA9CE2EE4B0D900804A36;
 			remoteInfo = Edmund;
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		DD4465042DB8552D006D9A01 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DD93B6292DB912A100DBB851 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		DD34E6022D99D21D009E3875 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DD34E6152D99D21E009E3875 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DD4464F22DB8552C006D9A01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		DD4464F42DB8552C006D9A01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		DDC5663E2DBFE49F0022D3FB /* Help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Help; sourceTree = "<group>"; };
+		DD4DA9CF2EE4B0D900804A36 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD4DA9E12EE4B0DA00804A36 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
+		DD4DA9FE2EE4B0E600804A36 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
-				Resources/Logos/Old/iOSDarkLogo1024.png,
-				Resources/Logos/Old/iOSLogo1024.png,
-				Resources/Logos/Old/iOSTintedLogo1024.png,
-				Resources/Logos/Old/JustE.png,
-				Resources/Logos/Old/Logo16.png,
-				Resources/Logos/Old/Logo32.png,
-				Resources/Logos/Old/Logo64.png,
-				Resources/Logos/Old/Logo128.png,
-				Resources/Logos/Old/Logo256.png,
-				Resources/Logos/Old/Logo512.png,
-				Resources/Logos/Old/Logo1024.png,
-				"Resources/Logos/SVG/Just E.svg",
-				"Resources/Logos/SVG/Logo iOS-Dark.svg",
-				"Resources/Logos/SVG/Logo iOS-Tinted.svg",
-				"Resources/Logos/SVG/Logo iOS.svg",
-				Resources/Logos/SVG/Logo.svg,
-				Views/Element/ElementIEBase.swift,
-				Views/Element/ElementIEContext.swift,
-				Views/Organization/Categories/CategoryTableRow.swift,
+				ContentView.swift,
+				EdmundApp.swift,
+				Persistence.swift,
 			);
-			platformFiltersByRelativePath = {
-				"Views/Launch Screen.storyboard" = (ios, );
-				Views/Ledger/Transaction/BatchTransactions.swift = (macos, );
-			};
-			target = DD34E6012D99D21D009E3875 /* Edmund */;
+			target = DD4DA9CE2EE4B0D900804A36 /* Edmund */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DD34E6042D99D21D009E3875 /* Edmund */ = {
+		DD4DA9D12EE4B0D900804A36 /* Edmund */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				DD57B9F42D9AE53800006207 /* Exceptions for "Edmund" folder in "Edmund" target */,
+				DD4DA9FE2EE4B0E600804A36 /* Exceptions for "Edmund" folder in "Edmund" target */,
 			);
 			path = Edmund;
 			sourceTree = "<group>";
 		};
-		DD34E6182D99D21E009E3875 /* EdmundTests */ = {
+		DD4DA9E42EE4B0DA00804A36 /* EdmundTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = EdmundTests;
+			sourceTree = "<group>";
+		};
+		DD4DA9EE2EE4B0DA00804A36 /* EdmundUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EdmundUITests;
+			sourceTree = "<group>";
+		};
+		DD4DABE72EE4B1A300804A36 /* Help */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Help;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		DD34E5FF2D99D21D009E3875 /* Frameworks */ = {
+		DD4DA9CC2EE4B0D900804A36 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DDC565C62DBFD4F10022D3FB /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD34E6122D99D21E009E3875 /* Frameworks */ = {
+		DD4DA9DE2EE4B0DA00804A36 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD4DA9E82EE4B0DA00804A36 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -120,138 +92,159 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		DD34E5F92D99D21D009E3875 = {
+		DD4DA9C62EE4B0D900804A36 = {
 			isa = PBXGroup;
 			children = (
-				DDC5663E2DBFE49F0022D3FB /* Help */,
-				DD34E6042D99D21D009E3875 /* Edmund */,
-				DD34E6182D99D21E009E3875 /* EdmundTests */,
-				DD4464F12DB8552C006D9A01 /* Frameworks */,
-				DD34E6032D99D21D009E3875 /* Products */,
+				DD4DA9D12EE4B0D900804A36 /* Edmund */,
+				DD4DA9E42EE4B0DA00804A36 /* EdmundTests */,
+				DD4DA9EE2EE4B0DA00804A36 /* EdmundUITests */,
+				DD4DA9D02EE4B0D900804A36 /* Products */,
+				DD4DABE72EE4B1A300804A36 /* Help */,
 			);
 			sourceTree = "<group>";
 		};
-		DD34E6032D99D21D009E3875 /* Products */ = {
+		DD4DA9D02EE4B0D900804A36 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DD34E6022D99D21D009E3875 /* Edmund.app */,
-				DD34E6152D99D21E009E3875 /* EdmundTests.xctest */,
+				DD4DA9CF2EE4B0D900804A36 /* Edmund.app */,
+				DD4DA9E12EE4B0DA00804A36 /* EdmundTests.xctest */,
+				DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		DD4464F12DB8552C006D9A01 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				DD4464F22DB8552C006D9A01 /* WidgetKit.framework */,
-				DD4464F42DB8552C006D9A01 /* SwiftUI.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DD34E6012D99D21D009E3875 /* Edmund */ = {
+		DD4DA9CE2EE4B0D900804A36 /* Edmund */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DD34E6292D99D21E009E3875 /* Build configuration list for PBXNativeTarget "Edmund" */;
+			buildConfigurationList = DD4DA9F52EE4B0DA00804A36 /* Build configuration list for PBXNativeTarget "Edmund" */;
 			buildPhases = (
-				DD34E5FE2D99D21D009E3875 /* Sources */,
-				DD34E5FF2D99D21D009E3875 /* Frameworks */,
-				DD34E6002D99D21D009E3875 /* Resources */,
-				DD4465042DB8552D006D9A01 /* Embed Foundation Extensions */,
+				DD4DA9CB2EE4B0D900804A36 /* Sources */,
+				DD4DA9CC2EE4B0D900804A36 /* Frameworks */,
+				DD4DA9CD2EE4B0D900804A36 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				DD34E6042D99D21D009E3875 /* Edmund */,
+				DD4DA9D12EE4B0D900804A36 /* Edmund */,
+				DD4DABE72EE4B1A300804A36 /* Help */,
 			);
 			name = Edmund;
 			packageProductDependencies = (
-				DDC565C52DBFD4F10022D3FB /* MarkdownUI */,
 			);
 			productName = Edmund;
-			productReference = DD34E6022D99D21D009E3875 /* Edmund.app */;
+			productReference = DD4DA9CF2EE4B0D900804A36 /* Edmund.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DD34E6142D99D21E009E3875 /* EdmundTests */ = {
+		DD4DA9E02EE4B0DA00804A36 /* EdmundTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DD34E62C2D99D21E009E3875 /* Build configuration list for PBXNativeTarget "EdmundTests" */;
+			buildConfigurationList = DD4DA9F82EE4B0DA00804A36 /* Build configuration list for PBXNativeTarget "EdmundTests" */;
 			buildPhases = (
-				DD34E6112D99D21E009E3875 /* Sources */,
-				DD34E6122D99D21E009E3875 /* Frameworks */,
-				DD34E6132D99D21E009E3875 /* Resources */,
-				DD93B6292DB912A100DBB851 /* Embed Frameworks */,
+				DD4DA9DD2EE4B0DA00804A36 /* Sources */,
+				DD4DA9DE2EE4B0DA00804A36 /* Frameworks */,
+				DD4DA9DF2EE4B0DA00804A36 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DD34E6172D99D21E009E3875 /* PBXTargetDependency */,
+				DD4DA9E32EE4B0DA00804A36 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DD34E6182D99D21E009E3875 /* EdmundTests */,
+				DD4DA9E42EE4B0DA00804A36 /* EdmundTests */,
 			);
 			name = EdmundTests;
 			packageProductDependencies = (
 			);
 			productName = EdmundTests;
-			productReference = DD34E6152D99D21E009E3875 /* EdmundTests.xctest */;
+			productReference = DD4DA9E12EE4B0DA00804A36 /* EdmundTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DD4DA9EA2EE4B0DA00804A36 /* EdmundUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DD4DA9FB2EE4B0DA00804A36 /* Build configuration list for PBXNativeTarget "EdmundUITests" */;
+			buildPhases = (
+				DD4DA9E72EE4B0DA00804A36 /* Sources */,
+				DD4DA9E82EE4B0DA00804A36 /* Frameworks */,
+				DD4DA9E92EE4B0DA00804A36 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DD4DA9ED2EE4B0DA00804A36 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DD4DA9EE2EE4B0DA00804A36 /* EdmundUITests */,
+			);
+			name = EdmundUITests;
+			packageProductDependencies = (
+			);
+			productName = EdmundUITests;
+			productReference = DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		DD34E5FA2D99D21D009E3875 /* Project object */ = {
+		DD4DA9C72EE4B0D900804A36 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 2600;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
-					DD34E6012D99D21D009E3875 = {
-						CreatedOnToolsVersion = 16.2;
+					DD4DA9CE2EE4B0D900804A36 = {
+						CreatedOnToolsVersion = 26.1.1;
 					};
-					DD34E6142D99D21E009E3875 = {
-						CreatedOnToolsVersion = 16.2;
-						TestTargetID = DD34E6012D99D21D009E3875;
+					DD4DA9E02EE4B0DA00804A36 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = DD4DA9CE2EE4B0D900804A36;
+					};
+					DD4DA9EA2EE4B0DA00804A36 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = DD4DA9CE2EE4B0D900804A36;
 					};
 				};
 			};
-			buildConfigurationList = DD34E5FD2D99D21D009E3875 /* Build configuration list for PBXProject "Edmund" */;
+			buildConfigurationList = DD4DA9CA2EE4B0D900804A36 /* Build configuration list for PBXProject "Edmund" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = DD34E5F92D99D21D009E3875;
+			mainGroup = DD4DA9C62EE4B0D900804A36;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				DDC565C42DBFD4F10022D3FB /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
-			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = DD34E6032D99D21D009E3875 /* Products */;
+			productRefGroup = DD4DA9D02EE4B0D900804A36 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DD34E6012D99D21D009E3875 /* Edmund */,
-				DD34E6142D99D21E009E3875 /* EdmundTests */,
+				DD4DA9CE2EE4B0D900804A36 /* Edmund */,
+				DD4DA9E02EE4B0DA00804A36 /* EdmundTests */,
+				DD4DA9EA2EE4B0DA00804A36 /* EdmundUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		DD34E6002D99D21D009E3875 /* Resources */ = {
+		DD4DA9CD2EE4B0D900804A36 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DDC5663F2DBFE49F0022D3FB /* Help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD34E6132D99D21E009E3875 /* Resources */ = {
+		DD4DA9DF2EE4B0DA00804A36 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD4DA9E92EE4B0DA00804A36 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -261,14 +254,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		DD34E5FE2D99D21D009E3875 /* Sources */ = {
+		DD4DA9CB2EE4B0D900804A36 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DD34E6112D99D21E009E3875 /* Sources */ = {
+		DD4DA9DD2EE4B0DA00804A36 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD4DA9E72EE4B0DA00804A36 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -278,20 +278,24 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DD34E6172D99D21E009E3875 /* PBXTargetDependency */ = {
+		DD4DA9E32EE4B0DA00804A36 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DD34E6012D99D21D009E3875 /* Edmund */;
-			targetProxy = DD34E6162D99D21E009E3875 /* PBXContainerItemProxy */;
+			target = DD4DA9CE2EE4B0D900804A36 /* Edmund */;
+			targetProxy = DD4DA9E22EE4B0DA00804A36 /* PBXContainerItemProxy */;
+		};
+		DD4DA9ED2EE4B0DA00804A36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD4DA9CE2EE4B0D900804A36 /* Edmund */;
+			targetProxy = DD4DA9EC2EE4B0DA00804A36 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		DD34E6272D99D21E009E3875 /* Debug */ = {
+		DD4DA9F32EE4B0DA00804A36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -321,7 +325,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -345,20 +348,16 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
-		DD34E6282D99D21E009E3875 /* Release */ = {
+		DD4DA9F42EE4B0DA00804A36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -388,7 +387,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -405,32 +403,35 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
-		DD34E62A2D99D21E009E3875 /* Debug */ = {
+		DD4DA9F62EE4B0DA00804A36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Edmund/Edmund.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Edmund/Preview Content\"";
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readwrite;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Edmund/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Edmund;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -439,46 +440,55 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 15;
-				MARKETING_VERSION = 1.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.Edmund;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				XROS_DEPLOYMENT_TARGET = 2.2;
+				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Debug;
 		};
-		DD34E62B2D99D21E009E3875 /* Release */ = {
+		DD4DA9F72EE4B0DA00804A36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Edmund/Edmund.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Edmund/Preview Content\"";
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readwrite;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Edmund/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Edmund;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -487,125 +497,172 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 15;
-				MARKETING_VERSION = 1.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.edmund;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.Edmund;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				XROS_DEPLOYMENT_TARGET = 2.2;
+				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Release;
 		};
-		DD34E62D2D99D21E009E3875 /* Debug */ = {
+		DD4DA9F92EE4B0DA00804A36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Edmund.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Edmund";
-				XROS_DEPLOYMENT_TARGET = 2.2;
+				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Debug;
 		};
-		DD34E62E2D99D21E009E3875 /* Release */ = {
+		DD4DA9FA2EE4B0DA00804A36 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Edmund.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Edmund";
-				XROS_DEPLOYMENT_TARGET = 2.2;
+				XROS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Release;
+		};
+		DD4DA9FC2EE4B0DA00804A36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Edmund;
+				XROS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Debug;
+		};
+		DD4DA9FD2EE4B0DA00804A36 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8QF4NKZP3V;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.exdisj.EdmundUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Edmund;
+				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DD34E5FD2D99D21D009E3875 /* Build configuration list for PBXProject "Edmund" */ = {
+		DD4DA9CA2EE4B0D900804A36 /* Build configuration list for PBXProject "Edmund" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DD34E6272D99D21E009E3875 /* Debug */,
-				DD34E6282D99D21E009E3875 /* Release */,
+				DD4DA9F32EE4B0DA00804A36 /* Debug */,
+				DD4DA9F42EE4B0DA00804A36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DD34E6292D99D21E009E3875 /* Build configuration list for PBXNativeTarget "Edmund" */ = {
+		DD4DA9F52EE4B0DA00804A36 /* Build configuration list for PBXNativeTarget "Edmund" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DD34E62A2D99D21E009E3875 /* Debug */,
-				DD34E62B2D99D21E009E3875 /* Release */,
+				DD4DA9F62EE4B0DA00804A36 /* Debug */,
+				DD4DA9F72EE4B0DA00804A36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DD34E62C2D99D21E009E3875 /* Build configuration list for PBXNativeTarget "EdmundTests" */ = {
+		DD4DA9F82EE4B0DA00804A36 /* Build configuration list for PBXNativeTarget "EdmundTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DD34E62D2D99D21E009E3875 /* Debug */,
-				DD34E62E2D99D21E009E3875 /* Release */,
+				DD4DA9F92EE4B0DA00804A36 /* Debug */,
+				DD4DA9FA2EE4B0DA00804A36 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DD4DA9FB2EE4B0DA00804A36 /* Build configuration list for PBXNativeTarget "EdmundUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD4DA9FC2EE4B0DA00804A36 /* Debug */,
+				DD4DA9FD2EE4B0DA00804A36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		DDC565C42DBFD4F10022D3FB /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		DDC565C52DBFD4F10022D3FB /* MarkdownUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DDC565C42DBFD4F10022D3FB /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
-			productName = MarkdownUI;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = DD34E5FA2D99D21D009E3875 /* Project object */;
+	rootObject = DD4DA9C72EE4B0D900804A36 /* Project object */;
 }

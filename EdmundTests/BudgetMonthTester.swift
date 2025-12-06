@@ -7,7 +7,6 @@
 
 import Foundation
 import Testing
-import EdmundCore
 import SwiftData
 
 struct BudgetMonthTester {

@@ -5,7 +5,6 @@
 //  Created by Hollan Sellars on 8/22/25.
 //
 
-import EdmundCore
 import SwiftUI
 
 public struct ElementDisplayer<T> : View where T: NamedElement {

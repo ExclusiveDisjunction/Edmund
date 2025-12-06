@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import EdmundCore
 
 struct ManyManyTransfer : TransactionEditorProtocol {
     private var top: ManyTableManifest = .init(isSource: true)

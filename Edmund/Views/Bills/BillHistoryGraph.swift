@@ -8,11 +8,10 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
 
 /// A line graph that shows the spending over time, separated by dates.
-public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
-    public var source: T;
+public struct UtilityEntriesGraph : View {
+    public var source: Bill;
     
     @Environment(\.calendar) private var calendar;
     @Environment(\.dismiss) private var dismiss;
@@ -84,5 +83,5 @@ public struct UtilityEntriesGraph<T> : View where T: BillBase & Hashable {
 
 
 #Preview {
-    UtilityEntriesGraph(source: Utility.exampleUtility[0])
+    UtilityEntriesGraph(source: Bill.exampleBills[0])
 }

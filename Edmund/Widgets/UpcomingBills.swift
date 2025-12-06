@@ -58,7 +58,7 @@ public struct UpcomingBillsBundle : Hashable, Equatable, Codable, Sendable { //,
 }
 public struct BillSchematic : Sendable {
     @MainActor
-    public init<T>(_ from: T) where T: BillBase {
+    public init(_ from: Bill) {
         self.name = from.name
         self.company = from.company
         self.start = from.startDate
@@ -93,10 +93,18 @@ public struct UpcomingBillsWidgetManager : WidgetDataBundle, Sendable {
     
     @MainActor
     public init(context: ModelContext, forDays: Int = 10) throws {
-        let bills = try context.fetch(FetchDescriptor<Bill>())
-        let utilities = try context.fetch(FetchDescriptor<Utility>())
+        let distant_past = Date.distantPast;
+        let today = Date.now;
+        let bills = try context.fetch(
+            FetchDescriptor(
+                predicate: #Predicate<Bill> {
+                    ($0.endDate ?? distant_past) <= today
+                },
+                sortBy: []
+            )
+        );
         
-        self.data = bills.map { .init($0) } + utilities.map { .init($0) }
+        self.data = bills.map { .init($0) }
         self.forDays = forDays
     }
     

@@ -7,10 +7,9 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct CategoryInspect : View {
-    @Bindable var data: EdmundCore.Category;
+    @Bindable var data: Category;
     
 #if os(macOS)
     private let minWidth: CGFloat = 80;

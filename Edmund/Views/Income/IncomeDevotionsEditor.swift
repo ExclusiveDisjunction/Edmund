@@ -7,27 +7,28 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct IncomeDevotionsEditor : View {
     @Bindable var snapshot: IncomeDivisionSnapshot;
-    @State private var closeLook: AnyDevotionSnapshot?;
-    @State private var selection: Set<AnyDevotionSnapshot.ID> = .init();
+    @State private var closeLook: IncomeDevotionSnapshot?;
+    @State private var selection: Set<IncomeDevotionSnapshot.ID> = .init();
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     @ViewBuilder
-    private func amountFor(_ dev: AnyDevotionSnapshot) -> some View {
-        switch dev {
-            case .amount(let a): Text(a.value.rawValue, format: .currency(code: currencyCode))
-            case .percent(let p): Text(p.value.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
-            default: Text("internalError")
+    private func amountFor(_ dev: IncomeDevotionSnapshot) -> some View {
+        let amount = switch dev.kind {
+            case .amount(let a): a.rawValue
+            case .percent(let p): p.rawValue * snapshot.amount.rawValue
+            case .remainder: snapshot.perRemainderAmount
         }
+        
+        Text(amount, format: .currency(code: currencyCode))
     }
     
-    private func removeSelected(_ selection: Set<AnyDevotionSnapshot.ID>? = nil) {
+    private func removeSelected(_ selection: Set<IncomeDevotionSnapshot.ID>? = nil) {
         let trueSelection = selection == nil ? self.selection : selection!;
         
         withAnimation {
@@ -44,8 +45,8 @@ struct IncomeDevotionsEditor : View {
         }
         
         HStack {
-            Text("Remainder Amount:")
-            Text(snapshot.remainderValue, format: .currency(code: currencyCode))
+            Label("Remainder Total:", systemImage: "dollarsign.ring.dashed")
+            Text(snapshot.remainderTotal, format: .currency(code: currencyCode))
             
             if horizontalSizeClass == .compact {
                 Spacer()
@@ -53,7 +54,7 @@ struct IncomeDevotionsEditor : View {
         }
         
         HStack {
-            Text("Amount Free:")
+            Text("Money Left:")
                 .bold()
             Text(snapshot.moneyLeft, format: .currency(code: currencyCode))
                 .bold()
@@ -70,7 +71,7 @@ struct IncomeDevotionsEditor : View {
             
             Button {
                 withAnimation {
-                    snapshot.devotions.append(.amount(AmountDevotion.makeBlankSnapshot()))
+                    snapshot.devotions.append(.newBlankAmount())
                 }
             } label: {
                 Image(systemName: "dollarsign")
@@ -78,10 +79,18 @@ struct IncomeDevotionsEditor : View {
             
             Button {
                 withAnimation {
-                    snapshot.devotions.append(.percent(PercentDevotion.makeBlankSnapshot()))
+                    snapshot.devotions.append(.newBlankPercent())
                 }
             } label: {
                 Image(systemName: "percent")
+            }.buttonStyle(.borderless)
+            
+            Button {
+                withAnimation {
+                    snapshot.devotions.append(.newBlankPercent())
+                }
+            } label: {
+                Image(systemName: "dollarsign.ring.dashed")
             }.buttonStyle(.borderless)
             
             Button {
@@ -135,10 +144,10 @@ struct IncomeDevotionsEditor : View {
                 }
                 
                 TableColumn("Devotion") { $dev in
-                    switch dev {
-                        case .amount(let a): CurrencyField(a.value)
-                        case .percent(let p): PercentField(p.value)
-                        default: Text("internalError")
+                    switch dev.kind {
+                        case .amount(let a): CurrencyField(a)
+                        case .percent(let p): PercentField(p)
+                        case .remainder: Text("-")
                     }
                 }
                 
@@ -147,18 +156,14 @@ struct IncomeDevotionsEditor : View {
                 }
                 
                 TableColumn("Group") { $dev in
-                    Picker("", selection: $dev.group) {
-                        ForEach(DevotionGroup.allCases) { group in
-                            Text(group.display).tag(group)
-                        }
-                    }
+                    EnumPicker(value: $dev.group)
                 }
                 
                 TableColumn("Destination") { $dev in
                     ElementPicker($dev.account)
                 }
                 .width(270)
-            }.contextMenu(forSelectionType: AnyDevotionSnapshot.ID.self) { selection in
+            }.contextMenu(forSelectionType: UUID.self) { selection in
                 Button {
                     if let id = selection.first, let element = snapshot.devotions.first(where: { $0.id == id } ), selection.count == 1 {
                         closeLook = element;
@@ -175,14 +180,15 @@ struct IncomeDevotionsEditor : View {
                 }.disabled(selection.isEmpty)
             }
         }.sheet(item: $closeLook) { devotion in
-            AnyDevotionSnapshotCloseLook(snapshot: snapshot, devotion: devotion)
+            DevotionSnapshotCloseLook(snapshot: snapshot, devotion: devotion)
         }
     }
 }
 
 #Preview {
+    @Previewable @Query var income: [IncomeDivision];
     DebugContainerView {
-        IncomeDevotionsEditor(snapshot: try! IncomeDivision.getExample().makeSnapshot())
+        IncomeDevotionsEditor(snapshot: income[0].makeSnapshot())
             .padding()
     }
 }

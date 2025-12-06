@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct IncomeDivisionPropertiesInspect : View {
     var data: IncomeDivision;
@@ -96,7 +95,9 @@ struct IncomeDivisionPropertiesInspect : View {
 }
 
 #Preview {
+    @Previewable @Query var income: [IncomeDivision];
+    
     DebugContainerView {
-        IncomeDivisionPropertiesInspect(data: try! .getExample(), isSheet: false)
+        IncomeDivisionPropertiesInspect(data: income[0], isSheet: false)
     }
 }

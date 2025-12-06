@@ -8,7 +8,6 @@
 import Testing
 import SwiftUI
 import SwiftData
-import EdmundCore
 import Edmund
 
 struct UndoTests {

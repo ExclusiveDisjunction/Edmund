@@ -51,7 +51,7 @@ public struct ElementLocator<T> where T: NamedElement, T: Identifiable, T: AnyOb
             return target
         }
         else {
-            let new = T();
+            var new = T();
             new.name = name
             
             self.data[name] = new;

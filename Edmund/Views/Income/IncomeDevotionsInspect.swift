@@ -7,29 +7,27 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct IncomeDevotionsInspect : View {
     var data: IncomeDivision
-    @State private var selection: Set<AnyDevotion.ID> = .init();
-    @State private var closeLook: AnyDevotion? = nil;
+    @State private var selection: Set<IncomeDevotion.ID> = .init();
+    @State private var closeLook: IncomeDevotion? = nil;
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func computedAmount(_ target: AnyDevotion) -> Decimal {
-        switch target {
-            case .amount(let a): a.amount
-            case .percent(let p): p.amount * data.amount
-            case .remainder(_): data.remainderValue
-            default: .nan
+    private func computedAmount(_ target: IncomeDevotion) -> Decimal {
+        switch target.kind {
+            case .amount(let a): a
+            case .percent(let p): p  * data.amount
+            case .remainder: data.perRemainderAmount
         }
     }
     
     @ViewBuilder
     private var fullSize: some View {
-        Table(data.allDevotions, selection: $selection) {
+        Table(data.devotions, selection: $selection) {
             TableColumn("Name") { row in
                 if horizontalSizeClass == .compact {
                     HStack {
@@ -49,11 +47,10 @@ struct IncomeDevotionsInspect : View {
                 }
             }
             TableColumn("Devotion") { row in
-                switch row {
-                    case .amount(let a): Text(a.amount, format: .currency(code: currencyCode))
-                    case .percent(let p): Text(p.amount, format: .percent)
-                    case .remainder(_): Text("Remainder")
-                    default: Text("internalError")
+                switch row.kind {
+                    case .amount(let a): Text(a, format: .currency(code: currencyCode))
+                    case .percent(let p): Text(p, format: .percent)
+                    case .remainder: Text("-")
                 }
             }
             TableColumn("Amount") { row in
@@ -79,20 +76,21 @@ struct IncomeDevotionsInspect : View {
                 
                 Spacer()
                 
-                Text("Amount Free:", comment: "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance.")
-                Text(data.variance, format: .currency(code: currencyCode))
+                Text("Money Left:", comment: "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance.")
+                Text(data.moneyLeft, format: .currency(code: currencyCode))
             }
             
             fullSize
         }.padding()
             .sheet(item: $closeLook) { item in
-                AnyDevotionCloseLook(data: item, owner: data)
+                DevotionCloseLook(data: item, owner: data)
             }
     }
 }
 
 #Preview {
+    @Previewable @Query var income: [IncomeDivision];
     DebugContainerView {
-        IncomeDevotionsInspect(data: try! .getExample())
+        IncomeDevotionsInspect(data: income[0] )
     }
 }

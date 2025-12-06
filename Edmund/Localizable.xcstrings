@@ -4,6 +4,9 @@
     "" : {
       "shouldTranslate" : false
     },
+    "-" : {
+
+    },
     "..." : {
       "shouldTranslate" : false
     },
@@ -166,9 +169,6 @@
     "Add Transaction" : {
 
     },
-    "Add Utility" : {
-
-    },
     "Added On" : {
 
     },
@@ -194,9 +194,6 @@
           }
         }
       }
-    },
-    "Amount Free:" : {
-      "comment" : "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance."
     },
     "Amount Kind:" : {
 
@@ -823,9 +820,6 @@
     "Edit Transaction" : {
 
     },
-    "Edit Utility" : {
-
-    },
     "Edmund" : {
       "localizations" : {
         "de" : {
@@ -1229,9 +1223,6 @@
     "Inspect Transaction" : {
 
     },
-    "Inspect Utility" : {
-
-    },
     "Interest" : {
 
     },
@@ -1434,7 +1425,7 @@
 
     },
     "Money Left:" : {
-
+      "comment" : "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance."
     },
     "Money Out" : {
 
@@ -1564,9 +1555,6 @@
 
     },
     "Note: To edit the income devotions, please use the income divider tool." : {
-
-    },
-    "Notes:" : {
 
     },
     "November" : {
@@ -1792,9 +1780,6 @@
     "Price Over Time" : {
 
     },
-    "Price:" : {
-
-    },
     "Profile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1881,7 +1866,7 @@
     "Remainder" : {
 
     },
-    "Remainder Amount:" : {
+    "Remainder Total:" : {
 
     },
     "Remove" : {
@@ -2153,6 +2138,9 @@
     "The unique engine could not be loaded." : {
 
     },
+    "The uniqueness constraint failed for this value. Please cancel the edit and try again." : {
+
+    },
     "There are no balances to display" : {
 
     },
@@ -2340,9 +2328,6 @@
     "Upcoming Bills" : {
 
     },
-    "Use Remainder:" : {
-
-    },
     "Use the space for only one widget" : {
 
     },
@@ -2350,12 +2335,6 @@
 
     },
     "Use Transaction Windows" : {
-
-    },
-    "Used Amount:" : {
-
-    },
-    "Utilities" : {
 
     },
     "Utility" : {
@@ -2376,9 +2355,6 @@
       }
     },
     "Utility Payment" : {
-
-    },
-    "Utility:" : {
 
     },
     "Variance" : {
@@ -2471,9 +2447,6 @@
           }
         }
       }
-    },
-    "When this is on, any remaining balance not used by other devotions will be used here." : {
-
     },
     "will be moved to" : {
       "comment" : "$ will be moved to"

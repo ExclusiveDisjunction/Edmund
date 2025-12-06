@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct CategoryEdit : View {
     @Bindable var snapshot: CategorySnapshot;

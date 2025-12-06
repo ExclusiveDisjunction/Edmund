@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct CreditCardHelper: View {
     @Binding var rows: [CreditCardRow];

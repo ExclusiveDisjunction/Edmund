@@ -7,17 +7,16 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 @Observable
 final class CategoryTableRow : Identifiable {
-    init(category: EdmundCore.Category) {
+    init(category: Category) {
         self.id = UUID();
         self.target = category;
         self.name = category.name;
     }
     
-    var target: EdmundCore.Category
+    var target: Category
     let id: UUID;
     var name: String;
     var isEditing: Bool = false;

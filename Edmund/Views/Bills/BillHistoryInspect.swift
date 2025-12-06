@@ -7,11 +7,10 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 /// The inspection view for Utility Entries.  This provides the layout for viewing all datapoints.
-public struct BillHistoryInspect<T> : View where T: BillBase {
-    public var over: T;
+public struct BillHistoryInspect : View{
+    public var over: Bill;
     
     @State private var cache: [ResolvedBillHistory]?;
     @State private var selected = Set<UUID>();
@@ -98,6 +97,6 @@ public struct BillHistoryInspect<T> : View where T: BillBase {
 }
 
 #Preview {
-    BillHistoryInspect(over: Utility.exampleUtility[0])
+    BillHistoryInspect(over: Bill.exampleBills[0])
         .padding()
 }

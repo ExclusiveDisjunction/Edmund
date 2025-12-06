@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData;
-import EdmundCore
 
 extension ValidationFailure : WarningBasis {
     public var message: LocalizedStringKey {
@@ -135,24 +134,20 @@ struct TransactionsEditor : View {
     
     var body: some View {
         switch kind {
-            case .simple:          SimpleTransaction()
-            case .composite:       CompositeTransaction()
+            case .simple:            SimpleTransaction()
+            case .composite:         CompositeTransaction()
 #if os(macOS)
-            case .grouped:         BatchTransactions()
+            case .grouped:           BatchTransactions()
 #endif
-            case .creditCard:      CreditCardTrans()
-            case .personalLoan:    PersonalLoan()
-            case .refund:          Refund()
-            case .miscIncome:      MiscIncome()
-            case .payday:          PaydayTransaction()
-            case .billPay(let v):  switch v {
-                case .subscription: BillPayment(kind: .subscription)
-                case .bill:         BillPayment(kind: .bill)
-                case .utility:      UtilityPayment()
-            }
-            case .balanceCorrection:           BalanceCorrection()
-            case .transfer(let v): Transfer(v)
-            case .initialBalance:   InitialBalance()
+            case .creditCard:        CreditCardTrans()
+            case .personalLoan:      PersonalLoan()
+            case .refund:            Refund()
+            case .miscIncome:        MiscIncome()
+            case .payday:            PaydayTransaction()
+            case .billPay(let v):    BillPayment(kind: v)
+            case .balanceCorrection: BalanceCorrection()
+            case .transfer(let v):   Transfer(v)
+            case .initialBalance:    InitialBalance()
         }
     }
 }

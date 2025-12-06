@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 /// A simple basis for what warnings should include.
 public protocol WarningBasis  {

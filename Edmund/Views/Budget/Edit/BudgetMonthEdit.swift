@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct BudgetMonthEdit : View {
     let source: BudgetMonthSnapshot;

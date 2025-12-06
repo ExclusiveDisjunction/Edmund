@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 /// The inspection view for Hourly Jobs. 
 public struct HourlyJobInspect : View {

@@ -7,7 +7,7 @@
 
 import Testing
 import SwiftData
-import EdmundCore
+import Edmund_Pro
 
 struct UniqueTests {
     @Test
@@ -35,7 +35,7 @@ struct UniqueTests {
     func testCategories() throws {
         let container = try Containers.uniqueDebugContainer()
         
-        let data = try container.context.fetch(FetchDescriptor<EdmundCore.Category>());
+        let data = try container.context.fetch(FetchDescriptor<Category>());
         let set = Set(data.lazy.map { $0.id } )
         #expect(set.count == data.count)
     }
@@ -56,11 +56,10 @@ struct UniqueTests {
         let container = try Containers.uniqueDebugContainer()
         
         let bills = try container.context.fetch(FetchDescriptor<Bill>());
-        let utilities = try container.context.fetch(FetchDescriptor<Utility>());
-        let all = bills.map { $0.id } + utilities.map { $0.id };
+        let all = bills.map { $0.id };
         
         let set = Set(all)
-        #expect(set.count == (bills.count + utilities.count))
+        #expect(set.count == bills.count)
     }
     
     @Test

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 /// The edit view for Account.
 public struct AccountEdit : View {

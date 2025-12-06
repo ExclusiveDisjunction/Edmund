@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 @Observable
 class AccountsAuditorRow : Identifiable {

@@ -7,15 +7,14 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 /// The editor view for Utility Entries.  This provides the layout for editing the entries as a series of payments & dates.
 public struct BillHistoryEdit : View {
-    public init(snapshot: BillBaseSnapshot) {
+    public init(snapshot: BillSnapshot) {
         self.snapshot = snapshot
     }
     
-    @Bindable public var snapshot: BillBaseSnapshot;
+    @Bindable public var snapshot: BillSnapshot;
     @State private var selected = Set<UUID>();
     #if os(iOS)
     @State private var showPopover = false;
@@ -27,7 +26,7 @@ public struct BillHistoryEdit : View {
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func add_new(skipped: Bool) {
+    private func addNew(skipped: Bool) {
         let new = BillHistorySnapshot(date: nil);
         new.skipped = skipped;
         
@@ -88,7 +87,7 @@ public struct BillHistoryEdit : View {
 #if os(iOS)
                 Menu {
                     Button {
-                        add_new(skipped: false)
+                        addNew(skipped: false)
                     } label: {
                         Text("Add")
                     }
@@ -104,7 +103,7 @@ public struct BillHistoryEdit : View {
 #endif
 #if os(macOS)
                 Button {
-                    add_new(skipped: false)
+                    addNew(skipped: false)
                 } label: {
                     Image(systemName: "plus")
                 }.buttonStyle(.borderless)
@@ -261,5 +260,5 @@ public struct BillHistoryEdit : View {
 
 
 #Preview {
-    BillHistoryEdit(snapshot: .init( Utility.exampleUtility[0] ))
+    BillHistoryEdit(snapshot: .init( Bill.exampleBills[0] ))
 }

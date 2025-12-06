@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct Budgets : View {
     @State private var selectedID: YearRowID? = nil;

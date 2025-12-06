@@ -8,7 +8,6 @@
 import Testing
 import Edmund
 import Foundation
-import EdmundCore
 
 struct MonthYearTesting {
     @Test func monthYearCompute() {

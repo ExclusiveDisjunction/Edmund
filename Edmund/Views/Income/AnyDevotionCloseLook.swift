@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import EdmundCore
 
-struct AnyDevotionCloseLook : View {
-    var data: AnyDevotion
+struct DevotionCloseLook : View {
+    var data: IncomeDevotion
     var owner: IncomeDivision
     
     @Environment(\.dismiss) private var dismiss;
@@ -24,12 +23,11 @@ struct AnyDevotionCloseLook : View {
     private let maxWidth: CGFloat = 120;
 #endif
     
-    private func computedAmount(_ target: AnyDevotion) -> Decimal {
-        switch target {
-            case .amount(let a): a.amount
-            case .percent(let p): p.amount * owner.amount
-            case .remainder(_): owner.remainderValue
-            default: .nan
+    private func computedAmount(_ target: IncomeDevotion) -> Decimal {
+        switch target.kind {
+            case .amount(let a): a
+            case .percent(let p): p * owner.amount
+            case .remainder: owner.perRemainderAmount
         }
     }
     
@@ -59,11 +57,10 @@ struct AnyDevotionCloseLook : View {
                         .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                     
                     HStack {
-                        switch data {
-                            case .amount(let a): Text(a.amount, format: .currency(code: currencyCode))
-                            case .percent(let p): Text(p.amount, format: .percent)
-                            case .remainder(_): Text("Remainder")
-                            default: Text("internalError")
+                        switch data.kind {
+                            case .amount(let a): Text(a, format: .currency(code: currencyCode))
+                            case .percent(let p): Text(p, format: .percent)
+                            case .remainder: Text("-")
                         }
                         
                         Spacer()

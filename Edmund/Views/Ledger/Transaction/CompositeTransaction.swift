@@ -7,7 +7,6 @@
 
 import SwiftUI;
 import Foundation;
-import EdmundCore
 
 struct CompositeTransaction : TransactionEditorProtocol {
     enum Mode : Int, Identifiable {

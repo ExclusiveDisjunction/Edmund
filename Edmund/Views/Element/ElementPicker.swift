@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 public struct ElementPicker<T> : View where T: Identifiable & NamedElement & PersistentModel {
     public init(_ target: Binding<T?>, onNil: LocalizedStringKey = "(Pick One)") {

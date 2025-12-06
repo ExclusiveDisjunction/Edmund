@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct IncomeDivisionPropertiesEditor : View {
     @Bindable var snapshot: ShallowIncomeDivisionSnapshot;
@@ -81,8 +80,7 @@ struct IncomeDivisionPropertiesEditor : View {
 }
 
 #Preview {
-    let budget = try! IncomeDivision.getExample()
-    let snapshot = IncomeDivisionSnapshot(budget)
+    @Previewable @Query var income: [IncomeDivision];
     
-    IncomeDivisionPropertiesEditor(snapshot: snapshot, isSheet: false)
+    IncomeDivisionPropertiesEditor(snapshot: income[0].makeSnapshot(), isSheet: false)
 }

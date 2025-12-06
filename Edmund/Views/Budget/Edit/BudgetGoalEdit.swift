@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct BudgetGoalEdit<T> : View where T: NamedElement & TransactionHolder & Hashable & PersistentModel {
     let data: Binding<[BudgetGoalSnapshot<T>]>;

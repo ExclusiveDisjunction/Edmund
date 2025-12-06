@@ -5,7 +5,6 @@
 //  Created by Hollan Sellars on 7/10/25.
 //
 
-import EdmundCore
 import SwiftUI
 
 /// A view used to help determine the paycheck amount of a salaried job.

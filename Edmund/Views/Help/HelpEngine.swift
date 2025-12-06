@@ -143,7 +143,7 @@ public actor HelpEngine {
             logger?.debug("The topic was not cached, loading and then registering cache.")
             let url = topic.url;
             topicContent = try await Task(priority: .medium) {
-                    return try String(contentsOf: url)
+                return try String(contentsOf: url, encoding: .utf8)
                 }.value
             
             if cache {

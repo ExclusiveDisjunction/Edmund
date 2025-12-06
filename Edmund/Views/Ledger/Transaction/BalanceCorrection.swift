@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 struct BalanceCorrection: TransactionEditorProtocol {
     private enum Mode : Identifiable, CaseIterable, Displayable {

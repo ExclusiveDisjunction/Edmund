@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 /// A view representing all jobs currently stored.
 struct AllJobsViewEdit : View {

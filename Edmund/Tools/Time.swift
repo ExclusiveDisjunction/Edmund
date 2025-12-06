@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, Comparable {
+public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, Comparable, Codable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -56,7 +56,7 @@ public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, C
     }
 }
 
-public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Sendable {
+public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Sendable, Codable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2

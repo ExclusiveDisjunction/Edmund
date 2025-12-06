@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct BudgetGoalCloseEdit<T> : View where T: NamedElement & TransactionHolder & PersistentModel & Hashable {
     @Bindable var over: BudgetGoalSnapshot<T>;

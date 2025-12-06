@@ -5,8 +5,8 @@
 //  Created by Hollan Sellars on 7/6/25.
 //
 
-import EdmundCore
 import SwiftUI
+import SwiftData
 
 struct IncomeDivisionCloseInspect : View {
     let data: IncomeDivision;
@@ -92,7 +92,8 @@ struct IncomeDivisionCloseInspect : View {
 }
 
 #Preview {
+    @Previewable @Query var income: [IncomeDivision];
     DebugContainerView {
-        IncomeDivisionCloseInspect(data: try! .getExample())
+        IncomeDivisionCloseInspect(data: income[0])
     }
 }

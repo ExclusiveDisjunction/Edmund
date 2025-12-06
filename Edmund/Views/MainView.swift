@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct PageDestinationWrapper : Identifiable {
     init(name: String, content: [PageDestinations]) {

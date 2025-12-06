@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 /// A specific filter for a query type. One is made per case of a `Filterable` type, and this stores if that filter is active or not.
 @Observable
@@ -145,7 +144,7 @@ public struct QueryPopout<T> : View where T: Queryable, T.SortType.AllCases: Ran
 }
 
 #Preview {
-    let provider = QueryManifest<BillBaseWrapper>(.name);
+    let provider = QueryManifest<Bill>(.name);
     
     DebugContainerView {
         QueryPopout(provider: provider, isSheet: false)

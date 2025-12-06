@@ -7,7 +7,6 @@
 //
 
 import os
-import EdmundCore
 import SwiftUI
 import SwiftData
 import Observation

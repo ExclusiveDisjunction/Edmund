@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 struct BudgetPicker : View {
     @Query private var source: [BudgetMonth];

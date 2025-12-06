@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 public struct IncomeDivisionEdit : View {
     public init(_ snap: IncomeDivisionSnapshot) {
@@ -29,18 +28,14 @@ public struct IncomeDivisionEdit : View {
                     Text("Devotions")
                 }
             
-            IncomeDivisionRemainderEditor(remainder: snapshot.remainder, hasRemainder: $snapshot.hasRemainder, remainderValue: snapshot.remainderValue)
-                .tabItem {
-                    Text("Remainder")
-                }
-            
             
         }.padding()
     }
 }
 
 #Preview {
+    @Previewable @Query var income: [IncomeDivision];
     DebugContainerView {
-        IncomeDivisionEdit(.init(try! IncomeDivision.getExample()))
+        IncomeDivisionEdit(income[0].makeSnapshot())
     }
 }

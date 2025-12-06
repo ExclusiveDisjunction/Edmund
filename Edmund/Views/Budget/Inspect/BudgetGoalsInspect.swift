@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import EdmundCore
 
 struct LoadedBudgetGoalsInspect<T> : View where T: BudgetGoal {
     var data: [BudgetGoalData<T>];

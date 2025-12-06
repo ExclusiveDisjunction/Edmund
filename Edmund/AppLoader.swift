@@ -5,7 +5,6 @@
 //  Created by Hollan Sellars on 7/5/25.
 //
 
-import EdmundCore
 import SwiftData
 import SwiftUI
 import Observation

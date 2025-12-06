@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftData
 import Charts
-import EdmundCore
 
 struct DevotionGroupsGraph: View {
     struct ChartRow : Identifiable {
@@ -25,15 +24,14 @@ struct DevotionGroupsGraph: View {
     public init(from: IncomeDivision, isSheet: Bool = true) {
         self.isSheet = isSheet
         
-        let all = from.allDevotions;
+        let all = from.devotions;
         var data: [DevotionGroup : Decimal] = [:];
         var total: Decimal = 0;
         for item in all {
-            let amount: Decimal = switch item {
-                case .amount(let a): a.amount
-                case .percent(let p): p.amount * from.amount
-                case .remainder(_): from.remainderValue
-                default: .nan
+            let amount: Decimal = switch item.kind {
+                case .amount(let a): a
+                case .percent(let p): p * from.amount
+                case .remainder: from.perRemainderAmount
             }
             
             data[item.group, default: 0.0] += amount;
@@ -89,7 +87,9 @@ struct DevotionGroupsGraph: View {
 }
 
 #Preview {
+    @Previewable @Query var divisions: [IncomeDivision];
+    
     DebugContainerView {
-        DevotionGroupsGraph(from: try! .getExample(), isSheet: false)
+        DevotionGroupsGraph(from: divisions[0], isSheet: false)
     }
 }

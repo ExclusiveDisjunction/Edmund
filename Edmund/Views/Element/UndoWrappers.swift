@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftData
-import EdmundCore
 
 public protocol UndoManagerWrapper : AnyObject, Sendable {
     @MainActor

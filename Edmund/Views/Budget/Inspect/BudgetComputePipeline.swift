@@ -7,7 +7,6 @@
 
 import os
 import Foundation
-import EdmundCore
 import SwiftData
 
 @MainActor
@@ -43,12 +42,12 @@ public enum BudgetComputationError : Error {
 struct BudgetComputePipeline {
     private struct PreparedData {
         let accounts: Set<Account>;
-        let categories: Set<EdmundCore.Category>;
+        let categories: Set<Category>;
     }
     private struct PreparedTransaction {
         let balance: BalanceInformation;
         let account: Account;
-        let category: EdmundCore.Category;
+        let category: Category;
     }
     private struct PreparedTransactionData {
         let data: [PreparedTransaction];
@@ -64,7 +63,7 @@ struct BudgetComputePipeline {
     
     private func prepare() -> PreparedData {
         log?.debug("Preparing budget information for calculations.")
-        let categories = Set<EdmundCore.Category>(over.spendingGoals.compactMap { $0.association });
+        let categories = Set<Category>(over.spendingGoals.compactMap { $0.association });
         let accounts   = Set<Account> (over.savingsGoals .compactMap { $0.association });
         
         log?.debug("Budget contains \(categories.count) categories and \(accounts.count) accounts to reduce.")
@@ -123,7 +122,7 @@ struct BudgetComputePipeline {
     
     private func processData(input: PreparedTransactionData) -> BudgetData {
         var accounts: [Account: BalanceInformation] = [:];
-        var categories: [EdmundCore.Category : BalanceInformation] = [:];
+        var categories: [Category : BalanceInformation] = [:];
         
         for entry in input.data {
             accounts[entry.account] = accounts[entry.account, default: .init()] + entry.balance;

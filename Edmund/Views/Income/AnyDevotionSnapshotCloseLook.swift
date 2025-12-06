@@ -6,62 +6,13 @@
 //
 
 import SwiftUI
-import EdmundCore
+import SwiftData
 
-struct AmountDevotionSnapshotCloseLook : View {
-    @Bindable var devotion: DevotionSnapshot<CurrencyValue>
-    
-    @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    
-#if os(macOS)
-    private let minWidth: CGFloat = 70;
-    private let maxWidth: CGFloat = 80;
-#else
-    private let minWidth: CGFloat = 80;
-    private let maxWidth: CGFloat = 90;
-#endif
-    
-    var body: some View {
-        Grid {
-            GridRow {
-                Text("Name:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                TextField("", text: $devotion.name)
-                    .textFieldStyle(.roundedBorder)
-            }
-            
-            GridRow {
-                Text("Devotion:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                CurrencyField(devotion.value)
-            }
-            
-            GridRow {
-                Text("Group:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                Picker("", selection: $devotion.group) {
-                    ForEach(DevotionGroup.allCases) { group in
-                        Text(group.display).tag(group)
-                    }
-                }.labelsHidden().pickerStyle(.segmented)
-            }
-            
-            GridRow {
-                Text("Account:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                ElementPicker($devotion.account)
-            }
-        }
-    }
-}
-
-struct PercentDevotionSnapshotCloseLook : View {
+struct DevotionSnapshotCloseLook : View {
     let snapshot: IncomeDivisionSnapshot;
-    @Bindable var devotion: DevotionSnapshot<PercentValue>;
+    @Bindable var devotion: IncomeDevotionSnapshot;
+    
+    @Environment(\.dismiss) private var dismiss;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
@@ -72,60 +23,6 @@ struct PercentDevotionSnapshotCloseLook : View {
     private let minWidth: CGFloat = 110;
     private let maxWidth: CGFloat = 120;
 #endif
-
-    var body: some View {
-        Grid {
-            GridRow {
-                Text("Name:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                TextField("", text: $devotion.name)
-                    .textFieldStyle(.roundedBorder)
-            }
-            
-            GridRow {
-                Text("Devotion:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                PercentField(devotion.value)
-            }
-            
-            GridRow {
-                Text("Amount:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                HStack {
-                    Text(devotion.value.rawValue * snapshot.amount.rawValue, format: .currency(code: currencyCode))
-                    Spacer()
-                }
-            }
-            
-            GridRow {
-                Text("Group:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                Picker("", selection: $devotion.group) {
-                    ForEach(DevotionGroup.allCases) { group in
-                        Text(group.display).tag(group)
-                    }
-                }.labelsHidden().pickerStyle(.segmented)
-            }
-            
-            GridRow {
-                Text("Account:")
-                    .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
-                
-                ElementPicker($devotion.account)
-            }
-        }
-    }
-}
-
-struct AnyDevotionSnapshotCloseLook : View {
-    let snapshot: IncomeDivisionSnapshot;
-    let devotion: AnyDevotionSnapshot;
-    
-    @Environment(\.dismiss) private var dismiss;
     
     var body: some View {
         VStack {
@@ -136,10 +33,58 @@ struct AnyDevotionSnapshotCloseLook : View {
                 Spacer()
             }
             
-            switch devotion {
-                case .amount(let a): AmountDevotionSnapshotCloseLook(devotion: a)
-                case .percent(let p): PercentDevotionSnapshotCloseLook(snapshot: snapshot, devotion: p)
-                default: Text("internalError")
+            Grid {
+                GridRow {
+                    Text("Name:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    TextField("", text: $devotion.name)
+                        .textFieldStyle(.roundedBorder)
+                }
+                
+                GridRow {
+                    Text("Devotion:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    switch devotion.kind {
+                        case .amount(let a): CurrencyField(a)
+                        case .percent(let b): PercentField(b)
+                        case .remainder: HStack {
+                            Text("Remainder")
+                            Spacer()
+                        }
+                    }
+                }
+                
+                GridRow {
+                    Text("Amount:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    HStack {
+                        let amount = switch devotion.kind {
+                            case .amount(let a): a.rawValue
+                            case .percent(let b): b.rawValue * snapshot.amount.rawValue
+                            case .remainder: snapshot.perRemainderAmount
+                        }
+                        
+                        Text(amount, format: .currency(code: currencyCode))
+                        Spacer()
+                    }
+                }
+                
+                GridRow {
+                    Text("Group:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    EnumPicker(value: $devotion.group).pickerStyle(.segmented)
+                }
+                
+                GridRow {
+                    Text("Account:")
+                        .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
+                    
+                    ElementPicker($devotion.account)
+                }
             }
             
             Spacer()
@@ -155,9 +100,11 @@ struct AnyDevotionSnapshotCloseLook : View {
 }
 
 #Preview {
+    @Previewable @Query var divisions: [IncomeDivision];
+    
     DebugContainerView {
-        let snapshot = try! IncomeDivision.getExample().makeSnapshot()
+        let snapshot = divisions[0].makeSnapshot()
         let devotion = snapshot.devotions[0];
-        AnyDevotionSnapshotCloseLook(snapshot: snapshot, devotion: devotion)
+        DevotionSnapshotCloseLook(snapshot: snapshot, devotion: devotion)
     }
 }

@@ -6,7 +6,6 @@
 //
 
 import os
-import EdmundCore
 import SwiftUI
 import SwiftData
 

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import EdmundCore
 
 enum IncomeDivisionFinalizationError : WarningBasis, CaseIterable, Identifiable {
     case missingData
@@ -64,7 +63,7 @@ struct IncomeDivisions : View {
             finalizeWarning.warning = .alreadyFinalized;
             return;
         }
-        guard income.variance == 0 else {
+        guard income.moneyLeft == 0 else {
             finalizeWarning.warning = .nonZeroVariance;
             return;
         }
@@ -85,7 +84,6 @@ struct IncomeDivisions : View {
             case .donation: NSLocalizedString("Donation", comment: "")
             case .gift:     NSLocalizedString("Gift", comment: "")
             case .pay:      NSLocalizedString("Pay", comment: "")
-            default:        NSLocalizedString("internalError", comment: "")
         }
         let payCategory = categoriesContext.income 
         
@@ -93,7 +91,7 @@ struct IncomeDivisions : View {
         
         let pay = LedgerEntry(name: payName, credit: income.amount, debit: 0, date: .now, location: bank, category: payCategory, account: payAccount)
         
-        guard !income.allDevotions.isEmpty else { //We dont want to transfer out if there are no places for it to go
+        guard !income.devotions.isEmpty else { //We dont want to transfer out if there are no places for it to go
             modelContext.insert(pay)
             income.isFinalized = true
             return
@@ -102,18 +100,17 @@ struct IncomeDivisions : View {
         let transfer = LedgerEntry(name: "\(payAccount.name) to Various", credit: 0, debit: income.amount, date: .now, location: bank, category: categoriesContext.transfers, account: payAccount)
         
         var resultingTransactions: [LedgerEntry] = [pay, transfer]
-        for devotion in income.allDevotions {
+        for devotion in income.devotions {
             guard let acc = devotion.account else {
                 loggerSystem?.data.error("Unexpected nil value attached to a devotion")
                 finalizeWarning.warning = .missingData;
                 return;
             }
             
-            let amount = switch devotion {
-                case .amount(let a): a.amount
-                case .percent(let p): p.amount * income.amount
-                case .remainder(_): income.remainderValue
-                default: Decimal.nan
+            let amount = switch devotion.kind {
+                case .amount(let a): a
+                case .percent(let p): p * income.amount
+                case .remainder: income.perRemainderAmount
             }
             
             resultingTransactions.append(
