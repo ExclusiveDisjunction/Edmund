@@ -12,6 +12,7 @@ import SwiftData
 struct EdmundApp: App {
     init() {
         let log = LoggerSystem();
+        /*
         let help = HelpEngine(log.help);
         let unique = UniqueEngine(log.unique);
         let loader = AppLoaderEngine(unique: unique, help: help, log: log)
@@ -27,13 +28,18 @@ struct EdmundApp: App {
         Task {
             await loader.loadApp(state: state)
         }
+         */
+        
+        self.log = log;
     }
     
     let log: LoggerSystem;
+    /*
     let loader: AppLoaderEngine;
     let help: HelpEngine;
     let unique: UniqueEngine;
     let state: AppLoadingState;
+     
     
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
@@ -44,17 +50,17 @@ struct EdmundApp: App {
             default: return nil
         }
     }
+     */
     
     
     var body: some Scene {
         WindowGroup {
-            AppWindowGate(appLoader: loader, state: state) {
-                MainView()
-            }
+            Text("Work in progress")
         }.commands {
-            GeneralCommands()
+            //GeneralCommands()
         }
         
+        /*
         WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
             NavigationStack {
                 AppWindowGate(appLoader: loader, state: state) {
@@ -168,5 +174,6 @@ struct EdmundApp: App {
                 .environment(\.helpEngine, help)
                 .preferredColorScheme(colorScheme)
         }
+         */
     }
 }

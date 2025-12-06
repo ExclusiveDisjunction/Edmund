@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25B78" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25B78" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Account" representedClassName="Account" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="interest" attributeType="Decimal" defaultValueString="0.0"/>
@@ -78,7 +78,7 @@
         <relationship name="savings" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BudgetSavingsGoal" inverseName="association" inverseEntity="BudgetSavingsGoal"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
-                <constraint value="account.id"/>
+                <constraint value="account"/>
                 <constraint value="name"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
@@ -97,7 +97,7 @@
         <relationship name="moveTo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Envolope" inverseName="devotions" inverseEntity="Envolope"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
-                <constraint value="division.id"/>
+                <constraint value="division"/>
                 <constraint value="name"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
@@ -130,9 +130,7 @@
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="ledger" inverseEntity="Category"/>
         <relationship name="envolope" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Envolope" inverseName="ledger" inverseEntity="Envolope"/>
     </entity>
-    <entity name="SalariedJob" representedClassName="SalariedJob" parentEntity="TraditionalJob" syncable="YES" codeGenerationType="class">
-        <attribute name="grossAmount" attributeType="Decimal" defaultValueString="0.0"/>
-    </entity>
+    <entity name="SalariedJob" representedClassName="SalariedJob" parentEntity="TraditionalJob" syncable="YES" codeGenerationType="class"/>
     <entity name="TraditionalJob" representedClassName="TraditionalJob" parentEntity="IncomeSource" syncable="YES" codeGenerationType="class">
         <attribute name="company" attributeType="String"/>
         <attribute name="position" attributeType="String"/>

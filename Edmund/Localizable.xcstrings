@@ -1,43 +1,8 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-      "shouldTranslate" : false
-    },
-    "-" : {
-
-    },
-    "..." : {
-      "shouldTranslate" : false
-    },
-    "(No balance)" : {
-
-    },
-    "(No date)" : {
-
-    },
-    "(No information)" : {
-
-    },
-    "(No job)" : {
-
-    },
-    "(None)" : {
-
-    },
-    "(Pick One)" : {
-
-    },
-    "(Select a Month & Year)" : {
-
-    },
-    "(Select)" : {
-
-    },
-    "**Note:** If you copy from a budget, the dates from the incomes will not carry over." : {
-      "comment" : "Keep the ** around the Note part"
-    },
     "/" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -60,22 +25,6 @@
       },
       "shouldTranslate" : false
     },
-    "%@: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@: %2$@"
-          }
-        }
-      }
-    },
-    "A sub-topic could not be loaded. Here are the errors:" : {
-
-    },
-    "About" : {
-
-    },
     "Account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -93,10 +42,8 @@
         }
       }
     },
-    "Account Audit Close Look" : {
-
-    },
     "Account:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -113,6 +60,7 @@
       }
     },
     "Accounts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -145,39 +93,6 @@
         }
       }
     },
-    "Add Account" : {
-
-    },
-    "Add Bill" : {
-
-    },
-    "Add Budget" : {
-
-    },
-    "Add Category" : {
-
-    },
-    "Add Hourly Job" : {
-
-    },
-    "Add Salaried Job" : {
-
-    },
-    "Add Skipped" : {
-
-    },
-    "Add Transaction" : {
-
-    },
-    "Added On" : {
-
-    },
-    "Added On:" : {
-
-    },
-    "Adjust Dates" : {
-
-    },
     "Amount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -194,15 +109,6 @@
           }
         }
       }
-    },
-    "Amount Kind:" : {
-
-    },
-    "Amount:" : {
-
-    },
-    "Amounts:" : {
-
     },
     "Anually" : {
       "extractionState" : "manual",
@@ -222,6 +128,7 @@
       }
     },
     "App Theme" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -238,6 +145,7 @@
       }
     },
     "Appearance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -253,13 +161,8 @@
         }
       }
     },
-    "April" : {
-
-    },
-    "Ascending" : {
-
-    },
     "Audit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -275,28 +178,8 @@
         }
       }
     },
-    "Auditor" : {
-
-    },
-    "August" : {
-
-    },
-    "Autopay:" : {
-
-    },
-    "Availiable Credit" : {
-
-    },
-    "Availiable Limit:" : {
-
-    },
-    "Average Hours" : {
-
-    },
-    "Average Hours:" : {
-
-    },
     "Balance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -311,14 +194,9 @@
           }
         }
       }
-    },
-    "Balance Correction" : {
-
-    },
-    "Balance Goal" : {
-
     },
     "Balance Sheet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -333,36 +211,6 @@
           }
         }
       }
-    },
-    "Balance:" : {
-
-    },
-    "Balanced" : {
-
-    },
-    "Balances" : {
-
-    },
-    "Balances Graph" : {
-
-    },
-    "Balances Report" : {
-
-    },
-    "Bank" : {
-
-    },
-    "Basic" : {
-
-    },
-    "Batch Transactions" : {
-
-    },
-    "Bi-Monthly" : {
-
-    },
-    "Bi-Weekly" : {
-
     },
     "Bill" : {
       "extractionState" : "manual",
@@ -382,6 +230,7 @@
       }
     },
     "Bill Payment" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -396,9 +245,6 @@
           }
         }
       }
-    },
-    "Bill:" : {
-
     },
     "Bills" : {
       "extractionState" : "manual",
@@ -417,12 +263,6 @@
         }
       }
     },
-    "Bills & Budget" : {
-
-    },
-    "Bottom Section" : {
-
-    },
     "Budget" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -440,13 +280,8 @@
         }
       }
     },
-    "Budget for:" : {
-
-    },
-    "Budget:" : {
-
-    },
     "Budgeting Period" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -457,6 +292,7 @@
       }
     },
     "budgetingPeriodDesc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -465,15 +301,6 @@
           }
         }
       }
-    },
-    "Budgets" : {
-
-    },
-    "Bug? Feature Request? Concerns?" : {
-
-    },
-    "Build %@" : {
-      "comment" : "App build version. This appears as Build (Number)"
     },
     "Cancel" : {
       "extractionState" : "manual",
@@ -492,10 +319,8 @@
         }
       }
     },
-    "Cash" : {
-
-    },
     "Categories" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -528,21 +353,6 @@
         }
       }
     },
-    "Category:" : {
-
-    },
-    "Certificate of Deposit" : {
-
-    },
-    "Charge History" : {
-
-    },
-    "Checking" : {
-
-    },
-    "Close Look" : {
-
-    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -560,25 +370,8 @@
         }
       }
     },
-    "Compact" : {
-
-    },
-    "Company" : {
-
-    },
-    "Company:" : {
-
-    },
-    "Composite Transaction" : {
-
-    },
-    "Copy from another budget" : {
-
-    },
-    "Copy from:" : {
-
-    },
     "Credit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -594,16 +387,8 @@
         }
       }
     },
-    "Credit Card Audit Close Look" : {
-
-    },
-    "Credit Card Transactions" : {
-
-    },
-    "Credit Cards" : {
-
-    },
     "Credit Limit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -613,13 +398,8 @@
         }
       }
     },
-    "Credit Limit:" : {
-
-    },
-    "Currency" : {
-
-    },
     "Current Balance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -629,16 +409,8 @@
         }
       }
     },
-    "Current Balance:" : {
-
-    },
-    "Customize" : {
-
-    },
-    "Datapoints" : {
-
-    },
     "Date" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -655,6 +427,7 @@
       }
     },
     "Date:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -671,6 +444,7 @@
       }
     },
     "Debit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -685,9 +459,6 @@
           }
         }
       }
-    },
-    "December" : {
-
     },
     "Delete" : {
       "extractionState" : "manual",
@@ -707,6 +478,7 @@
       }
     },
     "deleteItemsConfirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -715,72 +487,6 @@
           }
         }
       }
-    },
-    "Deleting a budget cannot be undone. Are you sure you want to continue?" : {
-
-    },
-    "Deleting an income division will remove all information associated with it. This action cannot be undone. Note: All finalized transactions will still be in the ledger. Do you want to continue?" : {
-
-    },
-    "Deposit To" : {
-
-    },
-    "Deposit to:" : {
-
-    },
-    "Deposit To:" : {
-
-    },
-    "Deposit:" : {
-
-    },
-    "Description" : {
-
-    },
-    "Description:" : {
-
-    },
-    "Destination" : {
-
-    },
-    "Destination:" : {
-
-    },
-    "Details:" : {
-
-    },
-    "Devotion" : {
-
-    },
-    "Devotion Close Look" : {
-
-    },
-    "Devotion:" : {
-
-    },
-    "Devotions" : {
-
-    },
-    "Devotions Chart" : {
-
-    },
-    "Discard" : {
-
-    },
-    "Disclosures" : {
-
-    },
-    "Display the homepage as one widget" : {
-
-    },
-    "Display the homepage as two widgets" : {
-
-    },
-    "Donation" : {
-
-    },
-    "Due Date" : {
-
     },
     "Edit" : {
       "extractionState" : "manual",
@@ -799,28 +505,8 @@
         }
       }
     },
-    "Edit Account" : {
-
-    },
-    "Edit Bill" : {
-
-    },
-    "Edit Category" : {
-
-    },
-    "Edit History" : {
-
-    },
-    "Edit Hourly Job" : {
-
-    },
-    "Edit Salaried Job" : {
-
-    },
-    "Edit Transaction" : {
-
-    },
     "Edmund" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -836,42 +522,6 @@
         }
       },
       "shouldTranslate" : false
-    },
-    "Edmund could not find that topic." : {
-
-    },
-    "Edmund expected a group of topics, but got a single topic instead." : {
-
-    },
-    "Edmund expected a single topic, but got a group of topics instead." : {
-
-    },
-    "Edmund has hit a snag while loading, and cannot access your data." : {
-
-    },
-    "Edmund Help" : {
-
-    },
-    "Edmund is not able to present this budget. Please report this issue." : {
-
-    },
-    "Edmund was not able to obtain the guide's contents." : {
-
-    },
-    "Enable Dates" : {
-
-    },
-    "End" : {
-
-    },
-    "End Date:" : {
-
-    },
-    "Ended On" : {
-
-    },
-    "Ended:" : {
-      "comment" : "Bill ended on date"
     },
     "Error" : {
       "comment" : "Used as the title of a message explaining what went wrong.",
@@ -891,18 +541,6 @@
         }
       }
     },
-    "Error description: %@" : {
-
-    },
-    "Error Kind:" : {
-
-    },
-    "Error Message:" : {
-
-    },
-    "Estimated Pay" : {
-
-    },
     "Expand All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -919,51 +557,6 @@
           }
         }
       }
-    },
-    "Expected" : {
-
-    },
-    "Expected Balance" : {
-
-    },
-    "Expected Balance:" : {
-
-    },
-    "Expired Bill" : {
-
-    },
-    "Expired Bills" : {
-
-    },
-    "Export as PDF" : {
-      "shouldTranslate" : false
-    },
-    "Expression:" : {
-
-    },
-    "February" : {
-
-    },
-    "Filter" : {
-
-    },
-    "Finalize" : {
-
-    },
-    "Finalized income divisions create transactions in the ledger. These transactions cannot be modified if you modify the income division, so you cannot edit a finalized income division." : {
-
-    },
-    "Finalized:" : {
-
-    },
-    "Fixed Amount" : {
-
-    },
-    "For a given year, you can only have one budget per month. If a budget exists for a given month, it cannot be chosen, and will be struck through." : {
-
-    },
-    "For Item:" : {
-
     },
     "Frequency" : {
       "extractionState" : "manual",
@@ -982,16 +575,8 @@
         }
       }
     },
-    "Frequency:" : {
-
-    },
-    "From:" : {
-
-    },
-    "Full Screen" : {
-
-    },
     "futureRelease" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1000,42 +585,6 @@
           }
         }
       }
-    },
-    "General" : {
-
-    },
-    "Gift" : {
-
-    },
-    "Goal" : {
-
-    },
-    "Goal Close Look" : {
-
-    },
-    "Goal:" : {
-
-    },
-    "Graph" : {
-
-    },
-    "Gross / Net -> Tax Rate" : {
-      "comment" : "Used to denote the data format. Gross Pay divided by Net Pay is the tax rate"
-    },
-    "Gross Pay" : {
-
-    },
-    "Gross Pay:" : {
-
-    },
-    "Group" : {
-
-    },
-    "Group:" : {
-
-    },
-    "Groups" : {
-
     },
     "Half Year" : {
       "extractionState" : "manual",
@@ -1053,18 +602,6 @@
           }
         }
       }
-    },
-    "Has End Date" : {
-
-    },
-    "Has End Date:" : {
-
-    },
-    "Has Interest:" : {
-
-    },
-    "Has Location:" : {
-
     },
     "Help" : {
       "extractionState" : "manual",
@@ -1084,6 +621,7 @@
       }
     },
     "Hide Graph" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1098,9 +636,6 @@
           }
         }
       }
-    },
-    "History" : {
-
     },
     "Home" : {
       "extractionState" : "manual",
@@ -1119,72 +654,6 @@
         }
       }
     },
-    "Homepage" : {
-
-    },
-    "Homepage Organizer" : {
-
-    },
-    "Horizontal Split" : {
-
-    },
-    "Hourly" : {
-
-    },
-    "Hourly Job" : {
-
-    },
-    "Hourly Jobs" : {
-
-    },
-    "Hourly Rate:" : {
-
-    },
-    "Hours:" : {
-
-    },
-    "https://github.com/ExclusiveDisjunction/Edmund" : {
-      "shouldTranslate" : false
-    },
-    "https://github.com/swiftlang/swift-markdown" : {
-      "shouldTranslate" : false
-    },
-    "If this is a common or persistent issue, please report it." : {
-
-    },
-    "Income" : {
-
-    },
-    "Income Divider" : {
-
-    },
-    "Income Division" : {
-
-    },
-    "Income Division Close Look" : {
-
-    },
-    "Income Division:" : {
-
-    },
-    "Income Kind" : {
-
-    },
-    "Income Kind:" : {
-
-    },
-    "Income Report" : {
-
-    },
-    "Income:" : {
-
-    },
-    "Individual Spending" : {
-
-    },
-    "Initial Balance" : {
-
-    },
     "Inspect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1202,34 +671,8 @@
         }
       }
     },
-    "Inspect Account" : {
-
-    },
-    "Inspect Bill" : {
-
-    },
-    "Inspect Category" : {
-
-    },
-    "Inspect History" : {
-
-    },
-    "Inspect Hourly Job" : {
-
-    },
-    "Inspect Salaried Job" : {
-
-    },
-    "Inspect Transaction" : {
-
-    },
-    "Interest" : {
-
-    },
-    "Interest:" : {
-      "comment" : "Money interest"
-    },
     "internalError" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1238,33 +681,6 @@
           }
         }
       }
-    },
-    "Into:" : {
-
-    },
-    "iOS & iPadOS (vertical orientations) only display in Compact mode." : {
-
-    },
-    "Item" : {
-
-    },
-    "James Larson" : {
-      "shouldTranslate" : false
-    },
-    "January" : {
-
-    },
-    "Job:" : {
-
-    },
-    "Jobs" : {
-
-    },
-    "July" : {
-
-    },
-    "June" : {
-
     },
     "Kind" : {
       "extractionState" : "manual",
@@ -1283,18 +699,6 @@
         }
       }
     },
-    "Kind:" : {
-
-    },
-    "Kyle Lawrence" : {
-      "shouldTranslate" : false
-    },
-    "Last Edited:" : {
-
-    },
-    "Last Viewed:" : {
-
-    },
     "Ledger" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1312,16 +716,8 @@
         }
       }
     },
-    "Left Side" : {
-
-    },
-    "Loading" : {
-
-    },
-    "Loan" : {
-
-    },
     "Location" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1337,13 +733,8 @@
         }
       }
     },
-    "Location:" : {
-
-    },
-    "Maks Kruc" : {
-      "shouldTranslate" : false
-    },
     "Many-to-Many" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1359,10 +750,8 @@
         }
       }
     },
-    "Many-to-Many Transfer" : {
-
-    },
     "Many-to-One" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1378,16 +767,8 @@
         }
       }
     },
-    "Many-to-One Transfer" : {
-
-    },
-    "March" : {
-
-    },
-    "May" : {
-
-    },
     "Memo" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1402,36 +783,6 @@
           }
         }
       }
-    },
-    "Memo:" : {
-
-    },
-    "Miscellaneous" : {
-
-    },
-    "Miscellaneous Income" : {
-
-    },
-    "Mode:" : {
-
-    },
-    "Money In" : {
-
-    },
-    "Money In:" : {
-
-    },
-    "Money Left" : {
-
-    },
-    "Money Left:" : {
-      "comment" : "This in context is the amount of money left from the income of the divider, minus all devotions. This is similar to variance."
-    },
-    "Money Out" : {
-
-    },
-    "Money Out:" : {
-
     },
     "Month" : {
       "extractionState" : "manual",
@@ -1450,24 +801,6 @@
         }
       }
     },
-    "Month & Year" : {
-
-    },
-    "Month:" : {
-
-    },
-    "Monthly" : {
-
-    },
-    "Monthly Goal" : {
-
-    },
-    "Monthly Goal:" : {
-
-    },
-    "Move To" : {
-
-    },
     "Name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1485,42 +818,6 @@
         }
       }
     },
-    "Name:" : {
-
-    },
-    "Need" : {
-
-    },
-    "Net Pay" : {
-
-    },
-    "Net Spending" : {
-
-    },
-    "New Balance:" : {
-
-    },
-    "Next Due Date" : {
-
-    },
-    "No" : {
-
-    },
-    "No credit limit" : {
-
-    },
-    "No end date" : {
-
-    },
-    "No Information" : {
-
-    },
-    "No interest" : {
-
-    },
-    "No location" : {
-
-    },
     "noCategories" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1533,6 +830,7 @@
       }
     },
     "noItems" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1542,28 +840,8 @@
         }
       }
     },
-    "None" : {
-
-    },
-    "Not all accounts are filled out. Please ensure all devotions, remainders and deposits have their associated account & sub account." : {
-
-    },
-    "Note: Any row with a check mark cannot be edited, as it is finalized." : {
-
-    },
-    "Note: To add an income division, please go to your target budget, go to edit mode, and add under the 'income' tab." : {
-
-    },
-    "Note: To edit the income devotions, please use the income divider tool." : {
-
-    },
-    "November" : {
-
-    },
-    "October" : {
-
-    },
     "Ok" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1579,13 +857,8 @@
         }
       }
     },
-    "One or more fields has invalid input." : {
-
-    },
-    "One Section" : {
-
-    },
     "One-to-Many" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1601,10 +874,8 @@
         }
       }
     },
-    "One-to-Many Transfer" : {
-
-    },
     "One-to-One" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1619,12 +890,6 @@
           }
         }
       }
-    },
-    "One-to-One Transfer" : {
-
-    },
-    "Oops!" : {
-
     },
     "Open in new Window" : {
       "extractionState" : "manual",
@@ -1660,33 +925,6 @@
         }
       }
     },
-    "Over" : {
-
-    },
-    "Over By" : {
-
-    },
-    "Over By:" : {
-
-    },
-    "Pay" : {
-
-    },
-    "Paycheck:" : {
-
-    },
-    "Payday" : {
-
-    },
-    "Percentage" : {
-
-    },
-    "Period" : {
-
-    },
-    "Person" : {
-
-    },
     "Personal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1704,67 +942,8 @@
         }
       }
     },
-    "Personal Loan" : {
-
-    },
-    "Please ensure all amount values are positive." : {
-
-    },
-    "Please ensure all fields are filled in." : {
-
-    },
-    "Please ensure all fields are not too large. (Ex: Percents greater than 100%)" : {
-
-    },
-    "Please ensure all fields are not too small." : {
-
-    },
-    "Please ensure that you select at least one non-locked category." : {
-
-    },
-    "Please finish editing & save to change the page" : {
-
-    },
-    "Please put in a valid year (after 1900)." : {
-
-    },
-    "Please report any translation errors." : {
-
-    },
-    "Please report this issue." : {
-
-    },
-    "Please select a budget to begin" : {
-
-    },
-    "Please select a month." : {
-
-    },
-    "Please select only one category." : {
-
-    },
-    "Please submit an issue on GitHub, or contact the developer at exdisj@icloud.com" : {
-
-    },
-    "Please visit the project on GitHub:" : {
-
-    },
-    "Please wait while Edmund does some math" : {
-
-    },
-    "Please wait while Edmund loads" : {
-
-    },
-    "Position" : {
-
-    },
-    "Position:" : {
-      "comment" : "Job position"
-    },
-    "Prefer Transaction Window" : {
-
-    },
     "preferTransactionWindowDesc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1773,12 +952,6 @@
           }
         }
       }
-    },
-    "Price over Time" : {
-
-    },
-    "Price Over Time" : {
-
     },
     "Profile" : {
       "extractionState" : "manual",
@@ -1814,15 +987,6 @@
         }
       }
     },
-    "Progress" : {
-
-    },
-    "Progress:" : {
-
-    },
-    "Properties" : {
-
-    },
     "Quarter" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1839,9 +1003,6 @@
           }
         }
       }
-    },
-    "Quarterly" : {
-
     },
     "Refresh" : {
       "extractionState" : "manual",
@@ -1860,52 +1021,8 @@
         }
       }
     },
-    "Refund" : {
-
-    },
-    "Remainder" : {
-
-    },
-    "Remainder Total:" : {
-
-    },
-    "Remove" : {
-
-    },
-    "Repayment" : {
-
-    },
-    "Report a bug" : {
-
-    },
-    "Report a bug..." : {
-
-    },
-    "Report Issue" : {
-
-    },
-    "Request a feature" : {
-
-    },
-    "Request a feature..." : {
-
-    },
-    "Right Side" : {
-
-    },
-    "Ruth Brito" : {
-      "shouldTranslate" : false
-    },
-    "Salaried" : {
-
-    },
-    "Salaried Job" : {
-
-    },
-    "Salaried Jobs" : {
-
-    },
     "Save" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1920,21 +1037,6 @@
           }
         }
       }
-    },
-    "Savings" : {
-
-    },
-    "Select an income division to begin" : {
-
-    },
-    "Semi-Anually" : {
-
-    },
-    "September" : {
-
-    },
-    "Set-Aside Cost" : {
-
     },
     "Settings" : {
       "extractionState" : "manual",
@@ -1954,6 +1056,7 @@
       }
     },
     "Show Graph" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1968,66 +1071,6 @@
           }
         }
       }
-    },
-    "Show Ledger Footer" : {
-
-    },
-    "Simple Transaction" : {
-
-    },
-    "Skip?" : {
-
-    },
-    "Skipped" : {
-
-    },
-    "Sorry, but it looks like that topic or group could not be loaded." : {
-
-    },
-    "Sort" : {
-
-    },
-    "Sort & Filter" : {
-
-    },
-    "Sort By" : {
-
-    },
-    "Source" : {
-
-    },
-    "Source:" : {
-      "comment" : "Account source"
-    },
-    "Special Thanks To:" : {
-
-    },
-    "Spending" : {
-
-    },
-    "Spending Graph" : {
-
-    },
-    "Spending Report" : {
-
-    },
-    "Split the homepage horizontally" : {
-
-    },
-    "Split the homepage vertically" : {
-
-    },
-    "Start Date:" : {
-
-    },
-    "Started On" : {
-
-    },
-    "Status" : {
-
-    },
-    "Status:" : {
-
     },
     "Sub Account" : {
       "extractionState" : "manual",
@@ -2080,125 +1123,8 @@
         }
       }
     },
-    "Subscription Payment" : {
-
-    },
-    "Subscription:" : {
-
-    },
-    "Subscriptions can usually be canceled whenever, while bills have stricter requirements." : {
-
-    },
-    "Supporting Projects" : {
-
-    },
-    "Swift-Markdown-UI" : {
-      "shouldTranslate" : false
-    },
-    "Take from" : {
-
-    },
-    "Target:" : {
-
-    },
-    "Tax Estimator" : {
-
-    },
-    "Tax Rate" : {
-
-    },
-    "Tax Rate:" : {
-
-    },
-    "The app's model container could not be loaded." : {
-
-    },
-    "The categories context cannot be loaded." : {
-
-    },
-    "The current element is not unique." : {
-
-    },
-    "The help system is not done loading. Please wait, and refresh." : {
-
-    },
-    "The start and/or end dates of the budget could not be obtained. Values: %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "The start and/or end dates of the budget could not be obtained. Values: %1$@, %2$@"
-          }
-        }
-      }
-    },
-    "The transactions could not be obtained from the data store. Inner error: %@" : {
-
-    },
-    "The unique engine could not be loaded." : {
-
-    },
-    "The uniqueness constraint failed for this value. Please cancel the edit and try again." : {
-
-    },
-    "There are no balances to display" : {
-
-    },
-    "There are no expired bills" : {
-
-    },
-    "There are no upcoming bills" : {
-
-    },
-    "There are unsaved changes, do you wish to continue?" : {
-
-    },
-    "There cannot be a remaining balance. Please use all funds so that the balance is zero. Note, you can use the remainder to correct this." : {
-
-    },
-    "There is no history to view." : {
-
-    },
-    "There is not enough data in the history to graph the price over time." : {
-
-    },
-    "There is not enough information to display spending." : {
-
-    },
-    "There is not enough transactions to show spending." : {
-
-    },
-    "This app is not translated with professional translators." : {
-
-    },
-    "This app is released as open source, but only the developer, Hollan Sellars, is authorized to publish it." : {
-
-    },
-    "This income division has already been finalized, and cannot be finalized again." : {
-
-    },
-    "This income division is finalized. This means no other edits can take place." : {
-
-    },
-    "This is not an issue caused by you, but the developer." : {
-
-    },
-    "This period is how many hours you work in this period. For example, 50 hours per week." : {
-
-    },
-    "This period is how often you get paid by your job." : {
-
-    },
-    "To:" : {
-
-    },
-    "Today" : {
-
-    },
-    "Toggle Skipped" : {
-
-    },
     "tooManyItems" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2208,31 +1134,8 @@
         }
       }
     },
-    "Top Section" : {
-
-    },
-    "Topic" : {
-
-    },
-    "Topics" : {
-
-    },
-    "Total Average Tax Rate:" : {
-
-    },
-    "Total Balance:" : {
-
-    },
-    "Total Income:" : {
-
-    },
-    "Total Money In:" : {
-
-    },
-    "Total Money Out:" : {
-
-    },
     "Total:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2242,22 +1145,8 @@
         }
       }
     },
-    "Transaction" : {
-
-    },
-    "Transaction Editor" : {
-
-    },
-    "Transaction Templates" : {
-
-    },
-    "Transactions" : {
-
-    },
-    "Transactions Report" : {
-
-    },
     "Transfer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2272,15 +1161,6 @@
           }
         }
       }
-    },
-    "Transfer In:" : {
-
-    },
-    "Transfer Out:" : {
-
-    },
-    "Trust Fund" : {
-
     },
     "Two Months" : {
       "extractionState" : "manual",
@@ -2299,9 +1179,6 @@
         }
       }
     },
-    "Two Sections" : {
-
-    },
     "Two Weeks" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2318,24 +1195,6 @@
           }
         }
       }
-    },
-    "Type in numbers, separated by commas. Values are added up." : {
-
-    },
-    "Under" : {
-
-    },
-    "Upcoming Bills" : {
-
-    },
-    "Use the space for only one widget" : {
-
-    },
-    "Use the space for two widgets" : {
-
-    },
-    "Use Transaction Windows" : {
-
     },
     "Utility" : {
       "extractionState" : "manual",
@@ -2354,10 +1213,8 @@
         }
       }
     },
-    "Utility Payment" : {
-
-    },
     "Variance" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2372,21 +1229,6 @@
           }
         }
       }
-    },
-    "Variance:" : {
-
-    },
-    "Version %@" : {
-      "comment" : "App version. This has the format \"Version: (Number).(Number)\" Example: \"Version 1.0\""
-    },
-    "Vertical Split" : {
-
-    },
-    "Wage:" : {
-
-    },
-    "Want" : {
-
     },
     "Warning" : {
       "extractionState" : "manual",
@@ -2405,12 +1247,6 @@
         }
       }
     },
-    "Warning!" : {
-
-    },
-    "Warning! Finalizing an income division will apply transactions to the ledger. Do you want to continue?" : {
-
-    },
     "Week" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2427,9 +1263,6 @@
           }
         }
       }
-    },
-    "Weekly" : {
-
     },
     "Welcome" : {
       "extractionState" : "manual",
@@ -2448,19 +1281,7 @@
         }
       }
     },
-    "will be moved to" : {
-      "comment" : "$ will be moved to"
-    },
-    "Wipe All Data" : {
-
-    },
     "Work in progress" : {
-
-    },
-    "Work in Progress" : {
-
-    },
-    "Written by Hollan Sellars (ExDisj)" : {
 
     },
     "Year" : {
@@ -2479,12 +1300,6 @@
           }
         }
       }
-    },
-    "Year:" : {
-
-    },
-    "Yes" : {
-
     }
   },
   "version" : "1.0"
