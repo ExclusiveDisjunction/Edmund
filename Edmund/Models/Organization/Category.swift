@@ -7,27 +7,11 @@
 
 import SwiftUI
 
-extension Category : UniqueElement, DefaultableElement, NamedElement, SnapshotConstructableElement, TransactionHolder, Equatable, CustomStringConvertible {
-    public convenience init() {
-        self.init("")
-    }
-    public convenience init(snapshot: CategorySnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
-        self.init()
-        try await self.update(snapshot, unique: unique)
-    }
-    
-    public static let objId: ObjectIdentifier = .init(Category.self)
-    
-    public var uID: String { name }
-    public var description: String {
-        "Category \(name)"
-    }
+extension Category : DefaultableElement, NamedElement, TransactionHolder {
+
     
     public static func ==(lhs: Category, rhs: Category) -> Bool {
         lhs.name == rhs.name
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
     }
     
     public func makeSnapshot() -> CategorySnapshot {
@@ -36,19 +20,22 @@ extension Category : UniqueElement, DefaultableElement, NamedElement, SnapshotCo
     public static func makeBlankSnapshot() -> CategorySnapshot {
         CategorySnapshot()
     }
-    public func update(_ from: CategorySnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
-        let name = from.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let desc = from.desc.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        if name != self.name {
-            guard await unique.swapId(key: Self.objId, oldId: self.name, newId: name) else {
-                throw .init(value: name)
-            }
-        }
-        
-        self.name = name
-        self.desc = desc
-    }
+   
+    /*
+     public func update(_ from: CategorySnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
+     let name = from.name.trimmingCharacters(in: .whitespacesAndNewlines)
+     let desc = from.desc.trimmingCharacters(in: .whitespacesAndNewlines)
+     
+     if name != self.name {
+     guard await unique.swapId(key: Self.objId, oldId: self.name, newId: name) else {
+     throw .init(value: name)
+     }
+     }
+     
+     self.name = name
+     self.desc = desc
+     }
+     */
     
     /// A list of categories that can be used to display filler data.
     @MainActor

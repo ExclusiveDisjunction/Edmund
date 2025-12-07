@@ -35,47 +35,12 @@ public protocol VoidableElement {
     /// If the new status is different from current status, nothing will happen.
     func setVoidStatus(_ new: Bool);
 }
-public extension VoidableElement {
-    static var voidedFilteredPredicate : Predicate<Self> {
-        #Predicate<Self> {
-            !$0.isVoided
-        }
-    }
-}
 
 /// Represents a type that holds `LedgerEntry` values.
 public protocol TransactionHolder {
     /// The transactions associated with this type.
     var transactions: [LedgerEntry] { get set }
 }
-
-/// Represents a data type that can be "snapshoted" and updated from that snapshot at a later time.
-public protocol SnapshotableElement : ElementBase, PersistentModel {
-    associatedtype Snapshot : ElementSnapshot;
-    
-    /// Creates a snapshot of the current element
-    func makeSnapshot() -> Snapshot;
-    /// Creates a snapshot that can be used for adding a blank element.
-    static func makeBlankSnapshot() -> Snapshot;
-    /// Sets the element's properties to the values in the snapshot.
-    /// This is allowed to throw `UniqueFailureError<Host.ID>` if registering in the unique engine fails.
-    /// This should not happen in good practice, but must be explored just in case.
-    @MainActor
-    func update(_ from: Snapshot, unique: UniqueEngine) async throws(UniqueFailureError);
-}
-public protocol SnapshotConstructableElement : SnapshotableElement {
-    @MainActor
-    init(snapshot: Self.Snapshot, unique: UniqueEngine) async throws(UniqueFailureError);
-}
-
-/// Represents a class that can be used to hold the values of an element for editing.
-public protocol ElementSnapshot: AnyObject, Observable, Hashable, Equatable, Identifiable {
-    /// Determines if the current values are acceptable to display to the user.
-    @MainActor
-    func validate(unique: UniqueEngine) async -> ValidationFailure?
-}
-
-
 
 /// Represents a data type that can be inspected with a dedicated view.
 public protocol InspectableElement : ElementBase {
@@ -89,7 +54,7 @@ public protocol InspectableElement : ElementBase {
 }
 
 /// Represents a data type that can be editied with a dedicated view.
-public protocol EditableElement : ElementBase, SnapshotableElement {
+public protocol EditableElement : ElementBase {
     /// The associated view that can be used to edit the properties of the object.
     associatedtype EditView: View;
     
@@ -97,5 +62,5 @@ public protocol EditableElement : ElementBase, SnapshotableElement {
     /// This works off of the snapshot of the element, not the element itself.
     @MainActor
     @ViewBuilder
-    static func makeEditView(_ snap: Self.Snapshot) -> EditView;
+    func makeEditView() -> EditView;
 }
