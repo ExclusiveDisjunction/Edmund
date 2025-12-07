@@ -26,7 +26,7 @@ extension AccountKind : Displayable {
     }
 }
 
-extension Account : DefaultableElement, VoidableElement {
+extension Account : DefaultableElement, VoidableElement, NamedElement {
     public var name: String {
         get { self.internalName ?? "" }
         set { self.internalName = newValue }
@@ -54,6 +54,19 @@ extension Account : DefaultableElement, VoidableElement {
         }
     }
     
+    public var envolopes: Set<Envolope> {
+        get {
+            guard let envolopes = self.internalEnvolopes else {
+                return Set();
+            }
+            
+            return (envolopes as? Set<Envolope>) ?? Set()
+        }
+        set {
+            self.internalEnvolopes = newValue as NSSet
+        }
+    }
+    
     public func setVoidStatus(_ new: Bool) {
         guard new != isVoided else {
             return
@@ -62,9 +75,7 @@ extension Account : DefaultableElement, VoidableElement {
         if new {
             self.isVoided = true
         
-            if let rawEnvolopes = self.envolope, let envolopes = rawEnvolopes as? Set<Envolope> {
-                envolopes.forEach { $0.setVoidStatus(true) }
-            }
+            self.envolopes.forEach { $0.setVoidStatus(true) }
         }
         else {
             self.isVoided = false;

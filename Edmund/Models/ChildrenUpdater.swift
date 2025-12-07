@@ -5,14 +5,14 @@
 //  Created by Hollan Sellars on 6/29/25.
 //
 
+import CoreData
 import Foundation
-import SwiftData
 
 /// A structure over a old list, a new list of snapshots, with different strategies to update the source list.
 /// Use this structure with persistent model classes to update the source list with snapshots.
 ///
 @MainActor
-public struct ChildUpdater<T, S> where T: PersistentModel {
+public struct ChildUpdater<T, S> where T: NSManagedObject {
     /// A helper class used to determine updates with the merge-by-id strategy.
     fileprivate class Record {
         fileprivate init(_ data: T) {
@@ -32,7 +32,7 @@ public struct ChildUpdater<T, S> where T: PersistentModel {
     ///     - snapshots: The lists of `T.Snapshot`s that can be used to update `source` instances with.
     ///     - context: An optional model context that is used to insert & delete elements.
     ///     - unique: The unique engine attached to the instances to ensure unique elements.
-    public init(source: [T], snapshots: [S], context: ModelContext? = nil, unique: UniqueEngine) {
+    public init(source: [T], snapshots: [S], cx: NSManagedObjectContext) {
         self.source = source
         self.incoming = snapshots
         self.context = context

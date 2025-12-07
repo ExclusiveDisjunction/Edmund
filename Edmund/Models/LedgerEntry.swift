@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/*
 extension LedgerEntry : EditableElement, InspectableElement, TypeTitled {
     public static var typeDisplay : TypeTitleStrings {
         .init(
@@ -25,23 +26,35 @@ extension LedgerEntry : EditableElement, InspectableElement, TypeTitled {
         LedgerEntryEdit(snap)
     }
 }
+ */
 
-extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, DefaultableElement {
-    public typealias Snapshot = LedgerEntrySnapshot;
+extension LedgerEntry : VoidableElement, NamedElement {
     
-    /// Creates an empty transaction
-    public convenience init() {
-        self.init(
-            name: "",
-            credit: 0,
-            debit: 0,
-            date: .now,
-            location: "",
-            category: nil,
-            account: nil
-        )
+    public var name: String {
+        get { self.internalMemo ?? "" }
+        set { self.internalMemo = newValue }
+    }
+    public var location: String {
+        get { self.internalLocation ?? "" }
+        set { self.internalLocation = newValue }
+    }
+    public var date: Date {
+        get { self.internalDate ?? .distantPast }
+        set { self.internalDate = newValue }
+    }
+    public var addedOn: Date {
+        get { self.internalAddedOn ?? .distantPast }
+        set { self.internalAddedOn = newValue }
     }
     
+    public var credit: Decimal {
+        get { (self.internalCredit as Decimal?) ?? 0.0 }
+        set { self.internalCredit = newValue as NSDecimalNumber }
+    }
+    public var debit: Decimal {
+        get { (self.internalDebit as Decimal?) ?? 0.0 }
+        set { self.internalCredit = newValue as NSDecimalNumber }
+    }
     /// The net difference between credit and debit
     public var balance: Decimal {
         credit - debit
@@ -51,12 +64,7 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
         self.isVoided = new;
     }
     
-    public func makeSnapshot() -> LedgerEntrySnapshot {
-        .init(self)
-    }
-    public static func makeBlankSnapshot() -> LedgerEntrySnapshot {
-        .init()
-    }
+    /*
     public func update(_ from: LedgerEntrySnapshot, unique: UniqueEngine) {
         self.name = from.name.trimmingCharacters(in: .whitespaces)
         self.credit = from.credit.rawValue
@@ -66,42 +74,55 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
         self.category = from.category
         self.account = from.account
     }
+     */
     
     /// Builds a list of ledger entries over some accounts and categories. It expects specific ones to exist, and may cause a crash if they dont.
     /// This is intended for internal use.
     @MainActor
-    public static func exampleEntries(acc: inout ElementLocator<Account>, cat: inout ElementLocator<Category>) -> [LedgerEntry] {
-        let transferCat = cat.getOrInsert(name: "Transfers");
-        let auditCat = cat.getOrInsert(name: "Adjustments");
-        let personalCat = cat.getOrInsert(name: "Personal");
-        let groceriesCat = cat.getOrInsert(name: "Groceries");
-        let carCat = cat.getOrInsert(name: "Car");
+    public static func exampleEntries(acc: inout AccountLocator, cat: inout ElementLocator<Category>, cx: NSManagedObjectContext) {
+        let transferCat = cat.getOrInsert(name: "Transfers", cx: cx);
+        let auditCat = cat.getOrInsert(name: "Adjustments", cx: cx);
+        let personalCat = cat.getOrInsert(name: "Personal", cx: cx);
+        let groceriesCat = cat.getOrInsert(name: "Groceries", cx: cx);
+        let carCat = cat.getOrInsert(name: "Car", cx: cx);
         
-        let checking = acc.getOrInsert(name: "Checking")
-        let savings = acc.getOrInsert(name: "Savings")
-        let credit = acc.getOrInsert(name: "Credit")
+        let pay = acc.getOrInsertEnvolope(name: "Pay", accountName: "Checking", cx: cx);
+        let di = acc.getOrInsertEnvolope(name: "DI", accountName: "Checking", cx: cx);
+        let groceries = acc.getOrInsertEnvolope(name: "Groceries", accountName: "Checking", cx: cx);
+        let diCredit = acc.getOrInsertEnvolope(name: "DI", accountName: "Credit", cx: cx);
+        let gas = acc.getOrInsertEnvolope(name: "Gas", accountName: "Checking", cx: cx);
+        let savings = acc.getOrInsertEnvolope(name: "Main", accountName: "Savings", cx: cx)
         
-        return [
-            .init(name: "Initial Balance",              credit: 1000, debit: 0,   date: Date.now, location: "Bank",        category: auditCat,    account: savings  ),
-            .init(name: "Initial Balance",              credit: 170,  debit: 0,   date: Date.now, location: "Bank",        category: auditCat,    account: checking ),
-            .init(name: "'Pay' to Various",             credit: 0,    debit: 100, date: Date.now, location: "Bank",        category: transferCat, account: checking ),
-            .init(name: "'Pay' to 'DI'",                credit: 35,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat, account: checking ),
-            .init(name: "'Pay' to 'Groceries'",         credit: 65,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat, account: checking ),
-            .init(name: "Lunch",                        credit: 0,    debit: 20,  date: Date.now, location: "Chick-Fil-A", category: personalCat, account: credit   ),
-            .init(name: "Groceries",                    credit: 0,    debit: 40,  date: Date.now, location: "Aldi",        category: groceriesCat,account: credit   ),
-            .init(name: "'Groceries' to 'Credit Card'", credit: 0,    debit: 40,  date: Date.now, location: "Bank",        category: transferCat, account: checking ),
-            .init(name: "'DI' to 'Credit Card'",        credit: 0,    debit: 20,  date: Date.now, location: "Bank",        category: transferCat, account: checking ),
-            .init(name: "Various to 'Credit Card'",     credit: 60,   debit: 0,   date: Date.now, location: "Bank",        category: transferCat, account: credit   ),
-            .init(name: "Gas",                          credit: 0,    debit: 45,  date: Date.now, location: "7-Eleven",    category: carCat,      account: checking ),
-            .init(name: "Audit",                        credit: 0,    debit: 10,  date: Date.now, location: "Bank",        category: auditCat,    account: checking )
-        ]
+        
+        // memo, credit, debit, location, category, account
+        let toTransform: [(String, Decimal, Decimal, String, Category, Envolope)] = [
+            ("Initial Balance",              1000, 0,   "Bank",        auditCat,     savings    ),
+            ("Initial Balance",              170,  0,   "Bank",        auditCat,     pay        ),
+            ("'Pay' to Various",             0,    100, "Bank",        transferCat,  pay        ),
+            ("'Pay' to 'DI'",                35,   0,   "Bank",        transferCat,  di         ),
+            ("'Pay' to 'Groceries'",         65,   0,   "Bank",        transferCat,  groceries  ),
+            ("Lunch",                        0,    20,  "Chick-Fil-A", personalCat,  diCredit   ),
+            ("Groceries",                    0,    40,  "Aldi",        groceriesCat, groceries  ),
+            ("'Groceries' to 'Credit Card'", 0,    40,  "Bank",        transferCat,  groceries  ),
+            ("'DI' to 'Credit Card'",        0,    20,  "Bank",        transferCat,  di         ),
+            ("Various to 'Credit Card'",     60,   0,   "Bank",        transferCat,  diCredit   ),
+            ("Gas",                          0,    45,  "7-Eleven",    carCat,       gas        ),
+            ("Audit",                        0,    10,  "Bank",        auditCat,     pay        )
+        ];
+        
+        for (memo, credit, debit, location, cat, acc) in toTransform {
+            let entry = LedgerEntry(context: cx);
+            entry.name = memo;
+            entry.credit = credit;
+            entry.debit = debit;
+            entry.location = location
+            entry.category = cat
+            entry.envolope = acc;
+        }
     }
-    
-    /// A UI-ready filler example of a ledger entry
-    @MainActor
-    public static let exampleEntry = LedgerEntry(name: "Example Transaction", credit: 0, debit: 100, date: Date.now, location: "Bank", category: .init("Example Category"), account: .init("Example Account"));
 }
 
+/*
 /// The snapshot for `LedgerEntry`
 @Observable
 public final class LedgerEntrySnapshot : ElementSnapshot {
@@ -165,3 +186,4 @@ public final class LedgerEntrySnapshot : ElementSnapshot {
         lhs.name == rhs.name  && lhs.credit == rhs.credit && lhs.debit == rhs.debit && lhs.date == rhs.date && lhs.location == rhs.location && lhs.category == rhs.category && lhs.account == rhs.account
     }
 }
+*/

@@ -319,6 +319,9 @@
         }
       }
     },
+    "Cash" : {
+
+    },
     "Categories" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -353,6 +356,12 @@
         }
       }
     },
+    "Certificate of Deposit" : {
+
+    },
+    "Checking" : {
+
+    },
     "Collapse All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -371,7 +380,6 @@
       }
     },
     "Credit" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -672,7 +680,6 @@
       }
     },
     "internalError" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -857,6 +864,9 @@
         }
       }
     },
+    "One or more fields has invalid input." : {
+
+    },
     "One-to-Many" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -941,6 +951,18 @@
           }
         }
       }
+    },
+    "Please ensure all amount values are positive." : {
+
+    },
+    "Please ensure all fields are filled in." : {
+
+    },
+    "Please ensure all fields are not too large. (Ex: Percents greater than 100%)" : {
+
+    },
+    "Please ensure all fields are not too small." : {
+
     },
     "preferTransactionWindowDesc" : {
       "extractionState" : "stale",
@@ -1038,6 +1060,9 @@
         }
       }
     },
+    "Savings" : {
+
+    },
     "Settings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1123,6 +1148,9 @@
         }
       }
     },
+    "The current element is not unique." : {
+
+    },
     "tooManyItems" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1161,6 +1189,9 @@
           }
         }
       }
+    },
+    "Trust Fund" : {
+
     },
     "Two Months" : {
       "extractionState" : "manual",

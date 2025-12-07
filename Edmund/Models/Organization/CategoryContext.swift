@@ -5,14 +5,14 @@
 //  Created by Hollan on 5/1/25.
 //
 
-import SwiftData
+import CoreData
 import SwiftUI
 
 /// Provides a lookup for the basic SubCategories that are used by the program.
 public struct CategoriesContext {
     @MainActor
-    public init(_ context: ModelContext) throws {
-        let categories = try context.fetch(FetchDescriptor<Category>())
+    public init(cx: NSManagedObjectContext) throws {
+        let categories = try cx.fetch(Category.fetchRequest());
         var tree = try ElementLocator(data: categories);
         
         self.income = tree.getOrInsert(name: "Income");

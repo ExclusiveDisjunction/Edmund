@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-extension Envolope : VoidableElement, NamedElement, TransactionHolder {
+extension Envolope : VoidableElement, NamedElement, TransactionHolder, DefaultableElement {
     
     public var name: String {
         get { self.internalName ?? "" }

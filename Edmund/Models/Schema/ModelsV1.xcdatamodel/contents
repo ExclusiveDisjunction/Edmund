@@ -8,7 +8,7 @@
         <attribute name="internalName" attributeType="String" defaultValueString=""/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="location" optional="YES" attributeType="String"/>
-        <relationship name="envolope" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Envolope" inverseName="account" inverseEntity="Envolope"/>
+        <relationship name="internalEnvolopes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Envolope" inverseName="account" inverseEntity="Envolope"/>
     </entity>
     <entity name="Bill" representedClassName="Bill" syncable="YES" codeGenerationType="class">
         <attribute name="autoPay" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -17,10 +17,10 @@
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalCompany" attributeType="String" defaultValueString=""/>
         <attribute name="internalName" attributeType="String" defaultValueString=""/>
+        <attribute name="internalStartDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="kind" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="location" optional="YES" attributeType="String"/>
         <attribute name="period" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="history" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BillDatapoint" inverseName="bill" inverseEntity="BillDatapoint"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -81,7 +81,7 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalName" attributeType="String"/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="envolope" inverseEntity="Account"/>
+        <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="internalEnvolopes" inverseEntity="Account"/>
         <relationship name="devotions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IncomeDevotion" inverseName="moveTo" inverseEntity="IncomeDevotion"/>
         <relationship name="divisions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IncomeDivision" inverseName="depositTo" inverseEntity="IncomeDivision"/>
         <relationship name="ledger" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LedgerEntry" inverseName="envolope" inverseEntity="LedgerEntry"/>
@@ -130,11 +130,11 @@
         <attribute name="taxRate" attributeType="Decimal" defaultValueString="0.0"/>
     </entity>
     <entity name="LedgerEntry" representedClassName="LedgerEntry" syncable="YES" codeGenerationType="class">
-        <attribute name="addedOn" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="credit" attributeType="Decimal" defaultValueString="0.0"/>
-        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="debit" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="internalAddedOn" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="internalCredit" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="internalDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="internalDebit" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalLocation" attributeType="String" defaultValueString=""/>
         <attribute name="internalMemo" attributeType="String" defaultValueString=""/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
