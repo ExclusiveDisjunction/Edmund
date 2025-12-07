@@ -1,27 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25B78" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Account" representedClassName="Account" syncable="YES" codeGenerationType="class">
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="interest" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalCreditLimit" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalKind" attributeType="Integer 16" minValueString="0" maxValueString="4" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="internalName" attributeType="String" defaultValueString=""/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="location" optional="YES" attributeType="String"/>
-        <attribute name="name" attributeType="String"/>
         <relationship name="envolope" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Envolope" inverseName="account" inverseEntity="Envolope"/>
     </entity>
     <entity name="Bill" representedClassName="Bill" syncable="YES" codeGenerationType="class">
         <attribute name="autoPay" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="company" attributeType="String"/>
         <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="internalCompany" attributeType="String" defaultValueString=""/>
+        <attribute name="internalName" attributeType="String" defaultValueString=""/>
         <attribute name="kind" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="location" optional="YES" attributeType="String"/>
-        <attribute name="name" attributeType="String"/>
         <attribute name="period" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="history" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BillDatapoint" inverseName="bill" inverseEntity="BillDatapoint"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="internalName"/>
+                <constraint value="internalCompany"/>
+                <constraint value="location"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="BillDatapoint" representedClassName="BillDatapoint" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
@@ -56,24 +63,24 @@
         <relationship name="budget" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Budget" inverseName="savings" inverseEntity="Budget"/>
     </entity>
     <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
-        <attribute name="desc" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="internalDesc" attributeType="String" defaultValueString=""/>
+        <attribute name="internalName" attributeType="String"/>
         <attribute name="isLocked" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="name" attributeType="String"/>
         <relationship name="ledger" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LedgerEntry" inverseName="category" inverseEntity="LedgerEntry"/>
         <relationship name="spending" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BudgeteSpendingGoal" inverseName="association" inverseEntity="BudgeteSpendingGoal"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
-                <constraint value="name"/>
+                <constraint value="internalName"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
     <entity name="Envolope" representedClassName="Envolope" syncable="YES" codeGenerationType="class">
-        <attribute name="envDesc" attributeType="String"/>
+        <attribute name="desc" attributeType="String" defaultValueString=""/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="internalName" attributeType="String"/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="name" attributeType="String"/>
         <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="envolope" inverseEntity="Account"/>
         <relationship name="devotions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IncomeDevotion" inverseName="moveTo" inverseEntity="IncomeDevotion"/>
         <relationship name="divisions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IncomeDivision" inverseName="depositTo" inverseEntity="IncomeDivision"/>
@@ -82,7 +89,7 @@
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="account"/>
-                <constraint value="name"/>
+                <constraint value="internalName"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
@@ -95,24 +102,25 @@
         <attribute name="group" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
-        <attribute name="name" attributeType="String"/>
+        <attribute name="internalName" attributeType="String"/>
         <relationship name="division" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="IncomeDivision" inverseName="devotions" inverseEntity="IncomeDivision"/>
         <relationship name="moveTo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Envolope" inverseName="devotions" inverseEntity="Envolope"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="division"/>
-                <constraint value="name"/>
+                <constraint value="internalName"/>
+                <constraint value="amountDisc"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
     <entity name="IncomeDivision" representedClassName="IncomeDivision" syncable="YES" codeGenerationType="class">
         <attribute name="amount" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="internalName" attributeType="String" defaultValueString=""/>
         <attribute name="isFinalized" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="kind" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastUpdated" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="lastViewed" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="name" attributeType="String"/>
         <relationship name="budget" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Budget" inverseName="divisions" inverseEntity="Budget"/>
         <relationship name="depositTo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Envolope" inverseName="divisions" inverseEntity="Envolope"/>
         <relationship name="devotions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IncomeDevotion" inverseName="division" inverseEntity="IncomeDevotion"/>
@@ -127,20 +135,20 @@
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="debit" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="internalLocation" attributeType="String" defaultValueString=""/>
+        <attribute name="internalMemo" attributeType="String" defaultValueString=""/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="location" attributeType="String"/>
-        <attribute name="memo" attributeType="String"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="ledger" inverseEntity="Category"/>
         <relationship name="envolope" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Envolope" inverseName="ledger" inverseEntity="Envolope"/>
     </entity>
     <entity name="SalariedJob" representedClassName="SalariedJob" parentEntity="TraditionalJob" syncable="YES" codeGenerationType="class"/>
     <entity name="TraditionalJob" representedClassName="TraditionalJob" parentEntity="IncomeSource" syncable="YES" codeGenerationType="class">
-        <attribute name="company" attributeType="String"/>
-        <attribute name="position" attributeType="String"/>
+        <attribute name="internalCompany" attributeType="String" defaultValueString=""/>
+        <attribute name="internalPosition" attributeType="String" defaultValueString=""/>
         <uniquenessConstraints>
             <uniquenessConstraint>
-                <constraint value="company"/>
-                <constraint value="position"/>
+                <constraint value="internalCompany"/>
+                <constraint value="internalPosition"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>

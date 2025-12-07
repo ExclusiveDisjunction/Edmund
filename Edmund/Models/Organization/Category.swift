@@ -9,18 +9,27 @@ import SwiftUI
 
 extension Category : DefaultableElement, NamedElement, TransactionHolder {
 
-    
-    public static func ==(lhs: Category, rhs: Category) -> Bool {
-        lhs.name == rhs.name
+    public var name: String {
+        get { self.internalName ?? "" }
+        set { self.internalName = newValue }
+    }
+    public var desc : String {
+        get { self.internalDesc ?? "" }
+        set { self.internalDesc = newValue }
+    }
+    public var transactions: [LedgerEntry] {
+        get {
+            guard let ledger = self.ledger, let transactions = ledger as? Set<LedgerEntry> else {
+                return Array()
+            }
+            
+            return Array(transactions)
+        }
+        set {
+            self.ledger = Set(newValue) as NSSet
+        }
     }
     
-    public func makeSnapshot() -> CategorySnapshot {
-        CategorySnapshot(self)
-    }
-    public static func makeBlankSnapshot() -> CategorySnapshot {
-        CategorySnapshot()
-    }
-   
     /*
      public func update(_ from: CategorySnapshot, unique: UniqueEngine) async throws(UniqueFailureError) {
      let name = from.name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -37,85 +46,41 @@ extension Category : DefaultableElement, NamedElement, TransactionHolder {
      }
      */
     
-    /// A list of categories that can be used to display filler data.
-    @MainActor
-    public static var exampleCategories: [Category] {
+    public static func examples(cx: NSManagedObjectContext) {
         [
-            exampleCategory,
-            .init("Transfers"),
-            .init("Income"),
-            .init("Adjustments"),
-            .init("Personal"),
-            .init("Groceries"),
-            .init("Health"),
-            .init("Home"),
-            .init("Car")
-        ]
-    }
-    /// A singular category that can be used to display filler data.
-    @MainActor
-    public static var exampleCategory: Category {
-        .init("Bills")
+            "Transfers",
+            "Income",
+            "Adjustments",
+            "Personal",
+            "Groceries",
+            "Health",
+            "Home",
+            "Car",
+            "Bills"
+        ].forEach { name in
+            let cat = Category(context: cx);
+            cat.internalName = name
+        }
     }
 }
 
-extension Category : TypeTitled, EditableElement, InspectableElement {
-    public static var typeDisplay : TypeTitleStrings {
-        .init(
-            singular: "Category",
-            plural:   "Categories",
-            inspect:  "Inspect Category",
-            edit:     "Edit Category",
-            add:      "Add Category"
-        )
-    }
-    
-    public func makeInspectView() -> some View {
-        CategoryInspect(data: self)
-    }
-    public static func makeEditView(_ snap: CategorySnapshot) -> some View {
-        CategoryEdit(snapshot: snap)
-    }
-}
-
-@Observable
-public final class CategorySnapshot : ElementSnapshot {
-    public init() {
-        self.name = ""
-        self.oldName = ""
-        self.desc = ""
-    }
-    public init(_ from: Category) {
-        self.name = from.name
-        self.oldName = from.name
-        self.desc = from.desc
-    }
-    
-    @ObservationIgnored public let oldName: String;
-    public var name: String;
-    public var desc: String;
-    
-    public func validate(unique: UniqueEngine) async -> ValidationFailure? {
-        let name = self.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard !name.isEmpty else {
-            return .empty
-        }
-        
-        if name != oldName {
-            guard await unique.isIdOpen(key: Category.objId, id: name) else {
-                return .unique
-            }
-        }
-        
-        return nil
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(desc)
-    }
-    public static func == (lhs: CategorySnapshot, rhs: CategorySnapshot) -> Bool {
-        lhs.name == rhs.name && lhs.desc == rhs.desc
-    }
-}
+/*
+ extension Category : TypeTitled, EditableElement, InspectableElement {
+ public static var typeDisplay : TypeTitleStrings {
+ .init(
+ singular: "Category",
+ plural:   "Categories",
+ inspect:  "Inspect Category",
+ edit:     "Edit Category",
+ add:      "Add Category"
+ )
+ }
+ 
+ public func makeInspectView() -> some View {
+ CategoryInspect(data: self)
+ }
+ public static func makeEditView(_ snap: CategorySnapshot) -> some View {
+ CategoryEdit(snapshot: snap)
+ }
+ }
+ */

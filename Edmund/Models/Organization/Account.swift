@@ -27,6 +27,11 @@ extension AccountKind : Displayable {
 }
 
 extension Account : DefaultableElement, VoidableElement {
+    public var name: String {
+        get { self.internalName ?? "" }
+        set { self.internalName = newValue }
+    }
+    
     /// The credit limit of the account. If the account is not a `.credit` kind, it will always return `nil`.
     /// Setting this value will not update the kind of account, and if it is not `.credit`, it will ignore the set.
     public var creditLimit: Decimal? {
@@ -57,7 +62,7 @@ extension Account : DefaultableElement, VoidableElement {
         if new {
             self.isVoided = true
         
-            if let rawEnvolopes = self.envolope, let envolopes = envolope as? Set<Envolope> {
+            if let rawEnvolopes = self.envolope, let envolopes = rawEnvolopes as? Set<Envolope> {
                 envolopes.forEach { $0.setVoidStatus(true) }
             }
         }
@@ -87,21 +92,21 @@ extension Account : DefaultableElement, VoidableElement {
      
     public static func exampleAccounts(cx: NSManagedObjectContext) {
         let savings = Account(context: cx);
-        savings.name = "Savings";
+        savings.internalName = "Savings";
         savings.kind = .savings;
         savings.creditLimit = nil;
         savings.interest = 0.0425
         savings.location = "Chase";
         
         let checing = Account(context: cx);
-        checing.name = "Checking";
+        checing.internalName = "Checking";
         checing.kind = .checking;
         checing.creditLimit = nil;
         checing.interest = 0.001
         checing.location = "Capital One";
         
         let credit = Account(context: cx);
-        credit.name = "Credit";
+        credit.internalName = "Credit";
         credit.kind = .credit;
         credit.creditLimit = 3000;
         credit.interest = 0.2999;

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@preconcurrency import CoreData
 import SwiftUI
 import Combine
 
@@ -157,6 +158,9 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 }
                 
                 container.viewContext.automaticallyMergesChangesFromParent = true
+                container.viewContext.perform {
+                    container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+                }
             }
             
             _debugContainer = container;
