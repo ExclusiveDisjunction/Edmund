@@ -15,11 +15,11 @@ public struct CategoriesContext {
         let categories = try cx.fetch(Category.fetchRequest());
         var tree = try ElementLocator(data: categories);
         
-        self.income = tree.getOrInsert(name: "Income");
-        self.transfers = tree.getOrInsert(name: "Transfers");
-        self.adjustments = tree.getOrInsert(name: "Adjustments");
-        self.loan = tree.getOrInsert(name: "Loan");
-        self.bills = tree.getOrInsert(name: "Bills");
+        self.income = tree.getOrInsert(name: "Income", cx: cx);
+        self.transfers = tree.getOrInsert(name: "Transfers", cx: cx);
+        self.adjustments = tree.getOrInsert(name: "Adjustments", cx: cx);
+        self.loan = tree.getOrInsert(name: "Loan", cx: cx);
+        self.bills = tree.getOrInsert(name: "Bills", cx: cx);
         
         self.income.isLocked = true
         self.transfers.isLocked = true

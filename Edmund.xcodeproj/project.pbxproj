@@ -196,6 +196,15 @@
 			);
 			target = DD4DA9CE2EE4B0D900804A36 /* Edmund */;
 		};
+		DD5259562EE629F400F56EDB /* Exceptions for "EdmundTests" folder in "EdmundTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Old/BudgetMonthTester.swift,
+				Old/MonthYearTesting.swift,
+				Old/UtilityTestings.swift,
+			);
+			target = DD4DA9E02EE4B0DA00804A36 /* EdmundTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -209,6 +218,9 @@
 		};
 		DD4DA9E42EE4B0DA00804A36 /* EdmundTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DD5259562EE629F400F56EDB /* Exceptions for "EdmundTests" folder in "EdmundTests" target */,
+			);
 			path = EdmundTests;
 			sourceTree = "<group>";
 		};
@@ -357,6 +369,7 @@
 					};
 					DD4DA9E02EE4B0DA00804A36 = {
 						CreatedOnToolsVersion = 26.1.1;
+						LastSwiftMigration = 2610;
 						TestTargetID = DD4DA9CE2EE4B0D900804A36;
 					};
 					DD4DA9EA2EE4B0DA00804A36 = {
@@ -682,6 +695,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
@@ -696,6 +710,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -708,6 +723,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;

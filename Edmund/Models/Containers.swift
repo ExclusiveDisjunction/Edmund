@@ -127,7 +127,7 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 return container;
             }
             
-            let container = NSPersistentContainer(name: "EdmundDataModel");
+            let container = NSPersistentContainer(name: "ModelsV1");
             container.loadPersistentStores { _, error in
                 if let error {
                     fatalError("Unable to load persistent store due to error \(error)")
@@ -145,7 +145,7 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 return container;
             }
             
-            let container = NSPersistentContainer(name: "debugContainer");
+            let container = NSPersistentContainer(name: "ModelsV1");
             
             let desc = NSPersistentStoreDescription();
             desc.type = NSInMemoryStoreType;
@@ -158,12 +158,34 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 }
                 
                 container.viewContext.automaticallyMergesChangesFromParent = true
-                container.viewContext.perform {
-                    container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
-                }
+                container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
             }
             
             _debugContainer = container;
+            return container
+        }
+    }
+    
+    /// Creates an empty, in memory persistent container on each call.
+    /// Every call to this variable results in a new, isolated container. 
+    public var emptyDebugContainer : NSPersistentContainer {
+        get {
+            let container = NSPersistentContainer(name: "ModelsV1");
+            
+            let desc = NSPersistentStoreDescription();
+            desc.type = NSInMemoryStoreType;
+            desc.shouldAddStoreAsynchronously = false;
+            container.persistentStoreDescriptions = [desc]
+            
+            container.loadPersistentStores { desc, error in
+                if let error = error {
+                    fatalError("Failed to make in memory store: \(error)")
+                }
+                
+                container.viewContext.automaticallyMergesChangesFromParent = true
+                container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+            }
+            
             return container
         }
     }
