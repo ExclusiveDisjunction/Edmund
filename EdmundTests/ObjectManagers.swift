@@ -8,8 +8,10 @@
 import CoreData
 import Edmund
 import Testing
+import os
 
 struct ElementLocatorTester {
+    @MainActor
     @Test
     func testElementLocator() async throws {
         let container = DataStack.shared.emptyDebugContainer;
@@ -40,6 +42,7 @@ struct ElementLocatorTester {
         }
     }
     
+    @MainActor
     @Test
     func testAccountLocator() async throws {
         let container = DataStack.shared.emptyDebugContainer;
@@ -87,5 +90,22 @@ struct ElementLocatorTester {
             
             #expect(transformed == expected)
         }
+    }
+    
+    @MainActor
+    @Test
+    func testCategoriesContext() async throws {
+        let container = DataStack.shared.emptyDebugContainer;
+        let logger = Logger(subsystem: "com.exdisj.Edmund", category: "Testing");
+        
+        let _ = try await CategoriesContext(store: container, logger: logger);
+        
+        let fetch = Edmund.Category.fetchRequest();
+        fetch.predicate = NSPredicate(format: "internalName IN %@", CategoriesContext.requiredCategories);
+        fetch.sortDescriptors = [NSSortDescriptor(keyPath: \Edmund.Category.internalName, ascending: true)];
+        
+        let categories = try container.viewContext.fetch(fetch);
+        
+        #expect(categories.map { $0.name } == CategoriesContext.requiredCategories.sorted() )
     }
 }

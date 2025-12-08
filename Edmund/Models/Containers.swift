@@ -132,6 +132,9 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 if let error {
                     fatalError("Unable to load persistent store due to error \(error)")
                 }
+                
+                container.viewContext.automaticallyMergesChangesFromParent = true
+                container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
             }
             
             self._persistentContainer = container;
@@ -170,7 +173,15 @@ public class DataStack : ObservableObject, @unchecked Sendable {
     /// Every call to this variable results in a new, isolated container. 
     public var emptyDebugContainer : NSPersistentContainer {
         get {
-            let container = NSPersistentContainer(name: "ModelsV1");
+            let bundle = Bundle(for: DataStack.self);
+            
+            guard
+                let modelURL = bundle.url(forResource: "ModelsV1", withExtension: "mom"),
+                let model = NSManagedObjectModel(contentsOf: modelURL) else {
+                fatalError("Unable to load the managed object model.");
+            }
+            
+            let container = NSPersistentContainer(name: "ModelsV1", managedObjectModel: model);
             
             let desc = NSPersistentStoreDescription();
             desc.type = NSInMemoryStoreType;

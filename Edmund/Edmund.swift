@@ -12,6 +12,7 @@ import SwiftData
 struct EdmundApp: App {
     init() {
         let log = LoggerSystem();
+        self.stack = DataStack.shared
         /*
         let help = HelpEngine(log.help);
         let unique = UniqueEngine(log.unique);
@@ -33,6 +34,7 @@ struct EdmundApp: App {
         self.log = log;
     }
     
+    let stack: DataStack;
     let log: LoggerSystem;
     /*
     let loader: AppLoaderEngine;

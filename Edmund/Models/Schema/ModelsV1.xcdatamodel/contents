@@ -9,6 +9,11 @@
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="location" optional="YES" attributeType="String"/>
         <relationship name="internalEnvolopes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Envolope" inverseName="account" inverseEntity="Envolope"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="internalName"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="Bill" representedClassName="Bill" syncable="YES" codeGenerationType="class">
         <attribute name="autoPay" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
