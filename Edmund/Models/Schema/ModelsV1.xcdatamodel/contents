@@ -21,12 +21,14 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalCompany" attributeType="String" defaultValueString=""/>
+        <attribute name="internalKind" attributeType="Integer 16" minValueString="0" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="internalName" attributeType="String" defaultValueString=""/>
+        <attribute name="internalNextDueDate" transient="YES" attributeType="Date" defaultDateTimeInterval="786903180" usesScalarValueType="NO"/>
+        <attribute name="internalPeriod" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="internalStartDate" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="kind" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="location" optional="YES" attributeType="String"/>
-        <attribute name="period" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="history" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BillDatapoint" inverseName="bill" inverseEntity="BillDatapoint"/>
+        <attribute name="oldHash" transient="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="internalHistory" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BillDatapoint" inverseName="bill" inverseEntity="BillDatapoint"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="internalName"/>
@@ -36,9 +38,9 @@
         </uniquenessConstraints>
     </entity>
     <entity name="BillDatapoint" representedClassName="BillDatapoint" syncable="YES" codeGenerationType="class">
-        <attribute name="amount" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="bill" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Bill" inverseName="history" inverseEntity="Bill"/>
+        <attribute name="internalAmount" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <relationship name="bill" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Bill" inverseName="internalHistory" inverseEntity="Bill"/>
     </entity>
     <entity name="Budget" representedClassName="Budget" syncable="YES" codeGenerationType="class">
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>

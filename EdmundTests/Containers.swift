@@ -31,8 +31,8 @@ struct ContainerUnitTests {
         // Fetch the count of accounts just to try it.
         try await container.viewContext.perform {
             let request = Account.fetchRequest();
-            let accounts = try container.viewContext.fetch(request)
-            print("The count of accounts is \(accounts.count) in the persistent container. Accounts: \(accounts)");
+            let accounts = try container.viewContext.count(for: request)
+            print("The count of accounts is \(accounts)");
         }
     }
 }

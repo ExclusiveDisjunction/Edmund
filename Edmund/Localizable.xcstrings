@@ -230,7 +230,6 @@
       }
     },
     "Bill Payment" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1148,6 +1147,9 @@
         }
       }
     },
+    "Subscription Payment" : {
+
+    },
     "The current element is not unique." : {
 
     },
@@ -1243,6 +1245,9 @@
           }
         }
       }
+    },
+    "Utility Payment" : {
+
     },
     "Variance" : {
       "extractionState" : "stale",

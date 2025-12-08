@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, Comparable, Codable {
+public enum TimePeriods: Int16, CaseIterable, Identifiable, Equatable, Sendable, Comparable, Codable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -17,7 +17,7 @@ public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, C
     case anually = 6
     
     private var index: Int {
-        self.rawValue
+        Int(self.rawValue)
     }
     private static let compTable: [[Decimal]] =
     [
@@ -56,13 +56,13 @@ public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, C
     }
 }
 
-public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Sendable, Codable {
+public enum MonthlyTimePeriods : Int16, CaseIterable, Identifiable, Equatable, Hashable, Sendable, Codable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
     
     private var index: Int {
-        self.rawValue
+        Int(self.rawValue)
     }
     private static let facTable: [[Decimal]] =
     [

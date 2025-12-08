@@ -36,10 +36,6 @@
 			membershipExceptions = (
 				AppLoader.swift,
 				ContentView.swift,
-				Models/Bills/Bill.swift,
-				Models/Bills/BillDatapoint.swift,
-				Models/Bills/BillHistory.swift,
-				Models/Bills/BillsInfo.swift,
 				Models/Budget/BudgetGoal.swift,
 				Models/Budget/BudgetInstance.swift,
 				Models/Budget/BudgetMonth.swift,

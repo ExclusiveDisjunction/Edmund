@@ -54,7 +54,7 @@ public struct BillID : Hashable, Equatable, RawRepresentable, Sendable, CustomSt
 }
 
 @frozen
-public enum BillsKind : Int, Equatable, Codable, Hashable, Comparable, Filterable, Sendable {
+public enum BillsKind : Int16, Equatable, Codable, Hashable, Comparable, Filterable, Sendable {
     case bill = 0
     case subscription = 1
     case utility = 2

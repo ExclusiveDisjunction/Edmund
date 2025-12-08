@@ -23,6 +23,7 @@ public struct DebugContainerFiller : ContainerDataFiller {
         Envolope.examples(cx: context);
         Account.exampleAccounts(cx: context);
         Category.examples(cx: context);
+        Bill.examples(cx: context);
         
         try context.save();
     }
