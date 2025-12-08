@@ -17,6 +17,16 @@ public protocol ContainerDataFiller {
     ///     - context: The `ModelContext` to insert to.
     func fill(context: NSManagedObjectContext) throws;
 }
+
+public struct DebugContainerFiller : ContainerDataFiller {
+    public func fill(context: NSManagedObjectContext) throws {
+        Envolope.examples(cx: context);
+        Account.exampleAccounts(cx: context);
+        Category.examples(cx: context);
+        
+        try context.save();
+    }
+}
  
 /*
  /// A creator that is used for testing uniquness by the `UniqueEngine`.
@@ -162,6 +172,12 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 
                 container.viewContext.automaticallyMergesChangesFromParent = true
                 container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+                
+                do {
+                    try DebugContainerFiller().fill(context: container.viewContext)
+                } catch let e {
+                    fatalError("Unable to fill the debug container: \(e)")
+                }
             }
             
             _debugContainer = container;

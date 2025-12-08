@@ -108,13 +108,15 @@ extension Account : DefaultableElement, VoidableElement, NamedElement {
         savings.creditLimit = nil;
         savings.interest = 0.0425
         savings.location = "Chase";
+        savings.id = UUID();
         
-        let checing = Account(context: cx);
-        checing.internalName = "Checking";
-        checing.kind = .checking;
-        checing.creditLimit = nil;
-        checing.interest = 0.001
-        checing.location = "Capital One";
+        let checking = Account(context: cx);
+        checking.internalName = "Checking";
+        checking.kind = .checking;
+        checking.creditLimit = nil;
+        checking.interest = 0.001
+        checking.location = "Capital One";
+        checking.id = UUID();
         
         let credit = Account(context: cx);
         credit.internalName = "Credit";
@@ -122,6 +124,7 @@ extension Account : DefaultableElement, VoidableElement, NamedElement {
         credit.creditLimit = 3000;
         credit.interest = 0.2999;
         credit.location = "Capital One";
+        credit.id = UUID();
     }
 }
 

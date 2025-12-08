@@ -60,6 +60,7 @@ extension Category : DefaultableElement, NamedElement, TransactionHolder {
         ].forEach { name in
             let cat = Category(context: cx);
             cat.internalName = name
+            cat.id = UUID();
         }
     }
 }

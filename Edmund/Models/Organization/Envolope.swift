@@ -9,7 +9,6 @@ import Foundation
 import CoreData
 
 extension Envolope : VoidableElement, NamedElement, TransactionHolder, DefaultableElement {
-    
     public var name: String {
         get { self.internalName ?? "" }
         set { self.internalName = newValue }
@@ -64,11 +63,13 @@ extension Envolope : VoidableElement, NamedElement, TransactionHolder, Defaultab
         ].forEach { accountName, envolopes in
             let account = Account(context: cx);
             account.name = accountName;
+            account.id = UUID();
             
             envolopes.forEach { name in
                 let envolope = Envolope(context: cx);
                 envolope.name = name;
                 envolope.account = account;
+                envolope.id = UUID();
             }
         }
     }
