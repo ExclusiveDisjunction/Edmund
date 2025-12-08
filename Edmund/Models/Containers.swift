@@ -10,22 +10,21 @@ import Foundation
 import SwiftUI
 import Combine
 
- /// A type that can be used to fill in dummy data for a `ModelContext`.
+ /// A type that can be used to fill in dummy data for a `NSManagedObjectContext`.
 public protocol ContainerDataFiller {
     /// Given the `context`, fill out the container's values.
     /// - Parameters:
-    ///     - context: The `ModelContext` to insert to.
+    ///     - context: The `NSManagedObjectContext` to insert to.
     func fill(context: NSManagedObjectContext) throws;
 }
 
 public struct DebugContainerFiller : ContainerDataFiller {
-    public func fill(context: NSManagedObjectContext) throws {
+    public func fill(context: NSManagedObjectContext) {
         Envolope.examples(cx: context);
         Account.exampleAccounts(cx: context);
         Category.examples(cx: context);
         Bill.examples(cx: context);
-        
-        try context.save();
+        TraditionalJob.examples(cx: context);
     }
 }
  
@@ -175,7 +174,8 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
                 
                 do {
-                    try DebugContainerFiller().fill(context: container.viewContext)
+                    DebugContainerFiller().fill(context: container.viewContext)
+                    try container.viewContext.save();
                 } catch let e {
                     fatalError("Unable to fill the debug container: \(e)")
                 }
@@ -230,7 +230,7 @@ public struct DebugSampleData: PreviewModifier {
     
     public func body(content: Content, context: DataStack) -> some View {
         content
-            .environment(\.managedObjectContext, context.persistentContainer.viewContext)
+            .environment(\.managedObjectContext, context.debugContainer.viewContext)
     }
 }
 

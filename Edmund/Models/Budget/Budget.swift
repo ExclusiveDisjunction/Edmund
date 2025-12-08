@@ -6,12 +6,15 @@
 //
 
 import Foundation
-import SwiftData
+import CoreData
 import Observation
 
-extension BudgetMonth : SnapshotableElement {
+extension Budget {
+    public var date: MonthYear {
+        .init(Int(self.year), Int(self.month))
+    }
     public var start: Date? {
-        Calendar.current.date(from: .init(year: date.year, month: date.month, day: 1))
+        Calendar.current.date(from: .init(year: Int(self.year), month: Int(self.month), day: 1))
     }
     public var end: Date? {
         let calendar = Calendar.current;
@@ -26,7 +29,7 @@ extension BudgetMonth : SnapshotableElement {
     }
     
     public var title: String {
-        if let result = _title, _titleHash == date.hashValue {
+        if let result = internalTitle, internalTitleHash == date.hashValue {
             return result
         }
         else {
@@ -37,18 +40,85 @@ extension BudgetMonth : SnapshotableElement {
             let result: String;
             if let date = Calendar.current.date(from: DateComponents(year: date.year, month: date.month)) {
                 result = formatter.string(from: date)
-                _title = result
-                _titleHash = date.hashValue
+                internalTitle = result
+                internalTitleHash = Int32(date.hashValue)
             }
             else {
                 result = NSLocalizedString("internalError", comment: "")
-                _title = nil
-                _titleHash = 0
+                internalTitle = nil
+                internalTitleHash = 0
             }
             
             return result
         }
     }
+    
+    public var spendingGoals: [BudgetSpendingGoal] {
+        get {
+            guard let raw = self.savings, let set = raw as? Set<BudgetSpendingGoal> else {
+                return Array();
+            }
+            
+            return Array(set)
+        }
+        set {
+            self.savings = Set(newValue) as NSSet
+        }
+    }
+    public var savingsGoals: [BudgetSavingsGoal] {
+        get {
+            guard let raw = self.savings, let set = raw as? Set<BudgetSavingsGoal> else {
+                return Array();
+            }
+            
+            return Array(set)
+        }
+        set {
+            self.savings = Set(newValue) as NSSet
+        }
+    }
+    
+    
+    public static func blankBudgetMonth(forDate: MonthYear, cx: NSManagedObjectContext) -> Budget {
+        let budget = Budget(context: cx);
+        budget.year = Int32(forDate.year)
+        budget.month = Int16(forDate.month)
+        
+        return budget;
+    }
+    public static func examples(cat: inout ElementLocator<Category>, acc: inout AccountLocator, cx: NSManagedObjectContext) -> Budget {
+        let date = MonthYear.now!;
+        let result = BudgetMonth(date: date)
+        
+        let personal = cat.getOrInsert(name: "Personal")
+        let groceries = cat.getOrInsert(name: "Groceries")
+        let car = cat.getOrInsert(name: "Car")
+        
+        let checking = acc.getOrInsert(name: "Checking")
+        let savings = acc.getOrInsert(name: "Savings")
+        
+        result.income = [
+            .init(name: "Paycheck 1", amount: 560.75, kind: .pay),
+            .init(name: "Paycheck 2", amount: 612.15, kind: .pay)
+        ]
+        result.spendingGoals = [
+            .init(category: personal, amount: 100, period: .biWeekly),
+            .init(category: groceries, amount: 400, period: .monthly),
+            .init(category: car, amount: 120, period: .monthly)
+        ]
+        result.savingsGoals = [
+            .init(account: savings, amount: 400, period: .biWeekly),
+            .init(account: checking, amount: 100, period: .monthly)
+        ]
+        
+        return result
+    }
+}
+
+extension BudgetMonth : SnapshotableElement {
+    
+    
+    
     
     public func dupliate(date: MonthYear) -> BudgetMonth {
         .init(
@@ -79,38 +149,6 @@ extension BudgetMonth : SnapshotableElement {
         })
     }
     
-    @MainActor
-    public static func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
-        return BudgetMonth(date: forDate)
-    }
-    @MainActor
-    public static func exampleBudgetMonth(cat: inout ElementLocator<Category>, acc: inout ElementLocator<Account>) -> BudgetMonth {
-        let date = MonthYear.now!;
-        let result = BudgetMonth(date: date)
-        
-        let personal = cat.getOrInsert(name: "Personal")
-        let groceries = cat.getOrInsert(name: "Groceries")
-        let car = cat.getOrInsert(name: "Car")
-        
-        let checking = acc.getOrInsert(name: "Checking")
-        let savings = acc.getOrInsert(name: "Savings")
-        
-        result.income = [
-            .init(name: "Paycheck 1", amount: 560.75, kind: .pay),
-            .init(name: "Paycheck 2", amount: 612.15, kind: .pay)
-        ]
-        result.spendingGoals = [
-            .init(category: personal, amount: 100, period: .biWeekly),
-            .init(category: groceries, amount: 400, period: .monthly),
-            .init(category: car, amount: 120, period: .monthly)
-        ]
-        result.savingsGoals = [
-            .init(account: savings, amount: 400, period: .biWeekly),
-            .init(account: checking, amount: 100, period: .monthly)
-        ]
-        
-        return result
-    }
 }
 
 @Observable
