@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftData
+import CoreData
 import WidgetKit
 
 /// A type used to store information about an upcoming bill. This is computed from a specific date, and will showcase the bills basic information.
@@ -56,51 +56,24 @@ public struct UpcomingBillsBundle : Hashable, Equatable, Codable, Sendable { //,
         ]
     )
 }
-public struct BillSchematic : Sendable {
-    public init(_ from: Bill) {
-        self.name = from.name
-        self.company = from.company
-        self.start = from.startDate
-        self.end = from.endDate
-        self.period = from.period
-        self.amount = from.amount
-    }
-    
-    public let name: String;
-    public let company: String;
-    public let amount: Decimal;
-    public let start: Date;
-    public let end: Date?;
-    public let period: TimePeriods;
-    public var nextDue: Date? {
-        return self.nextDueDate(from: .now)
-    }
-    public func nextDueDate(from: Date) -> Date? {
-        var walker = TimePeriodWalker(start: start, end: end, period: period, calendar: .current)
-        return walker.walkToDate(relativeTo: from)
-    }
-}
 
-public struct UpcomingBillsComputation : Sendable {
-    public typealias Intermediate = [BillSchematic];
-    public typealias Output = [UpcomingBillsBundle];
-    
+public struct UpcomingBillsComputation : ~Copyable {
     public static let outputName: String = "upcomingBills.json"
     
-    private let data: [BillSchematic];
+    private let data: [Bill];
     private let forDays: Int;
     
-    @MainActor
-    public init(context: ModelContext, forDays: Int = 10) throws {
-        let bills = try context.fetch(FetchDescriptor<Bill>())
+    public init(cx: NSManagedObjectContext, forDays: Int = 10) throws {
+        let predicate = Bill.fetchRequest();
+        let fetch = try cx.fetch(predicate);
         
-        self.data = bills.map { .init($0) }
         self.forDays = forDays
+        self.data = fetch;
     }
     
     public func determineUpcomingBills(for date: Date) -> UpcomingBillsBundle {
         let upcomings = data.compactMap {
-            if let next = $0.nextDueDate(from: date) {
+            if let next = $0.computeNextDueDate(relativeTo: date) {
                 UpcomingBill(name: $0.name, amount: $0.amount, dueDate: next)
             }
             else {
@@ -111,7 +84,7 @@ public struct UpcomingBillsComputation : Sendable {
         return .init(date: date, bills: upcomings)
     }
     
-    public func process() async -> [UpcomingBillsBundle] {
+    public consuming func process() -> [UpcomingBillsBundle] {
         let calendar = Calendar.current;
         let now = Date.now;
         var acc = now;
