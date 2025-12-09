@@ -53,16 +53,28 @@ extension Budget {
         }
     }
     
+    public var income: [IncomeDivision] {
+        get {
+            guard let raw = self.divisions, let set = raw as? Set<IncomeDivision> else {
+                return Array()
+            }
+            
+            return Array(set)
+        }
+        set {
+            self.divisions = Set(newValue) as NSSet;
+        }
+    }
     public var spendingGoals: [BudgetSpendingGoal] {
         get {
-            guard let raw = self.savings, let set = raw as? Set<BudgetSpendingGoal> else {
+            guard let raw = self.spending, let set = raw as? Set<BudgetSpendingGoal> else {
                 return Array();
             }
             
             return Array(set)
         }
         set {
-            self.savings = Set(newValue) as NSSet
+            self.spending = Set(newValue) as NSSet
         }
     }
     public var savingsGoals: [BudgetSavingsGoal] {
@@ -88,38 +100,66 @@ extension Budget {
     }
     public static func examples(cat: inout ElementLocator<Category>, acc: inout AccountLocator, cx: NSManagedObjectContext) -> Budget {
         let date = MonthYear.now!;
-        let result = BudgetMonth(date: date)
+        let result = Budget.blankBudgetMonth(forDate: MonthYear.now!, cx: cx)
         
-        let personal = cat.getOrInsert(name: "Personal")
-        let groceries = cat.getOrInsert(name: "Groceries")
-        let car = cat.getOrInsert(name: "Car")
+        let personal = cat.getOrInsert(name: "Personal", cx: cx)
+        let groceries = cat.getOrInsert(name: "Groceries", cx: cx)
+        let car = cat.getOrInsert(name: "Car", cx: cx);
         
-        let checking = acc.getOrInsert(name: "Checking")
-        let savings = acc.getOrInsert(name: "Savings")
-        
-        result.income = [
-            .init(name: "Paycheck 1", amount: 560.75, kind: .pay),
-            .init(name: "Paycheck 2", amount: 612.15, kind: .pay)
-        ]
-        result.spendingGoals = [
-            .init(category: personal, amount: 100, period: .biWeekly),
-            .init(category: groceries, amount: 400, period: .monthly),
-            .init(category: car, amount: 120, period: .monthly)
-        ]
-        result.savingsGoals = [
-            .init(account: savings, amount: 400, period: .biWeekly),
-            .init(account: checking, amount: 100, period: .monthly)
-        ]
-        
+        let pay = acc.getOrInsertEnvolope(name: "Pay", accountName: "Checking", cx: cx);
+        let main = acc.getOrInsertEnvolope(name: "Main", accountName: "Savings", cx: cx);
+        let bills = acc.getOrInsertEnvolope(name: "Bills", accountName: "Checking", cx: cx);
+
+        do {
+            let paychecks = [IncomeDivision(context: cx), IncomeDivision(context: cx)];
+            
+            /*
+             result.income = [
+                 .init(name: "Paycheck 1", amount: 560.75, kind: .pay),
+                 .init(name: "Paycheck 2", amount: 612.15, kind: .pay)
+             ]
+             */
+            
+            result.income = paychecks;
+        }
+        do {
+            let spendingGoals = [BudgetSpendingGoal(context: cx), BudgetSpendingGoal(context: cx), BudgetSpendingGoal(context: cx)];
+            
+            spendingGoals[0].amount = 100;
+            spendingGoals[0].period = .biWeekly;
+            spendingGoals[0].association = personal;
+            
+            spendingGoals[1].amount = 400;
+            spendingGoals[1].period = .monthly;
+            spendingGoals[1].association = groceries;
+            
+            spendingGoals[2].amount = 120;
+            spendingGoals[2].period = .monthly;
+            spendingGoals[2].association = car;
+            
+            result.spendingGoals = spendingGoals;
+        }
+        do {
+            let savingsGoals = [BudgetSavingsGoal(context: cx), BudgetSavingsGoal(context: cx)];
+            
+            savingsGoals[0].amount = 400;
+            savingsGoals[0].period = .biWeekly;
+            savingsGoals[0].association = main;
+            
+            savingsGoals[0].amount = 100;
+            savingsGoals[0].period = .monthly;
+            savingsGoals[0].association = bills;
+            
+            result.savingsGoals = savingsGoals
+        }
+            
         return result
     }
 }
 
+/*
 extension BudgetMonth : SnapshotableElement {
-    
-    
-    
-    
+
     public func dupliate(date: MonthYear) -> BudgetMonth {
         .init(
             date: date,
@@ -150,59 +190,4 @@ extension BudgetMonth : SnapshotableElement {
     }
     
 }
-
-@Observable
-public class BudgetMonthSnapshot : ElementSnapshot {
-    public init() {
-        self.dates = nil;
-        self.savingsGoals = []
-        self.spendingGoals = []
-        self.income = []
-        self.title = "New Budget"
-    }
-    public init(_ data: BudgetMonth) {
-        self.dates = (data.start ?? .distantPast, data.end ?? .distantFuture);
-        self.savingsGoals = data.savingsGoals.map { $0.makeSnapshot() }
-        self.spendingGoals = data.spendingGoals.map { $0.makeSnapshot() }
-        self.income = data.income.map { $0.makeSnapshot() }
-        self.title = data.title
-    }
-    
-    @ObservationIgnored private var dates: (Date, Date)?;
-    @ObservationIgnored public let title: String;
-    
-    public var spendingGoals: [BudgetSpendingGoalSnapshot];
-    public var savingsGoals: [BudgetSavingsGoalSnapshot];
-    public var income: [ShallowIncomeDivisionSnapshot];
-    
-    public func validate(unique: UniqueEngine) -> ValidationFailure? {
-        for goal in spendingGoals {
-            if let result = goal.validate(unique: unique) {
-                return result
-            }
-        }
-        
-        for goal in savingsGoals {
-            if let result = goal.validate(unique: unique) {
-                return result
-            }
-        }
-        
-        for item in income {
-            if let result = item.validate(unique: unique) {
-                return result
-            }
-        }
-        
-        return nil
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(spendingGoals)
-        hasher.combine(savingsGoals)
-        hasher.combine(income)
-    }
-    public static func ==(lhs: BudgetMonthSnapshot, rhs: BudgetMonthSnapshot) -> Bool {
-        lhs.spendingGoals == rhs.spendingGoals && lhs.savingsGoals == rhs.savingsGoals && lhs.income == rhs.income
-    }
-}
+ */

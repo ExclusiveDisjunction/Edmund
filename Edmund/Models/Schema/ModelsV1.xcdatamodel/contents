@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="25B78" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Account" representedClassName="Account" syncable="YES" codeGenerationType="class">
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="interest" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalCreditLimit" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalKind" attributeType="Integer 16" minValueString="0" maxValueString="4" defaultValueString="0" usesScalarValueType="YES"/>
@@ -15,10 +14,12 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="AmountDevotion" representedClassName="AmountDevotion" parentEntity="IncomeDevotion" syncable="YES" codeGenerationType="class">
+        <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
+    </entity>
     <entity name="Bill" representedClassName="Bill" syncable="YES" codeGenerationType="class">
         <attribute name="autoPay" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalCompany" attributeType="String" defaultValueString=""/>
         <attribute name="internalKind" attributeType="Integer 16" minValueString="0" defaultValueString="0" usesScalarValueType="YES"/>
@@ -43,7 +44,6 @@
         <relationship name="bill" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Bill" inverseName="internalHistory" inverseEntity="Bill"/>
     </entity>
     <entity name="Budget" representedClassName="Budget" syncable="YES" codeGenerationType="class">
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalTitle" transient="YES" attributeType="String" defaultValueString=""/>
         <attribute name="internalTitleHash" transient="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="month" attributeType="Integer 16" minValueString="1" maxValueString="12" defaultValueString="1" usesScalarValueType="YES"/>
@@ -59,7 +59,6 @@
         </uniquenessConstraints>
     </entity>
     <entity name="BudgetGoal" representedClassName="BudgetGoal" isAbstract="YES" syncable="YES" codeGenerationType="class">
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalPeriod" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
@@ -72,7 +71,6 @@
         <relationship name="budget" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Budget" inverseName="spending" inverseEntity="Budget"/>
     </entity>
     <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalDesc" attributeType="String" defaultValueString=""/>
         <attribute name="internalName" attributeType="String"/>
         <attribute name="isLocked" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -87,7 +85,6 @@
     </entity>
     <entity name="Envolope" representedClassName="Envolope" syncable="YES" codeGenerationType="class">
         <attribute name="desc" attributeType="String" defaultValueString=""/>
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalName" attributeType="String"/>
         <attribute name="isVoided" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="account" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Account" inverseName="internalEnvolopes" inverseEntity="Account"/>
@@ -106,11 +103,8 @@
         <attribute name="internalAvgHours" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalHourlyRate" attributeType="Decimal" defaultValueString="0.0"/>
     </entity>
-    <entity name="IncomeDevotion" representedClassName="IncomeDevotion" syncable="YES" codeGenerationType="class">
-        <attribute name="amountDisc" attributeType="Integer 16" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="group" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
+    <entity name="IncomeDevotion" representedClassName="IncomeDevotion" isAbstract="YES" syncable="YES" codeGenerationType="class">
+        <attribute name="internalGroup" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="internalName" attributeType="String"/>
         <relationship name="division" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="IncomeDivision" inverseName="devotions" inverseEntity="IncomeDivision"/>
         <relationship name="moveTo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Envolope" inverseName="devotions" inverseEntity="Envolope"/>
@@ -123,9 +117,8 @@
         </uniquenessConstraints>
     </entity>
     <entity name="IncomeDivision" representedClassName="IncomeDivision" syncable="YES" codeGenerationType="class">
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAmount" attributeType="Decimal" defaultValueString="0.0"/>
-        <attribute name="internalKind" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="internalKind" attributeType="Integer 16" minValueString="0" maxValueString="2" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="internalLastUpdated" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="internalLastViewed" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="internalName" attributeType="String" defaultValueString=""/>
@@ -138,7 +131,6 @@
         <attribute name="internalTaxRate" attributeType="Decimal" defaultValueString="0.0"/>
     </entity>
     <entity name="LedgerEntry" representedClassName="LedgerEntry" syncable="YES" codeGenerationType="class">
-        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="internalAddedOn" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="internalCredit" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="internalDate" attributeType="Date" usesScalarValueType="NO"/>
