@@ -54,7 +54,7 @@ public struct BillID : Hashable, Equatable, RawRepresentable, Sendable, CustomSt
 }
 
 @frozen
-public enum BillsKind : Int16, Equatable, Codable, Hashable, Comparable, Filterable, Sendable {
+public enum BillsKind : Int16, Equatable, Codable, Hashable, Comparable, Sendable {
     case bill = 0
     case subscription = 1
     case utility = 2
@@ -83,7 +83,7 @@ extension BillsKind : Displayable {
     }
 }
 
-public enum BillsSort : Int, Identifiable, CaseIterable, Sortable, Sendable {
+public enum BillsSort : Int, Identifiable, CaseIterable, Sendable {
     case name, amount, kind
     
     public var id: Self { self }

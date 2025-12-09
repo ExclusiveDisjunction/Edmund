@@ -189,7 +189,6 @@ public extension Bill {
     
     static func examplesExpired(cx: NSManagedObjectContext) {
         let bitwarden = Bill(context: cx);
-        bitwarden.id = UUID();
         bitwarden.name = "Bitwarden Preimum";
         bitwarden.kind = .subscription;
         bitwarden.amount = 9.99;
@@ -199,7 +198,6 @@ public extension Bill {
         bitwarden.period = .anually;
         
         let spotify = Bill(context: cx);
-        spotify.id = UUID();
         spotify.name = "Spotify Premium Family";
         spotify.kind = .subscription;
         spotify.company = "Spotify";
@@ -210,7 +208,6 @@ public extension Bill {
     }
     static func examplesSubscriptions(cx: NSManagedObjectContext) {
         let appleMusic = Bill(context: cx);
-        appleMusic.id = UUID();
         appleMusic.name = "Apple Music";
         appleMusic.kind = .subscription;
         appleMusic.company = "Apple";
@@ -220,7 +217,6 @@ public extension Bill {
         appleMusic.period = .monthly;
         
         let icloud = Bill(context: cx);
-        icloud.id = UUID();
         icloud.name = "iCloud+";
         icloud.kind = .subscription;
         icloud.company = "Apple";
@@ -230,7 +226,6 @@ public extension Bill {
         icloud.period = .monthly;
         
         let youtube = Bill(context: cx);
-        youtube.id = UUID();
         youtube.name = "YouTube Premium";
         youtube.kind = .subscription;
         youtube.company = "YouTube";
@@ -241,7 +236,6 @@ public extension Bill {
     }
     static func examplesBills(cx: NSManagedObjectContext) {
         let studentLoan = Bill(context: cx);
-        studentLoan.id = UUID();
         studentLoan.name = "Student Loan";
         studentLoan.kind = .bill;
         studentLoan.company = "FAFSA";
@@ -251,7 +245,6 @@ public extension Bill {
         studentLoan.period = .monthly;
         
         let carInsurance = Bill(context: cx);
-        carInsurance.id = UUID();
         carInsurance.name = "Car Insurance";
         carInsurance.kind = .bill;
         carInsurance.company = "The General";
@@ -261,7 +254,6 @@ public extension Bill {
         carInsurance.period = .semiAnually;
         
         let internet = Bill(context: cx);
-        internet.id = UUID();
         internet.name = "Internet";
         internet.kind = .bill;
         internet.company = "Spectrum";

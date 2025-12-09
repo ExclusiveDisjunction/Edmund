@@ -99,7 +99,6 @@ extension Budget {
         return budget;
     }
     public static func examples(cat: inout ElementLocator<Category>, acc: inout AccountLocator, cx: NSManagedObjectContext) -> Budget {
-        let date = MonthYear.now!;
         let result = Budget.blankBudgetMonth(forDate: MonthYear.now!, cx: cx)
         
         let personal = cat.getOrInsert(name: "Personal", cx: cx)

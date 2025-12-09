@@ -47,7 +47,7 @@ extension Category : DefaultableElement, NamedElement, TransactionHolder {
      */
     
     public static func examples(cx: NSManagedObjectContext) {
-        [
+        let names: [String] = [
             "Transfers",
             "Income",
             "Adjustments",
@@ -57,10 +57,11 @@ extension Category : DefaultableElement, NamedElement, TransactionHolder {
             "Home",
             "Car",
             "Bills"
-        ].forEach { name in
+        ];
+        
+        for name in names {
             let cat = Category(context: cx);
             cat.internalName = name
-            cat.id = UUID();
         }
     }
 }

@@ -49,7 +49,6 @@ public struct CategoriesContext {
                     //Insert
                     let cat = Category(context: cx);
                     cat.name = name;
-                    cat.id = UUID();
                     
                     result[name] = cat.objectID;
                 }

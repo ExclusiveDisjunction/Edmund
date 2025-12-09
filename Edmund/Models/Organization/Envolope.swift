@@ -46,7 +46,7 @@ extension Envolope : VoidableElement, NamedElement, TransactionHolder, Defaultab
     }
     
     public static func examples(cx: NSManagedObjectContext) {
-        [
+        let names: [String : [String]] = [
             "Checking": [
                 "Bills",
                 "Groceries",
@@ -60,16 +60,16 @@ extension Envolope : VoidableElement, NamedElement, TransactionHolder, Defaultab
             "Credit": [
                 "Personal"
             ]
-        ].forEach { accountName, envolopes in
+        ];
+        
+        for (accountName, envolopes) in names {
             let account = Account(context: cx);
             account.name = accountName;
-            account.id = UUID();
             
             envolopes.forEach { name in
                 let envolope = Envolope(context: cx);
                 envolope.name = name;
                 envolope.account = account;
-                envolope.id = UUID();
             }
         }
     }

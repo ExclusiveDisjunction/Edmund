@@ -212,6 +212,9 @@
         }
       }
     },
+    "Bi-Weekly" : {
+
+    },
     "Bill" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -495,6 +498,9 @@
         }
       }
     },
+    "Donation" : {
+
+    },
     "Edit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -592,6 +598,9 @@
           }
         }
       }
+    },
+    "Gift" : {
+
     },
     "Half Year" : {
       "extractionState" : "manual",
@@ -807,6 +816,9 @@
         }
       }
     },
+    "Monthly" : {
+
+    },
     "Name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -823,6 +835,9 @@
           }
         }
       }
+    },
+    "Need" : {
+
     },
     "noCategories" : {
       "extractionState" : "manual",
@@ -933,6 +948,9 @@
           }
         }
       }
+    },
+    "Pay" : {
+
     },
     "Personal" : {
       "extractionState" : "manual",
@@ -1266,6 +1284,9 @@
         }
       }
     },
+    "Want" : {
+
+    },
     "Warning" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1299,6 +1320,9 @@
           }
         }
       }
+    },
+    "Weekly" : {
+
     },
     "Welcome" : {
       "extractionState" : "manual",
