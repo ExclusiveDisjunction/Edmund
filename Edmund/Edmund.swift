@@ -13,6 +13,7 @@ struct EdmundApp: App {
     init() {
         let log = LoggerSystem();
         self.stack = DataStack.shared
+        self.help = HelpEngine(log.help);
         /*
         let help = HelpEngine(log.help);
         let unique = UniqueEngine(log.unique);
@@ -36,12 +37,7 @@ struct EdmundApp: App {
     
     let stack: DataStack;
     let log: LoggerSystem;
-    /*
-    let loader: AppLoaderEngine;
     let help: HelpEngine;
-    let unique: UniqueEngine;
-    let state: AppLoadingState;
-     
     
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
@@ -52,8 +48,6 @@ struct EdmundApp: App {
             default: return nil
         }
     }
-     */
-    
     
     var body: some Scene {
         WindowGroup {

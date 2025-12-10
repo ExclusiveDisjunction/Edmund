@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import SwiftUI
 
-public enum TimePeriods: Int16, CaseIterable, Identifiable, Equatable, Sendable, Comparable, Codable {
+public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable, Comparable, Codable, Displayable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -53,6 +54,18 @@ public enum TimePeriods: Int16, CaseIterable, Identifiable, Equatable, Sendable,
     
     public static func <(lhs: TimePeriods, rhs: TimePeriods) -> Bool {
         lhs.rawValue < rhs.rawValue
+    }
+    
+    public var display: LocalizedStringKey {
+        switch self {
+        case .weekly: "Weekly"
+        case .biWeekly: "Bi-Weekly"
+        case .monthly: "Monthly"
+        case .biMonthly: "Bi-Monthly"
+        case .quarterly: "Quarterly"
+        case .semiAnually: "Semi-Anually"
+        case .anually: "Anually"
+        }
     }
 }
 

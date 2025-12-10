@@ -22,8 +22,8 @@ extension Bill : NamedElement {
         set { self.internalKind = newValue.rawValue }
     }
     public var period: TimePeriods {
-        get { TimePeriods(rawValue: self.internalPeriod) ?? .monthly }
-        set { self.internalPeriod = newValue.rawValue}
+        get { TimePeriods(rawValue: Int(self.internalPeriod)) ?? .monthly }
+        set { self.internalPeriod = Int16(newValue.rawValue) }
     }
     
     /// Returns the price per some other time period.

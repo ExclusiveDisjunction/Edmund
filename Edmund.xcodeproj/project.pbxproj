@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DDAB7BE62EE939B40081776B /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = DDAB7BE52EE939B40081776B /* MarkdownUI */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DD4DA9E22EE4B0DA00804A36 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -74,25 +78,6 @@
 				Views/Element/InspectEditTitle.swift,
 				Views/Element/UndoWrappers.swift,
 				Views/GeneralCommands.swift,
-				Views/Help/Fetching.swift,
-				Views/Help/HelpEngine.swift,
-				Views/Help/HelpResource.swift,
-				Views/Help/HelpResourcePresenter.swift,
-				Views/Help/HelpTreePresenter.swift,
-				Views/Help/LoadedHelpResource.swift,
-				Views/Help/TopicButton.swift,
-				Views/Help/TopicGroupPresenter.swift,
-				Views/Help/TopicPresenter.swift,
-				Views/Homepage/ChoicePicker.swift,
-				Views/Homepage/ChoiceRenderer.swift,
-				Views/Homepage/Homepage.swift,
-				Views/Homepage/HomepageEditor.swift,
-				Views/Homepage/SplitChoicePicker.swift,
-				Views/Homepage/SplitChoiceRenderer.swift,
-				Views/Homepage/Widgets/MoneyGraph.swift,
-				Views/Homepage/Widgets/SimpleBalancesView.swift,
-				Views/Homepage/Widgets/SpendingGraph.swift,
-				Views/Homepage/Widgets/UpcomingBillsView.swift,
 				Views/Income/AnyDevotionCloseLook.swift,
 				Views/Income/AnyDevotionSnapshotCloseLook.swift,
 				Views/Income/DevotionGroupsGraph.swift,
@@ -112,7 +97,6 @@
 				Views/Jobs/SalariedJobEdit.swift,
 				Views/Jobs/SalariedJobHelper.swift,
 				Views/Jobs/SalariedJobInspect.swift,
-				"Views/Launch Screen.storyboard",
 				Views/Ledger/Balances/AccountsAuditor.swift,
 				Views/Ledger/Balances/AccountsAuditorRowEdit.swift,
 				Views/Ledger/Balances/Auditor.swift,
@@ -142,18 +126,6 @@
 				Views/Ledger/Transaction/Transfers/OneOneTransfer.swift,
 				Views/Ledger/TransactionMenu.swift,
 				Views/Ledger/TransactionsView.swift,
-				Views/MainView.swift,
-				Views/Misc/LoadableView.swift,
-				Views/Misc/ShakeEffect.swift,
-				Views/Misc/TooltipButton.swift,
-				Views/Misc/ValueWrapperField.swift,
-				Views/Objects/ContextMenus.swift,
-				Views/Objects/Delete.swift,
-				Views/Objects/Inspect.swift,
-				Views/Objects/Parents.swift,
-				Views/Objects/QueryView.swift,
-				Views/Objects/Select.swift,
-				Views/Objects/Warning.swift,
 				Views/Organization/Accounts/AccountEdit.swift,
 				Views/Organization/Accounts/AccountInspect.swift,
 				Views/Organization/Accounts/AccountsIE.swift,
@@ -161,9 +133,6 @@
 				Views/Organization/Categories/CategoryEdit.swift,
 				Views/Organization/Categories/CategoryInspect.swift,
 				Views/Organization/Categories/CategoryTableRow.swift,
-				Views/Reports/BalancesReport.swift,
-				Views/Reports/ReportBase.swift,
-				Views/SettingsView.swift,
 				Widgets/Provider.swift,
 				Widgets/UpcomingBills.swift,
 				Widgets/WidgetDataBundle.swift,
@@ -215,6 +184,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDAB7BE62EE939B40081776B /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,6 +214,7 @@
 				DD4DA9EE2EE4B0DA00804A36 /* EdmundUITests */,
 				DD4DA9D02EE4B0D900804A36 /* Products */,
 				DD4DABE72EE4B1A300804A36 /* Help */,
+				DDAB7BE42EE939B40081776B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -255,6 +226,13 @@
 				DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DDAB7BE42EE939B40081776B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -278,6 +256,7 @@
 			);
 			name = Edmund;
 			packageProductDependencies = (
+				DDAB7BE52EE939B40081776B /* MarkdownUI */,
 			);
 			productName = Edmund;
 			productReference = DD4DA9CF2EE4B0D900804A36 /* Edmund.app */;
@@ -362,6 +341,9 @@
 			);
 			mainGroup = DD4DA9C62EE4B0D900804A36;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DDA294F12EE9392000A31597 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DD4DA9D02EE4B0D900804A36 /* Products */;
 			projectDirPath = "";
@@ -813,6 +795,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DDA294F12EE9392000A31597 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DDAB7BE52EE939B40081776B /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DDA294F12EE9392000A31597 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
+			productName = MarkdownUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DD4DA9C72EE4B0D900804A36 /* Project object */;
 }

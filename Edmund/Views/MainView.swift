@@ -96,22 +96,24 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     @ViewBuilder
     var view : some View {
         switch self {
-            case .home: Homepage()
+            //case .home: Homepage()
                 
-            case .ledger: LedgerTable()
-            case .balance: BalanceSheet()
+            //case .ledger: LedgerTable()
+            //case .balance: BalanceSheet()
                 
-            case .incomeDivider: IncomeDivisions()
-            case .budget: Budgets()
+            //case .incomeDivider: IncomeDivisions()
+            //case .budget: Budgets()
                 
-            case .bills: AllBillsViewEdit()
-            case .expiredBills: AllExpiredBillsVE()
+            //case .bills: AllBillsViewEdit()
+            //case .expiredBills: AllExpiredBillsVE()
                 
-            case .accounts: AccountsIE()
-            case .categories: CategoriesIE()
-            case .audit: Auditor()
+            //case .accounts: AccountsIE()
+            //case .categories: CategoriesIE()
+            //case .audit: Auditor()
                 
-            case .jobs: AllJobsViewEdit()
+            //case .jobs: AllJobsViewEdit()
+            
+        default: Text("Work in Progres")
         }
     }
 }
@@ -215,8 +217,6 @@ struct MainView: View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        MainView()
-    }
+#Preview(traits: .sampleData) {
+    MainView()
 }
