@@ -53,7 +53,6 @@ extension Category : UniqueElement, DefaultableElement, NamedElement, SnapshotCo
     }
     
     /// A list of categories that can be used to display filler data.
-    @MainActor
     public static var exampleCategories: [Category] {
         [
             exampleCategory,
@@ -68,7 +67,6 @@ extension Category : UniqueElement, DefaultableElement, NamedElement, SnapshotCo
         ]
     }
     /// A singular category that can be used to display filler data.
-    @MainActor
     public static var exampleCategory: Category {
         .init("Bills")
     }

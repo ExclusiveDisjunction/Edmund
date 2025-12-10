@@ -79,11 +79,9 @@ extension BudgetMonth : SnapshotableElement {
         })
     }
     
-    @MainActor
     public static func blankBudgetMonth(forDate: MonthYear) -> BudgetMonth {
         return BudgetMonth(date: forDate)
     }
-    @MainActor
     public static func exampleBudgetMonth(cat: inout ElementLocator<Category>, acc: inout ElementLocator<Account>) -> BudgetMonth {
         let date = MonthYear.now!;
         let result = BudgetMonth(date: date)
@@ -114,7 +112,7 @@ extension BudgetMonth : SnapshotableElement {
     @MainActor
     public static func getExampleBudget() throws -> BudgetMonth {
         let container = try Containers.debugContainer();
-        let item = (try container.context.fetch(FetchDescriptor<BudgetMonth>()))[0]
+        let item = (try container.container.mainContext.fetch(FetchDescriptor<BudgetMonth>()))[0]
         
         return item;
     }

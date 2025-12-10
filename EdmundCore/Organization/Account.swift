@@ -100,7 +100,6 @@ extension Account : Hashable, SnapshotableElement, DefaultableElement, SnapshotC
     }
     
     /// A list of template data to use on the UI.
-    @MainActor
     public static var exampleAccounts: [Account] {
         [
             exampleAccount,
@@ -110,13 +109,11 @@ extension Account : Hashable, SnapshotableElement, DefaultableElement, SnapshotC
         ]
     }
     /// A singular account to display on the UI.
-    @MainActor
     public static var exampleAccount: Account {
         .init("Checking", kind: .checking, creditLimit: nil, interest: 0.001)
     }
     
     /// A singular account that is setup like a credit card.
-    @MainActor
     public static var exampleCreditAccount: Account {
         .init("Credit", kind: .credit, creditLimit: 3000)
     }

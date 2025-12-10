@@ -883,6 +883,9 @@
     "Edmund is not able to present this budget. Please report this issue." : {
 
     },
+    "Edmund is Updating!" : {
+
+    },
     "Edmund was not able to obtain the guide's contents." : {
 
     },
@@ -965,6 +968,12 @@
     },
     "Export as PDF" : {
       "shouldTranslate" : false
+    },
+    "Export My Data" : {
+
+    },
+    "Exporting data, please wait." : {
+
     },
     "Expression:" : {
 
@@ -1842,6 +1851,9 @@
         }
       }
     },
+    "Prepare for Edmund v2" : {
+
+    },
     "Price over Time" : {
 
     },
@@ -2218,7 +2230,13 @@
     "The current element is not unique." : {
 
     },
+    "The data could not be exported." : {
+
+    },
     "The help system is not done loading. Please wait, and refresh." : {
+
+    },
+    "The next version of Edmund will not be able to use the current data you have." : {
 
     },
     "The start and/or end dates of the budget could not be obtained. Values: %@, %@" : {
@@ -2294,6 +2312,9 @@
 
     },
     "This period is how often you get paid by your job." : {
+
+    },
+    "To keep your data, please export your data here, and then import it after updating." : {
 
     },
     "To:" : {
@@ -2429,6 +2450,9 @@
     "Type in numbers, separated by commas. Values are added up." : {
 
     },
+    "Unable to Export!" : {
+
+    },
     "Under" : {
 
     },
@@ -2444,6 +2468,9 @@
       }
     },
     "Upcoming Bills" : {
+
+    },
+    "Update Notice" : {
 
     },
     "Use Remainder:" : {

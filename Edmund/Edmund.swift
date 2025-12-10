@@ -56,6 +56,10 @@ struct EdmundApp: App {
             GeneralCommands()
         }
         
+        DocumentGroup(viewing: EdmundExportDocument<EdmundExportV1>.self) { document in
+            ExportViewer(document: document.document)
+        }
+        
         WindowGroup(PageDestinations.home.rawValue, id: PageDestinations.home.key) {
             NavigationStack {
                 AppWindowGate(appLoader: loader, state: state) {

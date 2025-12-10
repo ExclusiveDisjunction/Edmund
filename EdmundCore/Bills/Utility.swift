@@ -61,7 +61,6 @@ extension Utility : BillBase, SnapshotableElement, UniqueElement, IsolatedDefaul
     }
     
     /// Example utilities that can be used to show UI filler.
-    @MainActor
     public static var exampleUtility: [Utility] { [
         .init(
             "Gas",

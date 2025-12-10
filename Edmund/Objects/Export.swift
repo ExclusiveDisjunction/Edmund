@@ -223,6 +223,18 @@ public struct EdmundExportV1 : Sendable, Codable {
         public let taxRate: Decimal;
     }
     
+    public static let debugExample: EdmundExportV1? = {
+        guard let container = try? Containers.debugContainer() else {
+            return nil;
+        }
+        
+        guard let data = try? EdmundExportV1(from: container.container) else {
+            return nil;
+        }
+        
+        return data;
+    }()
+    
     public init(from: ModelContainer) throws {
         let context = ModelContext(from);
         let log = Logger(subsystem: "com.exdisj.Edmund", category: "Export")
@@ -320,14 +332,14 @@ public struct EdmundExportV1 : Sendable, Codable {
             }
         }
         
-        var budgetRelation: [PersistentIdentifier : UUID] = [:];
+        var budgetRelation: [UUID : UUID] = [:];
         do {
             let budgets = try context.fetch(FetchDescriptor<EdmundCore.BudgetMonth>());
             
             self.budgets = [:];
             for budget in budgets {
                 let id = UUID();
-                budgetRelation[budget.persistentModelID] = id;
+                budgetRelation[budget.id] = id;
                 self.budgets[id] = Self.Budget(from: budget);
             }
         }
@@ -338,7 +350,7 @@ public struct EdmundExportV1 : Sendable, Codable {
             
             self.budgetGoals = [:];
             for goal in savingsGoals {
-                guard let parentId = goal.parent?.persistentModelID,
+                guard let parentId = goal.parent?.id,
                       let assocId = goal.association?.name,
                       let parent = budgetRelation[parentId],
                       let assoc = accountRelation[assocId] else {
@@ -350,7 +362,7 @@ public struct EdmundExportV1 : Sendable, Codable {
             }
             
             for goal in spendingGoals {
-                guard let parentId = goal.parent?.persistentModelID,
+                guard let parentId = goal.parent?.id,
                       let assocId = goal.association?.name,
                       let parent = budgetRelation[parentId],
                       let assoc = categoryRelation[assocId] else {
@@ -362,13 +374,13 @@ public struct EdmundExportV1 : Sendable, Codable {
             }
         }
         
-        var incomeDivisionsRelation: [PersistentIdentifier : UUID] = [:];
+        var incomeDivisionsRelation: [UUID : UUID] = [:];
         do {
             let incomeDivisions = try context.fetch(FetchDescriptor<EdmundCore.IncomeDivision>());
             
             self.incomeDivisions = [:];
             for division in incomeDivisions {
-                guard let parentId = division.parent?.persistentModelID,
+                guard let parentId = division.parent?.id,
                       let accountId = division.depositTo?.name,
                       let parent = budgetRelation[parentId],
                       let account = accountRelation[accountId] else {
@@ -377,7 +389,7 @@ public struct EdmundExportV1 : Sendable, Codable {
                 }
                 
                 let id = UUID();
-                incomeDivisionsRelation[division.persistentModelID] = id;
+                incomeDivisionsRelation[division.id] = id;
                 self.incomeDivisions[id] = Self.IncomeDivision(from: division, parent: parent, depositTo: account);
             }
         }
@@ -390,7 +402,7 @@ public struct EdmundExportV1 : Sendable, Codable {
             self.incomeDevotions = [:];
             
             for devotion in amountDevotions {
-                guard let parentId = devotion.parent?.persistentModelID,
+                guard let parentId = devotion.parent?.id,
                       let accountId = devotion.account?.name,
                       let parent = incomeDivisionsRelation[parentId],
                       let account = accountRelation[accountId] else {
@@ -402,7 +414,7 @@ public struct EdmundExportV1 : Sendable, Codable {
             }
             
             for devotion in percentDevotions {
-                guard let parentId = devotion.parent?.persistentModelID,
+                guard let parentId = devotion.parent?.id,
                       let accountId = devotion.account?.name,
                       let parent = incomeDivisionsRelation[parentId],
                       let account = accountRelation[accountId] else {
@@ -414,7 +426,7 @@ public struct EdmundExportV1 : Sendable, Codable {
             }
             
             for devotion in remainderDevotions {
-                guard let parentId = devotion.parent?.persistentModelID,
+                guard let parentId = devotion.parent?.id,
                       let accountId = devotion.account?.name,
                       let parent = incomeDivisionsRelation[parentId],
                       let account = accountRelation[accountId] else {

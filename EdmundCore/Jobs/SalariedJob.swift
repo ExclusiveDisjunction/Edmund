@@ -33,8 +33,7 @@ extension SalariedJob : UniqueElement, TraditionalJob, SnapshotableElement {
         
         self.grossAmount = from.grossAmount.rawValue
     }
-    
-    @MainActor
+
     public static var exampleJob: SalariedJob {
         SalariedJob(company: "Winn Dixie", position: "Customer Service Manager", grossAmount: 850, taxRate: 0.25);
     }

@@ -38,7 +38,6 @@ extension HourlyJob : SnapshotableElement, UniqueElement, TraditionalJob {
         self.hourlyRate = from.hourlyRate.rawValue
     }
     
-    @MainActor
     public static var exampleJob: HourlyJob {
         HourlyJob(company: "Winn Dixie", position: "Customer Service Associate", hourlyRate: 13.75, avgHours: 30, taxRate: 0.15)
     }

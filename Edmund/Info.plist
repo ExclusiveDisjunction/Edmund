@@ -26,19 +26,26 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.json</string>
+				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Edmund Export</string>
 			<key>UTTypeIcons</key>
-			<dict/>
+			<dict>
+				<key>UTTypeIconBackgroundName</key>
+				<string>AppImage</string>
+				<key>UTTypeIconBadgeName</key>
+				<string>AppImage</string>
+				<key>UTTypeIconText</key>
+				<string>Export</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.exdisj.Edmund.export</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>.edmundexport</string>
+					<string>edmundexport</string>
 				</array>
 			</dict>
 		</dict>

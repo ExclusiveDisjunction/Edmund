@@ -39,6 +39,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     case accounts = "Accounts"
     case categories = "Categories"
     
+    case migration = "Prepare for Edmund v2"
+    
     //case pay = "Pay"
     //case paychecks = "Paychecks"
     //case taxes = "Taxes"
@@ -85,6 +87,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 
             case .accounts: "accounts"
             case .categories: "categories"
+                
+            case .migration: "migration"
            
             //case .pay: "pay"
             //case .paychecks: "paychecks"
@@ -113,6 +117,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .audit: Auditor()
                 
             case .jobs: AllJobsViewEdit()
+                
+            case .migration: MigrationNotice()
         }
     }
 }
@@ -165,9 +171,9 @@ struct MainView: View {
             if MainView.allowPopouts {
                 Text(page.rawValue)
                     .contextMenu {
-                        Button("Open in new Window", action: {
+                        Button("Open in new Window") {
                             openWindow(id: page.key)
-                        })
+                        }
                     }
             }
             else {
@@ -206,6 +212,9 @@ struct MainView: View {
                             }
                         }
                     }
+                    
+                    PageContent(page: .migration)
+                        .tag(PageDestinations.migration)
                 }.disabled(locked)
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {

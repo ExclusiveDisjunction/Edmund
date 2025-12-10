@@ -91,14 +91,12 @@ extension Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     }
     
     /// A list of filler data for bills that have already expired.
-    @MainActor
     public static var exampleExpiredBills: [Bill] { [
         .init(sub: "Bitwarden Premium",      amount: 9.99,  company: "Bitwarden", start: Date.fromParts(2024, 6, 6)!,  end: Date.fromParts(2025, 3, 1)!, period: .anually),
         .init(sub: "Spotify Premium Family", amount: 16.99, company: "Spotify",   start: Date.fromParts(2020, 1, 17)!, end: Date.fromParts(2025, 3, 2)!, period: .monthly)
     ]
     }
     /// Examples of subscriptions that can be used on the UI.
-    @MainActor
     public static var exampleSubscriptions: [Bill] { [
         .init(sub: "Apple Music",     amount: 5.99, company: "Apple",   start: Date.fromParts(2025, 3, 2)!,  end: nil),
         .init(sub: "iCloud+",         amount: 2.99, company: "Apple",   start: Date.fromParts(2025, 5, 15)!, end: nil),
@@ -106,7 +104,6 @@ extension Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     ]
     }
     /// Examples of bill kind bills that can be used on UI.
-    @MainActor
     public static var exampleActualBills: [Bill] { [
         .init(bill: "Student Loan",  amount: 56,  company: "FAFSA",       start: Date.fromParts(2025, 3, 2)!,  end: nil),
         .init(bill: "Car Insurance", amount: 899, company: "The General", start: Date.fromParts(2024, 7, 25)!, end: nil, period: .semiAnually),
@@ -115,7 +112,6 @@ extension Bill : BillBase, SnapshotableElement, UniqueElement, NamedElement {
     }
     
     /// A collection of all bills used to show filler UI data.
-    @MainActor
     public static var exampleBills: [Bill] {
         exampleExpiredBills + exampleSubscriptions + exampleActualBills
     }

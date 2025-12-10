@@ -51,7 +51,6 @@ extension LedgerEntry : SnapshotableElement, VoidableElement, NamedElement, Defa
     
     /// Builds a list of ledger entries over some accounts and categories. It expects specific ones to exist, and may cause a crash if they dont.
     /// This is intended for internal use.
-    @MainActor
     public static func exampleEntries(acc: inout ElementLocator<Account>, cat: inout ElementLocator<Category>) -> [LedgerEntry] {
         let transferCat = cat.getOrInsert(name: "Transfers");
         let auditCat = cat.getOrInsert(name: "Adjustments");
