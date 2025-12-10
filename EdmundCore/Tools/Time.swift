@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable {
+public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Codable, Sendable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2
@@ -52,7 +52,7 @@ public enum TimePeriods: Int, CaseIterable, Identifiable, Equatable, Sendable {
     public var id: Self { self }
 }
 
-public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Sendable {
+public enum MonthlyTimePeriods : Int, CaseIterable, Identifiable, Equatable, Hashable, Codable, Sendable {
     case weekly = 0
     case biWeekly = 1
     case monthly = 2

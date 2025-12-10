@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 /// Represents the different kind of accounts for more dynamic choices on the UI.
-public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable {
+public enum AccountKind : Int, Identifiable, Hashable, Codable, CaseIterable, Sendable {
     case credit, checking, savings, cd, trust, cash
     
     public var id: Self { self }

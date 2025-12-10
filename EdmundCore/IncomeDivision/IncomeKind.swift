@@ -5,7 +5,7 @@
 //  Created by Hollan Sellars on 7/10/25.
 //
 
-public enum IncomeKind: Int, CaseIterable, Identifiable {
+public enum IncomeKind: Int, CaseIterable, Identifiable, Codable, Sendable {
     case pay
     case gift
     case donation

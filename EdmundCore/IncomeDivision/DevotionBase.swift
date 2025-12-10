@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum DevotionGroup : Int, Identifiable, CaseIterable {
+public enum DevotionGroup : Int, Identifiable, CaseIterable, Sendable, Codable {
     case need
     case want
     case savings
