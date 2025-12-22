@@ -46,6 +46,7 @@ public struct ElementLocator<T> where T: NamedElement, T: Identifiable, T: NSMan
         }
     }
     
+    @discardableResult
     public mutating func getOrInsert(name: String, cx: NSManagedObjectContext) -> T {
         if let target = self[name] {
             return target
@@ -92,9 +93,11 @@ public struct AccountLocator {
         }
     }
     
+    @discardableResult
     public func getAccount(name: String) -> Account? {
         self.dict[name]?.0
     }
+    @discardableResult
     public mutating func getOrInsertAccount(name: String, cx: NSManagedObjectContext) -> Account {
         if let account = self.getAccount(name: name) {
             return account;
@@ -107,16 +110,20 @@ public struct AccountLocator {
         return newAccount;
     }
     
+    @discardableResult
     public func getEnvolope(name: String, accountName: String) -> Envolope? {
         self.dict[accountName]?.1[name]
     }
+    @discardableResult
     public func getEnvolope(name: String, account: Account) -> Envolope? {
         self.getEnvolope(name: name, accountName: account.name)
     }
+    @discardableResult
     public mutating func getOrInsertEnvolope(name: String, accountName: String, cx: NSManagedObjectContext) -> Envolope {
         let account = self.getOrInsertAccount(name: accountName, cx: cx)
         return self.getOrInsertEnvolope(name: name, account: account, cx: cx)
     }
+    @discardableResult
     public mutating func getOrInsertEnvolope(name: String, account: Account, cx: NSManagedObjectContext) -> Envolope {
         if let envolope = self.getEnvolope(name: name, account: account) {
             return envolope

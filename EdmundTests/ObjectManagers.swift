@@ -21,12 +21,9 @@ struct ElementLocatorTester {
             
             let cx = container.viewContext;
             do {
-                let a = locator.getOrInsert(name: "a", cx: cx);
-                a.id = UUID();
-                let b = locator.getOrInsert(name: "b", cx: cx);
-                b.id = UUID();
-                let c = locator.getOrInsert(name: "c", cx: cx);
-                c.id = UUID();
+                locator.getOrInsert(name: "a", cx: cx);
+                locator.getOrInsert(name: "b", cx: cx);
+                locator.getOrInsert(name: "c", cx: cx);
             }
             
             try cx.save();
@@ -53,22 +50,22 @@ struct ElementLocatorTester {
             var locator = try AccountLocator(fetch: cx);
             
             do {
-                locator.getOrInsertAccount(name: "a", cx: cx).id = UUID();
-                locator.getOrInsertAccount(name: "b", cx: cx).id = UUID();
-                locator.getOrInsertAccount(name: "c", cx: cx).id = UUID();
+                locator.getOrInsertAccount(name: "a", cx: cx);
+                locator.getOrInsertAccount(name: "b", cx: cx);
+                locator.getOrInsertAccount(name: "c", cx: cx);
             }
             
             try cx.save();
             
             do {
-                locator.getOrInsertEnvolope(name: "a", accountName: "a", cx: cx).id = UUID();
-                locator.getOrInsertEnvolope(name: "b", accountName: "a", cx: cx).id = UUID();
+                locator.getOrInsertEnvolope(name: "a", accountName: "a", cx: cx);
+                locator.getOrInsertEnvolope(name: "b", accountName: "a", cx: cx);
                 
-                locator.getOrInsertEnvolope(name: "a", accountName: "b", cx: cx).id = UUID();
-                locator.getOrInsertEnvolope(name: "b", accountName: "b", cx: cx).id = UUID();
+                locator.getOrInsertEnvolope(name: "a", accountName: "b", cx: cx);
+                locator.getOrInsertEnvolope(name: "b", accountName: "b", cx: cx);
                 
-                locator.getOrInsertEnvolope(name: "a", accountName: "c", cx: cx).id = UUID();
-                locator.getOrInsertEnvolope(name: "b", accountName: "c", cx: cx).id = UUID();
+                locator.getOrInsertEnvolope(name: "a", accountName: "c", cx: cx);
+                locator.getOrInsertEnvolope(name: "b", accountName: "c", cx: cx);
             }
             
             try cx.save();

@@ -6,11 +6,11 @@
 //
 
 import Foundation
-import SwiftData
+import CoreData
 import Charts
 
 /// A structure encoding credit and debit values.
-public struct BalanceInformation : Sendable, Hashable, Equatable, Codable {
+public struct BalanceInformation : Sendable, Hashable, Equatable, Codable, Comparable {
     public init(credit: Decimal, debit: Decimal) {
         self.credit = credit
         self.debit = debit
@@ -37,14 +37,25 @@ public struct BalanceInformation : Sendable, Hashable, Equatable, Codable {
         lhs.credit += rhs.credit
         lhs.debit += rhs.debit
     }
+    
+    public static func ==(lhs: BalanceInformation, rhs: BalanceInformation) -> Bool {
+        lhs.credit == rhs.credit && lhs.debit == rhs.debit
+    }
+    public static func<(lhs: BalanceInformation, rhs: BalanceInformation) -> Bool {
+        lhs.balance < rhs.balance
+    }
 }
 
 /// A single element balance representing the balance of some `BoundPairParent`.
-public struct SimpleBalance : Identifiable, Sendable {
-    public init(_ name: String, _ credit: Decimal, _ debit: Decimal, id: UUID = UUID()) {
+public struct SimpleBalance : Identifiable, Sendable, Equatable, Comparable {
+    public init(_ name: String, credit: Decimal, debit: Decimal, id: UUID = UUID()) {
         self.name = name
-        self.credit = credit
-        self.debit = debit
+        self.balance = .init(credit: credit, debit: debit)
+        self.id = id
+    }
+    public init(_ name: String, balance: BalanceInformation, id: UUID = UUID()) {
+        self.name = name
+        self.balance = balance;
         self.id = id
     }
     
@@ -52,180 +63,251 @@ public struct SimpleBalance : Identifiable, Sendable {
     /// The name of the assocated element.
     public let name: String;
     /// The money that has been credited to the element.
-    public let credit: Decimal;
-    /// The money that has been debited from the element.
-    public let debit: Decimal;
-    /// The current balance of the element.
-    public var balance: Decimal {
-        credit - debit
+    public let balance: BalanceInformation;
+    
+    public static func ==(lhs: SimpleBalance, rhs: SimpleBalance) -> Bool {
+        lhs.balance == rhs.balance
+    }
+    public static func <(lhs: SimpleBalance, rhs: SimpleBalance) -> Bool {
+        lhs.balance < rhs.balance
     }
 }
 
-/// A structure encoding the balances of any hashable type.
-public struct BalanceAssociation<T> where T: Hashable {
-    fileprivate let data: [T: BalanceInformation];
-    
-    /// Converts the inner data into instances of `SimpleBalance`, while optionally sorting.
-    @MainActor
-    private consuming func process(sorted: Bool, map: ((T, BalanceInformation)) throws -> SimpleBalance) rethrows -> [SimpleBalance] {
-        let result = try self.data.map(map)
-    
-        return sorted ? result.sortedByBalances() : result
+public struct DetailedBalance : Identifiable, Sendable, Equatable, Comparable {
+    public init(_ name: String, credit: Decimal, debit: Decimal, children: [DetailedBalance] = [], id: UUID = UUID()) {
+        self.id = id;
+        self.name = name;
+        self.balance = .init(credit: credit, debit: debit)
+        self.children = children;
+    }
+    public init(_ name: String, balance: BalanceInformation, children: [DetailedBalance] = [], id: UUID = UUID()) {
+        self.id = id;
+        self.name = name;
+        self.balance = balance
+        self.children = children;
     }
     
-    /// Obtains the total balance of all children elements.
-    @MainActor
-    public consuming func totalBalance() -> BalanceInformation {
-        self.data.values.reduce(BalanceInformation()) { old, balance in
-            old + balance
-        }
-    }
+    public let id: UUID;
+    public let name: String;
+    public let balance: BalanceInformation;
+    public let children: [DetailedBalance];
     
-    /// Converts the internal data into `SimpleBalance` instances.
-    /// - Parameters:
-    ///     - name: A closure that converts an element `T` value into a `String`, which will be used as the name for the `SimpleBalance`. This can throw, and the function will rethrow that value.
-    ///     - sorted: When `true`, the returned list will be sorted by the `SimpleBalance.balance` parameter.
-    /// - Returns:
-    ///     A list of `SimpleBalance` instances encoding the internal balances.
-    /// - Throws:
-    ///         Any error that is thrown when `name` is called.
-    @MainActor
-    public consuming func intoSimpleBalances(name: (T) throws -> String, sorted: Bool = true) rethrows -> [SimpleBalance] {
-        try self.process(sorted: sorted) { (element, balance) in
-            let elementName = try name(element);
-            return SimpleBalance(elementName, balance.credit, balance.debit)
-        }
+    public static func ==(lhs: DetailedBalance, rhs: DetailedBalance) -> Bool {
+        lhs.balance == rhs.balance
     }
-}
-extension BalanceAssociation : Sequence {
-    public typealias Iterator = [T: BalanceInformation].Iterator
-    
-    public func makeIterator() -> [T: BalanceInformation].Iterator {
-        self.data.makeIterator()
-    }
-}
-extension BalanceAssociation where T == String {
-    /// Converts the internal data into `SimpleBalance` instances, using the internal `String`'s value as the balance's name.
-    /// - Parameters:
-    ///     - sorted: When `true`, the returned list will be sorted by the `SimpleBalance.balance` parameter.
-    /// - Returns:
-    ///     A list of `SimpleBalance` instances encoding the internal balances.
-    @MainActor
-    public consuming func intoSimpleBalances(sorted: Bool = true) -> [SimpleBalance] {
-        self.process(sorted: sorted) { (name, balance) in
-                .init(name, balance.credit, balance.debit)
-        }
-    }
-}
-extension BalanceAssociation where T: NamedElement {
-    /// Converts the internal data into `SimpleBalance` instances, using the internal `NamedElement.name` property as the balance's name.
-    /// - Parameters:
-    ///     - sorted: When `true`, the returned list will be sorted by the `SimpleBalance.balance` parameter.
-    /// - Returns:
-    ///     A list of `SimpleBalance` instances encoding the internal balances.
-    @MainActor
-    public consuming func intoSimpleBalances(sorted: Bool = true) -> [SimpleBalance] {
-        self.process(sorted: sorted) { (element, balance) in
-                .init(element.name, balance.credit, balance.debit)
-        }
+    public static func <(lhs: DetailedBalance, rhs: DetailedBalance) -> Bool {
+        lhs.balance < rhs.balance
     }
 }
 
-/// A collection of tools to group transactions together.
-@MainActor
-public struct BalanceResolver<T> where T: Hashable & TransactionHolder & NamedElement {
-    public init(_ on: [T]) {
-        self.on = on
-    }
-    
-    private let on: [T]
-    
-    /// Computes the top level balances for the passed in `T` values.
-    public consuming func computeBalances() -> BalanceAssociation<T> {
-        var result: [T: BalanceInformation] = [:];
-        for account in on {
-            var balance = BalanceInformation();
-            for trans in account.transactions {
-                balance.credit += trans.credit
-                balance.debit += trans.debit
-            }
-            
-            result[account] = balance
+public struct BalanceResolver {
+    /// Determines all transactions for a specifc month.
+    /// - Throws: Any error occured while fetching the entries.
+    /// - Note: This method returns entries returned from the context provided. These are thread isolated.
+    /// - Returns: A list of ledger entry instances that occured during the `month` provided.
+    /// - Parameters:
+    ///     - month: The month & year to filter for.
+    public static func transactionsFor(month: MonthYear, cx: NSManagedObjectContext, calendar: Calendar = .current) throws -> [LedgerEntry] {
+        guard let startDate = month.start(calendar: calendar), let end = month.end(calendar: calendar) else {
+            return []
         }
         
-        return .init(data: result)
+        let fetchDesc = LedgerEntry.fetchRequest();
+        fetchDesc.predicate = NSPredicate(format: "internalDate != nil AND internalDate BETWEEN %@, %@", startDate as NSDate, end as NSDate);
+        
+        return try cx.fetch(fetchDesc);
     }
-}
-
-/// A structure that encodes the month and year of some specific date.
-public struct MonthYear : Hashable, Codable, Comparable, Sendable, CustomStringConvertible {
-    /// Creates the `MonthYear` instance from  specific values.
-    /// - Parameters:
-    ///     - year: The target year
-    ///     - month: The target month
-    public init(_ year: Int, _ month: Int) {
-        self.year = year
-        self.month = month
+    public static func splitTransactionsByMonth(cx: NSManagedObjectContext, minimum: MonthYear? = nil, maximum: MonthYear? = nil) throws -> [MonthYear : [LedgerEntry]] {
+        
     }
-    /// Attempts to create the `MonthYear` from a date.
-    /// - Parameters:
-    ///     - date: The date to extract from
-    ///     - calendar: The calendar used to extract components.
-    /// - Note: This will return `nil` if the calendar is not able to extract the required components out of `date`.
-    public init?(date: Date, calendar: Calendar = .current) {
-        let comp = calendar.dateComponents([.year, .month], from: date);
-        guard let year = comp.year, let month = comp.month else {
-            return nil;
+    
+    /// Computes the simple balances for all categories using a background thread.
+    /// This will create a background context using the container provided.
+    ///  - Note: For a non-async version, use ``categoricalSpending(cx:)``.
+    ///  - Parameters:
+    ///     - using: The ``NSPersistentContainer`` to fetch information from. A background container will be created on the task, and then processed.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
+    public static func categoricalSpending(using: NSPersistentContainer, priority: TaskPriority = .medium) async throws -> [SimpleBalance] {
+        try await Task(priority: priority) {
+            try Self.categoricalSpending(cx: using.newBackgroundContext())
+        }.value
+    }
+    /// Computes the simple balances for all categories using the current thread, and the ``NSManagedObjectContext`` provided.
+    ///  - Note: For a async, background processing version, use ``categoricalSpending(using:priority:)``.
+    ///  - Warning: This will block the current thread. Do not use this on the main thread, as it may delay UI updates.
+    ///  - Parameters:
+    ///     - cx: The ``NSManagedObjectContext`` to fetch information from.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
+    public static func categoricalSpending(cx: NSManagedObjectContext) throws -> [SimpleBalance] {
+        
+    }
+    /// Computes the simple balances for all categories, within the specified month, using a background thread.
+    /// This will create a background context using the container provided.
+    ///  - Note: For a non-async version, use ``categoricalSpending(cx:)``.
+    ///  - Parameters:
+    ///     - using: The ``NSPersistentContainer`` to fetch information from. A background container will be created on the task, and then processed.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
+    public static func categoricalSpending(forMonth: MonthYear, using: NSPersistentContainer, priority: TaskPriority = .medium) async throws -> [SimpleBalance] {
+        try await Task(priority: priority) {
+            try Self.categoricalSpending(forMonth: forMonth, cx: using.newBackgroundContext())
+        }.value
+    }
+    /// Computes the simple balances for all categories, within the specified month, using the current thread, and the ``NSManagedObjectContext`` provided.
+    ///  - Note: For a async, background processing version, use ``categoricalSpending(forMonth:using:priority:)``.
+    ///  - Warning: This will block the current thread. Do not use this on the main thread, as it may delay UI updates.
+    ///  - Parameters:
+    ///     - cx: The ``NSManagedObjectContext`` to fetch information from.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
+    public static func categoricalSpending(forMonth: MonthYear, cx: NSManagedObjectContext) throws -> [SimpleBalance] {
+        
+    }
+    
+    /// Computes the simple balances for all accounts using a background thread.
+    /// This will create a background context using the container provided.
+    ///  - Note: For a non-async version, use ``accountSpending(cx:)``.
+    ///  - Parameters:
+    ///     - using: The ``NSPersistentContainer`` to fetch information from. A background container will be created on the task, and then processed.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all accounts.
+    public static func accountSpending(using: NSPersistentContainer) async throws -> [SimpleBalance] {
+        try await Task(priority: .medium) { [using] in
+            let cx = using.newBackgroundContext();
+            
+            return try Self.accountSpending(cx: cx);
+        }.value
+    }
+    /// Computes the simple balances for all accounts using the current thread, and the ``NSManagedObjectContext`` provided.
+    ///  - Note: For a async, background processing version, use ``accountSpending(using:)``.
+    ///  - Warning: This will block the current thread. Do not use this on the main thread, as it may delay UI updates.
+    ///  - Parameters:
+    ///     - cx: The ``NSManagedObjectContext`` to fetch information from.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all accounts.
+    public static func accountSpending(cx: NSManagedObjectContext) throws -> [SimpleBalance] {
+        let fetchDesc = Account.fetchRequest();
+        fetchDesc.sortDescriptors = [NSSortDescriptor(keyPath: \Account.name, ascending: true)];
+        fetchDesc.predicate = NSPredicate(fromMetadataQueryString: "internalEnvolopes != nil");
+        
+        let accounts = try cx.fetch(fetchDesc);
+        
+        var result: [SimpleBalance] = [];
+        for account in accounts {
+            let name = account.name;
+            var balance = BalanceInformation();
+            
+            let envolopes = account.envolopes;
+            for envolope in envolopes {
+                let transactions = envolope.transactions;
+                for transaction in transactions {
+                    balance += BalanceInformation(credit: transaction.credit, debit: transaction.debit)
+                }
+            }
+            
+            result.append(
+                SimpleBalance(name, balance: balance)
+            )
         }
-        self.year = year
-        self.month = month
+        
+        return result.sorted();
     }
-    
-    /// The year associated with this data
-    public let year: Int;
-    /// The month associated with this data
-    public let month: Int;
-    
-    public var description: String {
-        "Month: \(month) Year: \(year)"
+    /// Computes the detailed balances for all accounts using a background thread. This will create a background context using the container provided.
+    ///  - Note: For a non-async version, use ``envolopeSpending(cx:)``.
+    ///  - Parameters:
+    ///     - using: The ``NSPersistentContainer`` to fetch information from. A background container will be created on the task, and then processed.
+    ///
+    ///  - Throws: Any exception that the `NSManagedObjectContext` will throw during a query fetch.
+    ///  - Returns: A list of `DetailedBalance` instances, which stores the associated total credits & debits for all accounts & envolopes.
+    public static func envolopeSpending(using: NSPersistentContainer) async throws -> [DetailedBalance] {
+        try await Task(priority: .medium) {
+            return try Self.envolopeSpending(cx: using.newBackgroundContext())
+        }.value;
     }
-    
-    /// Attempts to convert the structure into a `Date` instance.
-    /// - Note: This will return `nil` if the current `Calendar` is not able to resolve this structure to a specific date.
-    /// - Note: This will always return the first day of that specific month & year.
-    public var asDate: Date? {
-        self.asDate(calendar: .current)
-    }
-    /// Attempts to convert the structure into a `Date` instance using a specified calendar.
-    /// - Parameters:
-    ///     - calendar: The calendar to use when performing the conversion.
-    /// - Note: This will return `nil` if the  `Calendar` instance is not able to resolve this structure to a specific date.
-    /// - Note: This will always return the first day of that specific month & year.
-    public func asDate(calendar: Calendar) -> Date? {
-        calendar.date(from: .init(year: self.year, month: self.month, day: 1))
-    }
-    
-    /// Attempts to obtain the current month and year from `Date.now`.
-    /// - Note: This will return `nil` if the current `Calendar` is not able to extract the required components to construct this instance.
-    public static var now: MonthYear? {
-        self.init(date: .now)
-    }
-    /// Attempts to obtain the current month and year from `Date.now` using a specific calendar.
-    /// - Parameters:
-    ///     - calendar: The calendar to use for date component extraction.
-    /// - Note: This will return `nil` if the `Calendar` passed is not able to extract the required components to construct this instance.
-    public static func now(calendar: Calendar) -> MonthYear? {
-        self.init(date: .now, calendar: calendar)
-    }
-    
-    public static func < (lhs: MonthYear, rhs: MonthYear) -> Bool {
-        if lhs.year == rhs.year {
-            lhs.month < rhs.month
+    /// Computes the simple balances for all accounts using the current thread, and the `NSManagedObjectContext` provided.
+    ///  - Note: For a async, background processing version, use `AccountBalanceResolver.makeDetailedBalances(using:)`.
+    ///  - Warning: This will block the current thread. Do not use this on the main thread, as it may delay UI updates.
+    ///  - Parameters:
+    ///     - cx: The `NSManagedObjectContext` to fetch information from.
+    ///
+    ///  - Throws: Any exception that the `NSManagedObjectContext` will throw during a query fetch.
+    ///  - Returns: A list of `SimpleBalance` instances, which stores the associated total credits & debits for all accounts.
+    public static func envolopeSpending(cx: NSManagedObjectContext) throws -> [DetailedBalance] {
+        let fetchDesc = Account.fetchRequest();
+        fetchDesc.sortDescriptors = [NSSortDescriptor(keyPath: \Account.name, ascending: true)];
+        fetchDesc.predicate = NSPredicate(fromMetadataQueryString: "internalEnvolopes != nil");
+        
+        let accounts = try cx.fetch(fetchDesc);
+        
+        var result: [DetailedBalance] = [];
+        for account in accounts {
+            let name = account.name;
+            var balance = BalanceInformation();
+            let envolopes = account.envolopes;
+            
+            var children: [DetailedBalance] = [];
+            for envolope in envolopes {
+                let envolopeName = envolope.name;
+                let transactions = envolope.transactions;
+                
+                var envolopeBalance = BalanceInformation();
+                for transaction in transactions {
+                    envolopeBalance += BalanceInformation(credit: transaction.credit, debit: transaction.debit);
+                }
+                
+                balance += envolopeBalance;
+                children.append(
+                    DetailedBalance(envolopeName, balance: envolopeBalance)
+                )
+            }
+            
+            result.append(
+                DetailedBalance(name, balance: balance, children: children.sorted())
+            )
         }
-        else {
-            lhs.year < rhs.year
-        }
+        
+        return result.sorted();
     }
+    /// Computes the detailed balances for all accounts, durring a specific month, using a background thread. This will create a background context using the container provided.
+    ///  - Note: For a non-async version, use ``BalanceResolver.envolopeSpending(forMonth:cx:)``.
+    ///  - Parameters:
+    ///     - using: The ``NSPersistentContainer`` to fetch information from. A background container will be created on the task, and then processed.
+    ///
+    ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
+    ///  - Returns: A list of `DetailedBalance` instances, which stores the associated total credits & debits for all accounts & envolopes.
+    public static func envolopeSpending(forMonth: MonthYear, using: NSPersistentContainer) async throws -> [SimpleBalance] {
+        try await Task(priority: .medium) {
+            try Self.envolopeSpending(forMonth: forMonth, cx: using.newBackgroundContext())
+        }.value
+    }
+    /// Computes the detailed balances for all accounts, durring a specifc month, using the current thread, and the `NSManagedObjectContext` provided.
+    ///  - Note: For a async, background processing version, use `AccountBalanceResolver.envolopeSpending(forMonth:using:)`.
+    ///  - Warning: This will block the current thread. Do not use this on the main thread, as it may delay UI updates.
+    ///  - Parameters:
+    ///     - cx: The `NSManagedObjectContext` to fetch information from.
+    ///
+    ///  - Throws: Any exception that the `NSManagedObjectContext` will throw during a query fetch.
+    ///  - Returns: A list of `SimpleBalance` instances, which stores the associated total credits & debits for all accounts.
+    public static func envolopeSpending(forMonth: MonthYear, cx: NSManagedObjectContext) throws -> [SimpleBalance] {
+        
+    }
+    
+    public static func accountSpending(forMonth: MonthYear, using: NSPersistentContainer) async throws -> [SimpleBalance] {
+        
+    }
+    public static func accountSpending(forMonth: MonthYear, cx: NSManagedObjectContext) async throws -> [SimpleBalance] {
+        
+    }
+    
+    
 }
 
 /// A collection of functions that can process transactions into different forms for usable information.

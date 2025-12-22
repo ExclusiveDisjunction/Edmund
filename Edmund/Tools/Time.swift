@@ -201,3 +201,74 @@ public struct TimePeriodWalker {
         return result
     }
 }
+
+/// A structure that encodes the month and year of some specific date.
+public struct MonthYear : Hashable, Codable, Comparable, Sendable, CustomStringConvertible {
+    /// Creates the `MonthYear` instance from  specific values.
+    /// - Parameters:
+    ///     - year: The target year
+    ///     - month: The target month
+    public init(_ year: Int, _ month: Int) {
+        self.year = year
+        self.month = month
+    }
+    /// Attempts to create the `MonthYear` from a date.
+    /// - Parameters:
+    ///     - date: The date to extract from
+    ///     - calendar: The calendar used to extract components.
+    /// - Note: This will return `nil` if the calendar is not able to extract the required components out of `date`.
+    public init?(date: Date, calendar: Calendar = .current) {
+        let comp = calendar.dateComponents([.year, .month], from: date);
+        guard let year = comp.year, let month = comp.month else {
+            return nil;
+        }
+        self.year = year
+        self.month = month
+    }
+    
+    /// The year associated with this data
+    public let year: Int;
+    /// The month associated with this data
+    public let month: Int;
+    
+    public var description: String {
+        "Month: \(month) Year: \(year)"
+    }
+    
+    /// Determines the first day of the month encoded by this structure.
+    public func start(calendar: Calendar = .current) -> Date? {
+        calendar.date(from: .init(year: Int(self.year), month: Int(self.month), day: 1))
+    }
+    /// Determines the last day of the month encoded by this structure.
+    public func end(calendar: Calendar = .current) -> Date? {
+        guard let currentFirstDay = self.start(calendar: calendar),
+              let followingFirstDay = calendar.date(byAdding: .month, value: 1, to: currentFirstDay),
+              let currentLastDay = calendar.date(byAdding: .day, value: -1, to: followingFirstDay) else {
+            return nil
+        }
+        
+        return currentLastDay
+    }
+    
+    /// Attempts to obtain the current month and year from `Date.now`.
+    /// - Note: This will return `nil` if the current `Calendar` is not able to extract the required components to construct this instance.
+    public static var now: MonthYear? {
+        self.init(date: .now)
+    }
+    /// Attempts to obtain the current month and year from `Date.now` using a specific calendar.
+    /// - Parameters:
+    ///     - calendar: The calendar to use for date component extraction.
+    /// - Note: This will return `nil` if the `Calendar` passed is not able to extract the required components to construct this instance.
+    public static func now(calendar: Calendar) -> MonthYear? {
+        self.init(date: .now, calendar: calendar)
+    }
+    
+    public static func < (lhs: MonthYear, rhs: MonthYear) -> Bool {
+        if lhs.year == rhs.year {
+            lhs.month < rhs.month
+        }
+        else {
+            lhs.year < rhs.year
+        }
+    }
+}
