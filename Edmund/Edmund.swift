@@ -14,30 +14,22 @@ struct EdmundApp: App {
         let log = LoggerSystem();
         self.stack = DataStack.shared
         self.help = HelpEngine(log.help);
-        /*
-        let help = HelpEngine(log.help);
-        let unique = UniqueEngine(log.unique);
-        let loader = AppLoaderEngine(unique: unique, help: help, log: log)
-        
-        self.help = help
-        self.unique = unique
-        self.loader = loader
+        self.loader = AppLoaderEngine(help: help, log: log)
     
         let state = AppLoadingState();
         self.state = state
         self.log = log
         
-        Task {
+        Task(priority: .high) { [loader] in
             await loader.loadApp(state: state)
         }
-         */
-        
-        self.log = log;
     }
     
     let stack: DataStack;
     let log: LoggerSystem;
     let help: HelpEngine;
+    let loader: AppLoaderEngine;
+    let state: AppLoadingState;
     
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     
@@ -51,7 +43,9 @@ struct EdmundApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Text("Work in progress")
+            AppWindowGate(appLoader: self.loader, state: self.state) {
+                MainView()
+            }
         }.commands {
             //GeneralCommands()
         }

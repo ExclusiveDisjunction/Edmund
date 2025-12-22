@@ -39,8 +39,8 @@ public enum ValidationFailure: Int, Identifiable, Sendable, Error {
     }
 }
 
-public extension ValidationFailure {
-    var display: LocalizedStringKey {
+extension ValidationFailure : Displayable {
+     public var display: LocalizedStringKey {
         switch self {
             case .unique:         "The current element is not unique."
             case .empty:          "Please ensure all fields are filled in."
@@ -54,5 +54,10 @@ public extension ValidationFailure {
                 "internalError"
                 
         }
+    }
+}
+extension ValidationFailure : WarningBasis {
+    public var message: LocalizedStringKey {
+        self.display
     }
 }

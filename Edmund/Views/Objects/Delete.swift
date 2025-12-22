@@ -6,7 +6,8 @@
 //
 
 import SwiftUI
-import SwiftData
+import CoreData
+import os
 
 /// An observable class that provides deleting confrimation dialog abstraction. It includes a member, `isDeleting`, which can be bound. This value will become `true` when the internal list is not `nil` and not empty.
 @Observable
@@ -57,80 +58,7 @@ public class DeletingManifest<T> where T: Identifiable {
 }
 
 /// An abstraction to show in the `.confirmationDialog` of a view. This will handle the deleting of the data inside of a `DeletingManifest<T>`.
-/// This is different from `DeletingActionConfirm<T>` because this view requires the deleting action to be provided.
-/// Use this when `T` is a wrapper over an `any V`, where all inheriters of `V` are `PersistentModel`.
-public struct AbstractDeletingActionConfirm<T> : View where T: Identifiable {
-    /// Constructs the view around the data provided.
-    /// - Parameters:
-    ///     - deleting: The `DeletingManifest<T>` source of truth.
-    ///     - delete: The function that will remove the value `T` from the current `ModelContext`. If the `deleting` has more than one element, one call will be made per object.
-    ///     - post: An action to run after all elements have ben deleted. If nothing is deleted, this will not be called.
-    public init(_ deleting: DeletingManifest<T>, delete: @escaping (T, ModelContext) -> Void, post: (() -> Void)? = nil) {
-        self.deleting = deleting
-        self.delete = delete
-        self.postAction = post
-    }
-    
-    private var deleting: DeletingManifest<T>;
-    private let delete: (T, ModelContext) -> Void;
-    private let postAction: (() -> Void)?;
-    
-    @Environment(\.uniqueEngine) private var uniqueEngine;
-    @Environment(\.modelContext) private var modelContext;
-    @Environment(\.loggerSystem) private var loggerSystem;
-    
-    @ViewBuilder
-    private var cancelButton: some View {
-        Button("Cancel", role: .cancel) {
-            deleting.isDeleting = false
-        }
-    }
-    
-    public var body: some View {
-        if let deleting = deleting.action {
-            Button("Delete") {
-                loggerSystem?.data.debug("Performing delete on \(deleting.count) objects without uniqueness constraints.")
-                for data in deleting {
-                    delete(data, self.modelContext)
-                }
-                
-                self.deleting.isDeleting  = false
-                if let post = postAction {
-                    post()
-                }
-            }
-        }
-        
-        cancelButton
-    }
-}
-extension AbstractDeletingActionConfirm where T: UniqueElement, T.ID: Sendable {
-    @ViewBuilder
-    public var body: some View {
-        if let deleting = deleting.action {
-            Button("Delete") {
-                loggerSystem?.data.debug("Performing delete on \(deleting.count) objects with uniqueness constraints.")
-                for data in deleting {
-                    let id = data.id;
-                    Task {
-                        await uniqueEngine.releaseId(key: T.objId, id: id)
-                    }
-                    delete(data, self.modelContext)
-                }
-                
-                self.deleting.isDeleting  = false
-                if let post = postAction {
-                    post()
-                }
-            }
-        }
-        
-        cancelButton
-    }
-}
-
-/// An abstraction to show in the `.confirmationDialog` of a view. This will handle the deleting of the data inside of a `DeletingManifest<T>`.
-public struct DeletingActionConfirm<T>: View where T: PersistentModel{
+public struct DeletingActionConfirm<T>: View where T: NSManagedObject & Identifiable {
     /// The data that can be deleted.
     private var deleting: DeletingManifest<T>;
     /// Runs after the deleting occurs.
@@ -145,30 +73,38 @@ public struct DeletingActionConfirm<T>: View where T: PersistentModel{
         self.postAction = post
     }
     
-    public var body: some View {
-        AbstractDeletingActionConfirm(deleting, delete: { model, context in
-            context.delete(model)
-        }, post: postAction)
-    }
-}
-public struct UniqueDeletingActionConfirm<T> : View where T: PersistentModel, T: UniqueElement {
-    private var deleting: DeletingManifest<T>;
-    private let postAction: (() -> Void)?;
-    
-    public init(_ deleting: DeletingManifest<T>, post: (() -> Void)? = nil) {
-        self.deleting = deleting
-        self.postAction = post
-    }
-    
-    @Environment(\.uniqueEngine) private var uniqueEngine;
+    @Environment(\.managedObjectContext) private var objectContext;
+    @Environment(\.loggerSystem) private var loggerSystem;
+    @Environment(\.dismiss) private var dismiss;
     
     public var body: some View {
-        AbstractDeletingActionConfirm(self.deleting, delete: { model, context in
-            context.delete(model)
-            Task {
-                await uniqueEngine.releaseId(key: T.objId, id: model.uID)
+        if let deleting = deleting.action {
+            Button("Delete") {
+                loggerSystem?.data.debug("Performing delete on \(deleting.count) objects without uniqueness constraints.")
+                for data in deleting {
+                    objectContext.delete(data);
+                }
+                
+                do {
+                    try objectContext.save();
+                }
+                catch let e {
+                    loggerSystem?.data.error("Unable to save: \(e.localizedDescription, privacy: .public)");
+                    dismiss();
+                    
+                    return;
+                }
+                
+                self.deleting.isDeleting  = false
+                if let post = postAction {
+                    post()
+                }
             }
-        }, post: postAction)
+        }
+        
+        Button("Cancel", role: .cancel) {
+            deleting.isDeleting = false
+        }
     }
 }
 

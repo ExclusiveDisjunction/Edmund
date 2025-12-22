@@ -10,8 +10,8 @@ import SwiftUI
 import os
 
 /// Provides a lookup for the basic SubCategories that are used by the program.
+@MainActor
 public struct CategoriesContext {
-    @MainActor
     public init(store: NSPersistentContainer, logger: Logger) async throws {
         let ids: [String : NSManagedObjectID] = try await Task(priority: .background) {
             let cx = store.newBackgroundContext();
@@ -84,11 +84,11 @@ public struct CategoriesContext {
         "Bills"
     ]
     
-    @MainActor public var income: Category;
-    @MainActor public var transfers: Category;
-    @MainActor public var adjustments: Category;
-    @MainActor public var loan: Category;
-    @MainActor public var bills: Category;
+    public var income: Category;
+    public var transfers: Category;
+    public var adjustments: Category;
+    public var loan: Category;
+    public var bills: Category;
 }
 
 private struct CategoriesContextKey: EnvironmentKey {

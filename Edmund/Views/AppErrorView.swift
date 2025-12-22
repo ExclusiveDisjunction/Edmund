@@ -100,8 +100,7 @@ struct AppErrorView : View {
                     HStack {
                         switch error.with {
                             case .categories: Text("The categories context cannot be loaded.")
-                            case .modelContainer: Text("The app's model container could not be loaded.")
-                            case .unique: Text("The unique engine could not be loaded.")
+                            case .container: Text("The app's model container could not be loaded.")
                         }
                         Spacer()
                     }

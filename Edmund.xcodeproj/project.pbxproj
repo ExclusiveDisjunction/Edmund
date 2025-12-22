@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD4DFB242EF8E14800A4661A /* Help in Resources */ = {isa = PBXBuildFile; fileRef = DD4DFB232EF8E14800A4661A /* Help */; };
 		DDAB7BE62EE939B40081776B /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = DDAB7BE52EE939B40081776B /* MarkdownUI */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +32,7 @@
 		DD4DA9CF2EE4B0D900804A36 /* Edmund.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edmund.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4DA9E12EE4B0DA00804A36 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD4DFB232EF8E14800A4661A /* Help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Help; sourceTree = "<group>"; };
 		DDEC5C4C2EE68A0F00A2F89D /* Edmund.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Edmund.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -38,13 +40,37 @@
 		DD4DA9FE2EE4B0E600804A36 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AppLoader.swift,
 				ContentView.swift,
 				Models/ChildrenUpdater.swift,
 				Persistence.swift,
-				Views/About.swift,
+				Resources/Logos/Edmund.icon,
+				"Resources/Logos/iOS-Dark.png",
+				"Resources/Logos/iOS-Default.png",
+				"Resources/Logos/iOS-Tinted.png",
+				"Resources/Logos/mac-16.png",
+				"Resources/Logos/mac-32.png",
+				"Resources/Logos/mac-64.png",
+				"Resources/Logos/mac-128.png",
+				"Resources/Logos/mac-256.png",
+				"Resources/Logos/mac-512.png",
+				"Resources/Logos/mac-1024.png",
+				Resources/Logos/Old/iOSDarkLogo1024.png,
+				Resources/Logos/Old/iOSLogo1024.png,
+				Resources/Logos/Old/iOSTintedLogo1024.png,
+				Resources/Logos/Old/JustE.png,
+				Resources/Logos/Old/Logo16.png,
+				Resources/Logos/Old/Logo32.png,
+				Resources/Logos/Old/Logo64.png,
+				Resources/Logos/Old/Logo128.png,
+				Resources/Logos/Old/Logo256.png,
+				Resources/Logos/Old/Logo512.png,
+				Resources/Logos/Old/Logo1024.png,
+				"Resources/Logos/SVG/Just E.svg",
+				"Resources/Logos/SVG/Logo iOS-Dark.svg",
+				"Resources/Logos/SVG/Logo iOS-Tinted.svg",
+				"Resources/Logos/SVG/Logo iOS.svg",
+				Resources/Logos/SVG/Logo.svg,
 				Views/AltRowView.swift,
-				Views/AppErrorView.swift,
 				Views/Bills/AllBillsViewEdit.swift,
 				Views/Bills/AllExpiredBillsVE.swift,
 				Views/Bills/BillEdit.swift,
@@ -78,6 +104,13 @@
 				Views/Element/InspectEditTitle.swift,
 				Views/Element/UndoWrappers.swift,
 				Views/GeneralCommands.swift,
+				Views/Homepage/ChoiceRenderer.swift,
+				Views/Homepage/Homepage.swift,
+				Views/Homepage/SplitChoiceRenderer.swift,
+				Views/Homepage/Widgets/MoneyGraph.swift,
+				Views/Homepage/Widgets/SimpleBalancesView.swift,
+				Views/Homepage/Widgets/SpendingGraph.swift,
+				Views/Homepage/Widgets/UpcomingBillsView.swift,
 				Views/Income/AnyDevotionCloseLook.swift,
 				Views/Income/AnyDevotionSnapshotCloseLook.swift,
 				Views/Income/DevotionGroupsGraph.swift,
@@ -172,11 +205,6 @@
 			path = EdmundUITests;
 			sourceTree = "<group>";
 		};
-		DD4DABE72EE4B1A300804A36 /* Help */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Help;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,12 +236,12 @@
 		DD4DA9C62EE4B0D900804A36 = {
 			isa = PBXGroup;
 			children = (
+				DD4DFB232EF8E14800A4661A /* Help */,
 				DDEC5C4C2EE68A0F00A2F89D /* Edmund.xctestplan */,
 				DD4DA9D12EE4B0D900804A36 /* Edmund */,
 				DD4DA9E42EE4B0DA00804A36 /* EdmundTests */,
 				DD4DA9EE2EE4B0DA00804A36 /* EdmundUITests */,
 				DD4DA9D02EE4B0D900804A36 /* Products */,
-				DD4DABE72EE4B1A300804A36 /* Help */,
 				DDAB7BE42EE939B40081776B /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -252,7 +280,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DD4DA9D12EE4B0D900804A36 /* Edmund */,
-				DD4DABE72EE4B1A300804A36 /* Help */,
 			);
 			name = Edmund;
 			packageProductDependencies = (
@@ -316,7 +343,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2610;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					DD4DA9CE2EE4B0D900804A36 = {
 						CreatedOnToolsVersion = 26.1.1;
@@ -361,6 +388,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD4DFB242EF8E14800A4661A /* Help in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +480,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -475,6 +504,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -514,6 +544,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -530,6 +561,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -541,6 +573,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -598,6 +631,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -655,6 +689,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -684,6 +719,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -710,6 +746,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -735,6 +772,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8QF4NKZP3V;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;

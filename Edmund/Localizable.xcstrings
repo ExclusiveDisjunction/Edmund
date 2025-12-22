@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "/" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -24,6 +27,9 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "A sub-topic could not be loaded. Here are the errors:" : {
+
     },
     "Account" : {
       "extractionState" : "manual",
@@ -60,7 +66,6 @@
       }
     },
     "Accounts" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -128,7 +133,6 @@
       }
     },
     "App Theme" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -145,7 +149,6 @@
       }
     },
     "Appearance" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -178,6 +181,9 @@
         }
       }
     },
+    "Auditor" : {
+
+    },
     "Balance" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -196,7 +202,6 @@
       }
     },
     "Balance Sheet" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -211,6 +216,15 @@
           }
         }
       }
+    },
+    "Balances" : {
+
+    },
+    "Balances Graph" : {
+
+    },
+    "Bi-Monthly" : {
+
     },
     "Bi-Weekly" : {
 
@@ -265,6 +279,12 @@
         }
       }
     },
+    "Bills & Budget" : {
+
+    },
+    "Bottom Section" : {
+
+    },
     "Budget" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -283,7 +303,6 @@
       }
     },
     "Budgeting Period" : {
-      "extractionState" : "stale",
       "localizations" : {
         "pl" : {
           "stringUnit" : {
@@ -294,7 +313,6 @@
       }
     },
     "budgetingPeriodDesc" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -303,6 +321,12 @@
           }
         }
       }
+    },
+    "Bug? Feature Request? Concerns?" : {
+
+    },
+    "Build %@" : {
+
     },
     "Cancel" : {
       "extractionState" : "manual",
@@ -325,7 +349,6 @@
 
     },
     "Categories" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -381,6 +404,9 @@
         }
       }
     },
+    "Compact" : {
+
+    },
     "Credit" : {
       "localizations" : {
         "de" : {
@@ -407,6 +433,9 @@
           }
         }
       }
+    },
+    "Currency" : {
+
     },
     "Current Balance" : {
       "extractionState" : "stale",
@@ -498,6 +527,15 @@
         }
       }
     },
+    "Disclosures" : {
+
+    },
+    "Display the homepage as one widget" : {
+
+    },
+    "Display the homepage as two widgets" : {
+
+    },
     "Donation" : {
 
     },
@@ -519,7 +557,6 @@
       }
     },
     "Edmund" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -535,6 +572,24 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "Edmund could not find that topic." : {
+
+    },
+    "Edmund expected a group of topics, but got a single topic instead." : {
+
+    },
+    "Edmund expected a single topic, but got a group of topics instead." : {
+
+    },
+    "Edmund has hit a snag while loading, and cannot access your data." : {
+
+    },
+    "Edmund Help" : {
+
+    },
+    "Edmund was not able to obtain the guide's contents." : {
+
     },
     "Error" : {
       "comment" : "Used as the title of a message explaining what went wrong.",
@@ -554,6 +609,15 @@
         }
       }
     },
+    "Error description: %@" : {
+
+    },
+    "Error Kind:" : {
+
+    },
+    "Error Message:" : {
+
+    },
     "Expand All" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -570,6 +634,9 @@
           }
         }
       }
+    },
+    "Expired Bills" : {
+
     },
     "Frequency" : {
       "extractionState" : "manual",
@@ -588,6 +655,9 @@
         }
       }
     },
+    "Full Screen" : {
+
+    },
     "futureRelease" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -599,7 +669,16 @@
         }
       }
     },
+    "General" : {
+
+    },
     "Gift" : {
+
+    },
+    "Group" : {
+
+    },
+    "Groups" : {
 
     },
     "Half Year" : {
@@ -670,6 +749,27 @@
         }
       }
     },
+    "Homepage" : {
+
+    },
+    "Homepage Organizer" : {
+
+    },
+    "Horizontal Split" : {
+
+    },
+    "https://github.com/ExclusiveDisjunction/Edmund" : {
+
+    },
+    "https://github.com/swiftlang/swift-markdown" : {
+
+    },
+    "If this is a common or persistent issue, please report it." : {
+
+    },
+    "Income Divider" : {
+
+    },
     "Inspect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -697,6 +797,15 @@
         }
       }
     },
+    "iOS & iPadOS (vertical orientations) only display in Compact mode." : {
+
+    },
+    "James Larson" : {
+
+    },
+    "Jobs" : {
+
+    },
     "Kind" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -713,6 +822,9 @@
           }
         }
       }
+    },
+    "Kyle Lawrence" : {
+
     },
     "Ledger" : {
       "extractionState" : "manual",
@@ -731,6 +843,12 @@
         }
       }
     },
+    "Left Side" : {
+
+    },
+    "Loading" : {
+
+    },
     "Location" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -747,6 +865,9 @@
           }
         }
       }
+    },
+    "Maks Kruc" : {
+
     },
     "Many-to-Many" : {
       "extractionState" : "stale",
@@ -798,6 +919,9 @@
           }
         }
       }
+    },
+    "Miscellaneous" : {
+
     },
     "Month" : {
       "extractionState" : "manual",
@@ -851,7 +975,6 @@
       }
     },
     "noItems" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -861,8 +984,10 @@
         }
       }
     },
+    "None" : {
+
+    },
     "Ok" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -879,6 +1004,9 @@
       }
     },
     "One or more fields has invalid input." : {
+
+    },
+    "One Section" : {
 
     },
     "One-to-Many" : {
@@ -914,6 +1042,9 @@
           }
         }
       }
+    },
+    "Oops!" : {
+
     },
     "Open in new Window" : {
       "extractionState" : "manual",
@@ -981,8 +1112,28 @@
     "Please ensure all fields are not too small." : {
 
     },
+    "Please finish editing & save to change the page" : {
+
+    },
+    "Please report any translation errors." : {
+
+    },
+    "Please report this issue." : {
+
+    },
+    "Please submit an issue on GitHub, or contact the developer at exdisj@icloud.com" : {
+
+    },
+    "Please visit the project on GitHub:" : {
+
+    },
+    "Please wait while Edmund loads" : {
+
+    },
+    "Prefer Transaction Window" : {
+
+    },
     "preferTransactionWindowDesc" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1043,6 +1194,9 @@
         }
       }
     },
+    "Quarterly" : {
+
+    },
     "Refresh" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1059,6 +1213,15 @@
           }
         }
       }
+    },
+    "Report Issue" : {
+
+    },
+    "Right Side" : {
+
+    },
+    "Ruth Brito" : {
+
     },
     "Save" : {
       "extractionState" : "stale",
@@ -1078,6 +1241,9 @@
       }
     },
     "Savings" : {
+
+    },
+    "Semi-Anually" : {
 
     },
     "Settings" : {
@@ -1113,6 +1279,24 @@
           }
         }
       }
+    },
+    "Show Ledger Footer" : {
+
+    },
+    "Sorry, but it looks like that topic or group could not be loaded." : {
+
+    },
+    "Special Thanks To:" : {
+
+    },
+    "Spending Graph" : {
+
+    },
+    "Split the homepage horizontally" : {
+
+    },
+    "Split the homepage vertically" : {
+
     },
     "Sub Account" : {
       "extractionState" : "manual",
@@ -1168,11 +1352,34 @@
     "Subscription Payment" : {
 
     },
+    "Supporting Projects" : {
+
+    },
+    "Swift-Markdown-UI" : {
+
+    },
+    "The app's model container could not be loaded." : {
+
+    },
+    "The categories context cannot be loaded." : {
+
+    },
     "The current element is not unique." : {
 
     },
+    "The help system is not done loading. Please wait, and refresh." : {
+
+    },
+    "This app is not translated with professional translators." : {
+
+    },
+    "This app is released as open source, but only the developer, Hollan Sellars, is authorized to publish it." : {
+
+    },
+    "This is not an issue caused by you, but the developer." : {
+
+    },
     "tooManyItems" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1181,6 +1388,15 @@
           }
         }
       }
+    },
+    "Top Section" : {
+
+    },
+    "Topic" : {
+
+    },
+    "Topics" : {
+
     },
     "Total:" : {
       "extractionState" : "stale",
@@ -1230,6 +1446,9 @@
         }
       }
     },
+    "Two Sections" : {
+
+    },
     "Two Weeks" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1246,6 +1465,15 @@
           }
         }
       }
+    },
+    "Upcoming Bills" : {
+
+    },
+    "Use the space for only one widget" : {
+
+    },
+    "Use the space for two widgets" : {
+
     },
     "Utility" : {
       "extractionState" : "manual",
@@ -1283,6 +1511,12 @@
           }
         }
       }
+    },
+    "Version %@" : {
+
+    },
+    "Vertical Split" : {
+
     },
     "Want" : {
 
@@ -1341,7 +1575,13 @@
         }
       }
     },
-    "Work in progress" : {
+    "Wipe All Data" : {
+
+    },
+    "Work in Progres" : {
+
+    },
+    "Written by Hollan Sellars (ExDisj)" : {
 
     },
     "Year" : {

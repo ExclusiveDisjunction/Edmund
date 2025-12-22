@@ -63,7 +63,7 @@ public struct LoadedHelpGroup : HelpResourceCore, Identifiable, Sendable {
 }
 
 /// Either a `TopicRequest` or a `LoadedHelpGroup` instance for presenting on the UI.
-public enum LoadedHelpResource : Parentable, HelpResourceCore, Sendable, Identifiable {
+public enum LoadedHelpResource : HelpResourceCore, Sendable, Identifiable {
     case topic(LoadedHelpTopic)
     case group(LoadedHelpGroup)
     
