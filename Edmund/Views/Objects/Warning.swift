@@ -42,6 +42,10 @@ public struct StringWarning: Identifiable, WarningBasis {
     public var id: UUID ;
 }
 
+public struct InternalErrorWarning : WarningBasis {
+    public var message: LocalizedStringKey { "internalError" }
+}
+
 /// An observable class that provides warning funcntionality. It includes a memeber, `isPresented`, which can be bound. This value will become `true` when the internal `warning` is not `nil`.
 @Observable
 public class WarningManifest<T> where T: WarningBasis {
@@ -65,4 +69,31 @@ public class WarningManifest<T> where T: WarningBasis {
 public typealias SelectionWarningManifest = WarningManifest<SelectionWarningKind>;
 /// A specalized version of `BaseWarningManifest<T>` that works for `WarningMessage` values.
 public typealias StringWarningManifest = WarningManifest<StringWarning>
-public typealias ValidationWarningManifest = WarningManifest<ValidationFailure>
+public typealias ValidationWarningManifest = WarningManifest<ValidationFailure>;
+public typealias InternalWarningManifest = WarningManifest<InternalErrorWarning>;
+
+public struct WarningManifestExtension<T> : ViewModifier where T: WarningBasis {
+    public init(from: WarningManifest<T>) {
+        self.from = from;
+    }
+    
+    @Bindable private var from: WarningManifest<T>;
+    
+    public func body(content: Content) -> some View {
+        content
+            .alert("Error", isPresented: $from.isPresented) {
+                Button("Ok") {
+                    from.isPresented = false
+                }
+            } message: {
+                Text(from.warning?.message ?? "internalError")
+            }
+    }
+}
+
+extension View {
+    public func withWarning<T>(_ manifest: WarningManifest<T>) -> some View
+    where T: WarningBasis {
+        self.modifier(WarningManifestExtension(from: manifest))
+    }
+}

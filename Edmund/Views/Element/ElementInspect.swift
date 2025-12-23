@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 /// A high level abstraction over element inspection. If `T` is an `InspectableElement`, then it will load the inspector view, and handle the layout/closing actions for the process.
 public struct ElementInspector<T> : View where T: InspectableElement, T: TypeTitled {
@@ -19,7 +18,7 @@ public struct ElementInspector<T> : View where T: InspectableElement, T: TypeTit
     
     public var body: some View {
         VStack {
-            InspectEditTitle<T>()
+            TypeTitleVisualizer<T>(\.inspect)
             
             Divider()
             

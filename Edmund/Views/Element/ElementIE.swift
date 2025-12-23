@@ -6,8 +6,9 @@
 //
 
 import SwiftUI;
-import SwiftData;
+import os
 
+/*
 /// A wrapper around editing for a specific data type. It stores a hash (to know that a change took place), and the actual snapshot itself.
 private class EditingManifest<T> : ObservableObject where T: EditableElement {
     init(_ editing: T.Snapshot?) {
@@ -27,7 +28,158 @@ private class EditingManifest<T> : ObservableObject where T: EditableElement {
         self.hash = 0;
     }
 }
+ */
 
+public struct ElementIE<T> : View where T: InspectableElement & EditableElement & NSManagedObject & TypeTitled {
+    
+    /// Constructs the view in add mode, using a function to create a default value.
+    ///  - Parameters:
+    ///     - addingTo: The `NSPersistentContainer` to add to.
+    ///     - filling: A closure that creates a default value of `T`, after creation.
+    ///     - postAction: An optional closure to run after a successful save/dismissal is completed.
+    ///
+    /// Unlike ``ElementAddManifest``, this does not allow for a throwing `filling` function. If you must have a throwing function, create the manifest on your own, and use ``init(adding:postAction:)``.
+    ///
+    /// By default, this locks the user from switching mode to inspection.
+    public init(
+        addingTo: NSPersistentContainer = DataStack.shared.currentContainer,
+        filling: @MainActor (T) -> Void,
+        postAction: (() -> Void)? = nil
+    ) {
+        self.state = ElementSelectionMode.newAdd(using: addingTo, filling: filling)
+        self.canChangeState = false;
+        self.postAction = postAction;
+        self.source = addingTo;
+    }
+    /// Constructs the view in add mode, using a pre-created manifest.
+    /// - Parameters:
+    ///     - adding: The pre-created manifest to source information from.
+    ///     - postAction: An optional closure to run after a successful save/dismissal is completed.
+    ///
+    ///  By default, this locks the user from switching mode to inspection.
+    public init(
+        adding: ElementAddManifest<T>,
+        postAction: (() -> Void)? = nil
+    ) {
+        self.state = .add(adding)
+        self.canChangeState = false;
+        self.postAction = postAction;
+        self.source = adding.container;
+    }
+    public init(
+        editingFrom: NSPersistentContainer = DataStack.shared.currentContainer,
+        editing: T,
+        postAction: (() -> Void)? = nil
+    ) {
+        self.state = ElementSelectionMode.newEdit(using: editingFrom, from: editing)
+        self.canChangeState = true;
+        self.postAction = postAction;
+        self.source = editingFrom;
+    }
+    public init(
+        edit: ElementEditManifest<T>,
+        postAction: (() -> Void)? = nil
+    ) {
+        self.state = .edit(edit)
+        self.canChangeState = true;
+        self.postAction = postAction;
+        self.source = edit.container;
+    }
+    public init(
+        viewingFrom: NSPersistentContainer = DataStack.shared.currentContainer,
+        viewing: T,
+        postAction: (() -> Void)? = nil
+    ) {
+        self.state = .inspect(viewing)
+        self.canChangeState = true;
+        self.postAction = postAction;
+        self.source = viewingFrom;
+    }
+    
+    @State private var state: ElementSelectionMode<T>;
+    @State private var warningConfirm: Bool = false;
+    
+    @Environment(\.dismiss) private var dismiss;
+    @Environment(\.loggerSystem) private var loggerSystem;
+    
+    private var otherErrors: InternalWarningManifest = .init();
+    private var validationError: ValidationWarningManifest = .init();
+    
+    private let canChangeState: Bool;
+    private let postAction: (() -> Void)?;
+    private let source: NSPersistentContainer;
+    
+    private var isEdit: Bool {
+        switch self.state {
+            case .add(_): true
+            case .edit(_): true
+            case .inspect(_): false
+        }
+    }
+    private func submit(dismissOnCompletion: Bool = true) {
+        do {
+            switch self.state {
+                case .add(let v): try v.save()
+                case .edit(let v): try v.save()
+                case .inspect(_):
+            }
+            
+            if dismissOnCompletion {
+                dismiss();
+            }
+            if let post = postAction {
+                post()
+            }
+            
+            return;
+        }
+        catch let e as ValidationFailure {
+            self.validationError.warning = e;
+            loggerSystem?.data.info("Unable to save due to non fatal validation error: \(e.localizedDescription).");
+        }
+        catch let e {
+            self.otherErrors.warning = .init();
+            loggerSystem?.data.error("Unable to save due to internal error: \(e.localizedDescription).")
+        }
+    }
+    private func cancel() {
+        switch self.state {
+            case .add(let v): v.reset()
+            case .edit(let v): v.reset()
+            case .inspect(_):
+        }
+        
+        dismiss();
+    }
+    private func switchMode() {
+        guard self.canChangeState else {
+            loggerSystem?.data.warning("This editor has been locked for the mode it was opened in, and cannot be changed.");
+            self.otherErrors.warning = .init();
+            return;
+        }
+        
+        
+    }
+    private func completeTransition() {
+        let newState: ElementSelectionMode<T> = switch self.state {
+            case .edit(let e): .inspect(e.target)
+            case .add(let e): .inspect(e.target)
+            case .inspect(let e): .edit(.init(using: self.source, from: e))
+        }
+        
+        self.state = newState;
+    }
+    
+    public var body: some View {
+        VStack {
+            
+        }.padding()
+            .withWarning(otherErrors)
+            .withWarning(validationError)
+    }
+}
+
+/*
 /// A high level view that allows for switching between editing and inspecting
 public struct ElementIE<T> : View where T: InspectableElement, T: EditableElement, T: PersistentModel, T: TypeTitled, T.ID: Sendable {
     /// Opens the editor with a specific mode.
@@ -228,10 +380,12 @@ public struct ElementIE<T> : View where T: InspectableElement, T: EditableElemen
             })
     }
 }
+ */
 
 
-#Preview {
-    DebugContainerView {
-        ElementIE(Account.exampleAccount, mode: .inspect)
-    }
-}
+/*
+ #Preview(traits: .sampleData) {
+ 
+ ElementIE(Account.exampleAccount, mode: .inspect)
+ }
+ */
