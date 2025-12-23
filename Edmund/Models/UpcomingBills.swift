@@ -61,19 +61,17 @@ public struct UpcomingBillsComputation : ~Copyable {
     public static let outputName: String = "upcomingBills.json"
     
     private let data: [Bill];
-    private let forDays: Int;
     
-    public init(cx: NSManagedObjectContext, forDays: Int = 10) throws {
+    public init(cx: NSManagedObjectContext) throws {
         let predicate = Bill.fetchRequest();
         let fetch = try cx.fetch(predicate);
         
-        self.forDays = forDays
         self.data = fetch;
     }
     
-    public func determineUpcomingBills(for date: Date) -> UpcomingBillsBundle {
+    public func determineUpcomingBills(for date: Date, calendar: Calendar) -> UpcomingBillsBundle {
         let upcomings = data.compactMap {
-            if let next = $0.computeNextDueDate(relativeTo: date) {
+            if let next = $0.computeNextDueDate(relativeTo: date, calendar: calendar) {
                 UpcomingBill(name: $0.name, amount: $0.amount, dueDate: next)
             }
             else {
@@ -84,8 +82,7 @@ public struct UpcomingBillsComputation : ~Copyable {
         return .init(date: date, bills: upcomings)
     }
     
-    public consuming func process() -> [UpcomingBillsBundle] {
-        let calendar = Calendar.current;
+    public consuming func process(forDays: Int = 10, calendar: Calendar) -> [UpcomingBillsBundle] {
         let now = Date.now;
         var acc = now;
         let dates: [Date] = (0..<forDays).compactMap { _ in
@@ -99,7 +96,7 @@ public struct UpcomingBillsComputation : ~Copyable {
         }
         
         return dates.map { date in
-            determineUpcomingBills(for: date)
+            determineUpcomingBills(for: date, calendar: calendar)
         }
     }
 }

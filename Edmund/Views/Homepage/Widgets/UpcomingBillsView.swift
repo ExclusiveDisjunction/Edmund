@@ -13,19 +13,15 @@ struct UpcomingBillsView : View {
     
     @Environment(\.modelContext) private var modelContext;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @Environment(\.calendar) private var calendar: Calendar;
     
-    @MainActor
-    private func makeManager() -> UpcomingBillsWidgetManager? {
-        return try? .init(context: modelContext)
-    }
-    
-    @MainActor
-    private func loadBills() async -> [UpcomingBill] {
-        guard let manager = await MainActor.run(body: makeManager) else {
-            return []
-        }
-        
-        return manager.determineUpcomingBills(for: .now).bills
+    private nonisolated func loadBills() async throws -> [UpcomingBill] {
+        try await Task(priority: .medium) { [calendar] in
+            let cx = DataStack.shared.currentContainer.newBackgroundContext();
+            let computer = try UpcomingBillsComputation(cx: cx);
+            
+            return computer.determineUpcomingBills(for: .now, calendar: calendar).bills
+        }.value
     }
     
     var body: some View {
@@ -64,9 +60,7 @@ struct UpcomingBillsView : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        UpcomingBillsView()
-            .padding()
-    }
+#Preview(traits: .sampleData) {
+    UpcomingBillsView()
+        .padding()
 }

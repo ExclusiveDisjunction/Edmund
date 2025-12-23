@@ -96,7 +96,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     @ViewBuilder
     var view : some View {
         switch self {
-            //case .home: Homepage()
+            case .home: Homepage()
                 
             //case .ledger: LedgerTable()
             //case .balance: BalanceSheet()

@@ -10,18 +10,15 @@ import SwiftData
 import Charts
 
 struct MoneyGraph : View {
-    @Query private var accounts: [Account]
     @State private var balances: [SimpleBalance]?;
     
-    private func load() -> [SimpleBalance] {
-        BalanceResolver(accounts)
-            .computeBalances()
-            .intoSimpleBalances()
-            .filter { $0.balance > 0 }
+    private static nonisolated func load() async throws -> [SimpleBalance] {
+        try await BalanceResolver.accountSpending(using: DataStack.shared.currentContainer)
+            .filter { $0.balance.balance > 0 }
     }
     
     var body: some View {
-        LoadableView($balances, process: load) { balances in
+        LoadableView($balances, process: Self.load) { balances in
             if balances.isEmpty {
                 Text("There is not enough information to display spending.")
                     .italic()
@@ -31,7 +28,7 @@ struct MoneyGraph : View {
                     SectorMark(
                         angle: .value(
                             Text(verbatim: balance.name),
-                            balance.balance
+                            balance.balance.balance
                         )
                     ).foregroundStyle(by:
                             .value(
@@ -45,10 +42,8 @@ struct MoneyGraph : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        MoneyGraph()
-            .padding()
-            .frame(width: 200, height: 200)
-    }
+#Preview(traits: .sampleData) {
+    MoneyGraph()
+        .padding()
+        .frame(width: 200, height: 200)
 }

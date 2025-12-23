@@ -6,7 +6,6 @@
 //
 
 import SwiftUI;
-import SwiftData;
 
 struct Homepage : View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
@@ -148,10 +147,8 @@ struct Homepage : View {
 }
 
 
-#Preview {
-    DebugContainerView {
-        Homepage()
-            .frame(width: 600, height: 400)
-            .padding()
-    }
+#Preview(traits: .sampleData) {
+    Homepage()
+        .frame(width: 600, height: 400)
+        .padding()
 }

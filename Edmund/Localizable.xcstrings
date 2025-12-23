@@ -31,6 +31,9 @@
     "A sub-topic could not be loaded. Here are the errors:" : {
 
     },
+    "About" : {
+
+    },
     "Account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -114,6 +117,9 @@
           }
         }
       }
+    },
+    "An error occured and the data could not be loaded." : {
+
     },
     "Anually" : {
       "extractionState" : "manual",
@@ -448,6 +454,9 @@
         }
       }
     },
+    "Customize" : {
+
+    },
     "Date" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -537,6 +546,9 @@
 
     },
     "Donation" : {
+
+    },
+    "Due Date" : {
 
     },
     "Edit" : {
@@ -770,6 +782,9 @@
     "Income Divider" : {
 
     },
+    "Individual Spending" : {
+
+    },
     "Inspect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -940,6 +955,9 @@
         }
       }
     },
+    "Month & Year" : {
+
+    },
     "Monthly" : {
 
     },
@@ -961,6 +979,9 @@
       }
     },
     "Need" : {
+
+    },
+    "Net Spending" : {
 
     },
     "noCategories" : {
@@ -1370,6 +1391,15 @@
     "The help system is not done loading. Please wait, and refresh." : {
 
     },
+    "There are no balances to display" : {
+
+    },
+    "There is not enough information to display spending." : {
+
+    },
+    "There is not enough transactions to show spending." : {
+
+    },
     "This app is not translated with professional translators." : {
 
     },
@@ -1574,6 +1604,9 @@
           }
         }
       }
+    },
+    "Whoops!" : {
+
     },
     "Wipe All Data" : {
 

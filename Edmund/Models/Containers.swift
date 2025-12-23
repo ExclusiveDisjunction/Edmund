@@ -19,12 +19,18 @@ public protocol ContainerDataFiller {
 }
 
 public struct DebugContainerFiller : ContainerDataFiller {
-    public func fill(context: NSManagedObjectContext) {
+    public func fill(context: NSManagedObjectContext) throws {
         Envolope.examples(cx: context);
         Account.exampleAccounts(cx: context);
         Category.examples(cx: context);
         Bill.examples(cx: context);
         TraditionalJob.examples(cx: context);
+        
+        var acc = try AccountLocator(fetch: context);
+        let catValues = try context.fetch(Category.fetchRequest());
+        var cat = try ElementLocator(data: catValues);
+        
+        LedgerEntry.examples(acc: &acc, cat: &cat, cx: context)
     }
 }
  
@@ -130,6 +136,14 @@ public class DataStack : ObservableObject, @unchecked Sendable {
     
     private var _persistentContainer: NSPersistentContainer? = nil;
     private var _debugContainer: NSPersistentContainer? = nil;
+    
+    public var currentContainer: NSPersistentContainer {
+        #if DEBUG
+        self.debugContainer
+        #else
+        self.persistentContainer
+        #endif
+    }
 
     public var persistentContainer: NSPersistentContainer {
         get {
@@ -174,7 +188,7 @@ public class DataStack : ObservableObject, @unchecked Sendable {
                 container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
                 
                 do {
-                    DebugContainerFiller().fill(context: container.viewContext)
+                    try DebugContainerFiller().fill(context: container.viewContext)
                     try container.viewContext.save();
                 } catch let e {
                     fatalError("Unable to fill the debug container: \(e)")

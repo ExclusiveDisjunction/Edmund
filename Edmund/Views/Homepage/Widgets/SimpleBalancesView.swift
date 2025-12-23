@@ -6,21 +6,17 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct SimpleBalancesView : View {
-    @Query private var accounts: [Account];
     @State private var loadedBalances: [SimpleBalance]? = nil;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    private func loadBalances() -> [SimpleBalance] {
-        BalanceResolver(accounts)
-            .computeBalances()
-            .intoSimpleBalances()
+    private static nonisolated func loadBalances() async throws -> [SimpleBalance] {
+        try await BalanceResolver.accountSpending(using: DataStack.shared.currentContainer)
     }
     
     var body: some View {
-        LoadableView($loadedBalances, process: loadBalances) { balances in
+        LoadableView($loadedBalances, process: Self.loadBalances) { balances in
             if balances.isEmpty {
                 Text("There are no balances to display")
                     .italic()
@@ -30,8 +26,8 @@ struct SimpleBalancesView : View {
                     HStack {
                         Text(account.name)
                         Spacer()
-                        Text(account.balance, format: .currency(code: currencyCode))
-                            .foregroundStyle(account.balance < 0 ? .red : .primary)
+                        Text(account.balance.balance, format: .currency(code: currencyCode))
+                            .foregroundStyle(account.balance.balance < 0 ? .red : .primary)
                     }
                 }
             }
@@ -39,10 +35,8 @@ struct SimpleBalancesView : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        SimpleBalancesView()
-            .padding()
-            .frame(width: 300, height: 200)
-    }
+#Preview(traits: .sampleData) {
+    SimpleBalancesView()
+        .padding()
+        .frame(width: 300, height: 200)
 }

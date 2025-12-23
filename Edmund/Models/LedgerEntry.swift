@@ -78,8 +78,7 @@ extension LedgerEntry : VoidableElement, NamedElement {
     
     /// Builds a list of ledger entries over some accounts and categories. It expects specific ones to exist, and may cause a crash if they dont.
     /// This is intended for internal use.
-    @MainActor
-    public static func exampleEntries(acc: inout AccountLocator, cat: inout ElementLocator<Category>, cx: NSManagedObjectContext) {
+    public static func examples(acc: inout AccountLocator, cat: inout ElementLocator<Category>, cx: NSManagedObjectContext) {
         let transferCat = cat.getOrInsert(name: "Transfers", cx: cx);
         let auditCat = cat.getOrInsert(name: "Adjustments", cx: cx);
         let personalCat = cat.getOrInsert(name: "Personal", cx: cx);
@@ -118,6 +117,8 @@ extension LedgerEntry : VoidableElement, NamedElement {
             entry.location = location
             entry.category = cat
             entry.envolope = acc;
+            entry.addedOn = .now;
+            entry.date = .now;
         }
     }
 }

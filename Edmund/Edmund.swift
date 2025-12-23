@@ -145,6 +145,7 @@ struct EdmundApp: App {
                 TransactionsEditor(kind: kind.wrappedValue ?? .simple)
             }
         }
+         */
         
 #if os(macOS)
         Window("About", id: "about") {
@@ -164,6 +165,5 @@ struct EdmundApp: App {
                 .environment(\.helpEngine, help)
                 .preferredColorScheme(colorScheme)
         }
-         */
     }
 }

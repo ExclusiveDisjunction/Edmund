@@ -40,9 +40,7 @@
 		DD4DA9FE2EE4B0E600804A36 /* Exceptions for "Edmund" folder in "Edmund" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				ContentView.swift,
 				Models/ChildrenUpdater.swift,
-				Persistence.swift,
 				Resources/Logos/Edmund.icon,
 				"Resources/Logos/iOS-Dark.png",
 				"Resources/Logos/iOS-Default.png",
@@ -159,9 +157,6 @@
 				Views/Organization/Categories/CategoryEdit.swift,
 				Views/Organization/Categories/CategoryInspect.swift,
 				Views/Organization/Categories/CategoryTableRow.swift,
-				Widgets/Provider.swift,
-				Widgets/UpcomingBills.swift,
-				Widgets/WidgetDataBundle.swift,
 			);
 			target = DD4DA9CE2EE4B0D900804A36 /* Edmund */;
 		};

@@ -6,23 +6,20 @@
 //
 
 import SwiftUI
-import SwiftData
 import Charts
 
 struct SpendingComputation: Identifiable, Sendable {
-    init(_ monthYear: MonthYear, _ data: [LedgerEntry], id: UUID = UUID()) {
+    init(_ monthYear: MonthYear, balance: BalanceInformation, calendar: Calendar, id: UUID = UUID()) {
         self.monthYear = monthYear
         self.id = id
-        self.balance = data.reduce(BalanceInformation(), { acc, trans in
-            acc + BalanceInformation(credit: trans.credit, debit: trans.debit)
-        })
+        self.balance = balance;
         
         let dateFormatter = DateFormatter()
         dateFormatter.calendar = .current
         dateFormatter.locale = .current
         dateFormatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
         
-        if let date = Calendar.current.date(from: DateComponents(year: monthYear.year, month: monthYear.month)) {
+        if let date = calendar.date(from: DateComponents(year: monthYear.year, month: monthYear.month)) {
             label = dateFormatter.string(from: date)
         }
         else {
@@ -50,23 +47,26 @@ enum SpendingGraphMode: Int, Identifiable, CaseIterable, Sendable {
 }
 
 struct SpendingGraph : View {
-    @Query private var entries: [LedgerEntry];
     @State private var resolved: [SpendingComputation]? = nil;
     
     @AppStorage("spendingGraphShowingLast") private var showingLast: Int = 10;
     @AppStorage("spendingGraphMode") private var spendingGraphMode: SpendingGraphMode = .net;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
+    @Environment(\.calendar) private var calendar;
     
-    private func load() -> [SpendingComputation] {
-        let split = TransactionResolver(entries).splitByMonth()
-        return Array(
-            split
-                .map {
-                    SpendingComputation($0.key, $0.value)
-                }
-                .sorted(using: KeyPathComparator(\.monthYear, order: .forward))
-                .prefix(showingLast)
-        )
+    private func load() async throws -> [SpendingComputation] {
+        let split = try await BalanceResolver.splitTransactionsByMonth(using: DataStack.shared.currentContainer, calendar: calendar)
+        
+        return await Task(priority: .medium) {
+            return Array(
+                split
+                    .map {
+                        SpendingComputation($0.key, balance: $0.value, calendar: calendar)
+                    }
+                    .sorted(using: KeyPathComparator(\.monthYear, order: .forward))
+                    .prefix(showingLast)
+            )
+        }.value
     }
     
     var body: some View {
@@ -86,20 +86,20 @@ struct SpendingGraph : View {
                 Chart(resolved) { pair in
                     if spendingGraphMode == .net {
                         BarMark(
-                            x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                            x: .value(Text(verbatim: pair.label), pair.monthYear.start(calendar: calendar) ?? Date.distantFuture, unit: .month),
                             y: .value(Text(pair.balance.balance, format: .currency(code: currencyCode)), pair.balance.balance)
                         )
                         .foregroundStyle(pair.balance.balance < 0 ? .red : .green)
                     }
                     else {
                         BarMark(
-                            x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                            x: .value(Text(verbatim: pair.label), pair.monthYear.start(calendar: calendar) ?? Date.distantFuture, unit: .month),
                             y: .value(Text(pair.balance.credit, format: .currency(code: currencyCode)), pair.balance.credit)
                         )
                         .foregroundStyle(.green)
                         
                         BarMark(
-                            x: .value(Text(verbatim: pair.label), pair.monthYear.asDate ?? Date.distantFuture, unit: .month),
+                            x: .value(Text(verbatim: pair.label), pair.monthYear.start(calendar: calendar) ?? Date.distantFuture, unit: .month),
                             y: .value(Text(-pair.balance.debit, format: .currency(code: currencyCode)), -pair.balance.debit)
                         )
                         .foregroundStyle(.red)
@@ -110,10 +110,8 @@ struct SpendingGraph : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        SpendingGraph()
-            .padding()
-            .frame(width: 500)
-    }
+#Preview(traits: .sampleData) {
+    SpendingGraph()
+        .padding()
+        .frame(width: 500)
 }

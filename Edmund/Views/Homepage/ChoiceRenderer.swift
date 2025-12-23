@@ -35,9 +35,7 @@ struct ChoiceRenderer : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        ChoiceRenderer(choice: .simpleBalances)
-            .padding()
-    }
+#Preview(traits: .sampleData) {
+    ChoiceRenderer(choice: .simpleBalances)
+        .padding()
 }

@@ -75,8 +75,8 @@ extension Bill : NamedElement {
         get { self.internalStartDate ?? .distantPast }
         set { self.internalStartDate = newValue }
     }
-    func computeNextDueDate(relativeTo: Date = .now) -> Date? {
-        var walker = TimePeriodWalker(start: self.startDate, end: self.endDate, period: self.period, calendar: .current)
+    func computeNextDueDate(relativeTo: Date = .now, calendar: Calendar) -> Date? {
+        var walker = TimePeriodWalker(start: self.startDate, end: self.endDate, period: self.period, calendar: calendar)
         return walker.walkToDate(relativeTo: relativeTo)
     }
     /// When true, the `endDate` exists, and it is in the past.
@@ -88,7 +88,7 @@ extension Bill : NamedElement {
             false
         }
     }
-    public var nextDueDate: Date? {
+    public func nextDueDate(calendar: Calendar) -> Date? {
         var hasher = Hasher()
         hasher.combine(startDate)
         hasher.combine(endDate)
@@ -102,7 +102,7 @@ extension Bill : NamedElement {
             return nextDueDate
         }
         else {
-            let result = self.computeNextDueDate()
+            let result = self.computeNextDueDate(calendar: calendar)
             internalNextDueDate = result;
             return result;
         }
