@@ -142,3 +142,30 @@ public struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T
         }
     }
 }
+
+public struct DeleteConfirmModifier<T> : ViewModifier where T: Identifiable & NSManagedObject {
+    public init(manifest: DeletingManifest<T>, post: (() -> Void)? = nil) {
+        self.manifest = manifest;
+    }
+    
+    @Bindable private var manifest: DeletingManifest<T>;
+    private let post: (() -> Void)?;
+    
+    public func body(content: Content) -> some View {
+        content
+            .confirmationDialog(
+                "deleteItemsConfirm",
+                isPresented: $manifest.isDeleting,
+                titleVisibility: .visible
+            ) {
+                DeletingActionConfirm(manifest, post: post)
+            }
+    }
+}
+
+extension View {
+    public func withDeleting<T>(manifest: DeletingManifest<T>, post: (() -> Void)? = nil) -> some View
+    where T: Identifiable & NSManagedObject {
+        self.modifier(DeleteConfirmModifier<T>(manifest: manifest, post: post))
+    }
+}
