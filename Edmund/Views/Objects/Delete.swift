@@ -42,18 +42,22 @@ public class DeletingManifest<T> where T: Identifiable {
         }
     }
     
-    /// Removes all elements in `on` that are in `selection`, showing a warning if a failure occurs.
-    public final func deleteSelected(_ selection: Set<T.ID>, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
-        guard !selection.isEmpty else { warning.warning = .noneSelected; return }
+    public func delete<W>(_ context: W, warning: SelectionWarningManifest) where T: Identifiable, W: SelectionContextProtocol, W.Element == T {
+        let selection = context.selectedItems;
+        guard !selection.isEmpty else {
+            warning.warning = .noneSelected;
+            return
+        }
         
-        let targets = on.filter { selection.contains($0.id) }
-        guard !targets.isEmpty else { warning.warning = .noneSelected; return }
-        
-        self.action = targets
+        self.action = selection
     }
-    /// Removes one element from `on` that matches the id `selection`, showing a warning if a failure occurs.
-    public final func deleteSelected(_ selection: T.ID, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
-        deleteSelected([selection], on: on, warning: warning)
+    public func delete<C>(from: C, id: T.ID, warning: SelectionWarningManifest) where T: Identifiable, C: Collection, C.Element == T {
+        guard let target = from.first(where: { $0.id == id }) else {
+            warning.warning = .noneSelected;
+            return;
+        }
+        
+        self.action = [target];
     }
 }
 
@@ -109,7 +113,7 @@ public struct DeletingActionConfirm<T>: View where T: NSManagedObject & Identifi
 }
 
 /// A toolbar button that can be used to signal the deleting of objects over a `DeletingManifest<T>` and `WarningManifest`.
-public struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T: Identifiable {
+public struct ElementDeleteButton<W> : CustomizableToolbarContent where W: SelectionContextProtocol {
     /// Constructs the toolbar with the needed abstraction information.
     /// - Parameters:
     ///     - on: The source of truth list of data that can be deleted.
@@ -117,26 +121,24 @@ public struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T
     ///     - delete: The `DeletingManifest<T>` used to signal the intent to remove elements.
     ///     - warning: The warning manifest used to signal mistakes.
     ///     - placement: A customization of where the delete button should go.
-    public init(on: [T], selection: Binding<Set<T.ID>>, delete: DeletingManifest<T>, warning: SelectionWarningManifest, placement: ToolbarItemPlacement = .automatic) {
-        self.on = on;
-        self._selection = selection;
+    public init(context: W, delete: DeletingManifest<W.Element>, warning: SelectionWarningManifest, placement: ToolbarItemPlacement = .automatic) {
+        self.context = context
         self.delete = delete
         self.warning = warning
         self.placement = placement
     }
     
-    private let on: [T];
-    private let delete: DeletingManifest<T>;
+    private let context: W;
+    private let delete: DeletingManifest<W.Element>;
     private let warning: SelectionWarningManifest;
     private let placement: ToolbarItemPlacement;
-    @Binding private var selection: Set<T.ID>;
     
     @ToolbarContentBuilder
     public var body: some CustomizableToolbarContent {
-        ToolbarItem(id: "delete", placement: placement) {
-            Button(action: {
-                delete.deleteSelected(selection, on: on, warning: warning)
-            }) {
+        ToolbarItem(id: "elementDelete", placement: placement) {
+            Button {
+                delete.delete(context, warning: warning)
+            } label: {
                 Label("Delete", systemImage: "trash").foregroundStyle(.red)
             }
         }
@@ -146,6 +148,7 @@ public struct GeneralDeleteToolbarButton<T> : CustomizableToolbarContent where T
 public struct DeleteConfirmModifier<T> : ViewModifier where T: Identifiable & NSManagedObject {
     public init(manifest: DeletingManifest<T>, post: (() -> Void)? = nil) {
         self.manifest = manifest;
+        self.post = post;
     }
     
     @Bindable private var manifest: DeletingManifest<T>;
@@ -164,7 +167,7 @@ public struct DeleteConfirmModifier<T> : ViewModifier where T: Identifiable & NS
 }
 
 extension View {
-    public func withDeleting<T>(manifest: DeletingManifest<T>, post: (() -> Void)? = nil) -> some View
+    public func withElementDeleting<T>(manifest: DeletingManifest<T>, post: (() -> Void)? = nil) -> some View
     where T: Identifiable & NSManagedObject {
         self.modifier(DeleteConfirmModifier<T>(manifest: manifest, post: post))
     }

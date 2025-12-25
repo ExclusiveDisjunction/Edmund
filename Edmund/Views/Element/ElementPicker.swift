@@ -6,28 +6,20 @@
 //
 
 import SwiftUI
-import SwiftData
 
-public struct ElementPicker<T> : View where T: Identifiable & NamedElement & PersistentModel {
-    public init(_ target: Binding<T?>, onNil: LocalizedStringKey = "(Pick One)") {
+public struct ElementPicker<T> : View where T: Identifiable & NamedElement & NSManagedObject {
+    public init(
+        _ target: Binding<T?>,
+        withSorting: [SortDescriptor<T>] = [],
+        withPredicate: NSPredicate? = nil,
+        onNil: LocalizedStringKey = "(Pick One)"
+    ) {
         self._target = target
         self.onNil = onNil;
-        self._id = .init(initialValue: target.wrappedValue?.id)
-    }
-    public init<V>(_ target: Binding<T?>,
-                   withPredicate filter: Predicate<T>,
-                   sortOn: KeyPath<T, V>,
-                   sortOrder: SortOrder = .forward,
-                   onNil: LocalizedStringKey = "(Pick One)")
-            where V: Comparable
-    {
-        self._target = target
-        self.onNil = onNil;
-        self._id = .init(initialValue: target.wrappedValue?.id)
-        self._choices = Query(filter: filter, sort: sortOn, order: sortOrder)
+        self._choices = FetchRequest(sortDescriptors: withSorting, predicate: withPredicate)
     }
     
-    @Query private var choices: [T];
+    @FetchRequest private var choices: FetchedResults<T>;
     
     @Binding private var target: T?;
     @State private var id: T.ID?;
@@ -67,19 +59,9 @@ public struct EnumPicker<T> : View where T: CaseIterable & Identifiable & Displa
     }
 }
 
-#Preview {
-    var pair: Account? = Account.exampleAccount;
-    let bind = Binding<Account?>(
-        get: {
-            pair
-        },
-        set: {
-            pair = $0
-        }
-    );
-    
-    DebugContainerView {
-        ElementPicker(bind)
+#Preview(traits: .sampleData) {
+    @Previewable @State var bind: Account?;
+
+    ElementPicker($bind)
             .padding()
-    }
 }

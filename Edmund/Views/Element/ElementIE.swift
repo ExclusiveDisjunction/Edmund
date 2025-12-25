@@ -141,7 +141,7 @@ public struct ElementIE<T> : View where T: InspectableElement & EditableElement 
             switch self.state {
                 case .add(let v): try v.save()
                 case .edit(let v): try v.save()
-                case .inspect(_):
+                default: ()
             }
             
             if dismissOnCompletion {
@@ -168,7 +168,7 @@ public struct ElementIE<T> : View where T: InspectableElement & EditableElement 
         switch self.state {
             case .add(let v): v.reset()
             case .edit(let v): v.reset()
-            case .inspect(_):
+            case .inspect(_): ()
         }
         
         dismiss();
@@ -227,7 +227,7 @@ public struct ElementIE<T> : View where T: InspectableElement & EditableElement 
             switch self.state {
                 case .add(let m): m.reset()
                 case .edit(let m): m.reset()
-                case .inspect(_): ()
+                default: ()
             }
             
             warningConfirm = false
@@ -242,6 +242,8 @@ public struct ElementIE<T> : View where T: InspectableElement & EditableElement 
     public var body: some View {
         VStack {
             TypeTitleVisualizer<T>(modeKey)
+            
+            let (target, isEdit) = self.target;
             
             Button {
                 withAnimation {
@@ -259,8 +261,6 @@ public struct ElementIE<T> : View where T: InspectableElement & EditableElement 
 #endif
             
             Divider()
-            
-            let (target, isEdit) = self.target;
             
             if isEdit {
                 target.makeEditView()

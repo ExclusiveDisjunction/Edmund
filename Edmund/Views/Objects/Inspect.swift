@@ -52,11 +52,14 @@ public class InspectionManifest<T> {
         mode = .none;
         value = nil;
     }
+    
     /// The current mode being taken by the manifest.
     public var mode: InspectionMode;
     /// The value that is being added/edited/inspected
     public var value: T?
     
+    /// Determines if the manifest is in the edit (which includes adding) mode.
+    /// This requires that *eitherr* ``mode`` is `.add` *or* ``mode`` is `.edit` and ``value`` is not `nil`.
     public var isEditing: Bool {
         get {
             mode == .add || (self.value != nil && mode == .edit)
@@ -66,6 +69,8 @@ public class InspectionManifest<T> {
             self.mode = .none;
         }
     }
+    /// Determines if the manifest is in inspection mode.
+    /// This requires that ``value`` is not `nil`, and ``mode`` is `.inspect`.
     public var isInspecting: Bool {
         get {
             self.value != nil && mode == .inspect
@@ -75,6 +80,7 @@ public class InspectionManifest<T> {
             self.mode = .none;
         }
     }
+    /// Determines if the manifest is in edit, add, or inspect mode.
     public var isActive: Bool {
         get {
             self.value != nil || self.mode == .add
@@ -85,57 +91,119 @@ public class InspectionManifest<T> {
         }
     }
     
-    /// If the `selection` contains only one id, and it resolves to a `T` value, it will open it with the specified `mode`. Otherwise, it will omit a warning.
-    public func inspectSelected(_ selection: Set<T.ID>, mode: InspectionMode, on: [T], warning: SelectionWarningManifest) where T: Identifiable {
-        let objects = on.filter { selection.contains($0.id) }
+    public func open<W>(selection: W, editing: Bool, warning: SelectionWarningManifest) where T: Identifiable, W: SelectionContextProtocol, W.Element == T {
+        let objects = selection.selectedItems
         
         guard !objects.isEmpty else { warning.warning = .noneSelected; return }
         guard objects.count == 1 else { warning.warning = .tooMany; return }
         guard let target = objects.first else { warning.warning = .noneSelected; return }
         
-        self.open(target, mode: mode)
+        self.open(value: target, editing: editing)
     }
-    
-    /// Opens a specific element with a specified mode.
-    public func open(_ value: T, mode: InspectionMode) {
-        self.value = value
-        self.mode = mode
+    public func open(value: T, editing: Bool) {
+        self.value = value;
+        self.mode = editing ? .edit : .inspect;
+    }
+    public func openAdding() {
+        self.value = nil;
+        self.mode = .add;
     }
 }
 
-/// A general toobar item used to indicate etierh inspection or editing. Do not use this with `InspectionMode.add`, as that is undefined behavior.
-public struct GeneralIEToolbarButton<T> : CustomizableToolbarContent where T: Identifiable {
-    /// Constructs the toolbar button given the specifed context.
-    /// - Parameters:
-    ///     - on: The targeted data to be edted/inspected
-    ///     - selection: Used to pull out the editing/inspection targets when the button is pressed.
-    ///     - inspect: The `InspectionManifest<T>` used to signal to the parent view of the user's intent
-    ///     - warning: The `WarningManifest`used to singal errors to the parent view.
-    ///     - role: The kind of button this should be. This should never be `InspectionMode.add`. It will define what kind of signal this will send to the `InspectionManifest<T>`, and what the label/icon will be.
-    ///     - placement: The placement of the toolbar button.
-    public init(on: [T], selection: Binding<Set<T.ID>>, inspect: InspectionManifest<T>, warning: SelectionWarningManifest, role: InspectionMode, placement: ToolbarItemPlacement = .automatic) {
-        self.on = on;
-        self._selection = selection;
-        self.inspect = inspect
+fileprivate struct InspectionManifestToolbarButton<W> : CustomizableToolbarContent where W: SelectionContextProtocol {
+    public init(
+        context: W,
+        inspect: InspectionManifest<W.Element>,
+        warning: SelectionWarningManifest,
+        isEdit: Bool,
+        placement: ToolbarItemPlacement
+    ) {
+        self.context = context;
+        self.inspect = inspect;
         self.warning = warning;
-        self.role = role;
+        self.placement = placement
+        self.isEdit = isEdit
+    }
+    
+    private let context: W;
+    private let inspect: InspectionManifest<W.Element>;
+    private let warning: SelectionWarningManifest;
+    private let isEdit: Bool;
+    private let placement: ToolbarItemPlacement;
+    
+    @ToolbarContentBuilder
+    var body: some CustomizableToolbarContent {
+        ToolbarItem(id: isEdit ? InspectionMode.edit.id : InspectionMode.inspect.id, placement: placement) {
+            Button {
+                inspect.open(selection: context, editing: isEdit, warning: warning)
+            } label: {
+                Label(isEdit ? "Edit" : "Inspect", systemImage: isEdit ? "pencil" : "info.circle")
+            }
+        }
+    }
+}
+public struct ElementInspectButton<W> : CustomizableToolbarContent where W: SelectionContextProtocol {
+    public init(
+        context: W,
+        inspect: InspectionManifest<W.Element>,
+        warning: SelectionWarningManifest,
+        placement: ToolbarItemPlacement = .automatic
+    ) {
+        self.context = context;
+        self.inspect = inspect;
+        self.warning = warning;
         self.placement = placement
     }
     
-    private let on: [T];
-    private let inspect: InspectionManifest<T>;
+    private let context: W;
+    private let inspect: InspectionManifest<W.Element>;
     private let warning: SelectionWarningManifest;
-    private let role: InspectionMode
-    private var placement: ToolbarItemPlacement = .automatic
-    @Binding private var selection: Set<T.ID>;
+    private let placement: ToolbarItemPlacement;
     
     @ToolbarContentBuilder
     public var body: some CustomizableToolbarContent {
-        ToolbarItem(id: role.id, placement: placement) {
-            Button(action: {
-                inspect.inspectSelected(selection, mode: role, on: on, warning: warning)
-            }) {
-                Label(role.display, systemImage: role.icon)
+        InspectionManifestToolbarButton(context: context, inspect: inspect, warning: warning, isEdit: false, placement: placement)
+    }
+}
+public struct ElementEditButton<W> : CustomizableToolbarContent where W: SelectionContextProtocol {
+    public init(
+        context: W,
+        inspect: InspectionManifest<W.Element>,
+        warning: SelectionWarningManifest,
+        placement: ToolbarItemPlacement = .automatic
+    ) {
+        self.context = context;
+        self.inspect = inspect;
+        self.warning = warning;
+        self.placement = placement
+    }
+    
+    private let context: W;
+    private let inspect: InspectionManifest<W.Element>;
+    private let warning: SelectionWarningManifest;
+    private let placement: ToolbarItemPlacement;
+    
+    @ToolbarContentBuilder
+    public var body: some CustomizableToolbarContent {
+        InspectionManifestToolbarButton(context: context, inspect: inspect, warning: warning, isEdit: true, placement: placement)
+    }
+}
+public struct ElementAddButton<T> : CustomizableToolbarContent {
+    public init(inspect: InspectionManifest<T>, placement: ToolbarItemPlacement = .automatic) {
+        self.inspect = inspect;
+        self.placement = placement;
+    }
+    
+    private let inspect: InspectionManifest<T>;
+    private let placement: ToolbarItemPlacement;
+    
+    @ToolbarContentBuilder
+    public var body: some CustomizableToolbarContent {
+        ToolbarItem(id: InspectionMode.add.id, placement: placement) {
+            Button {
+                inspect.openAdding()
+            } label: {
+                Label("Add", systemImage: "plus")
             }
         }
     }
@@ -185,7 +253,10 @@ public struct WithEditorModifier<T> : ViewModifier where T: Identifiable & NSMan
 }
 public struct WithInspectorEditorModifier<T> : ViewModifier where T: Identifiable & NSManagedObject & InspectableElement & EditableElement & TypeTitled {
     public init(manifest: InspectionManifest<T>, using: NSPersistentContainer = DataStack.shared.currentContainer, filling: @MainActor @escaping (T) -> Void, post: (() -> Void)? = nil) {
-        
+        self.manifest = manifest;
+        self.using = using;
+        self.filling = filling;
+        self.post = post;
     }
     
     @Bindable private var manifest: InspectionManifest<T>;
@@ -209,14 +280,27 @@ public struct WithInspectorEditorModifier<T> : ViewModifier where T: Identifiabl
 }
 
 public extension View {
-    func withInspector<T>(
+    /// Attaches a sheet to the view that activates whenever the user marks a specific object for inspection.
+    /// - Parameters:
+    ///     - manifest: The ``InspectionManifest`` to pull information from.
+    ///
+    /// - Note: This will only activate if the inspection manifest signals it is in inspection mode. See ``InspectionManifest.isInspecting`` for more.
+    func withElementInspector<T>(
         manifest: InspectionManifest<T>
     ) -> some View
     where T: InspectableElement & TypeTitled & Identifiable & NSManagedObject {
         self.modifier(WithInspectorModifier(manifest: manifest))
     }
     
-    func withEditor<T>(
+    /// Attaches a sheet to the view that activates whenever the user marks a specific object for editing or adding.
+    /// - Parameters:
+    ///     - manifest: The ``InspectionManifest`` to pull information from.
+    ///     - using: The ``NSPersistentContainer`` to add/edit information to/from. It is undefined behavior if the information being editied comes from a different container.
+    ///     - filling: The closure to use for creating default values of `T`, if such an action occurs.
+    ///     - post: Any actions to run after a sucessful save.
+    ///
+    /// - Note: This will only activate if the inspection manifest signals it is in edit or add mode. See ``InspectionManifest.isEditing`` for more.
+    func withElementEditor<T>(
         manifest: InspectionManifest<T>,
         using: NSPersistentContainer = DataStack.shared.currentContainer,
         filling: @MainActor @escaping (T) -> Void,
@@ -226,7 +310,13 @@ public extension View {
         self.modifier(WithEditorModifier(manifest: manifest, using: using, filling: filling, post: post))
     }
     
-    func withInspectorEditor<T>(
+    /// Attaches a sheet to the view that activates whenever the user marks a specific object for inspection, adding, or editing.
+    /// - Parameters:
+    ///     - manifest: The ``InspectionManifest`` to pull information from.
+    ///     - using: The ``NSPersistentContainer`` to add/edit information to/from. It is undefined behavior if the information being editied comes from a different container.
+    ///     - filling: The closure to use for creating default values of `T`, if such an action occurs.
+    ///     - post: Any actions to run after a sucessful save.
+    func withElementIE<T>(
         manifest: InspectionManifest<T>,
         using: NSPersistentContainer = DataStack.shared.currentContainer,
         filling: @MainActor @escaping (T) -> Void,
