@@ -275,13 +275,12 @@ public extension Bill {
     }
 }
 
-/*
 extension Bill : InspectableElement, EditableElement, TypeTitled {
-    public func makeInspectView() -> BillInspect {
+    public func makeInspectView() -> some View {
         BillInspect(self)
     }
-    public static func makeEditView(_ snap: BillSnapshot) -> BillEdit {
-        BillEdit(snap)
+    public func makeEditView() -> some View {
+        BillEdit(self)
     }
     
     public static var typeDisplay : TypeTitleStrings {
@@ -294,5 +293,4 @@ extension Bill : InspectableElement, EditableElement, TypeTitled {
         )
     }
 }
- */
 

@@ -104,8 +104,8 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             //case .incomeDivider: IncomeDivisions()
             //case .budget: Budgets()
                 
-            //case .bills: AllBillsViewEdit()
-            //case .expiredBills: AllExpiredBillsVE()
+            case .bills: AllBillsViewEdit()
+            case .expiredBills: AllExpiredBillsVE()
                 
             //case .accounts: AccountsIE()
             //case .categories: CategoriesIE()

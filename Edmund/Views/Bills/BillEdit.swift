@@ -10,12 +10,37 @@ import SwiftData
 
 /// The edit view for Bills.
 public struct BillEdit : View {
-    @Bindable private var snapshot: BillSnapshot;
+    @StateObject private var data: Bill;
     @State private var showingSheet = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    public init(_ snapshot: BillSnapshot) {
-        self.snapshot = snapshot;
+    @State private var oldLocation: String;
+    @State private var oldEndDate: Date;
+    
+    var hasLocation: Bool {
+        get { data.location != nil }
+        set {
+            if newValue {
+                data.location = oldLocation;
+            }
+            else {
+                oldLocation = data.location ?? "";
+                data.location = nil;
+            }
+        }
+    }
+    var hasEndDate: Bool {
+        get { data.endDate != nil }
+        set {
+            if newValue {
+                data.endDate = oldEndDate;
+            }
+        }
+    }
+    
+    public init(_ data: Bill) {
+        self._data = .init(wrappedValue: data)
+        
     }
     
 #if os(macOS)
@@ -31,7 +56,7 @@ public struct BillEdit : View {
             GridRow {
                 Text("Name:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                TextField("Name", text: $snapshot.name)
+                TextField("Name", text: $data.name)
                     .textFieldStyle(.roundedBorder)
             }
             
@@ -42,7 +67,7 @@ public struct BillEdit : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    DatePicker("", selection: $snapshot.startDate, displayedComponents: .date)
+                    DatePicker("", selection: $data.startDate, displayedComponents: .date)
                         .labelsHidden()
                     Spacer()
                 }
@@ -76,7 +101,7 @@ public struct BillEdit : View {
                 Text("Company:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                TextField("Company", text: $snapshot.company)
+                TextField("Company", text: $data.company)
                     .textFieldStyle(.roundedBorder)
             }
             

@@ -49,6 +49,11 @@ public struct QuerySelection<T> : DynamicProperty where T: NSManagedObject & Ide
     @FetchRequest private var data: FetchedResults<T>;
     @State private var selection: Set<T.ID> = .init();
     
+    public func configure(sortDescriptors: [SortDescriptor<T>] = [], predicate: NSPredicate? = nil) {
+        self._data.projectedValue.nsPredicate.wrappedValue = predicate;
+        self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors.compactMap { NSSortDescriptor($0) };
+    }
+    
     public var wrappedValue: SelectionContext<FetchedResults<T>> {
         SelectionContext(
             data: self.data,
@@ -70,6 +75,19 @@ public struct FilterableQuerySelection<T> : DynamicProperty where T: NSManagedOb
     @FetchRequest private var data: FetchedResults<T>;
     @State private var selection: Set<T.ID> = .init();
     private let filtering: @MainActor (T) -> Bool;
+    
+    public func configure(sortDescriptors: [SortDescriptor<T>]? = nil, predicate: NSPredicate? = nil) {
+        if let predicate = predicate {
+            self._data.projectedValue.nsPredicate.wrappedValue = predicate;
+        }
+        
+        if let sortDescriptors = sortDescriptors {
+            self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors.compactMap { NSSortDescriptor($0) };
+        }
+    }
+    public func noPredicate() {
+        self._data.projectedValue.nsPredicate.wrappedValue = nil;
+    }
     
     public var wrappedValue: SelectionContext<[T]> {
         SelectionContext(
@@ -109,6 +127,22 @@ public extension Table {
         Rows == TableForEachContent<C>
     {
         self.init(context.data, selection: context.selection, columns: columns)
+    }
+    
+    /// Constructs the table around a selection context, binding the selection set and providing the data for the table.
+    init<C, Sort>(
+        context: SelectionContext<C>,
+        sortOrder: Binding<[Sort]>,
+        @TableColumnBuilder<Value, Never> columns: () -> Columns
+    ) where
+        C: RandomAccessCollection,
+        C.Element: Identifiable,
+        C.Element == Value,
+        Rows == TableForEachContent<C>,
+        Sort: SortComparator,
+        C.Element == Sort.Compared
+    {
+        self.init(context.data, selection: context.selection, sortOrder: sortOrder, columns: columns)
     }
 }
 public extension List {

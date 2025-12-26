@@ -6,15 +6,12 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct AllExpiredBillsVE : View {
-    @Query private var bills: [Bill];
-    @Bindable private var query: QueryManifest<Bill> = .init(.name)
     @Bindable private var inspect: InspectionManifest<Bill> = .init()
-    @Bindable private var deleting: DeletingManifest<Bill> = .init()
+    @Bindable private var delete: DeletingManifest<Bill> = .init()
     @Bindable private var warning: SelectionWarningManifest = .init()
-    @State private var selection =  Set<Bill.ID>();
+    
     @State private var sorting = [
         SortDescriptor(\Bill.name),
         SortDescriptor(\Bill.kind),
@@ -22,22 +19,12 @@ struct AllExpiredBillsVE : View {
     ];
     @State private var searchString = "";
     
+    @FilterableQuerySelection<Bill>(filtering: { $0.isExpired } ) private var query;
+    
     @Environment(\.modelContext) private var modelContext;
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    
-    public init() {
-        let today = Date.now;
-        let future = Date.distantFuture;
-        
-        _bills = Query(
-            filter: #Predicate<Bill> { bill in
-                (bill.endDate ?? future) <= today //&& bill.name.caseInsensitiveCompare(searchString) == ComparisonResult.orderedAscending
-            },
-            sort: sorting
-        )
-    }
    
     @ViewBuilder
     private var empty: some View {
@@ -50,16 +37,9 @@ struct AllExpiredBillsVE : View {
     
     @ToolbarContentBuilder
     public func toolbar() -> some ToolbarContent {
-        ToolbarItem(placement: .secondaryAction) {
-            QueryButton(provider: query)
-        }
-        
-        if horizontalSizeClass != .compact {
-            GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
-            GeneralIEToolbarButton(on: query.cached, selection: $selection, inspect: inspect, warning: warning, role: .inspect, placement: .primaryAction)
-        }
-        
-        GeneralDeleteToolbarButton(on: query.cached, selection: $selection, delete: deleting, warning: warning, placement: .primaryAction)
+        ElementInspectButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
+        ElementEditButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
+        ElementDeleteButton(context: query, delete: delete, warning: warning, placement: .primaryAction)
         
 #if os(iOS)
         ToolbarItem(placement: .primaryAction) {
@@ -70,12 +50,12 @@ struct AllExpiredBillsVE : View {
     
     @ViewBuilder
     private var regular: some View {
-        if query.cached.isEmpty {
+        if query.data.isEmpty {
             empty
         }
         else {
-            Table(query.cached, selection: $selection, sortOrder: $sorting) {
-                TableColumn("Name", sortUsing: SortDescriptor(\.name)) { wrapper in
+            Table(context: query, sortOrder: $sorting) {
+                TableColumn("Name") { wrapper in
                     if horizontalSizeClass == .compact {
                         HStack {
                             Text(wrapper.name)
@@ -88,7 +68,7 @@ struct AllExpiredBillsVE : View {
                                 Text("No Information").italic()
                             }
                         }.swipeActions(edge: .trailing) {
-                            SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
+                            SingularContextMenu(wrapper, inspect: inspect, remove: delete, asSlide: true)
                         }
                     }
                     else {
@@ -122,11 +102,11 @@ struct AllExpiredBillsVE : View {
                     Text(wrapper.amount, format: .currency(code: currencyCode))
                 }
                 TableColumn("Frequency") { wrapper in
-                    Text(wrapper.period.perName)
+                    Text(wrapper.period.display)
                 }
 #endif
             }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-                SelectionContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
+                SelectionContextMenu(selection, data: query.data, inspect: inspect, delete: delete, warning: warning)
             }
             #if os(macOS)
             .frame(minWidth: 350)
@@ -138,27 +118,14 @@ struct AllExpiredBillsVE : View {
         regular
             .navigationTitle("Expired Bills")
             .toolbar(content: toolbar)
-            .sheet(item: $inspect.value) { item in
-                ElementIE(item, mode: inspect.mode)
-            }
-            .alert("Warning", isPresented: $warning.isPresented, actions: {
-                Button("Ok") {
-                    warning.isPresented = false
-                }
-            }, message: {
-                Text((warning.warning ?? .noneSelected).message)
-            })
-            .confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting, titleVisibility: .visible) {
-                DeletingActionConfirm(deleting)
-            }.padding()
-                .toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
+            .withElementIE(manifest: inspect, filling: { _ in })
+            .withWarning(warning)
+            .withElementDeleting(manifest: delete)
+            .padding()
+            .toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
     }
 }
 
-#Preview {
-    DebugContainerView {
-        NavigationStack {
-            AllExpiredBillsVE()
-        }
-    }
+#Preview(traits: .sampleData) {
+    AllExpiredBillsVE()
 }

@@ -6,11 +6,9 @@
 //
 
 import SwiftUI
-import SwiftData
 import Charts
 
 struct AllBillsViewEdit : View {
-    @State private var tableSelected = Set<Bill.ID>();
     @State private var showingChart: Bool = false;
     @State private var sorting =  [
         SortDescriptor(\Bill.name),
@@ -19,45 +17,24 @@ struct AllBillsViewEdit : View {
     ]
     @State private var searchString: String = "";
     
-    @Bindable private var query: QueryManifest<Bill> = .init(.name);
+    @FilterableQuerySelection<Bill>(filtering: { !$0.isExpired } ) private var query;
+    
     @Bindable private var inspect: InspectionManifest<Bill> = .init();
     @Bindable private var deleting: DeletingManifest<Bill> = .init();
     @Bindable private var warning = SelectionWarningManifest()
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
-    @Environment(\.uniqueEngine) private var uniqueEngine;
-    @Environment(\.modelContext) var modelContext;
     
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    @Query private var bills: [Bill]
-    
-    public init() {
-        let today = Date.now;
-        let long_ago = Date.distantPast;
-        _bills = Query(
-            filter: #Predicate<Bill> {
-                ($0.endDate ?? long_ago) < today //&& $0.name.caseInsensitiveCompare(searchString) == ComparisonResult.orderedAscending
-            },
-            sort: sorting,
-        )
-    }
-    
-    private func add(_ kind: BillsKind) {
-        withAnimation {
-            let raw = Bill(kind: kind);
-            inspect.open(raw, mode: .add)
-        }
-    }
-    
     private var totalPPP: Decimal {
-        query.cached.reduce(0) { $0 + ($1.isExpired ? 0 : $1.pricePer(showcasePeriod)) }
+        query.data.reduce(0) { $0 + ($1.isExpired ? 0 : $1.pricePer(showcasePeriod)) }
     }
     
     @ViewBuilder
     private var wide: some View {
-        Table(query.cached, selection: $tableSelected, sortOrder: $sorting) {
+        Table(context: query, sortOrder: $sorting) {
             TableColumn("Name") { wrapper in
                 if horizontalSizeClass == .compact {
                     HStack {
@@ -65,7 +42,7 @@ struct AllBillsViewEdit : View {
                         Spacer()
                         Text(wrapper.amount, format: .currency(code: currencyCode))
                         Text("/")
-                        Text(wrapper.period.perName)
+                        Text(wrapper.period.display)
                     }.swipeActions(edge: .trailing) {
                         SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
                     }
@@ -90,16 +67,11 @@ struct AllBillsViewEdit : View {
                 Text(wrapper.amount, format: .currency(code: currencyCode))
             }
             TableColumn("Frequency") { wrapper in
-                Text(wrapper.period.perName)
+                Text(wrapper.period.display)
             }
             #endif
             TableColumn("Next Due Date") { wrapper in
-                if wrapper.isExpired {
-                    Text("Expired Bill").italic()
-                }
-                else {
-                    Text((wrapper.nextDueDate?.formatted(date: .abbreviated, time: .omitted) ?? "-"))
-                }
+                Text((wrapper.nextDueDate?.formatted(date: .abbreviated, time: .omitted) ?? "-"))
             }
             
             TableColumn("Set-Aside Cost") { wrapper in
@@ -109,6 +81,17 @@ struct AllBillsViewEdit : View {
             SelectionContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
         }
         .searchable(text: $searchString, prompt: "Name")
+        .onChange(of: sorting) { _, sort in
+            _query.configure(sortDescriptors: sort)
+        }
+        .onChange(of: searchString) { _, search in
+            if search.isEmpty {
+                _query.noPredicate()
+            }
+            else {
+                
+            }
+        }
         #if os(macOS)
         .frame(minWidth: 320)
         #endif
@@ -130,30 +113,30 @@ struct AllBillsViewEdit : View {
             }
         }
     
+        /*
         ToolbarItem(id: "add", placement: .primaryAction) {
             Menu {
                 Button("Bill") {
-                    add(.bill)
+                    inspection.openAdding()
                 }
                 
                 Button("Subscription") {
-                    add(.subscription)
+                    inspection.openAdding()
                 }
                 
                 Button("Utility") {
-                    add(.utility)
+                    inspection.openAdding()
                 }
             } label: {
                 Label("Add", systemImage: "plus")
             }
         }
+        */
         
-        if horizontalSizeClass != .compact {
-            GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .edit, placement: .primaryAction)
-            GeneralIEToolbarButton(on: query.cached, selection: $tableSelected, inspect: inspect, warning: warning, role: .inspect, placement: .primaryAction)
-        }
-        
-        GeneralDeleteToolbarButton(on: query.cached, selection: $tableSelected, delete: deleting, warning: warning, placement: .primaryAction)
+        ElementAddButton(inspect: inspect, placement: .primaryAction)
+        ElementInspectButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
+        ElementEditButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
+        ElementDeleteButton(context: query, delete: delete, warning: warning, placement: .primaryAction)
         
         #if os(iOS)
         ToolbarItem(id: "iosEdit", placement: .primaryAction) {
@@ -165,7 +148,7 @@ struct AllBillsViewEdit : View {
     @ViewBuilder
     private var chartView: some View {
         VStack {
-            Chart(query.cached.sorted(by: { $0.amount < $1.amount } )) { wrapper in
+            Chart(query.data.sorted(by: { $0.amount < $1.amount } )) { wrapper in
                 SectorMark(
                     angle: .value(
                         Text(verbatim: wrapper.name),
@@ -180,7 +163,9 @@ struct AllBillsViewEdit : View {
             
             HStack {
                 Spacer()
-                Button("Ok", action: { showingChart = false } ).buttonStyle(.borderedProminent)
+                Button("Ok") {
+                    showingChart = false
+                }.buttonStyle(.borderedProminent)
             }
         }.padding()
     }
@@ -196,27 +181,30 @@ struct AllBillsViewEdit : View {
                 Text("/")
                 Picker("", selection: $showcasePeriod) {
                     ForEach(TimePeriods.allCases, id: \.id) { period in
-                        Text(period.perName).tag(period)
+                        Text(period.display).tag(period)
                     }
                 }
                 #if os(macOS)
                 .frame(width: 150)
                 #endif
             }
-        }.sheet(item: $inspect.value) { wrapper in
-            ElementIE(wrapper, mode: inspect.mode)
         }.toolbar(id: "billsToolbar") {
             toolbar
-        }.alert("Warning", isPresented: $warning.isPresented, actions: {
-            Button("Ok") {
-                warning.isPresented = false
-            }
-        }, message: {
-            Text((warning.warning ?? .noneSelected).message )
-        })
-        .confirmationDialog("deleteItemsConfirm", isPresented: $deleting.isDeleting, titleVisibility: .visible) {
-            DeletingActionConfirm(deleting)
-        }.sheet(isPresented: $showingChart) {
+        }
+        .withElementIE(manifest: inspect) { bill in
+            bill.name = ""
+            bill.startDate = .now;
+            bill.endDate = nil;
+            bill.company = "";
+            bill.location = nil;
+            bill.period = .monthly;
+            bill.kind = .bill;
+            bill.history = [];
+            bill.autoPay = true;
+        }
+        .withWarning(warning)
+        .withElementDeleting(manifest: deleting)
+        .sheet(isPresented: $showingChart) {
             chartView
         }.padding()
             .toolbarRole(.automatic)
@@ -224,10 +212,6 @@ struct AllBillsViewEdit : View {
     }
 }
 
-#Preview {
-    DebugContainerView {
-        NavigationStack {
-            AllBillsViewEdit()
-        }
-    }
+#Preview(traits: .sampleData) {
+    AllBillsViewEdit()
 }
