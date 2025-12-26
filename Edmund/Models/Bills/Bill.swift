@@ -276,9 +276,11 @@ public extension Bill {
 }
 
 extension Bill : InspectableElement, EditableElement, TypeTitled {
+    @MainActor
     public func makeInspectView() -> some View {
         BillInspect(self)
     }
+    @MainActor
     public func makeEditView() -> some View {
         BillEdit(self)
     }

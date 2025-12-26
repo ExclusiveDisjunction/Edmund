@@ -14,33 +14,13 @@ public struct BillEdit : View {
     @State private var showingSheet = false;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
-    @State private var oldLocation: String;
-    @State private var oldEndDate: Date;
-    
-    var hasLocation: Bool {
-        get { data.location != nil }
-        set {
-            if newValue {
-                data.location = oldLocation;
-            }
-            else {
-                oldLocation = data.location ?? "";
-                data.location = nil;
-            }
-        }
-    }
-    var hasEndDate: Bool {
-        get { data.endDate != nil }
-        set {
-            if newValue {
-                data.endDate = oldEndDate;
-            }
-        }
-    }
+    @NullableValue<Bill, String> private var location: Binding<Bool>;
+    @NullableValue<Bill, Date> private var endDate: Binding<Bool>;
     
     public init(_ data: Bill) {
         self._data = .init(wrappedValue: data)
-        
+        self._location = .init(data, \.location, "")
+        self._endDate = .init(data, \.endDate, .now)
     }
     
 #if os(macOS)
@@ -77,7 +57,7 @@ public struct BillEdit : View {
                 Text("Has End Date:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    Toggle("", isOn: $snapshot.hasEndDate).labelsHidden()
+                    Toggle("", isOn: endDate).labelsHidden()
                     Spacer()
                 }
             }
@@ -87,9 +67,9 @@ public struct BillEdit : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    DatePicker("End", selection: $snapshot.endDate, displayedComponents: .date)
+                    DatePicker("End", selection: $endDate, displayedComponents: .date)
                         .labelsHidden()
-                        .disabled(!snapshot.hasEndDate)
+                        .disabled(!endDate.wrappedValue)
                     
                     Spacer()
                 }
@@ -110,7 +90,7 @@ public struct BillEdit : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    Toggle("", isOn: $snapshot.hasLocation).labelsHidden()
+                    Toggle("", isOn: location).labelsHidden()
                     Spacer()
                 }
             }
@@ -119,9 +99,9 @@ public struct BillEdit : View {
                 Text("Location:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                TextField("Location", text: $snapshot.location)
+                TextField("Location", text: $location)
                     .textFieldStyle(.roundedBorder)
-                    .disabled(!snapshot.hasLocation)
+                    .disabled(!location.wrappedValue)
             }
             
             GridRow {
@@ -130,7 +110,7 @@ public struct BillEdit : View {
                 
                 
                 HStack {
-                    Toggle("", isOn: $snapshot.autoPay)
+                    Toggle("", isOn: $data.autoPay)
                         .labelsHidden()
                     Spacer()
                 }
@@ -142,7 +122,7 @@ public struct BillEdit : View {
                 Text("Frequency:").frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    EnumPicker(value: $snapshot.period)
+                    EnumPicker(value: $data.period)
                     Spacer()
                 }
             }
@@ -167,7 +147,7 @@ public struct BillEdit : View {
                 Text("Amount:")
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
-                CurrencyField(snapshot.amount)
+                CurrencyField($data.amount, currencyCode: currencyCode)
             }
             
             GridRow {
@@ -175,19 +155,19 @@ public struct BillEdit : View {
                     .frame(minWidth: minWidth, maxWidth: maxWidth, alignment: .trailing)
                 
                 HStack {
-                    EnumPicker(value: $snapshot.kind)
+                    EnumPicker(value: $data.kind)
                     
                     TooltipButton("Subscriptions can usually be canceled whenever, while bills have stricter requirements.")
                 }
             }
         }.sheet(isPresented: $showingSheet) {
-            BillHistoryEdit(snapshot: snapshot)
+            BillHistoryEdit(snapshot: data)
         }
     }
 }
 
-#Preview {
-    DebugContainerView {
-        ElementEditor(Bill(kind: .subscription), adding: false)
-    }
+#Preview(traits: .sampleData) {
+    @Previewable @FetchRequest<Bill>(sortDescriptors: []) var bills: FetchedResults<Bill>;
+    
+    ElementEditor(editManifest: ElementEditManifest(using: DataStack.shared.currentContainer, from: bills[0]))
 }

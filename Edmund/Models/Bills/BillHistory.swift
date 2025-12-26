@@ -5,7 +5,6 @@
 //  Created by Hollan Sellars on 4/21/25.
 //
 
-import SwiftData
 import SwiftUI
 import Foundation
 
@@ -19,54 +18,4 @@ public struct ResolvedBillHistory : Identifiable, Sendable {
     public let id: UUID;
     public let amount: Decimal?;
     public var date: Date?;
-}
-@Observable
-public class BillHistorySnapshot : Identifiable, Hashable, Equatable {
-    public init(date: Date?, id: UUID = UUID()) {
-        self.id = id
-        self.date = date
-        self.amount = .init()
-        self.skipped = false
-    }
-    public init(from: BillDatapoint, date: Date?, id: UUID = UUID()) {
-        self.id = id
-        self.date = date
-        if let value = from.amount {
-            self.skipped = false
-            self.amount = .init(rawValue: value)
-        }
-        else {
-            self.skipped = true
-            self.amount = .init()
-        }
-    }
-    
-    public let id: UUID;
-    public var skipped: Bool;
-    public var amount: CurrencyValue;
-    public var date: Date?;
-    
-    public var trueAmount: CurrencyValue? {
-        get {
-            skipped ? nil : amount
-        }
-        set {
-            if let value = newValue {
-                self.skipped = false
-                self.amount = value
-            }
-            else {
-                self.skipped = true
-            }
-        }
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(skipped)
-        hasher.combine(amount)
-        hasher.combine(date)
-    }
-    public static func ==(lhs: BillHistorySnapshot, rhs: BillHistorySnapshot) -> Bool {
-        lhs.trueAmount == rhs.trueAmount && lhs.date == rhs.date
-    }
 }

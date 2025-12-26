@@ -8,17 +8,13 @@
 import SwiftUI
 import SwiftData
 
-/// The editor view for Utility Entries.  This provides the layout for editing the entries as a series of payments & dates.
 public struct BillHistoryEdit : View {
-    public init(snapshot: BillSnapshot) {
-        self.snapshot = snapshot
+    public init(snapshot: Bill) {
+        self._snapshot = .init(wrappedValue: snapshot)
     }
     
-    @Bindable public var snapshot: BillSnapshot;
-    @State private var selected = Set<UUID>();
-    #if os(iOS)
-    @State private var showPopover = false;
-    #endif
+    @StateObject public var snapshot: Bill;
+    @State private var selected = Set<BillDatapoint.ID>();
     
     @Environment(\.dismiss) private var dismiss;
     @Environment(\.calendar) private var calendar;
@@ -52,39 +48,11 @@ public struct BillHistoryEdit : View {
             $0.date = walker.step()
         }
     }
-    
-    @ViewBuilder
-    private var form: some View {
-        Form {
-            DatePicker("Start Date:", selection: $snapshot.startDate, displayedComponents: .date)
-            Toggle("Has End Date", isOn: $snapshot.hasEndDate)
-            
-            if snapshot.hasEndDate {
-                DatePicker("End Date:", selection: $snapshot.endDate, displayedComponents: .date)
-            }
-            
-            
-            Picker("Frequency:", selection: $snapshot.period) {
-                ForEach(TimePeriods.allCases) { period in
-                    Text(period.display).tag(period)
-                }
-            }
-        }
-        #if os(iOS)
-        .frame(minWidth: 250, minHeight: 300)
-        #endif
-    }
-    
     public var body: some View {
         VStack {
-            Text("Charge History").font(.title2)
-            
-#if os(macOS)
-            form
-#endif
+            Text("Payment History").font(.title2)
             
             HStack {
-#if os(iOS)
                 Menu {
                     Button {
                         addNew(skipped: false)
@@ -93,36 +61,19 @@ public struct BillHistoryEdit : View {
                     }
                     
                     Button {
-                        add_new(skipped: true)
+                        addNew(skipped: true)
                     } label: {
                         Text("Add Skipped")
                     }
                 } label: {
                     Image(systemName: "plus")
                 }.menuStyle(.borderlessButton)
-#endif
-#if os(macOS)
-                Button {
-                    addNew(skipped: false)
-                } label: {
-                    Image(systemName: "plus")
-                }.buttonStyle(.borderless)
                 
                 Button(action: deleteSelected) {
                     Image(systemName: "trash").foregroundStyle(.red)
                 }.buttonStyle(.borderless)
-#endif
                 
 #if os(iOS)
-                Divider()
-                    .frame(maxHeight: 20)
-                Button(action: { showPopover = true } ) {
-                    Label("Adjust Dates", systemImage: "pencil")
-                }.popover(isPresented: $showPopover) {
-                    form
-                }
-                
-                
                 EditButton()
 #endif
             }

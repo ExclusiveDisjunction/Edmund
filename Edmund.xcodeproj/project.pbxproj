@@ -33,7 +33,6 @@
 		DD4DA9E12EE4B0DA00804A36 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4DFB232EF8E14800A4661A /* Help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Help; sourceTree = "<group>"; };
-		DD6CE41F2EFE27F80065E190 /* EdmundHelpers */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = EdmundHelpers; path = ../EdmundHelpers; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -208,7 +207,6 @@
 		DD4DA9C62EE4B0D900804A36 = {
 			isa = PBXGroup;
 			children = (
-				DD6CE41F2EFE27F80065E190 /* EdmundHelpers */,
 				DD4DFB232EF8E14800A4661A /* Help */,
 				DD4DA9D12EE4B0D900804A36 /* Edmund */,
 				DD4DA9E42EE4B0DA00804A36 /* EdmundTests */,
