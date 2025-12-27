@@ -93,7 +93,7 @@ extension Bill : NamedElement {
         hasher.combine(startDate)
         hasher.combine(endDate)
         hasher.combine(period)
-        let computedHash = Int32(hasher.finalize())
+        let computedHash = Int64(hasher.finalize())
         let lastHash = self.oldHash
         
         oldHash = computedHash

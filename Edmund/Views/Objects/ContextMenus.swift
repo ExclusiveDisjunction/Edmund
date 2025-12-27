@@ -52,40 +52,41 @@ public struct SingularContextMenu<T> : View where T: Identifiable {
         }
         
         if canInspect {
-            Button(action: {
-                inspection.open(target, mode: .inspect)
-            }) {
+            Button {
+                inspection.open(value: target, editing: false)
+            } label: {
                 Label("Inspect", systemImage: "info.circle")
             }.tint(asSlide ? .green : .clear)
         }
         
-        Button(action: {
-            inspection.open(target, mode: .edit)
-        }) {
+        Button {
+            inspection.open(value: target, editing: false)
+        } label: {
             Label("Edit", systemImage: "pencil")
         }.tint(asSlide ? .blue : .clear)
         
-        Button(action: {
+        Button {
             delete.action = [target]
-        }) {
+        } label: {
             Label("Delete", systemImage: "trash").foregroundStyle(.red)
         }.tint(asSlide ? .red : .clear)
     }
 }
 
 /// A generalized context menu that runs for `.contextMenu(forSelectionType: T.ID)`.
-public struct SelectionContextMenu<T> : View where T: Identifiable {
+public struct SelectionContextMenu<W> : View where W: SelectionContextProtocol {
     /// A handle for viewing/editing
-    private let inspect: InspectionManifest<T>;
+    private let inspect: InspectionManifest<W.Element>;
     /// A handle for deleting objects.
-    private let delete: DeletingManifest<T>;
+    private let delete: DeletingManifest<W.Element>;
     /// The warning manifest used for alerting about errors.
     private let warning: SelectionWarningManifest;
-    /// The selection provided by the context menu.
-    private let selection: Set<T.ID>;
+    /// The context used by the menu.
+    private let context: W;
     /// When true, the  "Inspect" menu option is provided.
     private let canView: Bool;
-    private let data: [T];
+    /// True when the selected context has exactly one selected item.
+    private let inspectEnabled: Bool;
     
     /// Constructs a context menu based on the provided information.
     /// - Parameters:
@@ -95,35 +96,35 @@ public struct SelectionContextMenu<T> : View where T: Identifiable {
     ///     - delete: The `DeletingManifest<T>` used to signal to the parent view that the element is being removed.
     ///     - warning: The `WarningManifest` used to signal to the parent view that something is wrong.
     ///     - canView: When true, inspection is allowed.
-    public init(_ sel: Set<T.ID>, data: [T], inspect: InspectionManifest<T>, delete: DeletingManifest<T>, warning: SelectionWarningManifest, canView: Bool = true) {
-        self.selection = sel
-        self.data = data
+    public init(context: W, inspect: InspectionManifest<W.Element>, delete: DeletingManifest<W.Element>, warning: SelectionWarningManifest, canView: Bool = true) {
+        self.context = context;
         self.inspect = inspect
         self.delete = delete
         self.warning = warning
         self.canView = canView
+        self.inspectEnabled = context.selectedItems.count == 1;
     }
     
     private func handleEdit() {
-        inspect.inspectSelected(selection, mode: .edit, on: data, warning: warning)
+        inspect.open(selection: self.context, editing: true, warning: warning)
     }
     private func handleView() {
-        inspect.inspectSelected(selection, mode: .inspect, on: data, warning: warning)
+        inspect.open(selection: self.context, editing: false, warning: warning)
     }
     private func handleDelete() {
-        delete.deleteSelected(selection, on: data, warning: warning)
+        delete.delete(self.context, warning: warning)
     }
     
     public var body: some View {
         if canView {
             Button(action: handleView ) {
                 Label("Inspect", systemImage: "info.circle")
-            }.disabled(selection.count != 1)
+            }.disabled(inspectEnabled)
         }
         
         Button(action: handleEdit) {
             Label("Edit", systemImage: "pencil")
-        }.disabled(selection.count != 1)
+        }.disabled(inspectEnabled)
         
         Button(action: handleDelete) {
             Label("Delete", systemImage: "trash")

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 /// The inspect view for Bills. 
 public struct BillInspect : View {
@@ -173,15 +172,15 @@ public struct BillInspect : View {
                 }
             }
         }.sheet(isPresented: $showingSheet) {
-            BillHistoryInspect(over: data)
+            BillDatapointInspect(over: data)
         }.sheet(isPresented: $showingChart) {
-            UtilityEntriesGraph(source: data)
+            BillDatapointGraph(source: data)
         }
     }
 }
 
-#Preview {
-    DebugContainerView {
-        ElementInspector(data: Bill.exampleBills[0])
-    }
+#Preview(traits: .sampleData) {
+    @Previewable @FetchRequest<Bill>(sortDescriptors: []) var bills: FetchedResults<Bill>;
+    
+    ElementInspector(data: bills[0])
 }

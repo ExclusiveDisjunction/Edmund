@@ -4,8 +4,22 @@
     "" : {
 
     },
+    "-" : {
+
+    },
+    "(No date)" : {
+
+    },
+    "(No Date)" : {
+
+    },
+    "(No information)" : {
+
+    },
+    "(Pick One)" : {
+
+    },
     "/" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -101,6 +115,15 @@
         }
       }
     },
+    "Add Bill" : {
+
+    },
+    "Add New" : {
+
+    },
+    "Add Skipped" : {
+
+    },
     "Amount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -117,6 +140,9 @@
           }
         }
       }
+    },
+    "Amount:" : {
+
     },
     "An error occured and the data could not be loaded." : {
 
@@ -188,6 +214,9 @@
       }
     },
     "Auditor" : {
+
+    },
+    "Autopay:" : {
 
     },
     "Balance" : {
@@ -413,6 +442,12 @@
     "Compact" : {
 
     },
+    "Company" : {
+
+    },
+    "Company:" : {
+
+    },
     "Credit" : {
       "localizations" : {
         "de" : {
@@ -457,8 +492,10 @@
     "Customize" : {
 
     },
+    "Datapoints" : {
+
+    },
     "Date" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -526,7 +563,6 @@
       }
     },
     "deleteItemsConfirm" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -535,6 +571,9 @@
           }
         }
       }
+    },
+    "Discard Changes" : {
+
     },
     "Disclosures" : {
 
@@ -567,6 +606,12 @@
           }
         }
       }
+    },
+    "Edit Bill" : {
+
+    },
+    "Edit History" : {
+
     },
     "Edmund" : {
       "localizations" : {
@@ -602,6 +647,18 @@
     },
     "Edmund was not able to obtain the guide's contents." : {
 
+    },
+    "End" : {
+
+    },
+    "End Date:" : {
+
+    },
+    "Ended On" : {
+
+    },
+    "Ended:" : {
+      "comment" : "Bill ended on date"
     },
     "Error" : {
       "comment" : "Used as the title of a message explaining what went wrong.",
@@ -667,6 +724,9 @@
         }
       }
     },
+    "Frequency:" : {
+
+    },
     "Full Screen" : {
 
     },
@@ -710,6 +770,12 @@
         }
       }
     },
+    "Has End Date:" : {
+
+    },
+    "Has Location:" : {
+
+    },
     "Help" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -728,7 +794,6 @@
       }
     },
     "Hide Graph" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -743,6 +808,9 @@
           }
         }
       }
+    },
+    "History" : {
+
     },
     "Home" : {
       "extractionState" : "manual",
@@ -802,6 +870,12 @@
         }
       }
     },
+    "Inspect Bill" : {
+
+    },
+    "Inspect History" : {
+
+    },
     "internalError" : {
       "localizations" : {
         "en" : {
@@ -838,6 +912,9 @@
         }
       }
     },
+    "Kind:" : {
+
+    },
     "Kyle Lawrence" : {
 
     },
@@ -865,7 +942,6 @@
 
     },
     "Location" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -880,6 +956,9 @@
           }
         }
       }
+    },
+    "Location:" : {
+
     },
     "Maks Kruc" : {
 
@@ -978,10 +1057,25 @@
         }
       }
     },
+    "Name:" : {
+
+    },
     "Need" : {
 
     },
     "Net Spending" : {
+
+    },
+    "Next Due Date" : {
+
+    },
+    "No" : {
+
+    },
+    "No end date" : {
+
+    },
+    "No Information" : {
 
     },
     "noCategories" : {
@@ -1104,6 +1198,9 @@
     "Pay" : {
 
     },
+    "Payment History" : {
+
+    },
     "Personal" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1163,6 +1260,12 @@
           }
         }
       }
+    },
+    "Price over Time" : {
+
+    },
+    "Price Over Time" : {
+
     },
     "Profile" : {
       "extractionState" : "manual",
@@ -1238,6 +1341,9 @@
     "Report Issue" : {
 
     },
+    "Revert Changes" : {
+
+    },
     "Right Side" : {
 
     },
@@ -1245,7 +1351,6 @@
 
     },
     "Save" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1267,6 +1372,9 @@
     "Semi-Anually" : {
 
     },
+    "Set-Aside Cost" : {
+
+    },
     "Settings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1285,7 +1393,6 @@
       }
     },
     "Show Graph" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1304,6 +1411,15 @@
     "Show Ledger Footer" : {
 
     },
+    "Skip" : {
+
+    },
+    "Skip?" : {
+
+    },
+    "Skipped" : {
+
+    },
     "Sorry, but it looks like that topic or group could not be loaded." : {
 
     },
@@ -1317,6 +1433,12 @@
 
     },
     "Split the homepage vertically" : {
+
+    },
+    "Start Date:" : {
+
+    },
+    "Started On" : {
 
     },
     "Sub Account" : {
@@ -1373,6 +1495,9 @@
     "Subscription Payment" : {
 
     },
+    "Subscriptions can usually be canceled whenever, while bills have stricter requirements." : {
+
+    },
     "Supporting Projects" : {
 
     },
@@ -1392,6 +1517,18 @@
 
     },
     "There are no balances to display" : {
+
+    },
+    "There are no expired bills" : {
+
+    },
+    "There are unsaved changes, do you wish to continue?" : {
+
+    },
+    "There is no history to view." : {
+
+    },
+    "There is not enough data in the history to graph the price over time." : {
 
     },
     "There is not enough information to display spending." : {
@@ -1429,7 +1566,6 @@
 
     },
     "Total:" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1495,6 +1631,9 @@
           }
         }
       }
+    },
+    "Unskip" : {
+
     },
     "Upcoming Bills" : {
 
@@ -1633,6 +1772,9 @@
           }
         }
       }
+    },
+    "Yes" : {
+
     }
   },
   "version" : "1.0"

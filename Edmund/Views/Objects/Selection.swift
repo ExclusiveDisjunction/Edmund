@@ -76,13 +76,13 @@ public struct FilterableQuerySelection<T> : DynamicProperty where T: NSManagedOb
     @State private var selection: Set<T.ID> = .init();
     private let filtering: @MainActor (T) -> Bool;
     
-    public func configure(sortDescriptors: [SortDescriptor<T>]? = nil, predicate: NSPredicate? = nil) {
+    public func configure(sortDescriptors: [NSSortDescriptor]? = nil, predicate: NSPredicate? = nil) {
         if let predicate = predicate {
             self._data.projectedValue.nsPredicate.wrappedValue = predicate;
         }
         
         if let sortDescriptors = sortDescriptors {
-            self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors.compactMap { NSSortDescriptor($0) };
+            self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors;
         }
     }
     public func noPredicate() {

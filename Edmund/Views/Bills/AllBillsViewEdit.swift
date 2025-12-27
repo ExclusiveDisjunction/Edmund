@@ -11,9 +11,9 @@ import Charts
 struct AllBillsViewEdit : View {
     @State private var showingChart: Bool = false;
     @State private var sorting =  [
-        SortDescriptor(\Bill.name),
-        SortDescriptor(\Bill.kind),
-        SortDescriptor(\Bill.period)
+        NSSortDescriptor(keyPath: \Bill.internalName, ascending: true),
+        NSSortDescriptor(keyPath: \Bill.internalKind, ascending: true),
+        NSSortDescriptor(keyPath: \Bill.internalPeriod, ascending: true)
     ]
     @State private var searchString: String = "";
     
@@ -24,6 +24,7 @@ struct AllBillsViewEdit : View {
     @Bindable private var warning = SelectionWarningManifest()
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
+    @Environment(\.calendar) private var calendar;
     
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
@@ -34,7 +35,7 @@ struct AllBillsViewEdit : View {
     
     @ViewBuilder
     private var wide: some View {
-        Table(context: query, sortOrder: $sorting) {
+        Table(context: query) {
             TableColumn("Name") { wrapper in
                 if horizontalSizeClass == .compact {
                     HStack {
@@ -54,7 +55,7 @@ struct AllBillsViewEdit : View {
             TableColumn("Kind") { wrapper in
                 Text(wrapper.kind.display)
             }
-            #if os(iOS)
+#if os(iOS)
             TableColumn("Amount") { wrapper in
                 HStack {
                     Text(wrapper.amount, format: .currency(code: currencyCode))
@@ -62,23 +63,31 @@ struct AllBillsViewEdit : View {
                     Text(wrapper.period.perName)
                 }
             }
-            #else
+#else
             TableColumn("Amount") { wrapper in
                 Text(wrapper.amount, format: .currency(code: currencyCode))
             }
             TableColumn("Frequency") { wrapper in
                 Text(wrapper.period.display)
             }
-            #endif
+#endif
             TableColumn("Next Due Date") { wrapper in
-                Text((wrapper.nextDueDate?.formatted(date: .abbreviated, time: .omitted) ?? "-"))
+                if let date = wrapper.nextDueDate(calendar: calendar) {
+                    Text(date.formatted(date: .abbreviated, time: .omitted))
+                }
+                else {
+                    Text("-")
+                }
             }
             
             TableColumn("Set-Aside Cost") { wrapper in
-                Text((wrapper.isExpired ? Decimal() : wrapper.pricePer(showcasePeriod)), format: .currency(code: currencyCode))
+                Text(
+                    wrapper.isExpired ? Decimal() : wrapper.pricePer(showcasePeriod),
+                    format: .currency(code: currencyCode)
+                )
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            SelectionContextMenu(selection, data: query.cached, inspect: inspect, delete: deleting, warning: warning)
+            SelectionContextMenu(context: query, inspect: inspect, delete: deleting, warning: warning)
         }
         .searchable(text: $searchString, prompt: "Name")
         .onChange(of: sorting) { _, sort in
@@ -99,12 +108,6 @@ struct AllBillsViewEdit : View {
     
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
-        /*
-         ToolbarItem(id: "query", placement: .secondaryAction) {
-         QueryButton(provider: query)
-         }
-         */
-        
         ToolbarItem(id: "graph", placement: .secondaryAction) {
             Button {
                 showingChart = true
@@ -136,7 +139,7 @@ struct AllBillsViewEdit : View {
         ElementAddButton(inspect: inspect, placement: .primaryAction)
         ElementInspectButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
         ElementEditButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
-        ElementDeleteButton(context: query, delete: delete, warning: warning, placement: .primaryAction)
+        ElementDeleteButton(context: query, delete: deleting, warning: warning, placement: .primaryAction)
         
         #if os(iOS)
         ToolbarItem(id: "iosEdit", placement: .primaryAction) {

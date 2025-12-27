@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
-import SwiftData
 
-/// The inspection view for Utility Entries.  This provides the layout for viewing all datapoints.
-public struct BillHistoryInspect : View{
-    public var over: Bill;
+
+public struct BillDatapointInspect : View {
+    public let over: Bill;
     
     @State private var cache: [ResolvedBillHistory]?;
     @State private var selected = Set<UUID>();
@@ -96,7 +95,9 @@ public struct BillHistoryInspect : View{
     }
 }
 
-#Preview {
-    BillHistoryInspect(over: Bill.exampleBills[0])
+#Preview(traits: .sampleData) {
+    @Previewable @FetchRequest<Bill>(sortDescriptors: []) var bills: FetchedResults<Bill>;
+    
+    BillDatapointInspect(over: bills[0])
         .padding()
 }

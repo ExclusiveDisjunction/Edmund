@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
-import SwiftData
 import Charts
 
 /// A line graph that shows the spending over time, separated by dates.
-public struct UtilityEntriesGraph : View {
+public struct BillDatapointGraph : View {
     public var source: Bill;
     
     @Environment(\.calendar) private var calendar;
@@ -82,6 +81,7 @@ public struct UtilityEntriesGraph : View {
 }
 
 
-#Preview {
-    UtilityEntriesGraph(source: Bill.exampleBills[0])
+#Preview(traits: .sampleData) {
+    @Previewable @FetchRequest<Bill>(sortDescriptors: []) var bills: FetchedResults<Bill>;
+    BillDatapointGraph(source: bills[0])
 }

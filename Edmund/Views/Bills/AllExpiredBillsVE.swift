@@ -106,7 +106,7 @@ struct AllExpiredBillsVE : View {
                 }
 #endif
             }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-                SelectionContextMenu(selection, data: query.data, inspect: inspect, delete: delete, warning: warning)
+                SelectionContextMenu(context: query, inspect: inspect, delete: delete, warning: warning)
             }
             #if os(macOS)
             .frame(minWidth: 350)
@@ -122,7 +122,7 @@ struct AllExpiredBillsVE : View {
             .withWarning(warning)
             .withElementDeleting(manifest: delete)
             .padding()
-            .toolbarRole(horizontalSizeClass == .compact ? .automatic : .editor)
+            .toolbarRole(ToolbarRole.editor)
     }
 }
 

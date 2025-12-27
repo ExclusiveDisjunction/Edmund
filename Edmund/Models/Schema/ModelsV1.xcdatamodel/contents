@@ -28,7 +28,7 @@
         <attribute name="internalPeriod" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="internalStartDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="location" optional="YES" attributeType="String"/>
-        <attribute name="oldHash" transient="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="oldHash" transient="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="internalHistory" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BillDatapoint" inverseName="bill" inverseEntity="BillDatapoint"/>
         <uniquenessConstraints>
             <uniquenessConstraint>

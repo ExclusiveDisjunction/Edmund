@@ -161,7 +161,7 @@ public struct BillEdit : View {
                 }
             }
         }.sheet(isPresented: $showingSheet) {
-            BillHistoryEdit(snapshot: data)
+            BillDatapointEdit(bill: data)
         }
     }
 }
