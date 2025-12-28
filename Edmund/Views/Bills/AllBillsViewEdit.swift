@@ -10,10 +10,10 @@ import Charts
 
 struct AllBillsViewEdit : View {
     @State private var showingChart: Bool = false;
-    @State private var sorting =  [
-        NSSortDescriptor(keyPath: \Bill.internalName, ascending: true),
-        NSSortDescriptor(keyPath: \Bill.internalKind, ascending: true),
-        NSSortDescriptor(keyPath: \Bill.internalPeriod, ascending: true)
+    @State private var sorting = [
+        SortDescriptor(\Bill.internalName, order: .forward),
+        SortDescriptor(\Bill.internalKind, order: .forward),
+        SortDescriptor(\Bill.internalPeriod, order: .forward)
     ]
     @State private var searchString: String = "";
     
@@ -35,7 +35,7 @@ struct AllBillsViewEdit : View {
     
     @ViewBuilder
     private var wide: some View {
-        Table(context: query) {
+        Table(context: query, sortOrder: $sorting) {
             TableColumn("Name") { wrapper in
                 if horizontalSizeClass == .compact {
                     HStack {
@@ -91,7 +91,10 @@ struct AllBillsViewEdit : View {
         }
         .searchable(text: $searchString, prompt: "Name")
         .onChange(of: sorting) { _, sort in
-            _query.configure(sortDescriptors: sort)
+            _query.configure(sortDescriptors: sort.compactMap { NSSortDescriptor($0) } )
+        }
+        .onAppear {
+            _query.configure(sortDescriptors: sorting.compactMap { NSSortDescriptor($0) } )
         }
         .onChange(of: searchString) { _, search in
             if search.isEmpty {

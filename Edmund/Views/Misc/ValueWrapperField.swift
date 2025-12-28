@@ -32,7 +32,7 @@ public struct NumericalValueEntry<F, Label> : View where F: ParseableFormatStyle
             .onChange(of: text) { _, raw in
                 let filter = raw.filter { "-0123456789.".contains($0) }
                 
-                guard let parsed = try? format.parseStrategy.parse(raw) else {
+                guard let parsed = try? format.parseStrategy.parse(filter) else {
                     return;
                 }
                 

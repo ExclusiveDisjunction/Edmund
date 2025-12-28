@@ -138,11 +138,11 @@ public class DataStack : ObservableObject, @unchecked Sendable {
     private var _debugContainer: NSPersistentContainer? = nil;
     
     public var currentContainer: NSPersistentContainer {
-        #if DEBUG
+        //#if DEBUG
         self.debugContainer
-        #else
-        self.persistentContainer
-        #endif
+        //#else
+        //self.persistentContainer
+        //#endif
     }
 
     public var persistentContainer: NSPersistentContainer {
@@ -152,6 +152,7 @@ public class DataStack : ObservableObject, @unchecked Sendable {
             }
             
             let container = NSPersistentContainer(name: "ModelsV1");
+            
             container.loadPersistentStores { _, error in
                 if let error {
                     fatalError("Unable to load persistent store due to error \(error)")

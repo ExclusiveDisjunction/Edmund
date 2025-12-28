@@ -57,11 +57,7 @@ public actor AppLoaderEngine {
     
     private static func getModelContext(state: AppLoadingState) async -> NSPersistentContainer? {
         await MainActor.run {
-#if DEBUG
-            DataStack.shared.debugContainer
-#else
-            DataStack.shared.persistentContainer
-#endif
+            DataStack.shared.currentContainer
         }
         /*
         catch let e {

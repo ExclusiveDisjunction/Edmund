@@ -148,7 +148,7 @@ public struct BalanceResolver {
     ///     - maximum: When provided, the maximum date the transaction must be from.
     ///     - calendar: The calendar to use for date conversions.
     ///     - priority: The priority to give the background task to-be-spawned.
-    public static func splitTransactionsByMonth(using: NSPersistentContainer, minimum: MonthYear? = nil, maximum: MonthYear? = nil, calendar: Calendar = .current, priority: TaskPriority = .medium) async throws -> [MonthYear : BalanceInformation] {
+    public static func splitTransactionsByMonth(using: NSPersistentContainer, minimum: MonthYear? = nil, maximum: MonthYear? = nil, calendar: Calendar, priority: TaskPriority = .userInitiated) async throws -> [MonthYear : BalanceInformation] {
         try await Task(priority: priority) {
             try Self.splitTransactionsByMonth(cx: using.newBackgroundContext(), minimum: minimum, maximum: maximum, calendar: calendar)
         }.value
@@ -163,7 +163,7 @@ public struct BalanceResolver {
     ///     - minimum: When provided, the minimum date the transaction must be from.
     ///     - maximum: When provided, the maximum date the transaction must be from.
     ///     - calendar: The calendar to use for date conversions.
-    public static func splitTransactionsByMonth(cx: NSManagedObjectContext, minimum: MonthYear? = nil, maximum: MonthYear? = nil, calendar: Calendar = .current) throws -> [MonthYear : BalanceInformation] {
+    public static func splitTransactionsByMonth(cx: NSManagedObjectContext, minimum: MonthYear? = nil, maximum: MonthYear? = nil, calendar: Calendar) throws -> [MonthYear : BalanceInformation] {
         
         let fetchDescription = LedgerEntry.fetchRequest();
         
@@ -210,7 +210,7 @@ public struct BalanceResolver {
     ///
     ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
     ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
-    public static func categoricalSpending(using: NSPersistentContainer, priority: TaskPriority = .medium) async throws -> [SimpleBalance] {
+    public static func categoricalSpending(using: NSPersistentContainer, priority: TaskPriority = .userInitiated) async throws -> [SimpleBalance] {
         try await Task(priority: priority) {
             try Self.categoricalSpending(cx: using.newBackgroundContext())
         }.value
@@ -225,7 +225,6 @@ public struct BalanceResolver {
     ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
     public static func categoricalSpending(cx: NSManagedObjectContext) throws -> [SimpleBalance] {
         let fetchDesc = Category.fetchRequest();
-        fetchDesc.predicate = NSPredicate(fromMetadataQueryString: "ledger != nil");
         
         let categories = try cx.fetch(fetchDesc);
         
@@ -254,7 +253,7 @@ public struct BalanceResolver {
     ///
     ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
     ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
-    public static func categoricalSpending(using: NSPersistentContainer, forMonth: MonthYear, calendar: Calendar = .current, priority: TaskPriority = .medium) async throws -> [SimpleBalance] {
+    public static func categoricalSpending(using: NSPersistentContainer, forMonth: MonthYear, calendar: Calendar, priority: TaskPriority = .userInitiated) async throws -> [SimpleBalance] {
         try await Task(priority: priority) {
             try Self.categoricalSpending(cx: using.newBackgroundContext(), forMonth: forMonth, calendar: calendar)
         }.value
@@ -267,7 +266,7 @@ public struct BalanceResolver {
     ///
     ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
     ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all categories.
-    public static func categoricalSpending(cx: NSManagedObjectContext, forMonth: MonthYear, calendar: Calendar = .current) throws -> [SimpleBalance] {
+    public static func categoricalSpending(cx: NSManagedObjectContext, forMonth: MonthYear, calendar: Calendar) throws -> [SimpleBalance] {
         // This will ahve a different approach to computation than the others.
         // The others used a top down approach (Category -> LedgerEntry), and summed up all totals.
         // However, this approach will require the ledger entries to be fetched first, and then compile all information.
@@ -303,7 +302,7 @@ public struct BalanceResolver {
     ///
     ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
     ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all accounts.
-    public static func accountSpending(using: NSPersistentContainer, priority: TaskPriority = .medium) async throws -> [SimpleBalance] {
+    public static func accountSpending(using: NSPersistentContainer, priority: TaskPriority = .userInitiated) async throws -> [SimpleBalance] {
         try await Task(priority: priority) { [using] in
             let cx = using.newBackgroundContext();
             
@@ -320,7 +319,6 @@ public struct BalanceResolver {
     ///  - Returns: A list of ``SimpleBalance`` instances, which stores the associated total credits & debits for all accounts.
     public static func accountSpending(cx: NSManagedObjectContext) throws -> [SimpleBalance] {
         let fetchDesc = Account.fetchRequest();
-        fetchDesc.predicate = NSPredicate(fromMetadataQueryString: "internalEnvolopes != nil");
         
         let accounts = try cx.fetch(fetchDesc);
         
@@ -353,7 +351,7 @@ public struct BalanceResolver {
     ///     - forMonth: The month to filter for.
     ///     - calendar: The calendar to use for date conversions.
     ///     - priority: The priority to hand to the background task.
-    public static func accountSpending(using: NSPersistentContainer, forMonth: MonthYear, calendar: Calendar, priority: TaskPriority = .medium) async throws -> [SimpleBalance] {
+    public static func accountSpending(using: NSPersistentContainer, forMonth: MonthYear, calendar: Calendar, priority: TaskPriority = .userInitiated) async throws -> [SimpleBalance] {
         try await Task(priority: priority) {
             try Self.accountSpending(cx: using.newBackgroundContext(), forMonth: forMonth, calendar: calendar)
         }.value
@@ -399,7 +397,7 @@ public struct BalanceResolver {
     ///
     ///  - Throws: Any exception that the `NSManagedObjectContext` will throw during a query fetch.
     ///  - Returns: A list of `DetailedBalance` instances, which stores the associated total credits & debits for all accounts & envolopes.
-    public static func envolopeSpending(using: NSPersistentContainer, prioirty: TaskPriority = .medium) async throws -> [DetailedBalance] {
+    public static func envolopeSpending(using: NSPersistentContainer, prioirty: TaskPriority = .userInitiated) async throws -> [DetailedBalance] {
         try await Task(priority: prioirty) {
             return try Self.envolopeSpending(cx: using.newBackgroundContext())
         }.value;
@@ -414,8 +412,6 @@ public struct BalanceResolver {
     ///  - Returns: A list of `SimpleBalance` instances, which stores the associated total credits & debits for all accounts.
     public static func envolopeSpending(cx: NSManagedObjectContext) throws -> [DetailedBalance] {
         let fetchDesc = Account.fetchRequest();
-        fetchDesc.sortDescriptors = [NSSortDescriptor(keyPath: \Account.name, ascending: true)];
-        fetchDesc.predicate = NSPredicate(fromMetadataQueryString: "internalEnvolopes != nil");
         
         let accounts = try cx.fetch(fetchDesc);
         
@@ -455,7 +451,7 @@ public struct BalanceResolver {
     ///
     ///  - Throws: Any exception that the ``NSManagedObjectContext`` will throw during a query fetch.
     ///  - Returns: A list of `DetailedBalance` instances, which stores the associated total credits & debits for all accounts & envolopes.
-    public static func envolopeSpending(using: NSPersistentContainer, forMonth: MonthYear, calendar: Calendar, priority: TaskPriority = .medium) async throws -> [DetailedBalance] {
+    public static func envolopeSpending(using: NSPersistentContainer, forMonth: MonthYear, calendar: Calendar, priority: TaskPriority = .userInitiated) async throws -> [DetailedBalance] {
         try await Task(priority: priority) {
             try Self.envolopeSpending(cx: using.newBackgroundContext(), forMonth: forMonth, calendar: calendar)
         }.value
