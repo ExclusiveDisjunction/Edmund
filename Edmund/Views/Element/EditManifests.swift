@@ -21,14 +21,12 @@ public protocol EditableElementManifest {
 public class ElementEditManifest<T> : EditableElementManifest where T: NSManagedObject {
     public init(using: NSPersistentContainer, from: T) {
         self.cx = using.newBackgroundContext();
-        self.cx.automaticallyMergesChangesFromParent = true;
         self.target = cx.object(with: from.objectID) as! T;
         self.hash = self.target.hashValue;
         self.container = using;
     }
     public init?(using: NSPersistentContainer, fromId: NSManagedObjectID) {
         self.cx = using.newBackgroundContext();
-        self.cx.automaticallyMergesChangesFromParent = true;
         
         guard let target = cx.object(with: fromId) as? T else {
             return nil;
@@ -46,7 +44,7 @@ public class ElementEditManifest<T> : EditableElementManifest where T: NSManaged
     public let target: T;
     
     public var hasChanges: Bool {
-        !self.didSave || self.target.hashValue != hash
+        self.target.hasChanges
     }
     
     public func save() throws {
@@ -84,7 +82,7 @@ public class ElementAddManifest<T> : EditableElementManifest where T: NSManagedO
     public let target: T;
     
     public var hasChanges: Bool {
-        !self.didSave || self.target.hashValue != hash
+        !self.didSave
     }
     
     public func save() throws {

@@ -91,12 +91,15 @@ struct AllBillsViewEdit : View {
         }
         .searchable(text: $searchString, prompt: "Name")
         .onChange(of: sorting) { _, sort in
+            print("Sort Changed")
             _query.configure(sortDescriptors: sort.compactMap { NSSortDescriptor($0) } )
         }
         .onAppear {
+            print("Opened")
             _query.configure(sortDescriptors: sorting.compactMap { NSSortDescriptor($0) } )
         }
         .onChange(of: searchString) { _, search in
+            print("Query string changed")
             if search.isEmpty {
                 _query.noPredicate()
             }
@@ -119,26 +122,6 @@ struct AllBillsViewEdit : View {
             }
         }
     
-        /*
-        ToolbarItem(id: "add", placement: .primaryAction) {
-            Menu {
-                Button("Bill") {
-                    inspection.openAdding()
-                }
-                
-                Button("Subscription") {
-                    inspection.openAdding()
-                }
-                
-                Button("Utility") {
-                    inspection.openAdding()
-                }
-            } label: {
-                Label("Add", systemImage: "plus")
-            }
-        }
-        */
-        
         ElementAddButton(inspect: inspect, placement: .primaryAction)
         ElementInspectButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)
         ElementEditButton(context: query, inspect: inspect, warning: warning, placement: horizontalSizeClass == .compact ? .secondaryAction : .primaryAction)

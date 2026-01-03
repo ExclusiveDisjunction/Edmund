@@ -62,6 +62,30 @@ public struct QuerySelection<T> : DynamicProperty where T: NSManagedObject & Ide
     }
     
 }
+
+@MainActor
+@Observable
+fileprivate class FilterableQuerySelectionContext<T> where T: NSManagedObject & Identifiable {
+    init(filtering: @MainActor @escaping (T) -> Bool) {
+        self.filtering = filtering;
+    }
+    
+    var selection: Set<T.ID> = .init();
+    var filteredData: [T] = [];
+    var previousIds: [NSManagedObjectID] = [];
+    let filtering: @MainActor (T) -> Bool;
+    
+    func update(data: FetchedResults<T>) {
+        let currentIds = data.map( { $0.objectID } );
+        
+        if currentIds != self.previousIds {
+            self.previousIds = currentIds;
+            
+            self.filteredData = data.filter(filtering)
+        }
+    }
+}
+
 /// A context for selection based on a Core Data query that allows for post-query filtering.
 /// This allows for more advanced queries, but comes at an overhead cost.
 @MainActor
@@ -69,12 +93,11 @@ public struct QuerySelection<T> : DynamicProperty where T: NSManagedObject & Ide
 public struct FilterableQuerySelection<T> : DynamicProperty where T: NSManagedObject & Identifiable {
     public init(sortDescriptors: [SortDescriptor<T>] = [], predicate: NSPredicate? = nil, animation: Animation? = nil, filtering: @MainActor @escaping (T) -> Bool) {
         self._data = .init(sortDescriptors: sortDescriptors, predicate: predicate, animation: animation)
-        self.filtering = filtering
+        self.context = .init(filtering: filtering)
     }
     
     @FetchRequest private var data: FetchedResults<T>;
-    @State private var selection: Set<T.ID> = .init();
-    private let filtering: @MainActor (T) -> Bool;
+    @Bindable private var context: FilterableQuerySelectionContext<T>;
     
     public func configure(sortDescriptors: [NSSortDescriptor]? = nil, predicate: NSPredicate? = nil) {
         if let predicate = predicate {
@@ -91,9 +114,13 @@ public struct FilterableQuerySelection<T> : DynamicProperty where T: NSManagedOb
     
     public var wrappedValue: SelectionContext<[T]> {
         SelectionContext(
-            data: self.data.filter(filtering),
-            selection: $selection
+            data: context.filteredData,
+            selection: $context.selection
         )
+    }
+    
+    public func update() {
+        self.context.update(data: data)
     }
 }
 

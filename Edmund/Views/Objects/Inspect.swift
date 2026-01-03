@@ -8,30 +8,33 @@
 import SwiftUI
 
 /// A combination signals used to indicate what you want to do with a specific data element.
-public enum InspectionMode : Int, Identifiable, CaseIterable, Sendable {
+public enum InspectionState<T> : Identifiable where T: Identifiable {
     /// Signals the data should be edited
-    case edit
+    case edit(T)
     /// Signals the data should be viewed/inspected
-    case inspect
+    case inspect(T)
     /// Singlas the data is being added. This is essentially `Self.edit`, but gives extra context.
     case add
-    case none
     
-    public var id: String {
+    public enum ID : Hashable {
+        case add
+        case object(T.ID)
+    }
+    
+    public var id: ID {
         switch self {
-            case .edit: "edit"
-            case .inspect: "view"
-            case .add: "add"
-            case .none:" none"
+            case .edit(let v): .object(v.id)
+            case .inspect(let v): .object(v.id)
+            case .add: .add
         }
     }
+    
     /// The icon used for the specific mode. Note that `Self.add` should not be used in this context.
     public var icon: String {
         switch self {
             case .edit: "pencil"
             case .inspect: "info.circle"
             case .add: "exclimationmark"
-            case .none: ""
         }
     }
     /// The label used to display what action is taking place. Note that `Self.add` should not be used in this context.
@@ -40,58 +43,27 @@ public enum InspectionMode : Int, Identifiable, CaseIterable, Sendable {
             case .edit: "Edit"
             case .inspect: "Inspect"
             case .add: "Add"
-            case .none: "internalError"
         }
     }
 }
 
 /// A wrapper that allows for streamlined signaling of inspection/editing/adding for a data type.
 @Observable
-public class InspectionManifest<T> {
+public class InspectionManifest<T> where T: Identifiable {
     public init() {
-        mode = .none;
-        value = nil;
+        mode = nil;
     }
     
     /// The current mode being taken by the manifest.
-    public var mode: InspectionMode;
-    /// The value that is being added/edited/inspected
-    public var value: T?
+    public var mode: InspectionState<T>?;
     
-    /// Determines if the manifest is in the edit (which includes adding) mode.
-    /// This requires that *eitherr* ``mode`` is `.add` *or* ``mode`` is `.edit` and ``value`` is not `nil`.
-    public var isEditing: Bool {
-        get {
-            mode == .add || (self.value != nil && mode == .edit)
-        }
-        set {
-            self.value = nil;
-            self.mode = .none;
-        }
-    }
-    /// Determines if the manifest is in inspection mode.
-    /// This requires that ``value`` is not `nil`, and ``mode`` is `.inspect`.
-    public var isInspecting: Bool {
-        get {
-            self.value != nil && mode == .inspect
-        }
-        set {
-            self.value = nil;
-            self.mode = .none;
-        }
-    }
+    
     /// Determines if the manifest is in edit, add, or inspect mode.
     public var isActive: Bool {
-        get {
-            self.value != nil || self.mode == .add
-        }
-        set {
-            self.mode = .none;
-            self.value = nil;
-        }
+        self.mode != nil
     }
     
-    public func open<W>(selection: W, editing: Bool, warning: SelectionWarningManifest) where T: Identifiable, W: SelectionContextProtocol, W.Element == T {
+    public func open<W>(selection: W, editing: Bool, warning: SelectionWarningManifest) where W: SelectionContextProtocol, W.Element == T {
         let objects = selection.selectedItems
         
         guard !objects.isEmpty else { warning.warning = .noneSelected; return }
@@ -101,11 +73,9 @@ public class InspectionManifest<T> {
         self.open(value: target, editing: editing)
     }
     public func open(value: T, editing: Bool) {
-        self.value = value;
-        self.mode = editing ? .edit : .inspect;
+        self.mode = editing ? .edit(value) : .inspect(value);
     }
     public func openAdding() {
-        self.value = nil;
         self.mode = .add;
     }
 }
@@ -133,7 +103,7 @@ fileprivate struct InspectionManifestToolbarButton<W> : CustomizableToolbarConte
     
     @ToolbarContentBuilder
     var body: some CustomizableToolbarContent {
-        ToolbarItem(id: isEdit ? InspectionMode.edit.id : InspectionMode.inspect.id, placement: placement) {
+        ToolbarItem(id: isEdit ? "inspectionEdit" : "inspectionInspect", placement: placement) {
             Button {
                 inspect.open(selection: context, editing: isEdit, warning: warning)
             } label: {
@@ -188,7 +158,7 @@ public struct ElementEditButton<W> : CustomizableToolbarContent where W: Selecti
         InspectionManifestToolbarButton(context: context, inspect: inspect, warning: warning, isEdit: true, placement: placement)
     }
 }
-public struct ElementAddButton<T> : CustomizableToolbarContent {
+public struct ElementAddButton<T> : CustomizableToolbarContent where T: Identifiable {
     public init(inspect: InspectionManifest<T>, placement: ToolbarItemPlacement = .automatic) {
         self.inspect = inspect;
         self.placement = placement;
@@ -199,7 +169,7 @@ public struct ElementAddButton<T> : CustomizableToolbarContent {
     
     @ToolbarContentBuilder
     public var body: some CustomizableToolbarContent {
-        ToolbarItem(id: InspectionMode.add.id, placement: placement) {
+        ToolbarItem(id: "inspectionAdd", placement: placement) {
             Button {
                 inspect.openAdding()
             } label: {
@@ -218,10 +188,20 @@ public struct WithInspectorModifier<T> : ViewModifier where T: Identifiable & NS
     
     public func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $manifest.isInspecting) {
-                manifest.mode = .none
-            } content: {
-                ElementInspector(data: manifest.value!)
+            .sheet(item: $manifest.mode) { mode in
+                switch mode {
+                    case .inspect(let target): ElementInspector(data: target)
+                    default:
+                        VStack {
+                            Spacer()
+                            Text("The target data does not support editing. Please report this issue.")
+                            Spacer()
+                            
+                            Button("Ok") {
+                                manifest.mode = nil;
+                            }
+                        }
+                }
             }
     }
 }
@@ -240,13 +220,20 @@ public struct WithEditorModifier<T> : ViewModifier where T: Identifiable & NSMan
     
     public func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $manifest.isEditing) {
-                manifest.mode = .none
-            } content: {
-                switch manifest.mode {
+            .sheet(item: $manifest.mode) { mode in
+                switch mode {
                     case .add: ElementEditor(using: self.using, filling: filling, postAction: post)
-                    case .edit: ElementEditor(using: self.using, from: self.manifest.value!, postAction: post)
-                    default: Text("internalError")
+                    case .edit(let target): ElementEditor(using: self.using, from: target, postAction: post)
+                    default:
+                        VStack {
+                            Spacer()
+                            Text("The target data does not support inspection. Please report this issue.")
+                            Spacer()
+                            
+                            Button("Ok") {
+                                manifest.mode = nil;
+                            }
+                        }
                 }
             }
     }
@@ -266,14 +253,11 @@ public struct WithInspectorEditorModifier<T> : ViewModifier where T: Identifiabl
     
     public func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $manifest.isActive) {
-                manifest.mode = .none
-            } content: {
-                switch manifest.mode {
+            .sheet(item: $manifest.mode) { mode in
+                switch mode {
                     case .add: ElementIE(addingTo: using, filling: filling, postAction: post)
-                    case .edit: ElementIE(editingFrom: using, editing: manifest.value!, postAction: post)
-                    case .inspect: ElementIE(viewingFrom: using, viewing: manifest.value!, postAction: post)
-                    default: Text("internalError")
+                    case .edit(let target): ElementIE(editingFrom: using, editing: target, postAction: post)
+                    case .inspect(let target): ElementIE(viewingFrom: using, viewing: target, postAction: post)
                 }
             }
     }
