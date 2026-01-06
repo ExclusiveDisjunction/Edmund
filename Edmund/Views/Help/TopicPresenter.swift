@@ -8,7 +8,7 @@
 import SwiftUI
 import MarkdownUI
 
-struct TopicContentPresenter : View {
+fileprivate struct TopicContentPresenter : View {
     let over: LoadedHelpTopic;
     
     var body: some View {
@@ -18,7 +18,7 @@ struct TopicContentPresenter : View {
     }
 }
 
-struct TopicPagePresenter : View {
+internal struct TopicPagePresenter : View {
     let over: LoadedHelpTopic;
     
     var body: some View {
@@ -42,46 +42,7 @@ struct TopicPagePresenter : View {
     }
 }
 
-/*
- public struct UnloadedTopicPagePresenter : View {
- public init(over: TopicRequest) {
- self.over = over
- self.handle = .init(id: over.id)
- }
- public let over: TopicRequest;
- 
- @Environment(\.helpEngine) private var helpEngine;
- @Bindable private var handle: TopicLoadHandle;
- @State private var oldTask: Task<Void, Never>? = nil;
- 
- @ViewBuilder
- private var loading: some View {
- Spacer()
- 
- Text("Loading")
- ProgressView()
- .progressViewStyle(.linear)
- 
- Spacer()
- }
- 
- public var body: some View {
- switch handle.status {
- case .loading:
- loading
- .task {
- await helpEngine.getTopic(deposit: handle)
- }
- case .error(let e):
- TopicErrorView(e: e)
- case .loaded(let t):
- TopicPagePresenter(over: t)
- }
- }
- }
- */
-
-struct TopicErrorView : View {
+internal struct TopicErrorView : View {
     let e: TopicFetchError
     
     var body: some View {
@@ -106,8 +67,8 @@ struct TopicErrorView : View {
     }
 }
 
-struct TopicPresenter : View, HelpPresenterView {
-    init(_ key: HelpResourceID) {
+public struct TopicPresenter : View, HelpPresenterView {
+    public init(_ key: HelpResourceID) {
         self.key = key
     }
     
@@ -117,7 +78,7 @@ struct TopicPresenter : View, HelpPresenterView {
         await engine.getTopic(deposit: data)
     }
     
-    var body: some View {
+    public var body: some View {
         VStack {
             HStack {
                 Text(key.name)
@@ -140,12 +101,11 @@ struct TopicPresenter : View, HelpPresenterView {
 
 #Preview {
     let engine = HelpEngine()
-    let _ = Task {
-        await engine.walkDirectory()
-    }
-    
     
     TopicPresenter(.init(rawValue: "Help/Introduction.md"))
         .environment(\.helpEngine, engine)
         .frame(width: 400, height: 300)
+        .task {
+            await engine.walkDirectory()
+        }
 }

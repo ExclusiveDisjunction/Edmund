@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HelpGroupPagePresenter : View {
+fileprivate struct HelpGroupPagePresenter : View {
     let over: LoadedHelpGroup;
     @Binding var selectedID: HelpResourceID?;
     
@@ -54,7 +54,7 @@ struct HelpGroupPagePresenter : View {
     }
 }
 
-struct LoadedHelpGroupPresenter : View {
+fileprivate struct LoadedHelpGroupPresenter : View {
     init(data: LoadedHelpGroup) {
         self.data = data
         self.navigationTitle = data.name.isEmpty ? "Edmund Help" : data.name
@@ -107,7 +107,7 @@ struct LoadedHelpGroupPresenter : View {
     }
 }
 
-struct GroupFetchErrorPresenter : View {
+fileprivate struct GroupFetchErrorPresenter : View {
     let e: GroupFetchError;
     
     var body: some View {
@@ -134,11 +134,11 @@ struct GroupFetchErrorPresenter : View {
     }
 }
 
-struct TopicGroupPresenter : View, HelpPresenterView {
-    init() {
+public struct TopicGroupPresenter : View, HelpPresenterView {
+    public init() {
         self.key = .init()
     }
-    init(_ key: HelpResourceID) {
+    public init(_ key: HelpResourceID) {
         self.key = key
     }
     
@@ -148,8 +148,63 @@ struct TopicGroupPresenter : View, HelpPresenterView {
         await engine.getGroup(deposit: data)
     }
     
-    var body: some View {
+    public var body: some View {
         HelpResourcePresenter(key, refresh: refresh, error: GroupFetchErrorPresenter.init, content: LoadedHelpGroupPresenter.init)
+    }
+}
+
+public struct HelpTreePresenter : View {
+    
+    @Environment(\.helpEngine) private var helpEngine;
+    @Bindable private var handle: GroupLoadHandle = .init(id: .init())
+    @State private var oldTask: Task<Void, Never>? = nil;
+    
+    private func refresh() {
+        if let task = oldTask {
+            task.cancel()
+        }
+        
+        oldTask = Task {
+            await helpEngine.getTree(deposit: handle)
+        }
+    }
+    
+    @ViewBuilder
+    private var statusView: some View {
+        VStack {
+            Spacer()
+            
+            Text("Loading")
+            ProgressView()
+                .progressViewStyle(.linear)
+            
+            Button(action: refresh) {
+                Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
+            }
+            
+            Spacer()
+        }.padding()
+    }
+    
+    public var body: some View {
+        switch handle.status {
+            case .loading:
+                statusView
+                    .onAppear {
+                        refresh()
+                    }
+            case .error(let e):
+                VStack {
+                    Spacer()
+                    
+                    GroupFetchErrorPresenter(e: e)
+                        .padding()
+                    
+                    Spacer()
+                }.padding()
+            case .loaded(let v):
+                LoadedHelpGroupPresenter(data: v, title: NSLocalizedString("Edmund Help", comment: ""))
+        }
     }
 }
 

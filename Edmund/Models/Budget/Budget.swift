@@ -112,6 +112,18 @@ extension Budget {
         do {
             let paychecks = [IncomeDivision(context: cx), IncomeDivision(context: cx)];
             
+            paychecks[0].depositTo = pay;
+            paychecks[0].amount = 560.75;
+            paychecks[0].name = "Paycheck 1";
+            paychecks[0].kind = .pay;
+            paychecks[0].budget = result;
+            
+            paychecks[1].depositTo = pay;
+            paychecks[1].name = "Paycheck 2";
+            paychecks[1].amount = 612.75;
+            paychecks[1].kind = .pay;
+            paychecks[1].budget = result;
+            
             /*
              result.income = [
                  .init(name: "Paycheck 1", amount: 560.75, kind: .pay),

@@ -384,7 +384,7 @@ public actor HelpEngine {
     }
 }
 
-public struct HelpEngineKey : EnvironmentKey {
+fileprivate struct HelpEngineKey : EnvironmentKey {
     public typealias Value = HelpEngine;
     
     public static var defaultValue: HelpEngine {

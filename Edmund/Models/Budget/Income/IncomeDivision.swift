@@ -9,6 +9,10 @@ import Foundation
 import CoreData
 
 extension IncomeDivision {
+    public var name: String {
+        get { self.internalName ?? "" }
+        set { self.internalName = newValue }
+    }
     public var kind: IncomeKind {
         get { IncomeKind(rawValue: self.internalKind) ?? .pay }
         set { self.internalKind = newValue.rawValue }

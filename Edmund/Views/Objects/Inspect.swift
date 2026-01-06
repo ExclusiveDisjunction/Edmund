@@ -279,7 +279,7 @@ public extension View {
     /// Attaches a sheet to the view that activates whenever the user marks a specific object for editing or adding.
     /// - Parameters:
     ///     - manifest: The ``InspectionManifest`` to pull information from.
-    ///     - using: The ``NSPersistentContainer`` to add/edit information to/from. It is undefined behavior if the information being editied comes from a different container.
+    ///     - using: The ``CoreData/NSPersistentContainer`` to add/edit information to/from. It is undefined behavior if the information being editied comes from a different container.
     ///     - filling: The closure to use for creating default values of `T`, if such an action occurs.
     ///     - post: Any actions to run after a sucessful save.
     ///

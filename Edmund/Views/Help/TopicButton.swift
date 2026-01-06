@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum TopicButtonStyle {
+public enum TopicButtonStyle {
     case compact
     case textOnly
     case label
@@ -17,14 +17,14 @@ public protocol HelpPresenterView : View {
     init(_ key: HelpResourceID);
 }
 
-struct TopicButtonBase<P> : View where P: HelpPresenterView {
-    init(_ key: HelpResourceID) {
+public struct TopicButtonBase<P> : View where P: HelpPresenterView {
+    public init(_ key: HelpResourceID) {
         self.key = key
     }
-    init(_ key: String) {
+    public init(_ key: String) {
         self.init(HelpResourceID(rawValue: key))
     }
-    init(_ key: [String]) {
+    public init(_ key: [String]) {
         self.init(HelpResourceID(parts: key))
     }
     
@@ -38,7 +38,7 @@ struct TopicButtonBase<P> : View where P: HelpPresenterView {
         return result
     }
     
-    var body: some View {
+    public var body: some View {
         Button {
             showSheet = true
         } label: {
@@ -53,18 +53,18 @@ struct TopicButtonBase<P> : View where P: HelpPresenterView {
     }
 }
 
-typealias TopicButton = TopicButtonBase<TopicPresenter>;
-typealias TopicGroupButton = TopicButtonBase<TopicGroupPresenter>;
+public typealias TopicButton = TopicButtonBase<TopicPresenter>;
+public typealias TopicGroupButton = TopicButtonBase<TopicGroupPresenter>;
 
-struct TopicBaseToolbarButton<P> : CustomizableToolbarContent where P: HelpPresenterView {
-    init(_ key: HelpResourceID, placement: ToolbarItemPlacement = .automatic) {
+public struct TopicBaseToolbarButton<P> : CustomizableToolbarContent where P: HelpPresenterView {
+    public init(_ key: HelpResourceID, placement: ToolbarItemPlacement = .automatic) {
         self.key = key
         self.placement = placement
     }
-    init(_ key: String, placement: ToolbarItemPlacement = .automatic) {
+    public init(_ key: String, placement: ToolbarItemPlacement = .automatic) {
         self.init(HelpResourceID(rawValue: key), placement: placement)
     }
-    init(_ key: [String], placement: ToolbarItemPlacement = .automatic) {
+    public init(_ key: [String], placement: ToolbarItemPlacement = .automatic) {
         self.init(HelpResourceID(parts: key), placement: placement)
     }
     
@@ -72,7 +72,7 @@ struct TopicBaseToolbarButton<P> : CustomizableToolbarContent where P: HelpPrese
     private let placement: ToolbarItemPlacement;
     
     @ToolbarContentBuilder
-    var body: some CustomizableToolbarContent {
+    public var body: some CustomizableToolbarContent {
         ToolbarItem(id: "helpTopic", placement: placement) {
             TopicButtonBase<P>(key)
                 .topicButtonStyle(.label)
@@ -80,9 +80,8 @@ struct TopicBaseToolbarButton<P> : CustomizableToolbarContent where P: HelpPrese
     }
 }
 
-typealias TopicToolbarButton = TopicBaseToolbarButton<TopicPresenter>;
-@available(*, deprecated, message: "On macOS, this does not display properly and should not be used.")
-typealias TopicGroupToolbarButton = TopicBaseToolbarButton<TopicGroupPresenter>;
+public typealias TopicToolbarButton = TopicBaseToolbarButton<TopicPresenter>;
+public typealias TopicGroupToolbarButton = TopicBaseToolbarButton<TopicGroupPresenter>;
 
 #Preview {
     TopicButton("Help/Welcome.md")

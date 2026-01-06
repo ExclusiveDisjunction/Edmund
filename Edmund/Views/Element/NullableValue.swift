@@ -10,7 +10,7 @@ import SwiftUI
 
 @Observable
 public class NullableValueBacking<C, T> where C: AnyObject {
-    public init(_ source: C, _ path: WritableKeyPath<C, T?>, _ defaultValue: T) {
+    fileprivate init(_ source: C, _ path: WritableKeyPath<C, T?>, _ defaultValue: T) {
         self.source = source;
         self.path = path;
         self.defaultValue = defaultValue;

@@ -26,7 +26,7 @@ extension AccountKind : Displayable {
     }
 }
 
-extension Account : DefaultableElement, VoidableElement, NamedElement {
+extension Account : VoidableElement, NamedElement {
     public var name: String {
         get { self.internalName ?? "" }
         set { self.internalName = newValue }
@@ -43,6 +43,10 @@ extension Account : DefaultableElement, VoidableElement, NamedElement {
             
             self.internalCreditLimit = newValue as NSDecimalNumber?
         }
+    }
+    public var interest: Decimal {
+        get { (self.internalInterest ?? NSDecimalNumber()) as Decimal }
+        set { self.internalInterest = newValue as NSDecimalNumber }
     }
     /// The account kind
     public var kind: AccountKind {

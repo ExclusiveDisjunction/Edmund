@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HelpResourcePresenter<T, E, ErrorView, ContentView> : View where T: HelpResourceCore, E: Error, E: Sendable, ErrorView: View, ContentView: View {
+public struct HelpResourcePresenter<T, E, ErrorView, ContentView> : View where T: HelpResourceCore, E: Error & Sendable, ErrorView: View, ContentView: View {
     init(_ key: HelpResourceID, refresh: @escaping (HelpEngine, ResourceLoadHandle<T, E>) async -> Void, @ViewBuilder error: @escaping (E) -> ErrorView, @ViewBuilder content: @escaping (T) -> ContentView) {
         self.data = .init(id: key)
         
@@ -54,7 +54,7 @@ struct HelpResourcePresenter<T, E, ErrorView, ContentView> : View where T: HelpR
         Spacer()
     }
     
-    var body: some View {
+    public var body: some View {
         switch data.status {
             case .loading:
                 statusView
