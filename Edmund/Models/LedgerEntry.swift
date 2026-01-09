@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 /*
 extension LedgerEntry : EditableElement, InspectableElement, TypeTitled {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 extension Bill : NamedElement {
     public var name: String {

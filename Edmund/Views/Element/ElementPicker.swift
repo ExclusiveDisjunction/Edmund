@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 public struct ElementPicker<T> : View where T: Identifiable & NamedElement & NSManagedObject {
     public init(

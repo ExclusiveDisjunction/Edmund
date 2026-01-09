@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 /// A combination signals used to indicate what you want to do with a specific data element.
 public enum InspectionState<T> : Identifiable where T: Identifiable {

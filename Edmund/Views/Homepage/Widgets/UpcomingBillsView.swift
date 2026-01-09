@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+import CoreData
 
 struct UpcomingBillsView : View {
     @State private var loadedBills: [UpcomingBill]? = nil;

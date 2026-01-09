@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
+import CoreData
 
-extension Category : DefaultableElement, NamedElement, TransactionHolder {
+extension Category : NamedElement, TransactionHolder {
 
     public var name: String {
         get { self.internalName ?? "" }

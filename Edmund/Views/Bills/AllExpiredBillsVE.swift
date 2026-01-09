@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct AllExpiredBillsVE : View {
     @Bindable private var inspect: InspectionManifest<Bill> = .init()
@@ -92,9 +93,9 @@ struct AllExpiredBillsVE : View {
 #if os(iOS)
                 TableColumn("Amount") { wrapper in
                     HStack {
-                        Text(wrapper.data.amount, format: .currency(code: currencyCode))
+                        Text(wrapper.amount, format: .currency(code: currencyCode))
                         Text("/")
-                        Text(wrapper.data.period.perName)
+                        Text(wrapper.period.display)
                     }
                 }
 #else

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 /// Represents the different kind of accounts for more dynamic choices on the UI.
 public enum AccountKind : Int16, Identifiable, Hashable, Codable, CaseIterable {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 /// A protocol for some type that wraps the logic for selection based filtering of data.
 public protocol SelectionContextProtocol {
@@ -181,8 +182,8 @@ public extension List {
         C: RandomAccessCollection,
         C.Element: Identifiable,
         Content == ForEach<C, C.Element.ID, RowContent>,
-        SelectionValue == Set<C.Element.ID>
+        SelectionValue == C.Element.ID
     {
-        self.init(context.data, id: \C.Element.id, selection: context.selection, rowContent: rowContent)
+        self.init(context.data, selection: context.selection, rowContent: rowContent)
     }
 }

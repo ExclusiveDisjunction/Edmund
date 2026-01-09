@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 import Charts
 
 struct AllBillsViewEdit : View {
@@ -60,7 +61,7 @@ struct AllBillsViewEdit : View {
                 HStack {
                     Text(wrapper.amount, format: .currency(code: currencyCode))
                     Text("/")
-                    Text(wrapper.period.perName)
+                    Text(wrapper.period.display)
                 }
             }
 #else
