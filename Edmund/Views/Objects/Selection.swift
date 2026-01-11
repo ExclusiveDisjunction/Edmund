@@ -29,6 +29,11 @@ public struct SelectionContext<C> : SelectionContextProtocol where C: RandomAcce
         FrozenSelectionContext(data: self.data, selection: self.selection.wrappedValue)
     }
 }
+extension SelectionContext : Equatable where C: Equatable {
+    public static func ==(lhs: SelectionContext<C>, rhs: SelectionContext<C>) -> Bool {
+        lhs.data == rhs.data && lhs.selection.wrappedValue == rhs.selection.wrappedValue
+    }
+}
 /// A selection that has a frozen storage of what is currently selected.
 public struct FrozenSelectionContext<C> : SelectionContextProtocol where C: RandomAccessCollection, C.Element: Identifiable {
     public let data: C;
@@ -36,6 +41,11 @@ public struct FrozenSelectionContext<C> : SelectionContextProtocol where C: Rand
     
     public var selectedItems: [C.Element] {
         data.filter { selection.contains($0.id) }
+    }
+}
+extension FrozenSelectionContext : Equatable where C: Equatable {
+    public static func ==(lhs: FrozenSelectionContext<C>, rhs: FrozenSelectionContext<C>) -> Bool {
+        lhs.data == rhs.data && lhs.selection == rhs.selection
     }
 }
 
@@ -50,13 +60,21 @@ public struct QuerySelection<T> : DynamicProperty where T: NSManagedObject & Ide
     @FetchRequest private var data: FetchedResults<T>;
     @State private var selection: Set<T.ID> = .init();
     
-    public func configure(sortDescriptors: [SortDescriptor<T>] = [], predicate: NSPredicate? = nil) {
-        self._data.projectedValue.nsPredicate.wrappedValue = predicate;
-        self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors.compactMap { NSSortDescriptor($0) };
+    public func configure(sortDescriptors: [SortDescriptor<T>]? = nil, predicate: NSPredicate? = nil) {
+        if let predicate = predicate {
+            self._data.projectedValue.nsPredicate.wrappedValue = predicate
+        }
+        
+        if let sortDescriptors = sortDescriptors {
+            self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors.compactMap { NSSortDescriptor($0) };
+        }
+    }
+    public func noPredicate() {
+        self._data.projectedValue.nsPredicate.wrappedValue = nil;
     }
     
     public var wrappedValue: SelectionContext<FetchedResults<T>> {
-        SelectionContext(
+        return SelectionContext(
             data: self.data,
             selection: $selection
         )
@@ -80,6 +98,7 @@ fileprivate class FilterableQuerySelectionContext<T> where T: NSManagedObject & 
         let currentIds = data.map( { $0.objectID } );
         
         if currentIds != self.previousIds {
+            print("Data changed, updating IDs.")
             self.previousIds = currentIds;
             
             self.filteredData = data.filter(filtering)
@@ -100,13 +119,13 @@ public struct FilterableQuerySelection<T> : DynamicProperty where T: NSManagedOb
     @FetchRequest private var data: FetchedResults<T>;
     @Bindable private var context: FilterableQuerySelectionContext<T>;
     
-    public func configure(sortDescriptors: [NSSortDescriptor]? = nil, predicate: NSPredicate? = nil) {
+    public func configure(sortDescriptors: [SortDescriptor<T>]? = nil, predicate: NSPredicate? = nil) {
         if let predicate = predicate {
             self._data.projectedValue.nsPredicate.wrappedValue = predicate;
         }
         
         if let sortDescriptors = sortDescriptors {
-            self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors;
+            self._data.projectedValue.nsSortDescriptors.wrappedValue = sortDescriptors.compactMap { NSSortDescriptor($0) };
         }
     }
     public func noPredicate() {

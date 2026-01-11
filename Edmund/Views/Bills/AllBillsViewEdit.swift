@@ -8,6 +8,18 @@
 import SwiftUI
 import CoreData
 import Charts
+import os
+
+extension SortOrder {
+    mutating func toggle() {
+        let newValue: Self = switch self {
+            case .forward: .reverse
+            case .reverse: .forward
+        }
+        
+        self = newValue
+    }
+}
 
 struct AllBillsViewEdit : View {
     @State private var showingChart: Bool = false;
@@ -26,12 +38,20 @@ struct AllBillsViewEdit : View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass;
     @Environment(\.calendar) private var calendar;
+    @Environment(\.loggerSystem) private var logger;
     
     @AppStorage("showcasePeriod") private var showcasePeriod: TimePeriods = .weekly;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
     
     private var totalPPP: Decimal {
         query.data.reduce(0) { $0 + ($1.isExpired ? 0 : $1.pricePer(showcasePeriod)) }
+    }
+    private func toggleSort<T>(_ key: KeyPath<Bill, T>) {
+        guard let index = self.sorting.firstIndex(where: { $0.keyPath == key }) else {
+            logger?.data.warning("Unable to find the keypath for sorting.")
+            return
+        }
+        self.sorting[index].order.toggle()
     }
     
     @ViewBuilder
@@ -72,6 +92,7 @@ struct AllBillsViewEdit : View {
                 Text(wrapper.period.display)
             }
 #endif
+            /*
             TableColumn("Next Due Date") { wrapper in
                 if let date = wrapper.nextDueDate(calendar: calendar) {
                     Text(date.formatted(date: .abbreviated, time: .omitted))
@@ -80,6 +101,7 @@ struct AllBillsViewEdit : View {
                     Text("-")
                 }
             }
+             */
             
             TableColumn("Set-Aside Cost") { wrapper in
                 Text(
@@ -92,15 +114,13 @@ struct AllBillsViewEdit : View {
         }
         .searchable(text: $searchString, prompt: "Name")
         .onChange(of: sorting) { _, sort in
-            print("Sort Changed")
-            _query.configure(sortDescriptors: sort.compactMap { NSSortDescriptor($0) } )
+            _query.configure(sortDescriptors: sorting )
         }
         .onAppear {
-            print("Opened")
-            _query.configure(sortDescriptors: sorting.compactMap { NSSortDescriptor($0) } )
+            _query.configure(sortDescriptors: sorting )
         }
-        .onChange(of: searchString) { _, search in
-            print("Query string changed")
+        .onChange(of: searchString) { _, rawSearch in
+            let search = rawSearch.trimmingCharacters(in: .whitespacesAndNewlines)
             if search.isEmpty {
                 _query.noPredicate()
             }
