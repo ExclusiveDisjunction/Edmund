@@ -119,12 +119,12 @@ public struct SelectionContextMenu<W> : View where W: SelectionContextProtocol {
         if canView {
             Button(action: handleView ) {
                 Label("Inspect", systemImage: "info.circle")
-            }.disabled(inspectEnabled)
+            }.disabled(!inspectEnabled)
         }
         
         Button(action: handleEdit) {
             Label("Edit", systemImage: "pencil")
-        }.disabled(inspectEnabled)
+        }.disabled(!inspectEnabled)
         
         Button(action: handleDelete) {
             Label("Delete", systemImage: "trash")

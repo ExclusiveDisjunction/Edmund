@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreData
 import Charts
+import Combine
 import os
 
 extension SortOrder {
@@ -19,6 +20,16 @@ extension SortOrder {
         
         self = newValue
     }
+}
+
+
+
+public class BillSortingFiltering : ObservableObject {
+    
+    @Published public var rawSearchString: String = "";
+    @Published public var searchString: String = "";
+    
+    
 }
 
 struct AllBillsViewEdit : View {
@@ -110,7 +121,7 @@ struct AllBillsViewEdit : View {
                 )
             }
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            SelectionContextMenu(context: query, inspect: inspect, delete: deleting, warning: warning)
+            SelectionContextMenu(context: FrozenSelectionContext(data: self.query.data, selection: selection), inspect: inspect, delete: deleting, warning: warning)
         }
         .searchable(text: $searchString, prompt: "Name")
         .onChange(of: sorting) { _, sort in
