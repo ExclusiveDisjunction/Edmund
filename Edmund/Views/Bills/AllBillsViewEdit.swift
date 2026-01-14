@@ -32,6 +32,39 @@ public class BillSortingFiltering : ObservableObject {
     
 }
 
+public class FetchedBaseViewModel<T> : ObservableObject where T: NSManagedObject {
+    public init(context: NSManagedObjectContext) {
+        let request = T.fetchRequest();
+        
+        self.cancellable = NotificationCenter.default
+            .publisher(
+                for: .NSManagedObjectContextObjectsDidChange,
+                object: context
+            )
+            .sink { [weak self] _ in
+                guard let self = self else {
+                    return;
+                }
+                
+                self.task?.cancel();
+                self.task = Task {
+                    await self.recompute(context: context)
+                }
+            }
+    }
+    
+    private var cancellable: AnyCancellable?;
+    private var task: Task<Void, Never>?;
+    
+    open func recompute(context: NSManagedObjectContext) async {
+        
+    }
+}
+
+public class AllBillsVEViewModel : ObservableObject {
+    
+}
+
 struct AllBillsViewEdit : View {
     @State private var showingChart: Bool = false;
     @State private var sorting = [
