@@ -9,7 +9,7 @@ import os
 import SwiftUI
 
 public struct LoggerSystem : Sendable {
-    init() {
+    public init() {
         self.app    = Logger(subsystem: Self.bundleID, category: "App Messages")
         self.help   = Logger(subsystem: Self.bundleID, category: "Help Engine")
         self.unique = Logger(subsystem: Self.bundleID, category: "Unique Engine")

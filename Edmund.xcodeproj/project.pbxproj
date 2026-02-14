@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		DD4DFB242EF8E14800A4661A /* Help in Resources */ = {isa = PBXBuildFile; fileRef = DD4DFB232EF8E14800A4661A /* Help */; };
 		DDAB7BE62EE939B40081776B /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = DDAB7BE52EE939B40081776B /* MarkdownUI */; };
+		DDCF43CC2F4129D900F365CE /* TestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = DDCF43CB2F4129D900F365CE /* TestPlan.xctestplan */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		DD4DA9E12EE4B0DA00804A36 /* EdmundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4DA9EB2EE4B0DA00804A36 /* EdmundUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdmundUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD4DFB232EF8E14800A4661A /* Help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Help; sourceTree = "<group>"; };
+		DDCF43CB2F4129D900F365CE /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -67,7 +69,6 @@
 				"Resources/Logos/SVG/Logo iOS-Tinted.svg",
 				"Resources/Logos/SVG/Logo iOS.svg",
 				Resources/Logos/SVG/Logo.svg,
-				Views/AltRowView.swift,
 				Views/BoundPairEdit.swift,
 				Views/Budget/BudgetAdd.swift,
 				Views/Budget/BudgetPicker.swift,
@@ -207,6 +208,7 @@
 		DD4DA9C62EE4B0D900804A36 = {
 			isa = PBXGroup;
 			children = (
+				DDCF43CB2F4129D900F365CE /* TestPlan.xctestplan */,
 				DD4DFB232EF8E14800A4661A /* Help */,
 				DD4DA9D12EE4B0D900804A36 /* Edmund */,
 				DD4DA9E42EE4B0DA00804A36 /* EdmundTests */,
@@ -359,6 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD4DFB242EF8E14800A4661A /* Help in Resources */,
+				DDCF43CC2F4129D900F365CE /* TestPlan.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

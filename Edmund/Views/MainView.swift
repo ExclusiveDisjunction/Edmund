@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct PageDestinationWrapper : Identifiable {
     init(name: String, content: [PageDestinations]) {
@@ -29,7 +28,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
     case audit = "Auditor"
     
     case bills = "Bills"
-    case expiredBills = "Expired Bills"
     
     case jobs = "Jobs"
     case incomeDivider = "Income Divider"
@@ -50,8 +48,7 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
                 .audit
             ]),
             .init(name: "Bills", content: [
-                .bills,
-                .expiredBills
+                .bills
             ]),
             .init(name: "Budgeting & Pay", content: [
                 .budget,
@@ -76,7 +73,6 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             case .audit: "auditHelper"
                 
             case .bills: "bills"
-            case .expiredBills: "expiredBills"
                 
             case .jobs: "jobs"
             case .incomeDivider: "incomeDivider"
@@ -90,43 +86,31 @@ enum PageDestinations: LocalizedStringKey, Identifiable {
             //case .taxes: "taxes"
         }
     }
-    
-    /// The specified view used to store the data.
-    @MainActor
-    @ViewBuilder
-    var view : some View {
+}
+extension PageDestinations : View {
+    var body : some View {
         switch self {
             case .home: Homepage()
                 
-            //case .ledger: LedgerTable()
-            //case .balance: BalanceSheet()
+                //case .ledger: LedgerTable()
+                //case .balance: BalanceSheet()
                 
-            //case .incomeDivider: IncomeDivisions()
-            //case .budget: Budgets()
+                //case .incomeDivider: IncomeDivisions()
+                //case .budget: Budgets()
                 
             case .bills: AllBillsViewEdit()
-            case .expiredBills: AllExpiredBillsVE()
                 
-            //case .accounts: AccountsIE()
-            //case .categories: CategoriesIE()
-            //case .audit: Auditor()
+                //case .accounts: AccountsIE()
+                //case .categories: CategoriesIE()
+                //case .audit: Auditor()
                 
-            //case .jobs: AllJobsViewEdit()
-            
-        default: Text("Work in Progres")
+                //case .jobs: AllJobsViewEdit()
+                
+            default: Text("Work in Progres")
         }
     }
 }
 
-fileprivate struct PageDestinationsKey : FocusedValueKey {
-    typealias Value = PageDestinations;
-}
-extension FocusedValues {
-    var currentPage: PageDestinations? {
-        get { self[PageDestinationsKey.self] }
-        set { self[PageDestinationsKey.self] = newValue }
-    }
-}
 fileprivate struct LockedPagesKey : EnvironmentKey {
     typealias Value = Binding<Bool>;
     static var defaultValue: Binding<Bool> {
@@ -166,9 +150,9 @@ struct MainView: View {
             if MainView.allowPopouts {
                 Text(page.rawValue)
                     .contextMenu {
-                        Button("Open in new Window", action: {
+                        Button("Open in new Window") {
                             openWindow(id: page.key)
-                        })
+                        }
                     }
             }
             else {
@@ -210,10 +194,10 @@ struct MainView: View {
                 }.disabled(locked)
             }.navigationSplitViewColumnWidth(min: 180, ideal: 200)
         } detail: {
-            (page ?? .home).view
+            (page ?? .home)
                 .frame(minWidth: horizontalSizeClass == .compact ? 0 : 500, minHeight: 400)
                 .environment(\.pagesLocked, $locked)
-        }.focusedValue(\.currentPage, page)
+        }
     }
 }
 

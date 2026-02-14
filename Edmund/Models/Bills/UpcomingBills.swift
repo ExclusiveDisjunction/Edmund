@@ -71,7 +71,7 @@ public struct UpcomingBillsComputation : ~Copyable {
     
     public func determineUpcomingBills(for date: Date, calendar: Calendar) -> UpcomingBillsBundle {
         let upcomings = data.compactMap {
-            if let next = $0.computeNextDueDate(relativeTo: date, calendar: calendar) {
+            if let next = $0.nextDueDate(calendar: calendar, relativeTo: date) {
                 UpcomingBill(name: $0.name, amount: $0.amount, dueDate: next)
             }
             else {

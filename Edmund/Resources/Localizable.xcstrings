@@ -4,6 +4,9 @@
     "" : {
 
     },
+    "-" : {
+
+    },
     "(No date)" : {
 
     },
@@ -312,6 +315,9 @@
       }
     },
     "Bills & Budget" : {
+
+    },
+    "Bills Error" : {
 
     },
     "Bottom Section" : {
@@ -642,6 +648,9 @@
     "Edmund Help" : {
 
     },
+    "Edmund ran into a problem while trying to determine when the bills come due next. Press 'Reset' to try again." : {
+
+    },
     "Edmund was not able to obtain the guide's contents." : {
 
     },
@@ -650,12 +659,6 @@
     },
     "End Date:" : {
 
-    },
-    "Ended On" : {
-
-    },
-    "Ended:" : {
-      "comment" : "Bill ended on date"
     },
     "Error" : {
       "comment" : "Used as the title of a message explaining what went wrong.",
@@ -701,7 +704,7 @@
         }
       }
     },
-    "Expired Bills" : {
+    "Expired" : {
 
     },
     "Frequency" : {
@@ -1063,13 +1066,13 @@
     "Net Spending" : {
 
     },
+    "Next Due Date" : {
+
+    },
     "No" : {
 
     },
     "No end date" : {
-
-    },
-    "No Information" : {
 
     },
     "noCategories" : {
@@ -1341,6 +1344,9 @@
     "Request a feature" : {
 
     },
+    "Reset" : {
+
+    },
     "Revert Changes" : {
 
     },
@@ -1438,9 +1444,6 @@
     "Start Date:" : {
 
     },
-    "Started On" : {
-
-    },
     "Sub Account" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1523,9 +1526,6 @@
 
     },
     "There are no balances to display" : {
-
-    },
-    "There are no expired bills" : {
 
     },
     "There are no upcoming bills" : {
