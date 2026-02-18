@@ -11,14 +11,30 @@ import os
 
 /// Stores information about the due date of a specific bill.
 public enum BillDueDateInfo : Equatable, Sendable {
+    /// Indicates that the bill has no next due date because it has expired.
     case expired
+    /// The next due date (relative to the computation time) that the bill comes due next.
     case dueOn(Date)
     
+    /// Obtains all due dates for all bills using a background task & context.
+    /// - Parameters:
+    ///     - using: The container to fetch data from.
+    ///     - calendar: The calendar to use for selecting dates.
+    ///     - taskPriority: The priority to pass to the background task.
+    /// - Throws: Any error that ``getAllDueDates(cx:calendar:)`` throws. Specifically, if the fetch fails, it will throw.
+    /// - Returns: A sendable dictionary with the bill's Object ID and their specified due date.
     public static func getAllDueDates(using: NSPersistentContainer, calendar: Calendar, taskPriority: TaskPriority = .userInitiated) async throws -> [NSManagedObjectID : BillDueDateInfo] {
         return try await Task(priority: taskPriority) {
             return try BillDueDateInfo.getAllDueDates(cx: using.newBackgroundContext(), calendar: calendar)
         }.value;
     }
+    /// Obtains all due dates for all bills using a specified context.
+    /// - Parameters:
+    ///     - cx: The object contex to fetch the bills from.
+    ///     - calendar: The calendar to compute dates from.
+    ///
+    /// - Throws: Any error occured while fetching Bill isntances.
+    /// - Warning: This will block the current thread and compute all due dates. Do not use this on the main thread. Use ``getAllDueDates(using:calendar:taskPriority:)`` instead.
     public static func getAllDueDates(cx: NSManagedObjectContext, calendar: Calendar) throws -> [NSManagedObjectID : BillDueDateInfo] {
         var result: [NSManagedObjectID : BillDueDateInfo] = [:];
         
@@ -38,45 +54,67 @@ public enum BillDueDateInfo : Equatable, Sendable {
     }
 }
 
+/// The state of bill due date computation.
+/// This is used to indicate to the UI how to present date data.
 public enum DueDatesComputationState : Sendable, Equatable {
+    /// The system is currently computing results.
     case loading
+    /// The system failed to compute results.
     case error
+    /// The system has completed computing results.
     case loaded( [NSManagedObjectID : BillDueDateInfo] )
 }
 
-@Observable
-public final class BillsDateManager : Sendable {
-    @MainActor
-    public init(using: NSPersistentContainer = DataStack.shared.currentContainer, calendar: Calendar, log: LoggerSystem) {
+/// A simple structure used to indicate an error for diff updating.
+fileprivate struct UpdateError : Error { }
+
+/// The UI presentable & isolated data for bill due dates.
+@MainActor
+fileprivate final class BillsDateUIData : Sendable {
+    init() {
         self.state = .loading;
-        
-        let cx = using.viewContext;
-        self.innerCx = using.newBackgroundContext();
-        self.log = log;
-        self.calendar = calendar;
-        
-        NotificationCenter.default.addObserver(
-            forName: .NSManagedObjectContextDidSave,
-            object: cx,
-            queue: nil
-        ) { [weak self] note in
-            self?.handleSave(note: note)
-        };
     }
     
-    private let innerCx: NSManagedObjectContext;
-    private let log: LoggerSystem?;
-    private let calendar: Calendar;
+    /// The current state of the computation.
+    var state: DueDatesComputationState;
     
-    @MainActor
-    public var state: DueDatesComputationState;
+    /// Returns the dates if computed, or an empty dictionary if loading or error state.
+    func getCurrentDates() -> [NSManagedObjectID : BillDueDateInfo] {
+        switch self.state {
+            case .error:
+                fallthrough
+            case .loading:
+                return [:];
+            case .loaded(let v):
+                return v;
+        }
+    }
     
-    @MainActor
-    public var hasError: Bool {
+    /// Sets the state to loading.
+    func reset() {
+        withAnimation {
+            self.state = .loading;
+        }
+    }
+    /// Sets the state to error.
+    func withError() {
+        withAnimation {
+            self.state = .error
+        }
+    }
+    /// Sets the state to loaded with a specified data bundle.
+    func withValue(_ data: [NSManagedObjectID : BillDueDateInfo] ) {
+        withAnimation {
+            self.state = .loaded(data)
+        }
+    }
+    
+    /// Indicates that the system is in an error state.
+    var hasError: Bool {
         self.state == .error
     }
-    @MainActor
-    public var isLoaded: Bool {
+    /// Indicates that the system is in the loaded state.
+    var isLoaded: Bool {
         switch self.state {
             case .loading:
                 fallthrough
@@ -86,8 +124,12 @@ public final class BillsDateManager : Sendable {
                 return true;
         }
     }
-    @MainActor
-    public func fetchAgainst(id: NSManagedObjectID) -> BillDueDateInfo? {
+    /// Indicates that the system is in the loading state.
+    var isLoading: Bool {
+        self.state == .loading
+    }
+    /// If loaded, returns the specified due date for a bill, providing such a bill has been computed.
+    func fetchAgainst(id: NSManagedObjectID) -> BillDueDateInfo? {
         switch self.state {
             case .loading:
                 fallthrough
@@ -97,46 +139,22 @@ public final class BillsDateManager : Sendable {
                 return values[id]
         }
     }
-    
-    private nonisolated func handleSave(note: Notification) {
-        guard let info = note.userInfo else {
-            log?.app.warning("Got notification to update bills, but there is no payload in the notification.")
-            return;
-        }
-        
-        log?.app.info("Got notification to update bill due dates.");
-        
-        let inserted = (info[NSInsertedObjectsKey] as? Set<NSManagedObject>) ?? Set();
-        let updated = (info[NSUpdatedObjectsKey] as? Set<NSManagedObject>) ?? Set();
-        let deleted = (info[NSDeletedObjectsKey] as? Set<NSManagedObject>) ?? Set();
-        
-        let updatedTargets = inserted.union(updated)
-            .filter { $0.entity.name == Bill.className() }
-            .map { $0.objectID };
-        let deletedTargets = deleted
-            .filter { $0.entity.name == Bill.className() }
-            .map { $0.objectID };
-        
-        log?.app.info("Processing \(updatedTargets.count) updated bill(s), and \(deletedTargets.count) deleted bill(s).");
-        
-        Task {
-            await self.diffDueDates(update: updatedTargets, delete: deletedTargets)
-        }
+}
+fileprivate final actor BillsDueDateActor {
+    init(cx: NSManagedObjectContext, log: LoggerSystem, calendar: Calendar, data: BillsDateUIData) {
+        self.innerCx = cx;
+        self.log = log;
+        self.calendar = calendar;
+        self.data = data;
     }
     
-    private struct UpdateError : Error { }
+    private let innerCx: NSManagedObjectContext;
+    private let log: LoggerSystem;
+    private let calendar: Calendar;
+    private let data: BillsDateUIData;
     
-    private nonisolated func diffDueDates(update: [NSManagedObjectID], delete: [NSManagedObjectID]) async {
-        var dueDates: [NSManagedObjectID : BillDueDateInfo] = await MainActor.run {
-            switch self.state {
-                case .error:
-                    fallthrough
-                case .loading:
-                    return [:];
-                case .loaded(let v):
-                    return v
-            }
-        };
+    func diffDueDates(update: [NSManagedObjectID], delete: [NSManagedObjectID]) async {
+        var dueDates = await data.getCurrentDates();
         
         let (log, calendar) = (self.log, self.calendar); //Remove closure capture from self
         
@@ -148,7 +166,7 @@ public final class BillsDateManager : Sendable {
             do {
                 let newDate: BillDueDateInfo = try await innerCx.perform { [innerCx] in
                     guard let target = innerCx.object(with: id) as? Bill else {
-                        log?.app.error("Attempted to fetch object with ID \(id) as a Bill, but it is another type.");
+                        log.app.error("Attempted to fetch object with ID \(id) as a Bill, but it is another type.");
                         throw UpdateError();
                     }
                     
@@ -163,33 +181,23 @@ public final class BillsDateManager : Sendable {
                 dueDates[id] = newDate;
             }
             catch {
-                log?.data.warning("Unable to fetch all new bill due dates.");
+                log.data.warning("Unable to fetch all new bill due dates.");
                 
-                await MainActor.run {
-                    withAnimation {
-                        self.state = .error
-                    }
-                }
+                await data.withError()
             }
         }
         
+        log.data.info("Completed update of bill due dates.")
+        
         //Now that we removed the deleted, and updated the new/updated instances, we can update the main state.
-        await MainActor.run {
-            withAnimation {
-                self.state = .loaded(dueDates)
-            }
-        }
+        await data.withValue(dueDates)
     }
     
-    public nonisolated func reset() async {
+    func reset() async {
         do {
-            await MainActor.run {
-                withAnimation {
-                    self.state = .loading
-                }
-            }
+            await data.reset();
             
-            log?.data.debug("Determining bill due dates.");
+            log.data.debug("Determining bill due dates.");
             
             let result = try await BillDueDateInfo.getAllDueDates(
                 using: DataStack.shared.currentContainer,
@@ -197,21 +205,93 @@ public final class BillsDateManager : Sendable {
                 taskPriority: Task.currentPriority
             );
             
-            log?.data.debug("Bill due dates determined.");
+            log.data.debug("Bill due dates determined.");
             
-            await MainActor.run {
-                withAnimation {
-                    self.state = .loaded(result)
-                }
-            }
+            await data.withValue(result);
         }
         catch let e {
-            log?.data.error("Unable to fetch the bill due dates, error: \(e)");
-            await MainActor.run {
-                withAnimation {
-                    self.state = .error
-                }
-            }
+            log.data.error("Unable to fetch the bill due dates, error: \(e)");
+            await data.withError();
+        }
+    }
+    
+    func fetchAgainst(id: NSManagedObjectID) async -> BillDueDateInfo? {
+        await self.data.fetchAgainst(id: id)
+    }
+}
+
+@Observable
+public final class BillsDateManager : Sendable {
+    @MainActor
+    public init(using: NSPersistentContainer = DataStack.shared.currentContainer, calendar: Calendar, log: LoggerSystem) {
+        let ui = BillsDateUIData();
+        
+        let cx = using.viewContext;
+        let backgroundCx = using.newBackgroundContext();
+        
+        self.log = log;
+        self.ui = ui;
+        self.actor = .init(cx: backgroundCx, log: log, calendar: calendar, data: ui)
+        
+        NotificationCenter.default.addObserver(
+            forName: .NSManagedObjectContextDidSave,
+            object: cx,
+            queue: nil
+        ) { [weak self] note in
+            self?.handleSave(note: note)
+        };
+    }
+    
+    private let log: LoggerSystem;
+    private let actor: BillsDueDateActor;
+    private let ui: BillsDateUIData;
+
+    @MainActor
+    public var hasError: Bool {
+        ui.hasError
+    }
+    @MainActor
+    public var isLoaded: Bool {
+        ui.isLoaded
+    }
+    @MainActor
+    public var isLoading: Bool {
+        ui.isLoading
+    }
+    @MainActor
+    public func fetchAgainst(id: NSManagedObjectID) -> BillDueDateInfo? {
+        ui.fetchAgainst(id: id)
+    }
+    public nonisolated func fetchAgainstGuarded(id: NSManagedObjectID) async -> BillDueDateInfo? {
+        await actor.fetchAgainst(id: id)
+    }
+    public nonisolated func reset() async {
+        await actor.reset();
+    }
+    
+    private nonisolated func handleSave(note: Notification) {
+        guard let info = note.userInfo else {
+            log.app.warning("Got notification to update bills, but there is no payload in the notification.")
+            return;
+        }
+        
+        log.app.info("Got notification to update bill due dates.");
+        
+        let inserted = (info[NSInsertedObjectsKey] as? Set<NSManagedObject>) ?? Set();
+        let updated = (info[NSUpdatedObjectsKey] as? Set<NSManagedObject>) ?? Set();
+        let deleted = (info[NSDeletedObjectsKey] as? Set<NSManagedObject>) ?? Set();
+        
+        let updatedTargets = inserted.union(updated)
+            .filter { $0.entity.name == Bill.className() }
+            .map { $0.objectID };
+        let deletedTargets = deleted
+            .filter { $0.entity.name == Bill.className() }
+            .map { $0.objectID };
+        
+        log.app.info("Processing \(updatedTargets.count) updated bill(s), and \(deletedTargets.count) deleted bill(s).");
+        
+        Task {
+            await actor.diffDueDates(update: updatedTargets, delete: deletedTargets)
         }
     }
 }

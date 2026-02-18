@@ -39,12 +39,12 @@ struct BillsDueDateManagerTester {
     
     @Test
     func testDidReset() async throws {
-        let isLoaded = await manager.isLoaded;
-        try #require( isLoaded )
+        try await Task.sleep(for: .seconds(1));
+        try #require( await manager.isLoaded );
         
-        let dueDateInfo = await MainActor.run {
-            manager.fetchAgainst(id: bill.objectID)
-        };
+        let dueDateInfo = await Task { @MainActor in
+            return await manager.fetchAgainstGuarded(id: bill.objectID);
+        }.value;
         
         let day: Date? = if case .dueOn(let day) = dueDateInfo { day } else { nil };
         
