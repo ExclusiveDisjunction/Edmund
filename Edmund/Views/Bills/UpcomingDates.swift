@@ -282,10 +282,10 @@ public final class BillsDateManager : Sendable {
         let deleted = (info[NSDeletedObjectsKey] as? Set<NSManagedObject>) ?? Set();
         
         let updatedTargets = inserted.union(updated)
-            .filter { $0.entity.name == Bill.className() }
+            .filter { $0.entity.name == "Bill" }
             .map { $0.objectID };
         let deletedTargets = deleted
-            .filter { $0.entity.name == Bill.className() }
+            .filter { $0.entity.name == "Bill" }
             .map { $0.objectID };
         
         log.app.info("Processing \(updatedTargets.count) updated bill(s), and \(deletedTargets.count) deleted bill(s).");

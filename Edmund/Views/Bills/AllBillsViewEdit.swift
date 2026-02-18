@@ -76,7 +76,7 @@ struct AllBillsViewEdit : View {
             }
 #endif
             TableColumn("Next Due Date") { wrapper in
-                //DueDateViewer(source: dates.dueDates?[wrapper.objectID])
+                DueDateViewer(forBill: wrapper.objectID)
             }
             
             TableColumn("Set-Aside Cost") { wrapper in
@@ -88,6 +88,7 @@ struct AllBillsViewEdit : View {
         }.contextMenu(forSelectionType: Bill.ID.self) { selection in
             SelectionContextMenu(context: FrozenSelectionContext(data: self.query.data, selection: selection), inspect: inspect, delete: deleting, warning: warning)
         }
+        .withBillsDueDateWarning()
         /*
         .searchable(text: $searchString, prompt: "Name")
         .onChange(of: sorting) { _, sort in
@@ -96,20 +97,8 @@ struct AllBillsViewEdit : View {
         .onAppear {
             _query.configure(sortDescriptors: sorting )
         }
-         
-        .alert("Error", isPresented: $dates.dueDateError) {
-            Button("Ok") { dates.dueDateError = false }
-        } message: {
-            Text("The due dates for the bills could not be determined. Please try again later.")
-        }
-        .task {
-            let (log, cal) = await MainActor.run {
-                return (logger, calendar)
-            };
-            
-            await dates.loadDueDates(log: log, calendar: cal)
-        }
-         */
+        */
+        
         #if os(macOS)
         .frame(minWidth: 320)
         #endif
@@ -164,7 +153,50 @@ struct AllBillsViewEdit : View {
     
     var body: some View {
         VStack {
-            wide
+            MajorContentPresenter(context: query) {
+                TableColumn("Name", value: \.name)
+                TableColumn("Kind") { wrapper in
+                    Text(wrapper.kind.display)
+                }
+#if os(iOS)
+                TableColumn("Amount") { wrapper in
+                    HStack {
+                        Text(wrapper.amount, format: .currency(code: currencyCode))
+                        Text("/")
+                        Text(wrapper.period.display)
+                    }
+                }
+#else
+                TableColumn("Amount") { wrapper in
+                    Text(wrapper.amount, format: .currency(code: currencyCode))
+                }
+                TableColumn("Frequency") { wrapper in
+                    Text(wrapper.period.display)
+                }
+#endif
+                TableColumn("Next Due Date") { wrapper in
+                    DueDateViewer(forBill: wrapper.objectID)
+                }
+                
+                TableColumn("Set-Aside Cost") { wrapper in
+                    Text(
+                        wrapper.isExpired ? Decimal() : wrapper.pricePer(showcasePeriod),
+                        format: .currency(code: currencyCode)
+                    )
+                }
+            } listHeader: { bill in
+                HStack {
+                    Text(bill.name)
+                    Spacer()
+                    Text(bill.amount, format: .currency(code: currencyCode))
+                    Text("/")
+                    Text(bill.period.display)
+                }
+            } listContent: { bill in
+                BillInspect(bill)
+            } contextMenu: { selection in
+                SelectionContextMenu(context: FrozenSelectionContext(data: self.query.data, selection: selection), inspect: inspect, delete: deleting, warning: warning)
+            }
             
             HStack {
                 Spacer()
@@ -205,5 +237,10 @@ struct AllBillsViewEdit : View {
 }
 
 #Preview(traits: .sampleData) {
+    @Previewable @Environment(\.billsDateManager) var dueDates;
+    
     AllBillsViewEdit()
+        .task {
+            await dueDates.reset()
+        }
 }
