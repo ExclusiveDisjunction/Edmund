@@ -15,6 +15,7 @@ public struct LoadedAppContext : Sendable {
     public let categories: CategoriesContext;
     public let help: HelpEngine;
     public let logger: LoggerSystem;
+    public let bills: BillsDateManager;
 }
 
 public enum AppLoadErrorKind : Sendable {
@@ -38,14 +39,16 @@ public class AppLoadingState {
 }
 
 public actor AppLoaderEngine {
-    public init(help: HelpEngine, log: LoggerSystem) {
+    public init(help: HelpEngine, bills: BillsDateManager, log: LoggerSystem) {
         self.loaded = nil;
         self.help = help
         self.loadHelpTask = nil;
-        self.log = log
+        self.log = log;
+        self.bills = bills;
     }
     
     private let log: LoggerSystem;
+    private let bills: BillsDateManager;
     public var loaded: LoadedAppContext?;
     public var help: HelpEngine;
     public var loadHelpTask: Task<Void, Never>?;
@@ -108,10 +111,14 @@ public actor AppLoaderEngine {
         }
     
         let help = self.help;
+        let bills = self.bills;
+        Task {
+            await bills.reset();
+        }
         
         log.app.info("App load context is complete.")
         
-        return LoadedAppContext(container: container, categories: categories, help: help, logger: log)
+        return LoadedAppContext(container: container, categories: categories, help: help, logger: log, bills: bills)
     }
 
     public func loadApp(state: AppLoadingState) async {
@@ -204,6 +211,7 @@ struct AppWindowGate<Content> : View where Content: View {
                     .environment(\.helpEngine, a.help)
                     .environment(\.managedObjectContext, a.container.viewContext)
                     .environment(\.loggerSystem, a.logger)
+                    .environment(\.billsDateManager, a.bills)
                 
         }
     }

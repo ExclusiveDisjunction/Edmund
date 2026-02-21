@@ -14,7 +14,8 @@ struct EdmundApp: App {
         let log = LoggerSystem();
         self.stack = DataStack.shared
         self.help = HelpEngine(log.help);
-        self.loader = AppLoaderEngine(help: help, log: log)
+        self.billsDueDates = BillsDateManager(calendar: .current, log: log);
+        self.loader = AppLoaderEngine(help: help,  bills: self.billsDueDates, log: log)
     
         let state = AppLoadingState();
         self.state = state
@@ -30,6 +31,7 @@ struct EdmundApp: App {
     let help: HelpEngine;
     let loader: AppLoaderEngine;
     let state: AppLoadingState;
+    let billsDueDates: BillsDateManager;
     
     @AppStorage("themeMode") private var themeMode: ThemeMode?;
     

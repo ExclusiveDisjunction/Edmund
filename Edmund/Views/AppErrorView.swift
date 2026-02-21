@@ -32,25 +32,9 @@ struct AppErrorView : View {
         }
     }
     private func wipe() {
-        //#if DEBUG
-        //return
-        //#else
+        // TODO: Implement wipe properly
         
-        let config = ModelConfiguration()
-        let url = config.url
-        print("Wiping model container at \(url)")
-        
-        do {
-            try FileManager.default.removeItem(at: url)
-        }
-        catch let e {
-            errorMsg = e.localizedDescription
-            showError = true
-        }
-        
-        reload()
-    
-        //#endif
+        fatalError()
     }
     private func report() {
         openURL(bugFormLink)
