@@ -11,21 +11,33 @@ import CoreData
 struct UpcomingBillsView : View {
     @State private var loadedBills: [UpcomingBill]? = nil;
     
+    @QuerySelection<Bill> private var bills;
     @Environment(\.modelContext) private var modelContext;
+    @Environment(\.billsDateManager) private var billsDateManager;
     @AppStorage("currencyCode") private var currencyCode: String = Locale.current.currency?.identifier ?? "USD";
-    @Environment(\.calendar) private var calendar: Calendar;
-    
-    private nonisolated func loadBills() async throws -> [UpcomingBill] {
-        try await Task(priority: .medium) { [calendar] in
-            let cx = DataStack.shared.currentContainer.newBackgroundContext();
-            let computer = try UpcomingBillsComputation(cx: cx);
+
+    private nonisolated func loadBills() async -> [UpcomingBill] {
+        return await Task { @MainActor in
+            var result: [UpcomingBill] = [];
+            for bill in bills.data {
+                let date = billsDateManager.fetchAgainst(id: bill.objectID)
+                if case .dueOn(let date) = date {
+                    result.append(
+                        UpcomingBill(
+                            name: bill.name,
+                            amount: bill.amount,
+                            dueDate: date
+                        )
+                    )
+                }
+            }
             
-            return computer.determineUpcomingBills(for: .now, calendar: calendar).bills
-        }.value
+            return result.sorted(using: KeyPathComparator(\.dueDate, order: .forward))
+        }.value;
     }
     
     var body: some View {
-        LoadableView($loadedBills, process: loadBills, onLoad: { loaded in
+        LoadableView($loadedBills, process: loadBills) { loaded in
             #if os(macOS)
             Table(loaded) {
                 TableColumn("Name", value: \.name)
@@ -56,7 +68,7 @@ struct UpcomingBillsView : View {
                 }
             }
             #endif
-        })
+        }
     }
 }
 

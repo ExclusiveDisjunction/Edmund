@@ -57,6 +57,7 @@ public struct UpcomingBillsBundle : Hashable, Equatable, Codable, Sendable { //,
     )
 }
 
+@available(*, deprecated, message: "Use the environment bills date manager.")
 public struct UpcomingBillsComputation : ~Copyable {
     public static let outputName: String = "upcomingBills.json"
     
