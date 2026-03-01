@@ -281,6 +281,9 @@
         }
       }
     },
+    "Bill Filters" : {
+
+    },
     "Bill Payment" : {
       "localizations" : {
         "de" : {
@@ -578,6 +581,9 @@
         }
       }
     },
+    "Deselect All" : {
+
+    },
     "Discard Changes" : {
 
     },
@@ -710,6 +716,9 @@
     "Expired" : {
 
     },
+    "Filter" : {
+
+    },
     "Frequency" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -748,6 +757,9 @@
 
     },
     "Gift" : {
+
+    },
+    "Graph" : {
 
     },
     "Group" : {
@@ -797,6 +809,7 @@
       }
     },
     "Hide Graph" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1378,6 +1391,9 @@
     "Savings" : {
 
     },
+    "Select All" : {
+
+    },
     "Semi-Anually" : {
 
     },
@@ -1402,6 +1418,7 @@
       }
     },
     "Show Graph" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1556,6 +1573,9 @@
 
     },
     "This is not an issue caused by you, but the developer." : {
+
+    },
+    "Time Periods" : {
 
     },
     "tooManyItems" : {

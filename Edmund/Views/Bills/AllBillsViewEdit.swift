@@ -7,20 +7,17 @@
 
 import SwiftUI
 import CoreData
-import Charts
 import Combine
 import os
 
 struct AllBillsViewEdit : View {
     @State private var showingChart: Bool = false;
-    @State private var sorting = [
-        SortDescriptor(\Bill.internalName, order: .forward),
-        SortDescriptor(\Bill.internalKind, order: .forward),
-        SortDescriptor(\Bill.internalPeriod, order: .forward)
-    ];
+    @State private var showingFilter: Bool = false;
     @State private var searchString: String = "";
+    private let filterState = BillsFilterState();
     
-    @QuerySelection<Bill> private var query;
+    @QuerySelection<Bill>(sortDescriptors: [SortDescriptor(\Bill.internalName)])
+    private var query;
     
     @Bindable private var inspect: InspectionManifest<Bill> = .init();
     @Bindable private var deleting: DeletingManifest<Bill> = .init();
@@ -37,80 +34,21 @@ struct AllBillsViewEdit : View {
         query.data.reduce(0) { $0 + ($1.isExpired ? 0 : $1.pricePer(showcasePeriod)) }
     }
     
-    @ViewBuilder
-    private var wide: some View {
-        Table(context: query, sortOrder: $sorting) {
-            TableColumn("Name") { wrapper in
-                if horizontalSizeClass == .compact {
-                    HStack {
-                        Text(wrapper.name)
-                        Spacer()
-                        Text(wrapper.amount, format: .currency(code: currencyCode))
-                        Text("/")
-                        Text(wrapper.period.display)
-                    }.swipeActions(edge: .trailing) {
-                        SingularContextMenu(wrapper, inspect: inspect, remove: deleting, asSlide: true)
-                    }
-                }
-                else {
-                    Text(wrapper.name)
-                }
-            }
-            TableColumn("Kind") { wrapper in
-                Text(wrapper.kind.display)
-            }
-#if os(iOS)
-            TableColumn("Amount") { wrapper in
-                HStack {
-                    Text(wrapper.amount, format: .currency(code: currencyCode))
-                    Text("/")
-                    Text(wrapper.period.display)
-                }
-            }
-#else
-            TableColumn("Amount") { wrapper in
-                Text(wrapper.amount, format: .currency(code: currencyCode))
-            }
-            TableColumn("Frequency") { wrapper in
-                Text(wrapper.period.display)
-            }
-#endif
-            TableColumn("Next Due Date") { wrapper in
-                DueDateViewer(forBill: wrapper.objectID)
-            }
-            
-            TableColumn("Set-Aside Cost") { wrapper in
-                Text(
-                    wrapper.isExpired ? Decimal() : wrapper.pricePer(showcasePeriod),
-                    format: .currency(code: currencyCode)
-                )
-            }
-        }.contextMenu(forSelectionType: Bill.ID.self) { selection in
-            SelectionContextMenu(context: FrozenSelectionContext(data: self.query.data, selection: selection), inspect: inspect, delete: deleting, warning: warning)
-        }
-        .withBillsDueDateWarning()
-        /*
-        .searchable(text: $searchString, prompt: "Name")
-        .onChange(of: sorting) { _, sort in
-            _query.configure(sortDescriptors: sorting )
-        }
-        .onAppear {
-            _query.configure(sortDescriptors: sorting )
-        }
-        */
-        
-        #if os(macOS)
-        .frame(minWidth: 320)
-        #endif
-    }
-    
     @ToolbarContentBuilder
     private var toolbar: some CustomizableToolbarContent {
         ToolbarItem(id: "graph", placement: .secondaryAction) {
             Button {
                 showingChart = true
             } label: {
-                Label(showingChart ? "Hide Graph" : "Show Graph", systemImage: "chart.pie")
+                Label("Graph", systemImage: "chart.pie")
+            }
+        }
+        
+        ToolbarItem(id: "filter", placement: .secondaryAction) {
+            Button {
+                showingFilter = true;
+            } label: {
+                Label("Filter", systemImage: "line.3.horizontal.decrease")
             }
         }
     
@@ -172,6 +110,9 @@ struct AllBillsViewEdit : View {
             } contextMenu: { selection in
                 SelectionContextMenu(context: FrozenSelectionContext(data: self.query.data, selection: selection), inspect: inspect, delete: deleting, warning: warning)
             }
+#if os(macOS)
+            .frame(minWidth: 320)
+#endif
             
             HStack {
                 Spacer()
@@ -208,6 +149,13 @@ struct AllBillsViewEdit : View {
         }.padding()
             .toolbarRole(.automatic)
             .navigationTitle("Bills")
+            .sheet(isPresented: $showingFilter) {
+                let predicate = filterState.makePredicate();
+                
+                self._query.configure(predicate: predicate)
+            } content: {
+                BillsFilterView(filterState)
+            }
     }
 }
 
