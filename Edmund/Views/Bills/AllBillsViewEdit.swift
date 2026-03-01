@@ -126,31 +126,6 @@ struct AllBillsViewEdit : View {
         #endif
     }
     
-    @ViewBuilder
-    private var chartView: some View {
-        VStack {
-            Chart(query.data.sorted(by: { $0.amount < $1.amount } )) { wrapper in
-                SectorMark(
-                    angle: .value(
-                        Text(verbatim: wrapper.name),
-                        wrapper.pricePer(showcasePeriod)
-                    )
-                ).foregroundStyle(by: .value(
-                    Text(verbatim: wrapper.name),
-                    wrapper.name
-                )
-                )
-            }.frame(minHeight: 350)
-            
-            HStack {
-                Spacer()
-                Button("Ok") {
-                    showingChart = false
-                }.buttonStyle(.borderedProminent)
-            }
-        }.padding()
-    }
-    
     var body: some View {
         VStack {
             MajorContentPresenter(context: query) {
@@ -229,7 +204,7 @@ struct AllBillsViewEdit : View {
         .withWarning(warning)
         .withElementDeleting(manifest: deleting)
         .sheet(isPresented: $showingChart) {
-            chartView
+            BillCostChart(query)
         }.padding()
             .toolbarRole(.automatic)
             .navigationTitle("Bills")

@@ -65,8 +65,8 @@ where C: RandomAccessCollection,
         else {
             table
         }
-        #endif
-        
+        #else
         table
+        #endif
     }
 }
